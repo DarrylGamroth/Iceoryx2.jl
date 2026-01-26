@@ -1,0 +1,7 @@
+name = "Iceoryx2"
+uuid = "8777d856-1a0f-47d8-8008-62bebd9d2784"
+version = "0.1.0"
+authors = ["Darryl Gamroth <dgamroth@rubus.ca>"]
+
+[deps]
+Iceoryx2_jll = "c0bada20-47fe-5829-a5d2-36f16f9ecd92"
