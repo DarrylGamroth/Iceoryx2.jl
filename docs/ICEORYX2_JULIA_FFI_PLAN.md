@@ -83,6 +83,9 @@ Hot path refers to any API that is called per message/event or inside tight loop
 - Provide `check_ok(::Cint, ::Type{ErrorEnum})` that throws the correct exception.
 - Use the C `*_error_string` functions for human-readable messages.
 - Mark error formatting and message construction functions `@noinline` to isolate allocations.
+- Outputs:
+  - Error types and `check_ok`: `src/errors.jl`
+- Status: Completed (2026-01-26)
 
 ## Phase 5: Strings & Semantic Strings
 - Provide constructors for `NodeName`, `ServiceName`, etc. from `String`.
