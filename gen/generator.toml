@@ -1,0 +1,19 @@
+[general]
+library_name = "libiceoryx2"
+output_file_path = "../src/Iceoryx2FFI.jl"
+module_name = "Iceoryx2FFI"
+jll_pkg_name = "Iceoryx2_jll"
+use_julia_native_enum_type = false
+auto_mutability = false
+extract_c_comment_style = "doxygen"
+show_c_function_prototype = true
+use_deterministic_symbol = true
+smart_de_anonymize = true
+
+[codegen]
+use_julia_bool = true
+use_ccall_macro = true
+always_NUL_terminated_string = true
+
+[codegen.macro]
+macro_mode = "basic"
