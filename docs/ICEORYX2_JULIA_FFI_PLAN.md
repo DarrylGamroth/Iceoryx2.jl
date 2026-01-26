@@ -74,6 +74,9 @@ Hot path refers to any API that is called per message/event or inside tight loop
 - Explicit consume semantics for C functions that take ownership:
   - After a call that consumes a handle, set `handle = C_NULL`.
 - If references are stored only to keep other objects alive, store them in concrete fields (e.g., `keepalive::K` or `keepalive::NamedTuple`), and keep those fields off hot paths.
+- Outputs:
+  - Handle and view wrappers: `src/handles.jl`
+- Status: Completed (2026-01-26)
 
 ## Phase 4: Error Mapping
 - Map each `*_error_e` to a Julia `Exception` type.
