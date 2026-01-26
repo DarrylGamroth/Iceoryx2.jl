@@ -41,6 +41,10 @@ Hot path refers to any API that is called per message/event or inside tight loop
 - Parse `../iceoryx2/iceoryx2-ffi/c` header (`iceoryx2.h`) to enumerate all types/functions.
 - Build a coverage matrix mapping C++ wrappers -> C functions -> Julia functions.
 - Categorize into: core types, builders, messaging patterns, waitset, config, IDs/details, logging, utilities.
+- Outputs:
+  - Inventory: `docs/ICEORYX2_JULIA_FFI_INVENTORY.md`
+  - Coverage map: `docs/ICEORYX2_JULIA_FFI_COVERAGE.md`
+- Status: Completed (2026-01-26)
 
 ## Phase 1: Package Architecture
 - Split into two layers (separate modules within one repo or separate packages):
@@ -56,7 +60,6 @@ Hot path refers to any API that is called per message/event or inside tight loop
   - `const` for IOX2_OK, constants.
   - `@cenum` for all enums.
   - `struct` definitions only for by-value types; `Ptr{Cvoid}` for opaque handles.
-- Add a thin `ccall` wrapper layer for every function with consistent naming.
 - Place raw bindings under a strict unsafe namespace/module; keep safe wrappers in `Iceoryx2`.
 
 ## Phase 3: Handle & Ownership Model (Julia)
