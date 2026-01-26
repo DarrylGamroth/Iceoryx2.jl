@@ -9,12 +9,13 @@ extract_c_comment_style = "doxygen"
 show_c_function_prototype = true
 use_deterministic_symbol = true
 smart_de_anonymize = true
-export_symbol_prefixes = ["iox_", "IOX_"]
+export_symbol_prefixes = ["iox2_", "IOX2_"]
 
 [codegen]
 use_julia_bool = true
 use_ccall_macro = true
 always_NUL_terminated_string = true
+opaque_as_mutable_struct = false
 
 [codegen.macro]
 macro_mode = "basic"

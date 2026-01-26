@@ -60,7 +60,9 @@ Hot path refers to any API that is called per message/event or inside tight loop
   - `const` for IOX2_OK, constants.
   - `@cenum` for all enums.
   - `struct` definitions only for by-value types; `Ptr{Cvoid}` for opaque handles.
+- Add a thin `ccall` wrapper layer for every function with consistent naming.
 - Place raw bindings under a strict unsafe namespace/module; keep safe wrappers in `Iceoryx2`.
+- Status: Completed (2026-01-26)
 
 ## Phase 3: Handle & Ownership Model (Julia)
 - Define owning handle types as `struct` wrappers:

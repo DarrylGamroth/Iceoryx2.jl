@@ -5,31 +5,31 @@ export Iceoryx2_jll
 
 using CEnum: CEnum, @cenum
 
-mutable struct iox2_attribute_set_ptr_t end
+const iox2_attribute_set_ptr_t = Cvoid
 
-mutable struct iox2_client_details_ptr_t end
+const iox2_client_details_ptr_t = Cvoid
 
-mutable struct iox2_config_ptr_t end
+const iox2_config_ptr_t = Cvoid
 
-mutable struct iox2_listener_details_ptr_t end
+const iox2_listener_details_ptr_t = Cvoid
 
-mutable struct iox2_node_id_ptr_t end
+const iox2_node_id_ptr_t = Cvoid
 
-mutable struct iox2_node_name_ptr_t end
+const iox2_node_name_ptr_t = Cvoid
 
-mutable struct iox2_notifier_details_ptr_t end
+const iox2_notifier_details_ptr_t = Cvoid
 
-mutable struct iox2_publisher_details_ptr_t end
+const iox2_publisher_details_ptr_t = Cvoid
 
-mutable struct iox2_reader_details_ptr_t end
+const iox2_reader_details_ptr_t = Cvoid
 
-mutable struct iox2_server_details_ptr_t end
+const iox2_server_details_ptr_t = Cvoid
 
-mutable struct iox2_service_name_ptr_t end
+const iox2_service_name_ptr_t = Cvoid
 
-mutable struct iox2_subscriber_details_ptr_t end
+const iox2_subscriber_details_ptr_t = Cvoid
 
-mutable struct iox2_writer_details_ptr_t end
+const iox2_writer_details_ptr_t = Cvoid
 
 """
     iox2_allocation_strategy_e
@@ -420,129 +420,129 @@ end
     iox2_writer_create_error_e_INTERNAL_FAILURE = 2
 end
 
-mutable struct iox2_active_request_h_t end
+const iox2_active_request_h_t = Cvoid
 
-mutable struct iox2_attribute_h_t end
+const iox2_attribute_h_t = Cvoid
 
-mutable struct iox2_attribute_set_h_t end
+const iox2_attribute_set_h_t = Cvoid
 
-mutable struct iox2_attribute_specifier_h_t end
+const iox2_attribute_specifier_h_t = Cvoid
 
-mutable struct iox2_attribute_verifier_h_t end
+const iox2_attribute_verifier_h_t = Cvoid
 
-mutable struct iox2_client_h_t end
+const iox2_client_h_t = Cvoid
 
-mutable struct iox2_config_h_t end
+const iox2_config_h_t = Cvoid
 
-mutable struct iox2_entry_handle_h_t end
+const iox2_entry_handle_h_t = Cvoid
 
-mutable struct iox2_entry_handle_mut_h_t end
+const iox2_entry_handle_mut_h_t = Cvoid
 
-mutable struct iox2_entry_value_uninit_h_t end
+const iox2_entry_value_uninit_h_t = Cvoid
 
-mutable struct iox2_file_descriptor_h_t end
+const iox2_file_descriptor_h_t = Cvoid
 
-mutable struct iox2_listener_h_t end
+const iox2_listener_h_t = Cvoid
 
-mutable struct iox2_name_h_t end
+const iox2_name_h_t = Cvoid
 
-mutable struct iox2_node_builder_h_t end
+const iox2_node_builder_h_t = Cvoid
 
-mutable struct iox2_node_id_h_t end
+const iox2_node_id_h_t = Cvoid
 
-mutable struct iox2_node_name_h_t end
+const iox2_node_name_h_t = Cvoid
 
-mutable struct iox2_notifier_h_t end
+const iox2_notifier_h_t = Cvoid
 
-mutable struct iox2_pending_response_h_t end
+const iox2_pending_response_h_t = Cvoid
 
-mutable struct iox2_port_factory_blackboard_h_t end
+const iox2_port_factory_blackboard_h_t = Cvoid
 
-mutable struct iox2_port_factory_client_builder_h_t end
+const iox2_port_factory_client_builder_h_t = Cvoid
 
-mutable struct iox2_port_factory_event_h_t end
+const iox2_port_factory_event_h_t = Cvoid
 
-mutable struct iox2_port_factory_listener_builder_h_t end
+const iox2_port_factory_listener_builder_h_t = Cvoid
 
-mutable struct iox2_port_factory_notifier_builder_h_t end
+const iox2_port_factory_notifier_builder_h_t = Cvoid
 
-mutable struct iox2_port_factory_pub_sub_h_t end
+const iox2_port_factory_pub_sub_h_t = Cvoid
 
-mutable struct iox2_port_factory_publisher_builder_h_t end
+const iox2_port_factory_publisher_builder_h_t = Cvoid
 
-mutable struct iox2_port_factory_reader_builder_h_t end
+const iox2_port_factory_reader_builder_h_t = Cvoid
 
-mutable struct iox2_port_factory_request_response_h_t end
+const iox2_port_factory_request_response_h_t = Cvoid
 
-mutable struct iox2_port_factory_server_builder_h_t end
+const iox2_port_factory_server_builder_h_t = Cvoid
 
-mutable struct iox2_port_factory_subscriber_builder_h_t end
+const iox2_port_factory_subscriber_builder_h_t = Cvoid
 
-mutable struct iox2_port_factory_writer_builder_h_t end
+const iox2_port_factory_writer_builder_h_t = Cvoid
 
-mutable struct iox2_publish_subscribe_header_h_t end
+const iox2_publish_subscribe_header_h_t = Cvoid
 
-mutable struct iox2_publisher_h_t end
+const iox2_publisher_h_t = Cvoid
 
-mutable struct iox2_reader_h_t end
+const iox2_reader_h_t = Cvoid
 
-mutable struct iox2_request_header_h_t end
+const iox2_request_header_h_t = Cvoid
 
-mutable struct iox2_request_mut_h_t end
+const iox2_request_mut_h_t = Cvoid
 
-mutable struct iox2_response_h_t end
+const iox2_response_h_t = Cvoid
 
-mutable struct iox2_response_header_h_t end
+const iox2_response_header_h_t = Cvoid
 
-mutable struct iox2_response_mut_h_t end
+const iox2_response_mut_h_t = Cvoid
 
-mutable struct iox2_sample_h_t end
+const iox2_sample_h_t = Cvoid
 
-mutable struct iox2_sample_mut_h_t end
+const iox2_sample_mut_h_t = Cvoid
 
-mutable struct iox2_server_h_t end
+const iox2_server_h_t = Cvoid
 
-mutable struct iox2_service_builder_blackboard_creator_h_t end
+const iox2_service_builder_blackboard_creator_h_t = Cvoid
 
-mutable struct iox2_service_builder_blackboard_opener_h_t end
+const iox2_service_builder_blackboard_opener_h_t = Cvoid
 
-mutable struct iox2_service_builder_event_h_t end
+const iox2_service_builder_event_h_t = Cvoid
 
-mutable struct iox2_service_builder_h_t end
+const iox2_service_builder_h_t = Cvoid
 
-mutable struct iox2_service_builder_pub_sub_h_t end
+const iox2_service_builder_pub_sub_h_t = Cvoid
 
-mutable struct iox2_service_builder_request_response_h_t end
+const iox2_service_builder_request_response_h_t = Cvoid
 
-mutable struct iox2_service_name_h_t end
+const iox2_service_name_h_t = Cvoid
 
-mutable struct iox2_subscriber_h_t end
+const iox2_subscriber_h_t = Cvoid
 
-mutable struct iox2_unique_client_id_h_t end
+const iox2_unique_client_id_h_t = Cvoid
 
-mutable struct iox2_unique_listener_id_h_t end
+const iox2_unique_listener_id_h_t = Cvoid
 
-mutable struct iox2_unique_notifier_id_h_t end
+const iox2_unique_notifier_id_h_t = Cvoid
 
-mutable struct iox2_unique_publisher_id_h_t end
+const iox2_unique_publisher_id_h_t = Cvoid
 
-mutable struct iox2_unique_reader_id_h_t end
+const iox2_unique_reader_id_h_t = Cvoid
 
-mutable struct iox2_unique_server_id_h_t end
+const iox2_unique_server_id_h_t = Cvoid
 
-mutable struct iox2_unique_subscriber_id_h_t end
+const iox2_unique_subscriber_id_h_t = Cvoid
 
-mutable struct iox2_unique_writer_id_h_t end
+const iox2_unique_writer_id_h_t = Cvoid
 
-mutable struct iox2_waitset_attachment_id_h_t end
+const iox2_waitset_attachment_id_h_t = Cvoid
 
-mutable struct iox2_waitset_builder_h_t end
+const iox2_waitset_builder_h_t = Cvoid
 
-mutable struct iox2_waitset_guard_h_t end
+const iox2_waitset_guard_h_t = Cvoid
 
-mutable struct iox2_waitset_h_t end
+const iox2_waitset_h_t = Cvoid
 
-mutable struct iox2_writer_h_t end
+const iox2_writer_h_t = Cvoid
 
 """
 The owning handle for [`iox2_active_request_t`](@ref). Passing the handle to a function transfers the ownership.
@@ -16261,7 +16261,7 @@ const IOX2_IS_IPC_LISTENER_FD_BASED = true
 const IOX2_IS_LOCAL_LISTENER_FD_BASED = true
 
 # exports
-const PREFIXES = ["iox_", "IOX_"]
+const PREFIXES = ["iox2_", "IOX2_"]
 for name in names(@__MODULE__; all=true), prefix in PREFIXES
     if startswith(string(name), prefix)
         @eval export $name
