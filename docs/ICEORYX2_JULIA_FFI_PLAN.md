@@ -92,6 +92,9 @@ Hot path refers to any API that is called per message/event or inside tight loop
 - Convert to UTF-8 bytes + length and call `*_new`.
 - Provide `.string()` that copies from `*_as_chars` to a Julia `String`.
 - Never return raw pointers to users.
+- Outputs:
+  - String helpers: `src/strings.jl`
+- Status: Completed (2026-01-26)
 
 ## Phase 6: Builder & Factory API
 - Implement builder types matching the C++ API shape:
