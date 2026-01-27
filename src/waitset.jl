@@ -32,6 +32,15 @@ function create(builder::WaitsetBuilder; service_type::Union{Symbol, Iceoryx2FFI
     return Waitset(handle_ref[])
 end
 
+function create(f::Function, builder::WaitsetBuilder; service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e} = :ipc)
+    waitset = create(builder; service_type)
+    try
+        return f(waitset)
+    finally
+        close(waitset)
+    end
+end
+
 @inline function signal_handling_mode(waitset::Waitset)
     return Iceoryx2FFI.iox2_waitset_signal_handling_mode(Ref{Iceoryx2FFI.iox2_waitset_h}(unsafe_handle(waitset)))
 end

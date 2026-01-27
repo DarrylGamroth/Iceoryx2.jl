@@ -159,6 +159,15 @@ function create(builder::PublisherBuilder{T}) where {T}
     return pub
 end
 
+function create(f::Function, builder::PublisherBuilder{T}) where {T}
+    pub = create(builder)
+    try
+        return f(pub)
+    finally
+        close(pub)
+    end
+end
+
 mutable struct Subscriber{T}
     handle::Iceoryx2FFI.iox2_subscriber_h
     storage::Ptr{Iceoryx2FFI.iox2_subscriber_t}
@@ -185,6 +194,15 @@ function create(builder::SubscriberBuilder{T}) where {T}
     sub = Subscriber{T}(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_subscriber, sub)
     return sub
+end
+
+function create(f::Function, builder::SubscriberBuilder{T}) where {T}
+    sub = create(builder)
+    try
+        return f(sub)
+    finally
+        close(sub)
+    end
 end
 
 mutable struct Sample{T}
@@ -413,6 +431,15 @@ function create(builder::ClientBuilder{Req,Resp}) where {Req,Resp}
     return client
 end
 
+function create(f::Function, builder::ClientBuilder{Req,Resp}) where {Req,Resp}
+    client = create(builder)
+    try
+        return f(client)
+    finally
+        close(client)
+    end
+end
+
 mutable struct Server{Req,Resp}
     handle::Iceoryx2FFI.iox2_server_h
     storage::Ptr{Iceoryx2FFI.iox2_server_t}
@@ -439,6 +466,15 @@ function create(builder::ServerBuilder{Req,Resp}) where {Req,Resp}
     server = Server{Req,Resp}(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_server, server)
     return server
+end
+
+function create(f::Function, builder::ServerBuilder{Req,Resp}) where {Req,Resp}
+    server = create(builder)
+    try
+        return f(server)
+    finally
+        close(server)
+    end
 end
 
 mutable struct RequestMut{Req,Resp}
@@ -732,6 +768,15 @@ function create(builder::NotifierBuilder)
     return notifier
 end
 
+function create(f::Function, builder::NotifierBuilder)
+    notifier = create(builder)
+    try
+        return f(notifier)
+    finally
+        close(notifier)
+    end
+end
+
 mutable struct Listener
     handle::Iceoryx2FFI.iox2_listener_h
     storage::Ptr{Iceoryx2FFI.iox2_listener_t}
@@ -758,6 +803,15 @@ function create(builder::ListenerBuilder)
     listener = Listener(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_listener, listener)
     return listener
+end
+
+function create(f::Function, builder::ListenerBuilder)
+    listener = create(builder)
+    try
+        return f(listener)
+    finally
+        close(listener)
+    end
 end
 
 function notify!(notifier::Notifier)
@@ -795,6 +849,15 @@ function create(builder::BlackboardCreatorBuilder)
     factory = PortFactoryBlackboard(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_port_factory_blackboard, factory)
     return factory
+end
+
+function create(f::Function, builder::BlackboardCreatorBuilder)
+    factory = create(builder)
+    try
+        return f(factory)
+    finally
+        close(factory)
+    end
 end
 
 function open(builder::BlackboardOpenerBuilder)
@@ -880,6 +943,15 @@ function create(builder::WriterBuilder)
     return writer
 end
 
+function create(f::Function, builder::WriterBuilder)
+    writer = create(builder)
+    try
+        return f(writer)
+    finally
+        close(writer)
+    end
+end
+
 mutable struct Reader
     handle::Iceoryx2FFI.iox2_reader_h
     storage::Ptr{Iceoryx2FFI.iox2_reader_t}
@@ -906,6 +978,15 @@ function create(builder::ReaderBuilder)
     reader = Reader(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_reader, reader)
     return reader
+end
+
+function create(f::Function, builder::ReaderBuilder)
+    reader = create(builder)
+    try
+        return f(reader)
+    finally
+        close(reader)
+    end
 end
 
 @inline Base.isvalid(obj::PortFactoryPubSub) = obj.handle != _IOX2_NULL

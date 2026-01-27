@@ -95,6 +95,15 @@ function create(builder::NodeBuilder; service_type::Union{Symbol, Iceoryx2FFI.io
     return Node(handle_ref[])
 end
 
+function create(f::Function, builder::NodeBuilder; service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e}=:ipc)
+    node = create(builder; service_type)
+    try
+        return f(node)
+    finally
+        close(node)
+    end
+end
+
 mutable struct ServiceBuilder
     handle::Iceoryx2FFI.iox2_service_builder_h
     storage::Ptr{Iceoryx2FFI.iox2_service_builder_t}
