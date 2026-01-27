@@ -8,10 +8,7 @@ CEnum = "fa961155-64e5-5f13-b03f-caf6b980ea82"
 Iceoryx2_jll = "c0bada20-47fe-5829-a5d2-36f16f9ecd92"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 StringViews = "354b36f9-a18e-4713-926e-db85100087ba"
-UnsafeArrays = "c4a57d5a-5b31-53a6-b365-19f8c011fbd6"
 
-[compat]
-UnsafeArrays = "1.0.8"
 
 [extras]
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"

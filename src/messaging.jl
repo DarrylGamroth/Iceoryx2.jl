@@ -1,7 +1,5 @@
 # Messaging patterns: pub/sub, request/response, event, blackboard.
 
-import UnsafeArrays: UnsafeArray
-
 @inline function _require_isbits(::Type{T}) where {T}
     isbitstype(T) || throw(ArgumentError("payload type must be isbits"))
     return nothing
@@ -407,9 +405,6 @@ end
     return Ptr{T}(ptr_ref[])
 end
 
-@inline function user_header_view(sample::Sample, ::Type{T}) where {T}
-    return UnsafeArray(unsafe_user_header_ptr(sample, T), (1,))
-end
 
 mutable struct SampleMut{T}
     handle::Iceoryx2FFI.iox2_sample_mut_h
@@ -443,9 +438,6 @@ end
     return Ptr{T}(ptr_ref[])
 end
 
-@inline function user_header_mut_view(sample::SampleMut, ::Type{T}) where {T}
-    return UnsafeArray(unsafe_user_header_mut_ptr(sample, T), (1,))
-end
 
 function loan_slice(publisher::Publisher{T}, n::Integer) where {T}
     _require_valid(publisher.handle, "publisher")
@@ -890,9 +882,6 @@ end
     return Ptr{T}(ptr_ref[])
 end
 
-@inline function user_header_mut_view(request::RequestMut, ::Type{T}) where {T}
-    return UnsafeArray(unsafe_user_header_mut_ptr(request, T), (1,))
-end
 
 mutable struct PendingResponse{Resp}
     handle::Iceoryx2FFI.iox2_pending_response_h
@@ -915,9 +904,6 @@ end
     return Ptr{T}(ptr_ref[])
 end
 
-@inline function user_header_view(pending::PendingResponse, ::Type{T}) where {T}
-    return UnsafeArray(unsafe_user_header_ptr(pending, T), (1,))
-end
 
 function loan_request(client::Client{Req,Resp}, n::Integer) where {Req,Resp}
     _require_valid(client.handle, "client")
@@ -1008,9 +994,6 @@ end
     return Ptr{T}(ptr_ref[])
 end
 
-@inline function user_header_view(resp::Response, ::Type{T}) where {T}
-    return UnsafeArray(unsafe_user_header_ptr(resp, T), (1,))
-end
 
 function receive(pending::PendingResponse{Resp}) where {Resp}
     storage = Ref{Iceoryx2FFI.iox2_response_t}()
@@ -1058,9 +1041,6 @@ end
     return Ptr{T}(ptr_ref[])
 end
 
-@inline function user_header_view(req::ActiveRequest, ::Type{T}) where {T}
-    return UnsafeArray(unsafe_user_header_ptr(req, T), (1,))
-end
 
 mutable struct ResponseMut{Resp}
     handle::Iceoryx2FFI.iox2_response_mut_h
@@ -1100,9 +1080,6 @@ end
     return Ptr{T}(ptr_ref[])
 end
 
-@inline function user_header_mut_view(resp::ResponseMut, ::Type{T}) where {T}
-    return UnsafeArray(unsafe_user_header_mut_ptr(resp, T), (1,))
-end
 
 function receive(server::Server{Req,Resp}) where {Req,Resp}
     _require_valid(server.handle, "server")
