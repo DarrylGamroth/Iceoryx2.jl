@@ -168,6 +168,7 @@ mutable struct BlackboardCreatorBuilder
     handle::Iceoryx2FFI.iox2_service_builder_blackboard_creator_h
     storage::Base.RefValue{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node
+    values::Vector{Any}
 end
 
 mutable struct BlackboardOpenerBuilder
@@ -178,6 +179,12 @@ end
 
 function _finalize_service_builder_variant(builder)
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
+    return nothing
+end
+
+function _finalize_service_builder_variant(builder::BlackboardCreatorBuilder)
+    builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
+    empty!(builder.values)
     return nothing
 end
 
@@ -220,7 +227,7 @@ function blackboard_creator(builder::ServiceBuilder)
     builder.handle = _IOX2_NULL
     storage = builder.storage
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
-    variant = BlackboardCreatorBuilder(handle, storage, builder.keepalive)
+    variant = BlackboardCreatorBuilder(handle, storage, builder.keepalive, Any[])
     finalizer(_finalize_service_builder_variant, variant)
     return variant
 end

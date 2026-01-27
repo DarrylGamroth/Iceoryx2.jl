@@ -852,6 +852,7 @@ mutable struct PortFactoryBlackboard
     handle::Iceoryx2FFI.iox2_port_factory_blackboard_h
     storage::Base.RefValue{Iceoryx2FFI.iox2_port_factory_blackboard_t}
     keepalive::Node
+    values::Vector{Any}
 end
 
 function _finalize_port_factory_blackboard(factory::PortFactoryBlackboard)
@@ -860,6 +861,7 @@ function _finalize_port_factory_blackboard(factory::PortFactoryBlackboard)
         factory.handle = _IOX2_NULL
     end
     factory.storage = _free_struct!(factory.storage)
+    empty!(factory.values)
     return nothing
 end
 
@@ -870,8 +872,10 @@ function create(builder::BlackboardCreatorBuilder)
     ret = Iceoryx2FFI.iox2_service_builder_blackboard_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_blackboard_create_error_e)
     builder.handle = _IOX2_NULL
+    values = builder.values
+    builder.values = Any[]
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryBlackboard(handle_ref[], storage, builder.keepalive)
+    factory = PortFactoryBlackboard(handle_ref[], storage, builder.keepalive, values)
     finalizer(_finalize_port_factory_blackboard, factory)
     return factory
 end
@@ -893,7 +897,7 @@ function open(builder::BlackboardOpenerBuilder)
     check_ok(ret, Iceoryx2FFI.iox2_blackboard_open_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryBlackboard(handle_ref[], storage, builder.keepalive)
+    factory = PortFactoryBlackboard(handle_ref[], storage, builder.keepalive, Any[])
     finalizer(_finalize_port_factory_blackboard, factory)
     return factory
 end
@@ -905,6 +909,70 @@ function open(f::Function, builder::BlackboardOpenerBuilder)
     finally
         close(factory)
     end
+end
+
+function key_type!(builder::BlackboardCreatorBuilder, ::Type{K}) where {K}
+    _require_valid(builder.handle, "blackboard creator")
+    _require_isbits(K)
+    name, name_len, size, alignment = _type_details(K)
+    GC.@preserve name begin
+        ret = Iceoryx2FFI.iox2_service_builder_blackboard_creator_set_key_type_details(
+            Ref{Iceoryx2FFI.iox2_service_builder_blackboard_creator_h}(builder.handle),
+            Base.unsafe_convert(Cstring, name),
+            name_len,
+            size,
+            alignment,
+        )
+        check_ok(ret, Iceoryx2FFI.iox2_type_detail_error_e)
+    end
+    return builder
+end
+
+function key_type!(builder::BlackboardOpenerBuilder, ::Type{K}) where {K}
+    _require_valid(builder.handle, "blackboard opener")
+    _require_isbits(K)
+    name, name_len, size, alignment = _type_details(K)
+    GC.@preserve name begin
+        ret = Iceoryx2FFI.iox2_service_builder_blackboard_opener_set_key_type_details(
+            Ref{Iceoryx2FFI.iox2_service_builder_blackboard_opener_h}(builder.handle),
+            Base.unsafe_convert(Cstring, name),
+            name_len,
+            size,
+            alignment,
+        )
+        check_ok(ret, Iceoryx2FFI.iox2_type_detail_error_e)
+    end
+    return builder
+end
+
+function _blackboard_release_callback(::Ptr{Cvoid})
+    return nothing
+end
+
+const _BLACKBOARD_RELEASE_CB = @cfunction(_blackboard_release_callback, Cvoid, (Ptr{Cvoid},))
+
+function add_with_default!(builder::BlackboardCreatorBuilder, key::K, value::V) where {K,V}
+    _require_valid(builder.handle, "blackboard creator")
+    _require_isbits(K)
+    _require_isbits(V)
+    key_type!(builder, K)
+    value_ref = Ref{V}(value)
+    push!(builder.values, value_ref)
+    key_ref = Ref{K}(key)
+    name, name_len, size, alignment = _type_details(V)
+    GC.@preserve key_ref value_ref name begin
+        Iceoryx2FFI.iox2_service_builder_blackboard_creator_add(
+            Ref{Iceoryx2FFI.iox2_service_builder_blackboard_creator_h}(builder.handle),
+            Base.unsafe_convert(Ptr{Cvoid}, key_ref),
+            Base.unsafe_convert(Ptr{Cvoid}, value_ref),
+            _BLACKBOARD_RELEASE_CB,
+            Base.unsafe_convert(Cstring, name),
+            name_len,
+            size,
+            alignment,
+        )
+    end
+    return builder
 end
 
 mutable struct WriterBuilder
