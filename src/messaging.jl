@@ -915,6 +915,7 @@ function key_type!(builder::BlackboardCreatorBuilder, ::Type{K}) where {K}
     _require_valid(builder.handle, "blackboard creator")
     _require_isbits(K)
     name, name_len, size, alignment = _type_details(K)
+    push!(builder.values, name)
     GC.@preserve name begin
         ret = Iceoryx2FFI.iox2_service_builder_blackboard_creator_set_key_type_details(
             Ref{Iceoryx2FFI.iox2_service_builder_blackboard_creator_h}(builder.handle),
@@ -961,6 +962,7 @@ function add_with_default!(builder::BlackboardCreatorBuilder, key::K, value::V) 
     push!(builder.values, key_ref)
     push!(builder.values, value_ref)
     name, name_len, size, alignment = _type_details(V)
+    push!(builder.values, name)
     GC.@preserve key_ref value_ref name begin
         Iceoryx2FFI.iox2_service_builder_blackboard_creator_add(
             Ref{Iceoryx2FFI.iox2_service_builder_blackboard_creator_h}(builder.handle),
