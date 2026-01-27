@@ -4,14 +4,14 @@
     ptr == _IOX2_NULL && throw(ArgumentError("null node name pointer"))
     len = Ref{Iceoryx2FFI.c_size_t}()
     cstr = Iceoryx2FFI.iox2_node_name_as_chars(ptr, len)
-    return unsafe_string(cstr, Int(len[]))
+    return unsafe_string(Ptr{UInt8}(cstr), Int(len[]))
 end
 
 @inline function _service_name_string(ptr::Iceoryx2FFI.iox2_service_name_ptr)
     ptr == _IOX2_NULL && throw(ArgumentError("null service name pointer"))
     len = Ref{Iceoryx2FFI.c_size_t}()
     cstr = Iceoryx2FFI.iox2_service_name_as_chars(ptr, len)
-    return unsafe_string(cstr, Int(len[]))
+    return unsafe_string(Ptr{UInt8}(cstr), Int(len[]))
 end
 
 @inline function _node_name_ptr(handle::Iceoryx2FFI.iox2_node_name_h)
