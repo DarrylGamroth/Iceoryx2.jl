@@ -1,5 +1,7 @@
 # Attribute helpers.
 
+import StringViews: StringView
+
 @inline function _ensure_valid_attribute(handle, what::AbstractString)
     handle != _IOX2_NULL || throw(ArgumentError("invalid $what"))
     return nothing
@@ -114,6 +116,20 @@ end
     return unsafe_string(pointer(buffer), len)
 end
 
+@inline function key_view!(buffer::Vector{UInt8}, attr::AttributeRef)
+    len = Int(Iceoryx2FFI.iox2_attribute_key_len(unsafe_handle(attr)))
+    length(buffer) < len + 1 && resize!(buffer, len + 1)
+    GC.@preserve buffer begin
+        Iceoryx2FFI.iox2_attribute_key(
+            unsafe_handle(attr),
+            Ptr{Cchar}(pointer(buffer)),
+            Iceoryx2FFI.c_size_t(len + 1),
+        )
+    end
+    resize!(buffer, len)
+    return StringView(buffer)
+end
+
 @inline function value(attr::AttributeRef)
     len = Int(Iceoryx2FFI.iox2_attribute_value_len(unsafe_handle(attr)))
     buffer = Vector{UInt8}(undef, len + 1)
@@ -125,6 +141,20 @@ end
         )
     end
     return unsafe_string(pointer(buffer), len)
+end
+
+@inline function value_view!(buffer::Vector{UInt8}, attr::AttributeRef)
+    len = Int(Iceoryx2FFI.iox2_attribute_value_len(unsafe_handle(attr)))
+    length(buffer) < len + 1 && resize!(buffer, len + 1)
+    GC.@preserve buffer begin
+        Iceoryx2FFI.iox2_attribute_value(
+            unsafe_handle(attr),
+            Ptr{Cchar}(pointer(buffer)),
+            Iceoryx2FFI.c_size_t(len + 1),
+        )
+    end
+    resize!(buffer, len)
+    return StringView(buffer)
 end
 
 function number_of_key_values(attrs::Union{AttributeSet, AttributeSetView}, key::AbstractString)
@@ -159,10 +189,37 @@ function key_value(attrs::Union{AttributeSet, AttributeSetView}, key::AbstractSt
     return _string_from_buffer(buffer)
 end
 
+function key_value_view!(buffer::Vector{UInt8}, attrs::Union{AttributeSet, AttributeSetView}, key::AbstractString, index::Integer)
+    index < 1 && throw(BoundsError(attrs, index))
+    key_str = String(key)
+    buffer_len = Int(Iceoryx2FFI.IOX2_ATTRIBUTE_VALUE_LENGTH)
+    length(buffer) < buffer_len + 1 && resize!(buffer, buffer_len + 1)
+    has_value = Ref{Bool}(false)
+    GC.@preserve key_str buffer begin
+        Iceoryx2FFI.iox2_attribute_set_key_value(
+            _attribute_set_ptr(attrs),
+            Base.unsafe_convert(Cstring, key_str),
+            Iceoryx2FFI.c_size_t(index - 1),
+            Ptr{Cchar}(pointer(buffer)),
+            Iceoryx2FFI.c_size_t(buffer_len + 1),
+            has_value,
+        )
+    end
+    has_value[] || return nothing
+    return _string_view_from_buffer!(buffer)
+end
+
 @inline function _string_from_buffer(buffer::Vector{UInt8})
     idx = findfirst(==(0x00), buffer)
     len = idx === nothing ? length(buffer) : idx - 1
     return unsafe_string(pointer(buffer), len)
+end
+
+@inline function _string_view_from_buffer!(buffer::Vector{UInt8})
+    idx = findfirst(==(0x00), buffer)
+    len = idx === nothing ? length(buffer) : idx - 1
+    resize!(buffer, len)
+    return StringView(buffer)
 end
 
 function keys(verifier::AttributeVerifier)
