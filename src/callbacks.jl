@@ -136,10 +136,6 @@ function each_attribute_value(
     return nothing
 end
 
-function each_attribute_value(attrs::Union{AttributeSet, AttributeSetView}, key::AbstractString, f::Function)
-    return each_attribute_value(attrs, key, AttributeValueHandler(f))
-end
-
 function each_attribute_value(f::Function, attrs::Union{AttributeSet, AttributeSetView}, key::AbstractString)
     return each_attribute_value(attrs, key, f)
 end
