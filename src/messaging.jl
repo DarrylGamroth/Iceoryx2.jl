@@ -98,6 +98,11 @@ EventId(value::Integer) = EventId(Iceoryx2FFI.iox2_event_id_t(Iceoryx2FFI.c_size
 function payload_type!(builder::PubSubServiceBuilder, ::Type{T}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T}
     _require_valid(builder.handle, "pub_sub service builder")
     _require_isbits(T)
+    if builder.payload_type === nothing
+        builder.payload_type = T
+    elseif builder.payload_type !== T
+        throw(ArgumentError("pub_sub payload type already set to $(builder.payload_type)"))
+    end
     name, name_len, size, alignment = _type_details(T)
     v = _type_variant(variant)
     GC.@preserve name begin
@@ -161,7 +166,7 @@ function enable_safe_overflow!(builder::PubSubServiceBuilder, value::Bool)
     return builder
 end
 
-mutable struct PortFactoryPubSub
+mutable struct PortFactoryPubSub{T}
     handle::Iceoryx2FFI.iox2_port_factory_pub_sub_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_pub_sub_t}
     keepalive::Node
@@ -178,13 +183,15 @@ end
 
 function open_or_create(builder::PubSubServiceBuilder)
     _require_valid(builder.handle, "pub_sub service builder")
+    payload_type = builder.payload_type
+    payload_type === nothing && throw(ArgumentError("payload type must be set with payload_type!"))
     storage = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_pub_sub_open_or_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryPubSub(handle_ref[], storage, builder.keepalive)
+    factory = PortFactoryPubSub{payload_type}(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_port_factory_pub_sub, factory)
     return factory
 end
@@ -201,7 +208,7 @@ end
 mutable struct PublisherBuilder{T}
     handle::Iceoryx2FFI.iox2_port_factory_publisher_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_publisher_builder_t}
-    keepalive::PortFactoryPubSub
+    keepalive::PortFactoryPubSub{T}
 end
 
 function _finalize_publisher_builder(builder::PublisherBuilder)
@@ -210,7 +217,7 @@ function _finalize_publisher_builder(builder::PublisherBuilder)
     return nothing
 end
 
-function publisher_builder(factory::PortFactoryPubSub, ::Type{T}) where {T}
+function publisher_builder(factory::PortFactoryPubSub{T}, ::Type{T}) where {T}
     _require_valid(factory.handle, "pub_sub port factory")
     _require_isbits(T)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_publisher_builder_t}()
@@ -241,7 +248,7 @@ end
 mutable struct SubscriberBuilder{T}
     handle::Iceoryx2FFI.iox2_port_factory_subscriber_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_subscriber_builder_t}
-    keepalive::PortFactoryPubSub
+    keepalive::PortFactoryPubSub{T}
 end
 
 function _finalize_subscriber_builder(builder::SubscriberBuilder)
@@ -250,7 +257,7 @@ function _finalize_subscriber_builder(builder::SubscriberBuilder)
     return nothing
 end
 
-function subscriber_builder(factory::PortFactoryPubSub, ::Type{T}) where {T}
+function subscriber_builder(factory::PortFactoryPubSub{T}, ::Type{T}) where {T}
     _require_valid(factory.handle, "pub_sub port factory")
     _require_isbits(T)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_subscriber_builder_t}()
@@ -263,7 +270,7 @@ end
 mutable struct Publisher{T}
     handle::Iceoryx2FFI.iox2_publisher_h
     storage::_StorageRef{Iceoryx2FFI.iox2_publisher_t}
-    keepalive::PortFactoryPubSub
+    keepalive::PortFactoryPubSub{T}
 end
 
 function _finalize_publisher(pub::Publisher)
@@ -300,7 +307,7 @@ end
 mutable struct Subscriber{T}
     handle::Iceoryx2FFI.iox2_subscriber_h
     storage::_StorageRef{Iceoryx2FFI.iox2_subscriber_t}
-    keepalive::PortFactoryPubSub
+    keepalive::PortFactoryPubSub{T}
 end
 
 function _finalize_subscriber(sub::Subscriber)
@@ -468,6 +475,11 @@ end
 function request_payload_type!(builder::RequestResponseServiceBuilder, ::Type{T}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T}
     _require_valid(builder.handle, "request_response service builder")
     _require_isbits(T)
+    if builder.request_type === nothing
+        builder.request_type = T
+    elseif builder.request_type !== T
+        throw(ArgumentError("request payload type already set to $(builder.request_type)"))
+    end
     name, name_len, size, alignment = _type_details(T)
     v = _type_variant(variant)
     GC.@preserve name begin
@@ -480,6 +492,11 @@ end
 function response_payload_type!(builder::RequestResponseServiceBuilder, ::Type{T}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T}
     _require_valid(builder.handle, "request_response service builder")
     _require_isbits(T)
+    if builder.response_type === nothing
+        builder.response_type = T
+    elseif builder.response_type !== T
+        throw(ArgumentError("response payload type already set to $(builder.response_type)"))
+    end
     name, name_len, size, alignment = _type_details(T)
     v = _type_variant(variant)
     GC.@preserve name begin
@@ -561,7 +578,7 @@ function max_borrowed_responses_per_pending_response!(builder::RequestResponseSe
     return builder
 end
 
-mutable struct PortFactoryRequestResponse
+mutable struct PortFactoryRequestResponse{Req,Resp}
     handle::Iceoryx2FFI.iox2_port_factory_request_response_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_request_response_t}
     keepalive::Node
@@ -578,13 +595,17 @@ end
 
 function open_or_create(builder::RequestResponseServiceBuilder)
     _require_valid(builder.handle, "request_response service builder")
+    request_type = builder.request_type
+    response_type = builder.response_type
+    request_type === nothing && throw(ArgumentError("request payload type must be set with request_payload_type!"))
+    response_type === nothing && throw(ArgumentError("response payload type must be set with response_payload_type!"))
     storage = Ref{Iceoryx2FFI.iox2_port_factory_request_response_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_request_response_open_or_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryRequestResponse(handle_ref[], storage, builder.keepalive)
+    factory = PortFactoryRequestResponse{request_type, response_type}(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_port_factory_request_response, factory)
     return factory
 end
@@ -601,7 +622,7 @@ end
 mutable struct ClientBuilder{Req,Resp}
     handle::Iceoryx2FFI.iox2_port_factory_client_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_client_builder_t}
-    keepalive::PortFactoryRequestResponse
+    keepalive::PortFactoryRequestResponse{Req,Resp}
 end
 
 function _finalize_client_builder(builder::ClientBuilder)
@@ -610,7 +631,7 @@ function _finalize_client_builder(builder::ClientBuilder)
     return nothing
 end
 
-function client_builder(factory::PortFactoryRequestResponse, ::Type{Req}, ::Type{Resp}) where {Req,Resp}
+function client_builder(factory::PortFactoryRequestResponse{Req,Resp}, ::Type{Req}, ::Type{Resp}) where {Req,Resp}
     _require_valid(factory.handle, "request_response port factory")
     _require_isbits(Req)
     _require_isbits(Resp)
@@ -624,7 +645,7 @@ end
 mutable struct ServerBuilder{Req,Resp}
     handle::Iceoryx2FFI.iox2_port_factory_server_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_server_builder_t}
-    keepalive::PortFactoryRequestResponse
+    keepalive::PortFactoryRequestResponse{Req,Resp}
 end
 
 function _finalize_server_builder(builder::ServerBuilder)
@@ -633,7 +654,7 @@ function _finalize_server_builder(builder::ServerBuilder)
     return nothing
 end
 
-function server_builder(factory::PortFactoryRequestResponse, ::Type{Req}, ::Type{Resp}) where {Req,Resp}
+function server_builder(factory::PortFactoryRequestResponse{Req,Resp}, ::Type{Req}, ::Type{Resp}) where {Req,Resp}
     _require_valid(factory.handle, "request_response port factory")
     _require_isbits(Req)
     _require_isbits(Resp)
@@ -656,7 +677,7 @@ end
 mutable struct Client{Req,Resp}
     handle::Iceoryx2FFI.iox2_client_h
     storage::_StorageRef{Iceoryx2FFI.iox2_client_t}
-    keepalive::PortFactoryRequestResponse
+    keepalive::PortFactoryRequestResponse{Req,Resp}
 end
 
 function _finalize_client(client::Client)
@@ -693,7 +714,7 @@ end
 mutable struct Server{Req,Resp}
     handle::Iceoryx2FFI.iox2_server_h
     storage::_StorageRef{Iceoryx2FFI.iox2_server_t}
-    keepalive::PortFactoryRequestResponse
+    keepalive::PortFactoryRequestResponse{Req,Resp}
 end
 
 function _finalize_server(server::Server)
@@ -1330,7 +1351,7 @@ end
 
 # === Blackboard (minimal) ===
 
-mutable struct PortFactoryBlackboard
+mutable struct PortFactoryBlackboard{K}
     handle::Iceoryx2FFI.iox2_port_factory_blackboard_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_blackboard_t}
     keepalive::Node
@@ -1349,6 +1370,8 @@ end
 
 function create(builder::BlackboardCreatorBuilder)
     _require_valid(builder.handle, "blackboard creator")
+    key_type = builder.key_type
+    key_type === nothing && throw(ArgumentError("blackboard key type must be set with key_type!"))
     storage = Ref{Iceoryx2FFI.iox2_port_factory_blackboard_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_blackboard_create(builder.handle, storage, handle_ref)
@@ -1357,7 +1380,7 @@ function create(builder::BlackboardCreatorBuilder)
     values = builder.values
     builder.values = Any[]
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryBlackboard(handle_ref[], storage, builder.keepalive, values)
+    factory = PortFactoryBlackboard{key_type}(handle_ref[], storage, builder.keepalive, values)
     finalizer(_finalize_port_factory_blackboard, factory)
     return factory
 end
@@ -1373,13 +1396,15 @@ end
 
 function open(builder::BlackboardOpenerBuilder)
     _require_valid(builder.handle, "blackboard opener")
+    key_type = builder.key_type
+    key_type === nothing && throw(ArgumentError("blackboard key type must be set with key_type!"))
     storage = Ref{Iceoryx2FFI.iox2_port_factory_blackboard_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_blackboard_open(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_blackboard_open_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryBlackboard(handle_ref[], storage, builder.keepalive, Any[])
+    factory = PortFactoryBlackboard{key_type}(handle_ref[], storage, builder.keepalive, Any[])
     finalizer(_finalize_port_factory_blackboard, factory)
     return factory
 end
@@ -1396,6 +1421,11 @@ end
 function key_type!(builder::BlackboardCreatorBuilder, ::Type{K}) where {K}
     _require_valid(builder.handle, "blackboard creator")
     _require_isbits(K)
+    if builder.key_type === nothing
+        builder.key_type = K
+    elseif builder.key_type !== K
+        throw(ArgumentError("blackboard key type already set to $(builder.key_type)"))
+    end
     name, name_len, size, alignment = _type_details(K)
     push!(builder.values, name)
     GC.@preserve name begin
@@ -1414,6 +1444,11 @@ end
 function key_type!(builder::BlackboardOpenerBuilder, ::Type{K}) where {K}
     _require_valid(builder.handle, "blackboard opener")
     _require_isbits(K)
+    if builder.key_type === nothing
+        builder.key_type = K
+    elseif builder.key_type !== K
+        throw(ArgumentError("blackboard key type already set to $(builder.key_type)"))
+    end
     name, name_len, size, alignment = _type_details(K)
     GC.@preserve name begin
         ret = Iceoryx2FFI.iox2_service_builder_blackboard_opener_set_key_type_details(
@@ -1567,10 +1602,10 @@ function add_with_default!(builder::BlackboardCreatorBuilder, key::K, value::V) 
     return builder
 end
 
-mutable struct WriterBuilder
+mutable struct WriterBuilder{K}
     handle::Iceoryx2FFI.iox2_port_factory_writer_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_writer_builder_t}
-    keepalive::PortFactoryBlackboard
+    keepalive::PortFactoryBlackboard{K}
 end
 
 function _finalize_writer_builder(builder::WriterBuilder)
@@ -1579,19 +1614,19 @@ function _finalize_writer_builder(builder::WriterBuilder)
     return nothing
 end
 
-function writer_builder(factory::PortFactoryBlackboard)
+function writer_builder(factory::PortFactoryBlackboard{K}) where {K}
     _require_valid(factory.handle, "blackboard port factory")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_writer_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_blackboard_writer_builder(Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle), storage)
-    builder = WriterBuilder(handle, storage, factory)
+    builder = WriterBuilder{K}(handle, storage, factory)
     finalizer(_finalize_writer_builder, builder)
     return builder
 end
 
-mutable struct ReaderBuilder
+mutable struct ReaderBuilder{K}
     handle::Iceoryx2FFI.iox2_port_factory_reader_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_reader_builder_t}
-    keepalive::PortFactoryBlackboard
+    keepalive::PortFactoryBlackboard{K}
 end
 
 function _finalize_reader_builder(builder::ReaderBuilder)
@@ -1600,19 +1635,19 @@ function _finalize_reader_builder(builder::ReaderBuilder)
     return nothing
 end
 
-function reader_builder(factory::PortFactoryBlackboard)
+function reader_builder(factory::PortFactoryBlackboard{K}) where {K}
     _require_valid(factory.handle, "blackboard port factory")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_reader_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_blackboard_reader_builder(Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle), storage)
-    builder = ReaderBuilder(handle, storage, factory)
+    builder = ReaderBuilder{K}(handle, storage, factory)
     finalizer(_finalize_reader_builder, builder)
     return builder
 end
 
-mutable struct Writer
+mutable struct Writer{K}
     handle::Iceoryx2FFI.iox2_writer_h
     storage::_StorageRef{Iceoryx2FFI.iox2_writer_t}
-    keepalive::PortFactoryBlackboard
+    keepalive::PortFactoryBlackboard{K}
 end
 
 function _finalize_writer(writer::Writer)
@@ -1624,7 +1659,7 @@ function _finalize_writer(writer::Writer)
     return nothing
 end
 
-function create(builder::WriterBuilder)
+function create(builder::WriterBuilder{K}) where {K}
     _require_valid(builder.handle, "writer builder")
     storage = Ref{Iceoryx2FFI.iox2_writer_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_writer_h}(_IOX2_NULL)
@@ -1632,12 +1667,12 @@ function create(builder::WriterBuilder)
     check_ok(ret, Iceoryx2FFI.iox2_writer_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_writer_builder(builder)
-    writer = Writer(handle_ref[], storage, builder.keepalive)
+    writer = Writer{K}(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_writer, writer)
     return writer
 end
 
-function create(f::Function, builder::WriterBuilder)
+function create(f::Function, builder::WriterBuilder{K}) where {K}
     writer = create(builder)
     try
         return f(writer)
@@ -1646,10 +1681,10 @@ function create(f::Function, builder::WriterBuilder)
     end
 end
 
-mutable struct Reader
+mutable struct Reader{K}
     handle::Iceoryx2FFI.iox2_reader_h
     storage::_StorageRef{Iceoryx2FFI.iox2_reader_t}
-    keepalive::PortFactoryBlackboard
+    keepalive::PortFactoryBlackboard{K}
 end
 
 function _finalize_reader(reader::Reader)
@@ -1661,7 +1696,7 @@ function _finalize_reader(reader::Reader)
     return nothing
 end
 
-function create(builder::ReaderBuilder)
+function create(builder::ReaderBuilder{K}) where {K}
     _require_valid(builder.handle, "reader builder")
     storage = Ref{Iceoryx2FFI.iox2_reader_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_reader_h}(_IOX2_NULL)
@@ -1669,12 +1704,12 @@ function create(builder::ReaderBuilder)
     check_ok(ret, Iceoryx2FFI.iox2_reader_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_reader_builder(builder)
-    reader = Reader(handle_ref[], storage, builder.keepalive)
+    reader = Reader{K}(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_reader, reader)
     return reader
 end
 
-function create(f::Function, builder::ReaderBuilder)
+function create(f::Function, builder::ReaderBuilder{K}) where {K}
     reader = create(builder)
     try
         return f(reader)
@@ -1686,7 +1721,7 @@ end
 mutable struct EntryHandle{K,V}
     handle::Iceoryx2FFI.iox2_entry_handle_h
     storage::_StorageRef{Iceoryx2FFI.iox2_entry_handle_t}
-    keepalive::Reader
+    keepalive::Reader{K}
 end
 
 function _finalize_entry_handle(entry::EntryHandle)
@@ -1701,7 +1736,7 @@ end
 mutable struct EntryHandleMut{K,V}
     handle::Iceoryx2FFI.iox2_entry_handle_mut_h
     storage::_StorageRef{Iceoryx2FFI.iox2_entry_handle_mut_t}
-    keepalive::Writer
+    keepalive::Writer{K}
 end
 
 function _finalize_entry_handle_mut(entry::EntryHandleMut)
@@ -1716,7 +1751,7 @@ end
 mutable struct EntryValueUninit{K,V}
     handle::Iceoryx2FFI.iox2_entry_value_uninit_h
     storage::_StorageRef{Iceoryx2FFI.iox2_entry_value_uninit_t}
-    keepalive::Writer
+    keepalive::Writer{K}
 end
 
 function _finalize_entry_value_uninit(value::EntryValueUninit)
@@ -1786,7 +1821,7 @@ function discard!(value::EntryValueUninit{K,V}) where {K,V}
     return entry
 end
 
-function reader_entry(reader::Reader, key::K, ::Type{V}) where {K,V}
+function reader_entry(reader::Reader{K}, key::K, ::Type{V}) where {K,V}
     _require_valid(reader.handle, "reader")
     _require_isbits(K)
     _require_isbits(V)
@@ -1812,7 +1847,7 @@ function reader_entry(reader::Reader, key::K, ::Type{V}) where {K,V}
     return entry
 end
 
-function reader_entry(f::Function, reader::Reader, key::K, ::Type{V}) where {K,V}
+function reader_entry(f::Function, reader::Reader{K}, key::K, ::Type{V}) where {K,V}
     entry = reader_entry(reader, key, V)
     try
         return f(entry)
@@ -1821,11 +1856,11 @@ function reader_entry(f::Function, reader::Reader, key::K, ::Type{V}) where {K,V
     end
 end
 
-function reader_entry(reader::Reader, key::K, ::Type{V}, f::Function) where {K,V}
+function reader_entry(reader::Reader{K}, key::K, ::Type{V}, f::Function) where {K,V}
     return reader_entry(f, reader, key, V)
 end
 
-function try_reader_entry(reader::Reader, key::K, ::Type{V}) where {K,V}
+function try_reader_entry(reader::Reader{K}, key::K, ::Type{V}) where {K,V}
     _require_valid(reader.handle, "reader")
     _require_isbits(K)
     _require_isbits(V)
@@ -1855,7 +1890,7 @@ function try_reader_entry(reader::Reader, key::K, ::Type{V}) where {K,V}
     return entry
 end
 
-function try_reader_entry(f::Function, reader::Reader, key::K, ::Type{V}) where {K,V}
+function try_reader_entry(f::Function, reader::Reader{K}, key::K, ::Type{V}) where {K,V}
     entry = try_reader_entry(reader, key, V)
     entry === nothing && return nothing
     try
@@ -1865,11 +1900,11 @@ function try_reader_entry(f::Function, reader::Reader, key::K, ::Type{V}) where 
     end
 end
 
-function try_reader_entry(reader::Reader, key::K, ::Type{V}, f::Function) where {K,V}
+function try_reader_entry(reader::Reader{K}, key::K, ::Type{V}, f::Function) where {K,V}
     return try_reader_entry(f, reader, key, V)
 end
 
-function writer_entry(writer::Writer, key::K, ::Type{V}) where {K,V}
+function writer_entry(writer::Writer{K}, key::K, ::Type{V}) where {K,V}
     _require_valid(writer.handle, "writer")
     _require_isbits(K)
     _require_isbits(V)
@@ -1895,7 +1930,7 @@ function writer_entry(writer::Writer, key::K, ::Type{V}) where {K,V}
     return entry
 end
 
-function writer_entry(f::Function, writer::Writer, key::K, ::Type{V}) where {K,V}
+function writer_entry(f::Function, writer::Writer{K}, key::K, ::Type{V}) where {K,V}
     entry = writer_entry(writer, key, V)
     try
         return f(entry)
@@ -1904,11 +1939,11 @@ function writer_entry(f::Function, writer::Writer, key::K, ::Type{V}) where {K,V
     end
 end
 
-function writer_entry(writer::Writer, key::K, ::Type{V}, f::Function) where {K,V}
+function writer_entry(writer::Writer{K}, key::K, ::Type{V}, f::Function) where {K,V}
     return writer_entry(f, writer, key, V)
 end
 
-function try_writer_entry(writer::Writer, key::K, ::Type{V}) where {K,V}
+function try_writer_entry(writer::Writer{K}, key::K, ::Type{V}) where {K,V}
     _require_valid(writer.handle, "writer")
     _require_isbits(K)
     _require_isbits(V)
@@ -1938,7 +1973,7 @@ function try_writer_entry(writer::Writer, key::K, ::Type{V}) where {K,V}
     return entry
 end
 
-function try_writer_entry(f::Function, writer::Writer, key::K, ::Type{V}) where {K,V}
+function try_writer_entry(f::Function, writer::Writer{K}, key::K, ::Type{V}) where {K,V}
     entry = try_writer_entry(writer, key, V)
     entry === nothing && return nothing
     try
@@ -1948,7 +1983,7 @@ function try_writer_entry(f::Function, writer::Writer, key::K, ::Type{V}) where 
     end
 end
 
-function try_writer_entry(writer::Writer, key::K, ::Type{V}, f::Function) where {K,V}
+function try_writer_entry(writer::Writer{K}, key::K, ::Type{V}, f::Function) where {K,V}
     return try_writer_entry(f, writer, key, V)
 end
 
