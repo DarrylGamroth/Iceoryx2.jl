@@ -387,7 +387,7 @@ function list_publishers(factory::PortFactoryPubSub, handler::AbstractPublisherD
     return nothing
 end
 
-function list_publishers(factory::PortFactoryPubSub, f::Function)
+function list_publishers(f::Function, factory::PortFactoryPubSub)
     return list_publishers(factory, PublisherDetailsHandler(f))
 end
 
@@ -403,7 +403,7 @@ function list_subscribers(factory::PortFactoryPubSub, handler::AbstractSubscribe
     return nothing
 end
 
-function list_subscribers(factory::PortFactoryPubSub, f::Function)
+function list_subscribers(f::Function, factory::PortFactoryPubSub)
     return list_subscribers(factory, SubscriberDetailsHandler(f))
 end
 
@@ -427,7 +427,7 @@ function list_listeners(factory::PortFactoryEvent, handler::AbstractListenerDeta
     return nothing
 end
 
-function list_listeners(factory::PortFactoryEvent, f::Function)
+function list_listeners(f::Function, factory::PortFactoryEvent)
     return list_listeners(factory, ListenerDetailsHandler(f))
 end
 
@@ -443,7 +443,7 @@ function list_notifiers(factory::PortFactoryEvent, handler::AbstractNotifierDeta
     return nothing
 end
 
-function list_notifiers(factory::PortFactoryEvent, f::Function)
+function list_notifiers(f::Function, factory::PortFactoryEvent)
     return list_notifiers(factory, NotifierDetailsHandler(f))
 end
 
@@ -467,7 +467,7 @@ function list_clients(factory::PortFactoryRequestResponse, handler::AbstractClie
     return nothing
 end
 
-function list_clients(factory::PortFactoryRequestResponse, f::Function)
+function list_clients(f::Function, factory::PortFactoryRequestResponse)
     return list_clients(factory, ClientDetailsHandler(f))
 end
 
@@ -483,7 +483,7 @@ function list_servers(factory::PortFactoryRequestResponse, handler::AbstractServ
     return nothing
 end
 
-function list_servers(factory::PortFactoryRequestResponse, f::Function)
+function list_servers(f::Function, factory::PortFactoryRequestResponse)
     return list_servers(factory, ServerDetailsHandler(f))
 end
 
@@ -507,7 +507,7 @@ function list_readers(factory::PortFactoryBlackboard, handler::AbstractReaderDet
     return nothing
 end
 
-function list_readers(factory::PortFactoryBlackboard, f::Function)
+function list_readers(f::Function, factory::PortFactoryBlackboard)
     return list_readers(factory, ReaderDetailsHandler(f))
 end
 
@@ -523,6 +523,6 @@ function list_writers(factory::PortFactoryBlackboard, handler::AbstractWriterDet
     return nothing
 end
 
-function list_writers(factory::PortFactoryBlackboard, f::Function)
+function list_writers(f::Function, factory::PortFactoryBlackboard)
     return list_writers(factory, WriterDetailsHandler(f))
 end
