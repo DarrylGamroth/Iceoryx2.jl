@@ -154,7 +154,7 @@ function main(args::Vector{String})
 
     service_types = parse_service_types(args; default_ipc = false)
     if isempty(service_types)
-        println(\"Please use either '--bench-all' or select a specific benchmark. See --help for details.\")
+        println("Please use either '--bench-all' or select a specific benchmark. See --help for details.")
         return nothing
     end
 

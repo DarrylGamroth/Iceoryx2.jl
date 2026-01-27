@@ -186,6 +186,7 @@ Hot path refers to any API that is called per message/event or inside tight loop
   - ownership rules,
   - required `isbits` payload types,
   - safe vs unsafe pointer access.
+ - Status: Completed (2026-01-27)
 
 ## Phase 14: Enhancements for Python/C++ Parity
 - Expand builder tuning knobs surfaced in Julia:
@@ -203,7 +204,8 @@ Hot path refers to any API that is called per message/event or inside tight loop
 - Benchmark parity:
   - Implement queue benchmark once the queue API is wrapped in the C ABI.
 - Improve docs/examples to match Python/C++ quickstart guides.
-- Status: Pending
+- Status: Completed (2026-01-27)
+  - Queue benchmark pending on queue API exposure in the C ABI.
 
 ## Design Decisions to Mirror iceoryx2-cxx Idioms
 - RAII-style cleanup via finalizers + explicit `close`.
