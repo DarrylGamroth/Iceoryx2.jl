@@ -172,7 +172,9 @@ Hot path refers to any API that is called per message/event or inside tight loop
 - Add a coverage script comparing C header symbols to Julia exports.
 - Add performance gates for hot-path APIs: `@inferred`, `@allocated == 0`, and small `BenchmarkTools` baselines in CI.
 - Tests are organized under `test/testsets` and included from `test/runtests.jl`.
-- Status: In progress (2026-01-27) — coverage script and perf gates pending.
+- Coverage script: `scripts/coverage_symbols.jl` compares C header functions to `Iceoryx2FFI` wrappers.
+- Perf gates: `test/testsets/perf_gates.jl` adds `@inferred` and `@allocated` checks for hot-path primitives.
+- Status: Completed (2026-01-27)
 
 ## Phase 13: Documentation & Examples
 - Provide examples matching C++ docs:
