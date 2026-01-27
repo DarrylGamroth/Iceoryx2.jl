@@ -28,7 +28,7 @@ end
 const _TYPE_DETAILS = IdDict{DataType, TypeDetails}()
 
 @inline function _type_details(::Type{T}) where {T}
-    details = get!(_TYPE_DETAILS, T) do
+    details = Base.get!(_TYPE_DETAILS, T) do
         name = string(T)
         TypeDetails(
             name,

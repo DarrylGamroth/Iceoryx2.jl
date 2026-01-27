@@ -14,6 +14,7 @@
     keys = UInt64[]
     Iceoryx2.list_keys(factory, UInt64) do key
         push!(keys, key)
+        return :continue
     end
     @test UInt64(1) in keys
 
