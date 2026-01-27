@@ -11,6 +11,12 @@
     writer = Iceoryx2.create(Iceoryx2.writer_builder(factory))
     reader = Iceoryx2.create(Iceoryx2.reader_builder(factory))
 
+    keys = UInt64[]
+    Iceoryx2.list_keys(factory, UInt64) do key
+        push!(keys, key)
+    end
+    @test UInt64(1) in keys
+
     Iceoryx2.writer_entry(writer, UInt64(1), UInt64) do entry_mut
         Iceoryx2.update!(entry_mut, UInt64(42))
     end

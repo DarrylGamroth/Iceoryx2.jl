@@ -511,6 +511,46 @@ function list_servers(factory::PortFactoryRequestResponse, f::Function)
     return list_servers(f, factory)
 end
 
+abstract type AbstractBlackboardKeyHandler{K} end
+
+mutable struct BlackboardKeyHandler{K, T} <: AbstractBlackboardKeyHandler{K}
+    on_key::T
+end
+
+BlackboardKeyHandler{K}(f) where {K} = BlackboardKeyHandler{K, typeof(f)}(f)
+
+on_blackboard_key(h::BlackboardKeyHandler) = h.on_key
+
+function _blackboard_key_wrapper(key_ptr::Ptr{Cvoid}, handler::AbstractBlackboardKeyHandler{K}) where {K}
+    key = unsafe_load(Ptr{K}(key_ptr))
+    return _callback_progression(on_blackboard_key(handler)(key))
+end
+
+function _blackboard_key_cfunction(::T) where {T<:AbstractBlackboardKeyHandler}
+    @cfunction(_blackboard_key_wrapper, Iceoryx2FFI.iox2_callback_progression_e, (Ptr{Cvoid}, Ref{T}))
+end
+
+function list_keys(factory::PortFactoryBlackboard, ::Type{K}, handler::AbstractBlackboardKeyHandler{K}) where {K}
+    _require_isbits(K)
+    handler_ref = Ref(handler)
+    GC.@preserve handler_ref begin
+        Iceoryx2FFI.iox2_port_factory_blackboard_list_keys(
+            Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle),
+            _blackboard_key_cfunction(handler_ref[]),
+            handler_ref,
+        )
+    end
+    return nothing
+end
+
+function list_keys(f::Function, factory::PortFactoryBlackboard, ::Type{K}) where {K}
+    return list_keys(factory, K, BlackboardKeyHandler{K}(f))
+end
+
+function list_keys(factory::PortFactoryBlackboard, ::Type{K}, f::Function) where {K}
+    return list_keys(f, factory, K)
+end
+
 @inline function number_of_readers(factory::PortFactoryBlackboard)
     return Int(Iceoryx2FFI.iox2_port_factory_blackboard_dynamic_config_number_of_readers(Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle)))
 end

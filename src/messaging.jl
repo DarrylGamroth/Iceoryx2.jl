@@ -1318,6 +1318,108 @@ function key_type!(builder::BlackboardOpenerBuilder, ::Type{K}) where {K}
     return builder
 end
 
+function _blackboard_key_eq_cmp_1(a::Ptr{Cvoid}, b::Ptr{Cvoid})::Bool
+    return unsafe_load(Ptr{NTuple{1, UInt8}}(a)) == unsafe_load(Ptr{NTuple{1, UInt8}}(b))
+end
+
+function _blackboard_key_eq_cmp_2(a::Ptr{Cvoid}, b::Ptr{Cvoid})::Bool
+    return unsafe_load(Ptr{NTuple{2, UInt8}}(a)) == unsafe_load(Ptr{NTuple{2, UInt8}}(b))
+end
+
+function _blackboard_key_eq_cmp_4(a::Ptr{Cvoid}, b::Ptr{Cvoid})::Bool
+    return unsafe_load(Ptr{NTuple{4, UInt8}}(a)) == unsafe_load(Ptr{NTuple{4, UInt8}}(b))
+end
+
+function _blackboard_key_eq_cmp_8(a::Ptr{Cvoid}, b::Ptr{Cvoid})::Bool
+    return unsafe_load(Ptr{NTuple{8, UInt8}}(a)) == unsafe_load(Ptr{NTuple{8, UInt8}}(b))
+end
+
+function _blackboard_key_eq_cmp_16(a::Ptr{Cvoid}, b::Ptr{Cvoid})::Bool
+    return unsafe_load(Ptr{NTuple{16, UInt8}}(a)) == unsafe_load(Ptr{NTuple{16, UInt8}}(b))
+end
+
+function _blackboard_key_eq_cmp_32(a::Ptr{Cvoid}, b::Ptr{Cvoid})::Bool
+    return unsafe_load(Ptr{NTuple{32, UInt8}}(a)) == unsafe_load(Ptr{NTuple{32, UInt8}}(b))
+end
+
+function _blackboard_key_eq_cmp_64(a::Ptr{Cvoid}, b::Ptr{Cvoid})::Bool
+    return unsafe_load(Ptr{NTuple{64, UInt8}}(a)) == unsafe_load(Ptr{NTuple{64, UInt8}}(b))
+end
+
+const _BLACKBOARD_KEY_EQ_CMP_1 = @cfunction(_blackboard_key_eq_cmp_1, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
+const _BLACKBOARD_KEY_EQ_CMP_2 = @cfunction(_blackboard_key_eq_cmp_2, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
+const _BLACKBOARD_KEY_EQ_CMP_4 = @cfunction(_blackboard_key_eq_cmp_4, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
+const _BLACKBOARD_KEY_EQ_CMP_8 = @cfunction(_blackboard_key_eq_cmp_8, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
+const _BLACKBOARD_KEY_EQ_CMP_16 = @cfunction(_blackboard_key_eq_cmp_16, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
+const _BLACKBOARD_KEY_EQ_CMP_32 = @cfunction(_blackboard_key_eq_cmp_32, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
+const _BLACKBOARD_KEY_EQ_CMP_64 = @cfunction(_blackboard_key_eq_cmp_64, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
+
+@inline function _blackboard_key_eq_cmp_ptr(::Type{K}) where {K}
+    size = sizeof(K)
+    if size == 1
+        return _BLACKBOARD_KEY_EQ_CMP_1
+    elseif size == 2
+        return _BLACKBOARD_KEY_EQ_CMP_2
+    elseif size == 4
+        return _BLACKBOARD_KEY_EQ_CMP_4
+    elseif size == 8
+        return _BLACKBOARD_KEY_EQ_CMP_8
+    elseif size == 16
+        return _BLACKBOARD_KEY_EQ_CMP_16
+    elseif size == 32
+        return _BLACKBOARD_KEY_EQ_CMP_32
+    elseif size == 64
+        return _BLACKBOARD_KEY_EQ_CMP_64
+    end
+    throw(ArgumentError("unsupported blackboard key size: $size bytes"))
+end
+
+function key_eq_comparison!(builder::BlackboardCreatorBuilder, ::Type{K}) where {K}
+    _require_valid(builder.handle, "blackboard creator")
+    _require_isbits(K)
+    Iceoryx2FFI.iox2_service_builder_blackboard_creator_set_key_eq_comparison_function(
+        Ref{Iceoryx2FFI.iox2_service_builder_blackboard_creator_h}(builder.handle),
+        _blackboard_key_eq_cmp_ptr(K),
+    )
+    return builder
+end
+
+function max_readers!(builder::BlackboardCreatorBuilder, value::Integer)
+    _require_valid(builder.handle, "blackboard creator")
+    Iceoryx2FFI.iox2_service_builder_blackboard_creator_set_max_readers(
+        Ref{Iceoryx2FFI.iox2_service_builder_blackboard_creator_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return builder
+end
+
+function max_readers!(builder::BlackboardOpenerBuilder, value::Integer)
+    _require_valid(builder.handle, "blackboard opener")
+    Iceoryx2FFI.iox2_service_builder_blackboard_opener_set_max_readers(
+        Ref{Iceoryx2FFI.iox2_service_builder_blackboard_opener_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return builder
+end
+
+function max_nodes!(builder::BlackboardCreatorBuilder, value::Integer)
+    _require_valid(builder.handle, "blackboard creator")
+    Iceoryx2FFI.iox2_service_builder_blackboard_creator_set_max_nodes(
+        Ref{Iceoryx2FFI.iox2_service_builder_blackboard_creator_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return builder
+end
+
+function max_nodes!(builder::BlackboardOpenerBuilder, value::Integer)
+    _require_valid(builder.handle, "blackboard opener")
+    Iceoryx2FFI.iox2_service_builder_blackboard_opener_set_max_nodes(
+        Ref{Iceoryx2FFI.iox2_service_builder_blackboard_opener_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return builder
+end
+
 function add_with_default!(builder::BlackboardCreatorBuilder, key::K, value::V) where {K,V}
     _require_valid(builder.handle, "blackboard creator")
     _require_isbits(K)
