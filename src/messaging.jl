@@ -956,9 +956,10 @@ function add_with_default!(builder::BlackboardCreatorBuilder, key::K, value::V) 
     _require_isbits(K)
     _require_isbits(V)
     key_type!(builder, K)
-    value_ref = Ref{V}(value)
-    push!(builder.values, value_ref)
     key_ref = Ref{K}(key)
+    value_ref = Ref{V}(value)
+    push!(builder.values, key_ref)
+    push!(builder.values, value_ref)
     name, name_len, size, alignment = _type_details(V)
     GC.@preserve key_ref value_ref name begin
         Iceoryx2FFI.iox2_service_builder_blackboard_creator_add(
