@@ -15,17 +15,12 @@
     Iceoryx2.notify!(notifier)
 
     called = Ref(false)
-    Iceoryx2.wait_and_process_once(
-        attachment -> begin
-            if Iceoryx2.has_event_from(attachment, guard)
-                called[] = true
-            end
-            return :stop
-        end,
-        waitset,
-        0,
-        200_000_000,
-    )
+    Iceoryx2.wait_and_process_once(waitset, 0, 200_000_000) do attachment
+        if Iceoryx2.has_event_from(attachment, guard)
+            called[] = true
+        end
+        return :stop
+    end
 
     @test called[]
 

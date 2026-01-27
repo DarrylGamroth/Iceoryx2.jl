@@ -391,6 +391,10 @@ function list_publishers(f::Function, factory::PortFactoryPubSub)
     return list_publishers(factory, PublisherDetailsHandler(f))
 end
 
+function list_publishers(factory::PortFactoryPubSub, f::Function)
+    return list_publishers(f, factory)
+end
+
 function list_subscribers(factory::PortFactoryPubSub, handler::AbstractSubscriberDetailsHandler)
     handler_ref = Ref(handler)
     GC.@preserve handler_ref begin
@@ -405,6 +409,10 @@ end
 
 function list_subscribers(f::Function, factory::PortFactoryPubSub)
     return list_subscribers(factory, SubscriberDetailsHandler(f))
+end
+
+function list_subscribers(factory::PortFactoryPubSub, f::Function)
+    return list_subscribers(f, factory)
 end
 
 @inline function number_of_listeners(factory::PortFactoryEvent)
@@ -431,6 +439,10 @@ function list_listeners(f::Function, factory::PortFactoryEvent)
     return list_listeners(factory, ListenerDetailsHandler(f))
 end
 
+function list_listeners(factory::PortFactoryEvent, f::Function)
+    return list_listeners(f, factory)
+end
+
 function list_notifiers(factory::PortFactoryEvent, handler::AbstractNotifierDetailsHandler)
     handler_ref = Ref(handler)
     GC.@preserve handler_ref begin
@@ -445,6 +457,10 @@ end
 
 function list_notifiers(f::Function, factory::PortFactoryEvent)
     return list_notifiers(factory, NotifierDetailsHandler(f))
+end
+
+function list_notifiers(factory::PortFactoryEvent, f::Function)
+    return list_notifiers(f, factory)
 end
 
 @inline function number_of_clients(factory::PortFactoryRequestResponse)
@@ -471,6 +487,10 @@ function list_clients(f::Function, factory::PortFactoryRequestResponse)
     return list_clients(factory, ClientDetailsHandler(f))
 end
 
+function list_clients(factory::PortFactoryRequestResponse, f::Function)
+    return list_clients(f, factory)
+end
+
 function list_servers(factory::PortFactoryRequestResponse, handler::AbstractServerDetailsHandler)
     handler_ref = Ref(handler)
     GC.@preserve handler_ref begin
@@ -485,6 +505,10 @@ end
 
 function list_servers(f::Function, factory::PortFactoryRequestResponse)
     return list_servers(factory, ServerDetailsHandler(f))
+end
+
+function list_servers(factory::PortFactoryRequestResponse, f::Function)
+    return list_servers(f, factory)
 end
 
 @inline function number_of_readers(factory::PortFactoryBlackboard)
@@ -511,6 +535,10 @@ function list_readers(f::Function, factory::PortFactoryBlackboard)
     return list_readers(factory, ReaderDetailsHandler(f))
 end
 
+function list_readers(factory::PortFactoryBlackboard, f::Function)
+    return list_readers(f, factory)
+end
+
 function list_writers(factory::PortFactoryBlackboard, handler::AbstractWriterDetailsHandler)
     handler_ref = Ref(handler)
     GC.@preserve handler_ref begin
@@ -525,4 +553,8 @@ end
 
 function list_writers(f::Function, factory::PortFactoryBlackboard)
     return list_writers(factory, WriterDetailsHandler(f))
+end
+
+function list_writers(factory::PortFactoryBlackboard, f::Function)
+    return list_writers(f, factory)
 end
