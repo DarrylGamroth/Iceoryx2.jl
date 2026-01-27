@@ -37,6 +37,15 @@ Base.length(slice::Slice) = slice.len
     return unsafe_load(slice.ptr, i)
 end
 
+struct EventId
+    raw::Iceoryx2FFI.iox2_event_id_t
+end
+
+EventId(value::Integer) = EventId(Iceoryx2FFI.iox2_event_id_t(Iceoryx2FFI.c_size_t(value)))
+
+@inline value(id::EventId) = id.raw.value
+@inline Base.Int(id::EventId) = Int(id.raw.value)
+
 # === Publish/Subscribe ===
 
 function payload_type!(builder::PubSubServiceBuilder, ::Type{T}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T}
@@ -48,6 +57,60 @@ function payload_type!(builder::PubSubServiceBuilder, ::Type{T}; variant::Union{
         ret = Iceoryx2FFI.iox2_service_builder_pub_sub_set_payload_type_details(Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle), v, Base.unsafe_convert(Cstring, name), name_len, size, alignment)
         check_ok(ret, Iceoryx2FFI.iox2_type_detail_error_e)
     end
+    return builder
+end
+
+function max_publishers!(builder::PubSubServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "pub_sub service builder")
+    Iceoryx2FFI.iox2_service_builder_pub_sub_set_max_publishers(
+        Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return builder
+end
+
+function max_subscribers!(builder::PubSubServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "pub_sub service builder")
+    Iceoryx2FFI.iox2_service_builder_pub_sub_set_max_subscribers(
+        Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return builder
+end
+
+function history_size!(builder::PubSubServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "pub_sub service builder")
+    Iceoryx2FFI.iox2_service_builder_pub_sub_set_history_size(
+        Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return builder
+end
+
+function subscriber_max_buffer_size!(builder::PubSubServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "pub_sub service builder")
+    Iceoryx2FFI.iox2_service_builder_pub_sub_set_subscriber_max_buffer_size(
+        Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return builder
+end
+
+function subscriber_max_borrowed_samples!(builder::PubSubServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "pub_sub service builder")
+    Iceoryx2FFI.iox2_service_builder_pub_sub_set_subscriber_max_borrowed_samples(
+        Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return builder
+end
+
+function enable_safe_overflow!(builder::PubSubServiceBuilder, value::Bool)
+    _require_valid(builder.handle, "pub_sub service builder")
+    Iceoryx2FFI.iox2_service_builder_pub_sub_set_enable_safe_overflow(
+        Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle),
+        value,
+    )
     return builder
 end
 
@@ -107,6 +170,15 @@ function publisher_builder(factory::PortFactoryPubSub, ::Type{T}) where {T}
     handle = Iceoryx2FFI.iox2_port_factory_pub_sub_publisher_builder(Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle), storage)
     builder = PublisherBuilder{T}(handle, storage, factory)
     finalizer(_finalize_publisher_builder, builder)
+    return builder
+end
+
+function max_loaned_samples!(builder::PublisherBuilder, value::Integer)
+    _require_valid(builder.handle, "publisher builder")
+    Iceoryx2FFI.iox2_port_factory_publisher_builder_set_max_loaned_samples(
+        Ref{Iceoryx2FFI.iox2_port_factory_publisher_builder_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(value),
+    )
     return builder
 end
 
@@ -259,6 +331,19 @@ function loan_slice(publisher::Publisher{T}, n::Integer) where {T}
     return sample
 end
 
+function loan_slice(f::Function, publisher::Publisher{T}, n::Integer) where {T}
+    sample = loan_slice(publisher, n)
+    try
+        return f(sample)
+    finally
+        close(sample)
+    end
+end
+
+function loan_slice(publisher::Publisher{T}, n::Integer, f::Function) where {T}
+    return loan_slice(f, publisher, n)
+end
+
 @inline function send!(sample::SampleMut)
     ret = Iceoryx2FFI.iox2_sample_mut_send(sample.handle, C_NULL)
     check_ok(ret, Iceoryx2FFI.iox2_send_error_e)
@@ -327,6 +412,78 @@ function response_payload_type!(builder::RequestResponseServiceBuilder, ::Type{T
         ret = Iceoryx2FFI.iox2_service_builder_request_response_set_response_payload_type_details(Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle), v, Base.unsafe_convert(Cstring, name), name_len, size, alignment)
         check_ok(ret, Iceoryx2FFI.iox2_type_detail_error_e)
     end
+    return builder
+end
+
+function max_clients!(builder::RequestResponseServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "request_response service builder")
+    Iceoryx2FFI.iox2_service_builder_request_response_max_clients(
+        Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return builder
+end
+
+function max_servers!(builder::RequestResponseServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "request_response service builder")
+    Iceoryx2FFI.iox2_service_builder_request_response_max_servers(
+        Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return builder
+end
+
+function max_loaned_requests!(builder::RequestResponseServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "request_response service builder")
+    Iceoryx2FFI.iox2_service_builder_request_response_max_loaned_requests(
+        Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return builder
+end
+
+function max_response_buffer_size!(builder::RequestResponseServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "request_response service builder")
+    Iceoryx2FFI.iox2_service_builder_request_response_max_response_buffer_size(
+        Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return builder
+end
+
+function enable_safe_overflow_for_requests!(builder::RequestResponseServiceBuilder, value::Bool)
+    _require_valid(builder.handle, "request_response service builder")
+    Iceoryx2FFI.iox2_service_builder_request_response_enable_safe_overflow_for_requests(
+        Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle),
+        value,
+    )
+    return builder
+end
+
+function enable_safe_overflow_for_responses!(builder::RequestResponseServiceBuilder, value::Bool)
+    _require_valid(builder.handle, "request_response service builder")
+    Iceoryx2FFI.iox2_service_builder_request_response_enable_safe_overflow_for_responses(
+        Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle),
+        value,
+    )
+    return builder
+end
+
+function max_active_requests_per_client!(builder::RequestResponseServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "request_response service builder")
+    Iceoryx2FFI.iox2_service_builder_request_response_max_active_requests_per_client(
+        Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return builder
+end
+
+function max_borrowed_responses_per_pending_response!(builder::RequestResponseServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "request_response service builder")
+    Iceoryx2FFI.iox2_service_builder_request_response_max_borrowed_responses_per_pending_response(
+        Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(value),
+    )
     return builder
 end
 
@@ -410,6 +567,15 @@ function server_builder(factory::PortFactoryRequestResponse, ::Type{Req}, ::Type
     handle = Iceoryx2FFI.iox2_port_factory_request_response_server_builder(Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle), storage)
     builder = ServerBuilder{Req,Resp}(handle, storage, factory)
     finalizer(_finalize_server_builder, builder)
+    return builder
+end
+
+function max_loaned_responses_per_request!(builder::ServerBuilder, value::Integer)
+    _require_valid(builder.handle, "server builder")
+    Iceoryx2FFI.iox2_port_factory_server_builder_set_max_loaned_responses_per_request(
+        Ref{Iceoryx2FFI.iox2_port_factory_server_builder_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(value),
+    )
     return builder
 end
 
@@ -533,6 +699,19 @@ function loan_request(client::Client{Req,Resp}, n::Integer) where {Req,Resp}
     return request
 end
 
+function loan_request(f::Function, client::Client{Req,Resp}, n::Integer) where {Req,Resp}
+    request = loan_request(client, n)
+    try
+        return f(request)
+    finally
+        close(request)
+    end
+end
+
+function loan_request(client::Client{Req,Resp}, n::Integer, f::Function) where {Req,Resp}
+    return loan_request(f, client, n)
+end
+
 function send!(request::RequestMut{Req,Resp}) where {Req,Resp}
     pending_storage = Ref{Iceoryx2FFI.iox2_pending_response_t}()
     pending_ref = Ref{Iceoryx2FFI.iox2_pending_response_h}(_IOX2_NULL)
@@ -654,6 +833,13 @@ function receive(server::Server{Req,Resp}) where {Req,Resp}
     return req
 end
 
+function has_requests(server::Server)
+    result = Ref{Bool}()
+    ret = Iceoryx2FFI.iox2_server_has_requests(Ref{Iceoryx2FFI.iox2_server_h}(server.handle), result)
+    check_ok(ret, Iceoryx2FFI.iox2_connection_failure_e)
+    return result[]
+end
+
 function loan_response(req::ActiveRequest{Req,Resp}, n::Integer) where {Req,Resp}
     storage = Ref{Iceoryx2FFI.iox2_response_mut_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_response_mut_h}(_IOX2_NULL)
@@ -662,6 +848,19 @@ function loan_response(req::ActiveRequest{Req,Resp}, n::Integer) where {Req,Resp
     resp = ResponseMut{Resp}(handle_ref[], storage)
     finalizer(_finalize_response_mut, resp)
     return resp
+end
+
+function loan_response(f::Function, req::ActiveRequest{Req,Resp}, n::Integer) where {Req,Resp}
+    response = loan_response(req, n)
+    try
+        return f(response)
+    finally
+        close(response)
+    end
+end
+
+function loan_response(req::ActiveRequest{Req,Resp}, n::Integer, f::Function) where {Req,Resp}
+    return loan_response(f, req, n)
 end
 
 function send_copy(req::ActiveRequest{Req,Resp}, data::Ptr{Resp}, n::Integer) where {Req,Resp}
@@ -679,6 +878,33 @@ function send!(resp::ResponseMut)
 end
 
 # === Event ===
+
+function max_notifiers!(builder::EventServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "event service builder")
+    Iceoryx2FFI.iox2_service_builder_event_set_max_notifiers(
+        Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return builder
+end
+
+function max_listeners!(builder::EventServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "event service builder")
+    Iceoryx2FFI.iox2_service_builder_event_set_max_listeners(
+        Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return builder
+end
+
+function event_id_max_value!(builder::EventServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "event service builder")
+    Iceoryx2FFI.iox2_service_builder_event_set_event_id_max_value(
+        Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return builder
+end
 
 mutable struct PortFactoryEvent
     handle::Iceoryx2FFI.iox2_port_factory_event_h
@@ -735,6 +961,18 @@ function notifier_builder(factory::PortFactoryEvent)
     handle = Iceoryx2FFI.iox2_port_factory_event_notifier_builder(Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle), storage)
     builder = NotifierBuilder(handle, storage, factory)
     finalizer(_finalize_notifier_builder, builder)
+    return builder
+end
+
+function default_event_id!(builder::NotifierBuilder, id::EventId)
+    _require_valid(builder.handle, "notifier builder")
+    id_ref = Ref(id.raw)
+    GC.@preserve id_ref begin
+        Iceoryx2FFI.iox2_port_factory_notifier_builder_set_default_event_id(
+            Ref{Iceoryx2FFI.iox2_port_factory_notifier_builder_h}(builder.handle),
+            Base.unsafe_convert(Ptr{Iceoryx2FFI.iox2_event_id_t}, id_ref),
+        )
+    end
     return builder
 end
 
@@ -838,6 +1076,146 @@ function notify!(notifier::Notifier)
     ret = Iceoryx2FFI.iox2_notifier_notify(Ref{Iceoryx2FFI.iox2_notifier_h}(notifier.handle), count)
     check_ok(ret, Iceoryx2FFI.iox2_notifier_notify_error_e)
     return Int(count[])
+end
+
+function notify!(notifier::Notifier, id::EventId)
+    count = Ref{Iceoryx2FFI.c_size_t}()
+    id_ref = Ref(id.raw)
+    GC.@preserve id_ref begin
+        ret = Iceoryx2FFI.iox2_notifier_notify_with_custom_event_id(
+            Ref{Iceoryx2FFI.iox2_notifier_h}(notifier.handle),
+            Base.unsafe_convert(Ptr{Iceoryx2FFI.iox2_event_id_t}, id_ref),
+            count,
+        )
+        check_ok(ret, Iceoryx2FFI.iox2_notifier_notify_error_e)
+    end
+    return Int(count[])
+end
+
+abstract type AbstractListenerWaitHandler end
+
+mutable struct ListenerWaitHandler{T} <: AbstractListenerWaitHandler
+    on_event::T
+end
+
+on_listener_event(h::ListenerWaitHandler) = h.on_event
+
+function _listener_wait_all_wrapper(event_id_ptr::Ptr{Iceoryx2FFI.iox2_event_id_t}, handler::AbstractListenerWaitHandler)
+    on_listener_event(handler)(EventId(unsafe_load(event_id_ptr)))
+    return
+end
+
+function _listener_wait_all_cfunction(::T) where {T<:AbstractListenerWaitHandler}
+    @cfunction(_listener_wait_all_wrapper, Cvoid, (Ptr{Iceoryx2FFI.iox2_event_id_t}, Ref{T}))
+end
+
+function try_wait_all(listener::Listener, handler::AbstractListenerWaitHandler)
+    _require_valid(listener.handle, "listener")
+    handler_ref = Ref(handler)
+    GC.@preserve handler_ref begin
+        ret = Iceoryx2FFI.iox2_listener_try_wait_all(
+            Ref{Iceoryx2FFI.iox2_listener_h}(listener.handle),
+            _listener_wait_all_cfunction(handler_ref[]),
+            handler_ref,
+        )
+        check_ok(ret, Iceoryx2FFI.iox2_listener_wait_error_e)
+    end
+    return nothing
+end
+
+function try_wait_all(f::Function, listener::Listener)
+    return try_wait_all(listener, ListenerWaitHandler(f))
+end
+
+function try_wait_all(listener::Listener, f::Function)
+    return try_wait_all(f, listener)
+end
+
+function timed_wait_all(listener::Listener, seconds::Integer, nanoseconds::Integer, handler::AbstractListenerWaitHandler)
+    _require_valid(listener.handle, "listener")
+    handler_ref = Ref(handler)
+    GC.@preserve handler_ref begin
+        ret = Iceoryx2FFI.iox2_listener_timed_wait_all(
+            Ref{Iceoryx2FFI.iox2_listener_h}(listener.handle),
+            _listener_wait_all_cfunction(handler_ref[]),
+            handler_ref,
+            UInt64(seconds),
+            UInt32(nanoseconds),
+        )
+        check_ok(ret, Iceoryx2FFI.iox2_listener_wait_error_e)
+    end
+    return nothing
+end
+
+function timed_wait_all(f::Function, listener::Listener, seconds::Integer, nanoseconds::Integer)
+    return timed_wait_all(listener, seconds, nanoseconds, ListenerWaitHandler(f))
+end
+
+function timed_wait_all(listener::Listener, seconds::Integer, nanoseconds::Integer, f::Function)
+    return timed_wait_all(f, listener, seconds, nanoseconds)
+end
+
+function blocking_wait_all(listener::Listener, handler::AbstractListenerWaitHandler)
+    _require_valid(listener.handle, "listener")
+    handler_ref = Ref(handler)
+    GC.@preserve handler_ref begin
+        ret = Iceoryx2FFI.iox2_listener_blocking_wait_all(
+            Ref{Iceoryx2FFI.iox2_listener_h}(listener.handle),
+            _listener_wait_all_cfunction(handler_ref[]),
+            handler_ref,
+        )
+        check_ok(ret, Iceoryx2FFI.iox2_listener_wait_error_e)
+    end
+    return nothing
+end
+
+function blocking_wait_all(f::Function, listener::Listener)
+    return blocking_wait_all(listener, ListenerWaitHandler(f))
+end
+
+function blocking_wait_all(listener::Listener, f::Function)
+    return blocking_wait_all(f, listener)
+end
+
+function try_wait_one(listener::Listener)
+    _require_valid(listener.handle, "listener")
+    event_id = Ref{Iceoryx2FFI.iox2_event_id_t}()
+    has_received = Ref{Bool}(false)
+    ret = Iceoryx2FFI.iox2_listener_try_wait_one(
+        Ref{Iceoryx2FFI.iox2_listener_h}(listener.handle),
+        event_id,
+        has_received,
+    )
+    check_ok(ret, Iceoryx2FFI.iox2_listener_wait_error_e)
+    return has_received[] ? EventId(event_id[]) : nothing
+end
+
+function timed_wait_one(listener::Listener, seconds::Integer, nanoseconds::Integer)
+    _require_valid(listener.handle, "listener")
+    event_id = Ref{Iceoryx2FFI.iox2_event_id_t}()
+    has_received = Ref{Bool}(false)
+    ret = Iceoryx2FFI.iox2_listener_timed_wait_one(
+        Ref{Iceoryx2FFI.iox2_listener_h}(listener.handle),
+        event_id,
+        has_received,
+        UInt64(seconds),
+        UInt32(nanoseconds),
+    )
+    check_ok(ret, Iceoryx2FFI.iox2_listener_wait_error_e)
+    return has_received[] ? EventId(event_id[]) : nothing
+end
+
+function blocking_wait_one(listener::Listener)
+    _require_valid(listener.handle, "listener")
+    event_id = Ref{Iceoryx2FFI.iox2_event_id_t}()
+    has_received = Ref{Bool}(false)
+    ret = Iceoryx2FFI.iox2_listener_blocking_wait_one(
+        Ref{Iceoryx2FFI.iox2_listener_h}(listener.handle),
+        event_id,
+        has_received,
+    )
+    check_ok(ret, Iceoryx2FFI.iox2_listener_wait_error_e)
+    return has_received[] ? EventId(event_id[]) : nothing
 end
 
 # === Blackboard (minimal) ===
