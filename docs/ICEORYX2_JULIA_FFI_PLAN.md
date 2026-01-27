@@ -125,6 +125,7 @@ Hot path refers to any API that is called per message/event or inside tight loop
 - Outputs:
   - Messaging wrappers: `src/messaging.jl`
 - Status: Completed (2026-01-27)
+  - Update (2026-01-27): added blackboard creator helpers `key_type!` and `add_with_default!` to supply required entries.
 
 ## Phase 8: Callbacks & Iteration
 - For callbacks (node listing, waitset, attribute iteration):
@@ -176,6 +177,7 @@ Hot path refers to any API that is called per message/event or inside tight loop
 - Perf gates: `test/testsets/perf_gates.jl` adds `@inferred` and `@allocated` checks for hot-path primitives.
 - Benchmark scaffolding: `scripts/bench_hotpath.jl` provides `BenchmarkTools` baselines for hot-path primitives.
 - Status: Completed (2026-01-27)
+  - Update (2026-01-27): added testsets mirroring iceoryx2-cxx coverage (attributes, enum conversion, logging, node/service names, node state, event/blackboard services, unique IDs, waitset notification, config basics).
 
 ## Phase 13: Documentation & Examples
 - Provide examples matching C++ docs:
