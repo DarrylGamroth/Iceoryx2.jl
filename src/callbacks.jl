@@ -140,6 +140,10 @@ function each_attribute_value(attrs::Union{AttributeSet, AttributeSetView}, key:
     return each_attribute_value(attrs, key, AttributeValueHandler(f))
 end
 
+function each_attribute_value(f::Function, attrs::Union{AttributeSet, AttributeSetView}, key::AbstractString)
+    return each_attribute_value(attrs, key, f)
+end
+
 function attribute_values(attrs::Union{AttributeSet, AttributeSetView}, key::AbstractString)
     values = String[]
     each_attribute_value(attrs, key) do value
