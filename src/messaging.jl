@@ -1516,6 +1516,19 @@ function reader_entry(reader::Reader, key::K, ::Type{V}) where {K,V}
     return entry
 end
 
+function reader_entry(f::Function, reader::Reader, key::K, ::Type{V}) where {K,V}
+    entry = reader_entry(reader, key, V)
+    try
+        return f(entry)
+    finally
+        close(entry)
+    end
+end
+
+function reader_entry(reader::Reader, key::K, ::Type{V}, f::Function) where {K,V}
+    return reader_entry(f, reader, key, V)
+end
+
 function try_reader_entry(reader::Reader, key::K, ::Type{V}) where {K,V}
     _require_valid(reader.handle, "reader")
     _require_isbits(K)
@@ -1546,6 +1559,20 @@ function try_reader_entry(reader::Reader, key::K, ::Type{V}) where {K,V}
     return entry
 end
 
+function try_reader_entry(f::Function, reader::Reader, key::K, ::Type{V}) where {K,V}
+    entry = try_reader_entry(reader, key, V)
+    entry === nothing && return nothing
+    try
+        return f(entry)
+    finally
+        close(entry)
+    end
+end
+
+function try_reader_entry(reader::Reader, key::K, ::Type{V}, f::Function) where {K,V}
+    return try_reader_entry(f, reader, key, V)
+end
+
 function writer_entry(writer::Writer, key::K, ::Type{V}) where {K,V}
     _require_valid(writer.handle, "writer")
     _require_isbits(K)
@@ -1570,6 +1597,19 @@ function writer_entry(writer::Writer, key::K, ::Type{V}) where {K,V}
     entry = EntryHandleMut{K,V}(handle_ref[], storage, writer)
     finalizer(_finalize_entry_handle_mut, entry)
     return entry
+end
+
+function writer_entry(f::Function, writer::Writer, key::K, ::Type{V}) where {K,V}
+    entry = writer_entry(writer, key, V)
+    try
+        return f(entry)
+    finally
+        close(entry)
+    end
+end
+
+function writer_entry(writer::Writer, key::K, ::Type{V}, f::Function) where {K,V}
+    return writer_entry(f, writer, key, V)
 end
 
 function try_writer_entry(writer::Writer, key::K, ::Type{V}) where {K,V}
@@ -1600,6 +1640,20 @@ function try_writer_entry(writer::Writer, key::K, ::Type{V}) where {K,V}
     entry = EntryHandleMut{K,V}(handle_ref[], storage, writer)
     finalizer(_finalize_entry_handle_mut, entry)
     return entry
+end
+
+function try_writer_entry(f::Function, writer::Writer, key::K, ::Type{V}) where {K,V}
+    entry = try_writer_entry(writer, key, V)
+    entry === nothing && return nothing
+    try
+        return f(entry)
+    finally
+        close(entry)
+    end
+end
+
+function try_writer_entry(writer::Writer, key::K, ::Type{V}, f::Function) where {K,V}
+    return try_writer_entry(f, writer, key, V)
 end
 
 @inline function entry_id(entry::EntryHandle)

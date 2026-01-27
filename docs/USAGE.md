@@ -64,13 +64,13 @@ end
 Use reader/writer entries to update and read key/value pairs:
 
 ```julia
-entry_mut = Iceoryx2.writer_entry(writer, UInt64(1), UInt64)
-Iceoryx2.update!(entry_mut, UInt64(42))
-close(entry_mut)
+Iceoryx2.writer_entry(writer, UInt64(1), UInt64) do entry_mut
+    Iceoryx2.update!(entry_mut, UInt64(42))
+end
 
-entry = Iceoryx2.reader_entry(reader, UInt64(1), UInt64)
-value, generation = Iceoryx2.get(entry)
-close(entry)
+Iceoryx2.reader_entry(reader, UInt64(1), UInt64) do entry
+    value, generation = Iceoryx2.get(entry)
+end
 ```
 
 ## Callback safety
