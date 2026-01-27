@@ -53,6 +53,18 @@ Iceoryx2.write_payload!(sample, Distance(get_ultra_sonic_sensor_distance(), 42.0
 Iceoryx2.send!(sample)
 ```
 
+## Attribute scratch buffers
+
+For allocation-free access to attribute keys/values in tight loops, use an explicit scratch buffer:
+
+```julia
+Iceoryx2.with_attribute_scratch() do scratch
+    key = Iceoryx2.key_view!(scratch, attrs[1])
+    value = Iceoryx2.value_view!(scratch, attrs[1])
+    # key/value are StringView instances backed by scratch buffers.
+end
+```
+
 ## Event listener wait helpers
 
 You can wait on listener events directly without a waitset:
