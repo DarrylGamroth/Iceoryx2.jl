@@ -8,6 +8,7 @@ include(joinpath(@__DIR__, "bench_utils.jl"))
 using .BenchUtils
 
 const DEFAULT_ITERATIONS = 1_000_000
+const DEFAULT_MAX_EVENT_ID = 128
 
 function usage()
     println(
@@ -18,77 +19,73 @@ Usage:
   event.jl [options]
 
 Options:
-  -n, --iterations N   Number of ping-pong iterations (default: $DEFAULT_ITERATIONS)
-  -w, --warmup N       Warmup iterations (default: iterations ÷ 10, capped at 10_000)
-      --bench-ipc      Run IPC service benchmark
-      --bench-local    Run local service benchmark
-      --bench-all      Run both IPC and local benchmarks
-  -d, --debug          Enable trace logging
-  -h, --help           Show this help message
+  -n, --iterations N                     Number of ping-pong iterations (default: $DEFAULT_ITERATIONS)
+      --bench-all                        Run IPC and local benchmarks
+      --bench-ipc                        Run IPC service benchmark
+      --bench-local                      Run local service benchmark
+  -m, --max-event-id N                   Maximum event id value (default: $DEFAULT_MAX_EVENT_ID)
+  -d, --debug-mode                       Enable trace logging
+      --cpu-core-participant-1 N         CPU core for participant 1 (ignored in Julia)
+      --cpu-core-participant-2 N         CPU core for participant 2 (ignored in Julia)
+      --number-of-additional-notifiers N Additional notifiers per service (default: 0)
+      --number-of-additional-listeners N Additional listeners per service (default: 0)
+  -h, --help                             Show this help message
 """,
     )
 end
 
-function unique_suffix()
-    return string(rand(UInt))
-end
-
-function build_event_factory(node::Iceoryx2.Node, name::AbstractString)
+function build_event_factory(node::Iceoryx2.Node, name::AbstractString, additional_notifiers::Int, additional_listeners::Int, max_event_id::Int)
     builder = Iceoryx2.event(Iceoryx2.service_builder(node, name))
+    Iceoryx2.max_notifiers!(builder, 1 + additional_notifiers)
+    Iceoryx2.max_listeners!(builder, 1 + additional_listeners)
+    Iceoryx2.event_id_max_value!(builder, max_event_id)
     return Iceoryx2.open_or_create(builder)
 end
 
-function wait_for_event(waitset::Iceoryx2.Waitset, guard::Iceoryx2.WaitsetGuard)
-    Iceoryx2.wait_and_process_once(waitset) do attachment
-        if Iceoryx2.has_event_from(attachment, guard)
-            return :stop
-        end
-        return :continue
-    end
-    return nothing
-end
-
-function run_benchmark(iterations::Int, warmup::Int, service_type::Symbol)
-    suffix = unique_suffix()
+function perform_benchmark(
+    iterations::Int,
+    max_event_id::Int,
+    service_type::Symbol,
+    additional_notifiers::Int,
+    additional_listeners::Int,
+)
     node_builder = Iceoryx2.NodeBuilder()
-    Iceoryx2.name!(node_builder, "iox2_julia_bench_event_" * suffix)
     node = Iceoryx2.create(node_builder; service_type)
 
-    factory_a2b = build_event_factory(node, "a2b_" * suffix)
-    factory_b2a = build_event_factory(node, "b2a_" * suffix)
+    factory_a2b = build_event_factory(node, "a2b", additional_notifiers, additional_listeners, max_event_id)
+    factory_b2a = build_event_factory(node, "b2a", additional_notifiers, additional_listeners, max_event_id)
+
+    extra_notifiers = Iceoryx2.Notifier[]
+    extra_listeners = Iceoryx2.Listener[]
+
+    for _ in 1:additional_notifiers
+        push!(extra_notifiers, Iceoryx2.create(Iceoryx2.notifier_builder(factory_a2b)))
+        push!(extra_notifiers, Iceoryx2.create(Iceoryx2.notifier_builder(factory_b2a)))
+    end
+
+    for _ in 1:additional_listeners
+        push!(extra_listeners, Iceoryx2.create(Iceoryx2.listener_builder(factory_a2b)))
+        push!(extra_listeners, Iceoryx2.create(Iceoryx2.listener_builder(factory_b2a)))
+    end
 
     startup = SpinBarrier(3)
-    warmup_barrier = SpinBarrier(3)
     start_benchmark = SpinBarrier(3)
 
     t1 = Threads.@spawn begin
         notifier_a2b = Iceoryx2.create(Iceoryx2.notifier_builder(factory_a2b))
         listener_b2a = Iceoryx2.create(Iceoryx2.listener_builder(factory_b2a))
-        waitset = Iceoryx2.create(Iceoryx2.WaitsetBuilder(); service_type)
-        guard = Iceoryx2.attach_notification(waitset, Iceoryx2.file_descriptor(listener_b2a))
 
         wait_barrier(startup)
-        wait_barrier(warmup_barrier)
-
-        if warmup > 0
-            Iceoryx2.notify!(notifier_a2b)
-            for _ in 1:warmup
-                wait_for_event(waitset, guard)
-                Iceoryx2.notify!(notifier_a2b)
-            end
-        end
-
         wait_barrier(start_benchmark)
 
         Iceoryx2.notify!(notifier_a2b)
 
         for _ in 1:iterations
-            wait_for_event(waitset, guard)
+            while Iceoryx2.blocking_wait_one(listener_b2a) === nothing
+            end
             Iceoryx2.notify!(notifier_a2b)
         end
 
-        Iceoryx2.close(guard)
-        Iceoryx2.close(waitset)
         Iceoryx2.close(listener_b2a)
         Iceoryx2.close(notifier_a2b)
         return nothing
@@ -97,45 +94,34 @@ function run_benchmark(iterations::Int, warmup::Int, service_type::Symbol)
     t2 = Threads.@spawn begin
         notifier_b2a = Iceoryx2.create(Iceoryx2.notifier_builder(factory_b2a))
         listener_a2b = Iceoryx2.create(Iceoryx2.listener_builder(factory_a2b))
-        waitset = Iceoryx2.create(Iceoryx2.WaitsetBuilder(); service_type)
-        guard = Iceoryx2.attach_notification(waitset, Iceoryx2.file_descriptor(listener_a2b))
 
         wait_barrier(startup)
-        wait_barrier(warmup_barrier)
-
-        for _ in 1:warmup
-            wait_for_event(waitset, guard)
-            Iceoryx2.notify!(notifier_b2a)
-        end
-
         wait_barrier(start_benchmark)
 
         for _ in 1:iterations
-            wait_for_event(waitset, guard)
+            while Iceoryx2.blocking_wait_one(listener_a2b) === nothing
+            end
             Iceoryx2.notify!(notifier_b2a)
         end
 
-        Iceoryx2.close(guard)
-        Iceoryx2.close(waitset)
         Iceoryx2.close(listener_a2b)
         Iceoryx2.close(notifier_b2a)
         return nothing
     end
 
     wait_barrier(startup)
-    wait_barrier(warmup_barrier)
-    wait_barrier(start_benchmark)
     start_time = time_ns()
+    wait_barrier(start_benchmark)
 
     fetch(t1)
     fetch(t2)
 
     elapsed_ns = time_ns() - start_time
-    latency_ns = elapsed_ns / (iterations * 2)
+    latency_ns = elapsed_ns ÷ (iterations * 2)
 
     println(
-        "event::$(service_type) iterations=$(iterations) warmup=$(warmup) " *
-        "elapsed_s=$(elapsed_ns / 1.0e9) latency_ns=$(latency_ns)",
+        "$(service_type_label(service_type)) ::: MaxEventId: $(max_event_id), Iterations: $(iterations), " *
+        "Time: $(elapsed_ns / 1.0e9) s, Latency: $(latency_ns) ns",
     )
 
     Iceoryx2.close(factory_a2b)
@@ -151,11 +137,15 @@ function main(args::Vector{String})
     end
 
     iterations = parse_int(args, ["-n", "--iterations"], DEFAULT_ITERATIONS)
-    warmup = parse_int(args, ["-w", "--warmup"], default_warmup(iterations))
-    debug = has_flag(args, ["-d", "--debug"])
+    max_event_id = parse_int(args, ["-m", "--max-event-id"], DEFAULT_MAX_EVENT_ID)
+    debug = has_flag(args, ["-d", "--debug-mode"])
+    additional_notifiers = parse_int(args, ["--number-of-additional-notifiers"], 0)
+    additional_listeners = parse_int(args, ["--number-of-additional-listeners"], 0)
 
     iterations > 0 || error("iterations must be positive")
-    warmup >= 0 || error("warmup must be non-negative")
+    max_event_id > 0 || error("max event id must be positive")
+    additional_notifiers >= 0 || error("additional notifiers must be non-negative")
+    additional_listeners >= 0 || error("additional listeners must be non-negative")
 
     Threads.nthreads() >= 2 || error("set JULIA_NUM_THREADS>=2 for this benchmark")
 
@@ -172,7 +162,13 @@ function main(args::Vector{String})
     end
 
     for service_type in service_types
-        run_benchmark(iterations, warmup, service_type)
+        perform_benchmark(
+            iterations,
+            max_event_id,
+            service_type,
+            additional_notifiers,
+            additional_listeners,
+        )
     end
 
     return nothing

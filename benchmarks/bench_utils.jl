@@ -4,7 +4,7 @@ module BenchUtils
 
 using Base.Threads
 
-export SpinBarrier, wait_barrier, has_flag, parse_int, parse_string, parse_service_types, default_warmup
+export SpinBarrier, wait_barrier, has_flag, parse_int, parse_string, parse_service_types, service_type_label, default_warmup
 
 mutable struct SpinBarrier
     total::Int
@@ -82,6 +82,15 @@ end
 function default_warmup(iterations::Integer; max_warmup::Integer = 10_000)
     iterations <= 0 && return 0
     return min(Int(max_warmup), max(0, Int(iterations ÷ 10)))
+end
+
+function service_type_label(service_type::Symbol)
+    if service_type === :ipc
+        return "iceoryx2::service::ipc::Service"
+    elseif service_type === :local
+        return "iceoryx2::service::local::Service"
+    end
+    return string(service_type)
 end
 
 end

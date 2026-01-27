@@ -18,25 +18,24 @@ Usage:
   request_response.jl [options]
 
 Options:
-  -n, --iterations N   Number of ping-pong iterations (default: $DEFAULT_ITERATIONS)
-  -w, --warmup N       Warmup iterations (default: iterations ÷ 10, capped at 10_000)
-      --bench-ipc      Run IPC service benchmark
-      --bench-local    Run local service benchmark
-      --bench-all      Run both IPC and local benchmarks
-  -d, --debug          Enable trace logging
-  -h, --help           Show this help message
+  -n, --iterations N                     Number of ping-pong iterations (default: $DEFAULT_ITERATIONS)
+  -d, --debug-mode                       Enable trace logging
+      --cpu-core-participant-1 N         CPU core for participant 1 (ignored in Julia)
+      --cpu-core-participant-2 N         CPU core for participant 2 (ignored in Julia)
+      --number-of-additional-servers N   Additional servers per service (default: 0)
+      --number-of-additional-clients N   Additional clients per service (default: 0)
+  -h, --help                             Show this help message
 """,
     )
 end
 
-function unique_suffix()
-    return string(rand(UInt))
-end
-
-function build_rr_factory(node::Iceoryx2.Node, name::AbstractString)
+function build_rr_factory(node::Iceoryx2.Node, name::AbstractString, additional_servers::Int, additional_clients::Int)
     builder = Iceoryx2.request_response(Iceoryx2.service_builder(node, name))
     Iceoryx2.request_payload_type!(builder, UInt64)
     Iceoryx2.response_payload_type!(builder, UInt64)
+    Iceoryx2.max_servers!(builder, 1 + additional_servers)
+    Iceoryx2.max_clients!(builder, 1 + additional_clients)
+    Iceoryx2.max_response_buffer_size!(builder, 1)
     return Iceoryx2.open_or_create(builder)
 end
 
@@ -48,26 +47,32 @@ function wait_for_request(server::Iceoryx2.Server{UInt64, UInt64})
     end
 end
 
-function wait_for_response(pending::Iceoryx2.PendingResponse{UInt64})
-    while true
-        resp = Iceoryx2.receive(pending)
-        resp === nothing && continue
-        Iceoryx2.close(resp)
-        return nothing
-    end
-end
-
-function run_request_benchmark(iterations::Int, warmup::Int, service_type::Symbol)
-    suffix = unique_suffix()
+function perform_request_benchmark(
+    iterations::Int,
+    service_type::Symbol,
+    additional_servers::Int,
+    additional_clients::Int,
+)
     node_builder = Iceoryx2.NodeBuilder()
-    Iceoryx2.name!(node_builder, "iox2_julia_bench_rr_req_" * suffix)
     node = Iceoryx2.create(node_builder; service_type)
 
-    factory_a2b = build_rr_factory(node, "a2b_" * suffix)
-    factory_b2a = build_rr_factory(node, "b2a_" * suffix)
+    factory_a2b = build_rr_factory(node, "a2b", additional_servers, additional_clients)
+    factory_b2a = build_rr_factory(node, "b2a", additional_servers, additional_clients)
+
+    extra_clients = Iceoryx2.Client{UInt64, UInt64}[]
+    extra_servers = Iceoryx2.Server{UInt64, UInt64}[]
+
+    for _ in 1:additional_clients
+        push!(extra_clients, Iceoryx2.create(Iceoryx2.client_builder(factory_a2b, UInt64, UInt64)))
+        push!(extra_clients, Iceoryx2.create(Iceoryx2.client_builder(factory_b2a, UInt64, UInt64)))
+    end
+
+    for _ in 1:additional_servers
+        push!(extra_servers, Iceoryx2.create(Iceoryx2.server_builder(factory_a2b, UInt64, UInt64)))
+        push!(extra_servers, Iceoryx2.create(Iceoryx2.server_builder(factory_b2a, UInt64, UInt64)))
+    end
 
     startup = SpinBarrier(3)
-    warmup_barrier = SpinBarrier(3)
     start_benchmark = SpinBarrier(3)
 
     t1 = Threads.@spawn begin
@@ -75,28 +80,19 @@ function run_request_benchmark(iterations::Int, warmup::Int, service_type::Symbo
         server_b2a = Iceoryx2.create(Iceoryx2.server_builder(factory_b2a, UInt64, UInt64))
 
         wait_barrier(startup)
-        wait_barrier(warmup_barrier)
-
-        for _ in 1:warmup
-            request = Iceoryx2.loan_request(client_a2b, 1)
-            pending = Iceoryx2.send!(request)
-            Iceoryx2.close(pending)
-
-            active = wait_for_request(server_b2a)
-            Iceoryx2.close(active)
-        end
-
         wait_barrier(start_benchmark)
 
+        request = Iceoryx2.loan_uninit(client_a2b)
+
         for _ in 1:iterations
-            request = Iceoryx2.loan_request(client_a2b, 1)
             pending = Iceoryx2.send!(request)
             Iceoryx2.close(pending)
-
+            request = Iceoryx2.loan_uninit(client_a2b)
             active = wait_for_request(server_b2a)
             Iceoryx2.close(active)
         end
 
+        Iceoryx2.close(request)
         Iceoryx2.close(server_b2a)
         Iceoryx2.close(client_a2b)
         return nothing
@@ -107,26 +103,14 @@ function run_request_benchmark(iterations::Int, warmup::Int, service_type::Symbo
         server_a2b = Iceoryx2.create(Iceoryx2.server_builder(factory_a2b, UInt64, UInt64))
 
         wait_barrier(startup)
-        wait_barrier(warmup_barrier)
-
-        for _ in 1:warmup
-            request = Iceoryx2.loan_request(client_b2a, 1)
-            pending = Iceoryx2.send!(request)
-            Iceoryx2.close(pending)
-
-            active = wait_for_request(server_a2b)
-            Iceoryx2.close(active)
-        end
-
         wait_barrier(start_benchmark)
 
         for _ in 1:iterations
-            request = Iceoryx2.loan_request(client_b2a, 1)
-            pending = Iceoryx2.send!(request)
-            Iceoryx2.close(pending)
-
+            request = Iceoryx2.loan_uninit(client_b2a)
             active = wait_for_request(server_a2b)
             Iceoryx2.close(active)
+            pending = Iceoryx2.send!(request)
+            Iceoryx2.close(pending)
         end
 
         Iceoryx2.close(server_a2b)
@@ -135,19 +119,18 @@ function run_request_benchmark(iterations::Int, warmup::Int, service_type::Symbo
     end
 
     wait_barrier(startup)
-    wait_barrier(warmup_barrier)
-    wait_barrier(start_benchmark)
     start_time = time_ns()
+    wait_barrier(start_benchmark)
 
     fetch(t1)
     fetch(t2)
 
     elapsed_ns = time_ns() - start_time
-    latency_ns = elapsed_ns / (iterations * 2)
+    latency_ns = elapsed_ns ÷ (iterations * 2)
 
     println(
-        "request_response::request::$(service_type) iterations=$(iterations) warmup=$(warmup) " *
-        "elapsed_s=$(elapsed_ns / 1.0e9) latency_ns=$(latency_ns)",
+        "[REQUESTS] $(service_type_label(service_type)) ::: Iterations: $(iterations), " *
+        "Time: $(elapsed_ns / 1.0e9) s, Latency: $(latency_ns) ns",
     )
 
     Iceoryx2.close(factory_a2b)
@@ -156,17 +139,32 @@ function run_request_benchmark(iterations::Int, warmup::Int, service_type::Symbo
     return nothing
 end
 
-function run_response_stream_benchmark(iterations::Int, warmup::Int, service_type::Symbol)
-    suffix = unique_suffix()
+function perform_response_stream_benchmark(
+    iterations::Int,
+    service_type::Symbol,
+    additional_servers::Int,
+    additional_clients::Int,
+)
     node_builder = Iceoryx2.NodeBuilder()
-    Iceoryx2.name!(node_builder, "iox2_julia_bench_rr_resp_" * suffix)
     node = Iceoryx2.create(node_builder; service_type)
 
-    factory_a2b = build_rr_factory(node, "a2b_" * suffix)
-    factory_b2a = build_rr_factory(node, "b2a_" * suffix)
+    factory_a2b = build_rr_factory(node, "a2b", additional_servers, additional_clients)
+    factory_b2a = build_rr_factory(node, "b2a", additional_servers, additional_clients)
+
+    extra_clients = Iceoryx2.Client{UInt64, UInt64}[]
+    extra_servers = Iceoryx2.Server{UInt64, UInt64}[]
+
+    for _ in 1:additional_clients
+        push!(extra_clients, Iceoryx2.create(Iceoryx2.client_builder(factory_a2b, UInt64, UInt64)))
+        push!(extra_clients, Iceoryx2.create(Iceoryx2.client_builder(factory_b2a, UInt64, UInt64)))
+    end
+
+    for _ in 1:additional_servers
+        push!(extra_servers, Iceoryx2.create(Iceoryx2.server_builder(factory_a2b, UInt64, UInt64)))
+        push!(extra_servers, Iceoryx2.create(Iceoryx2.server_builder(factory_b2a, UInt64, UInt64)))
+    end
 
     startup = SpinBarrier(3)
-    warmup_barrier = SpinBarrier(3)
     start_benchmark = SpinBarrier(3)
 
     t1 = Threads.@spawn begin
@@ -175,23 +173,22 @@ function run_response_stream_benchmark(iterations::Int, warmup::Int, service_typ
 
         wait_barrier(startup)
         pending = Iceoryx2.send_copy(client_a2b, UInt64[0])
-        active = wait_for_request(server_b2a)
-        wait_barrier(warmup_barrier)
-
-        for _ in 1:warmup
-            response = Iceoryx2.loan_response(active, 1)
-            Iceoryx2.send!(response)
-            wait_for_response(pending)
+        while !Iceoryx2.has_requests(server_b2a)
         end
-
+        active = Iceoryx2.receive(server_b2a)
+        active === nothing && error("expected active request")
         wait_barrier(start_benchmark)
 
+        response = Iceoryx2.loan_uninit(active)
+
         for _ in 1:iterations
-            response = Iceoryx2.loan_response(active, 1)
             Iceoryx2.send!(response)
-            wait_for_response(pending)
+            response = Iceoryx2.loan_uninit(active)
+            while Iceoryx2.receive(pending) === nothing
+            end
         end
 
+        Iceoryx2.close(response)
         Iceoryx2.close(active)
         Iceoryx2.close(pending)
         Iceoryx2.close(server_b2a)
@@ -205,20 +202,16 @@ function run_response_stream_benchmark(iterations::Int, warmup::Int, service_typ
 
         wait_barrier(startup)
         pending = Iceoryx2.send_copy(client_b2a, UInt64[0])
-        active = wait_for_request(server_a2b)
-        wait_barrier(warmup_barrier)
-
-        for _ in 1:warmup
-            wait_for_response(pending)
-            response = Iceoryx2.loan_response(active, 1)
-            Iceoryx2.send!(response)
+        while !Iceoryx2.has_requests(server_a2b)
         end
-
+        active = Iceoryx2.receive(server_a2b)
+        active === nothing && error("expected active request")
         wait_barrier(start_benchmark)
 
         for _ in 1:iterations
-            wait_for_response(pending)
-            response = Iceoryx2.loan_response(active, 1)
+            response = Iceoryx2.loan_uninit(active)
+            while Iceoryx2.receive(pending) === nothing
+            end
             Iceoryx2.send!(response)
         end
 
@@ -230,19 +223,18 @@ function run_response_stream_benchmark(iterations::Int, warmup::Int, service_typ
     end
 
     wait_barrier(startup)
-    wait_barrier(warmup_barrier)
-    wait_barrier(start_benchmark)
     start_time = time_ns()
+    wait_barrier(start_benchmark)
 
     fetch(t1)
     fetch(t2)
 
     elapsed_ns = time_ns() - start_time
-    latency_ns = elapsed_ns / (iterations * 2)
+    latency_ns = elapsed_ns ÷ (iterations * 2)
 
     println(
-        "request_response::response_stream::$(service_type) iterations=$(iterations) warmup=$(warmup) " *
-        "elapsed_s=$(elapsed_ns / 1.0e9) latency_ns=$(latency_ns)",
+        "[RESPONSE_STREAM] $(service_type_label(service_type)) ::: Iterations: $(iterations), " *
+        "Time: $(elapsed_ns / 1.0e9) s, Latency: $(latency_ns) ns",
     )
 
     Iceoryx2.close(factory_a2b)
@@ -258,11 +250,13 @@ function main(args::Vector{String})
     end
 
     iterations = parse_int(args, ["-n", "--iterations"], DEFAULT_ITERATIONS)
-    warmup = parse_int(args, ["-w", "--warmup"], default_warmup(iterations))
-    debug = has_flag(args, ["-d", "--debug"])
+    debug = has_flag(args, ["-d", "--debug-mode"])
+    additional_servers = parse_int(args, ["--number-of-additional-servers"], 0)
+    additional_clients = parse_int(args, ["--number-of-additional-clients"], 0)
 
     iterations > 0 || error("iterations must be positive")
-    warmup >= 0 || error("warmup must be non-negative")
+    additional_servers >= 0 || error("additional servers must be non-negative")
+    additional_clients >= 0 || error("additional clients must be non-negative")
 
     Threads.nthreads() >= 2 || error("set JULIA_NUM_THREADS>=2 for this benchmark")
 
@@ -272,14 +266,9 @@ function main(args::Vector{String})
         Iceoryx2.set_log_level(:error)
     end
 
-    service_types = parse_service_types(args; default_ipc = false)
-    if isempty(service_types)
-        service_types = [:ipc, :local]
-    end
-
-    for service_type in service_types
-        run_request_benchmark(iterations, warmup, service_type)
-        run_response_stream_benchmark(iterations, warmup, service_type)
+    for service_type in (:ipc, :local)
+        perform_request_benchmark(iterations, service_type, additional_servers, additional_clients)
+        perform_response_stream_benchmark(iterations, service_type, additional_servers, additional_clients)
     end
 
     return nothing
