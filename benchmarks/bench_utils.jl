@@ -6,16 +6,16 @@ using Base.Threads
 
 export SpinBarrier, wait_barrier, has_flag, parse_int, parse_string, parse_service_types
 
-struct SpinBarrier
+mutable struct SpinBarrier
     total::Int
-    count::Atomic{Int}
+    @atomic count::Int
 end
 
-SpinBarrier(total::Integer) = SpinBarrier(Int(total), Atomic{Int}(0))
+SpinBarrier(total::Integer) = SpinBarrier(Int(total), 0)
 
 function wait_barrier(barrier::SpinBarrier)
-    atomic_add!(barrier.count, 1)
-    while atomic_load(barrier.count) < barrier.total
+    @atomic barrier.count += 1
+    while (@atomic barrier.count) < barrier.total
         Base.Threads.yield()
     end
     return nothing
