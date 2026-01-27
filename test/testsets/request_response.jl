@@ -12,9 +12,8 @@
     client = Iceoryx2.create(Iceoryx2.client_builder(factory, UInt64, UInt64))
     server = Iceoryx2.create(Iceoryx2.server_builder(factory, UInt64, UInt64))
 
-    request = Iceoryx2.loan_request(client, 1)
-    req_slice = Iceoryx2.payload_mut(request)
-    unsafe_store!(req_slice.ptr, UInt64(42))
+    request = Iceoryx2.loan_uninit(client)
+    Iceoryx2.write_payload!(request, UInt64(42))
     pending = Iceoryx2.send!(request)
 
     active = nothing
@@ -28,10 +27,9 @@
         req_payload = Iceoryx2.payload(active)
         @test req_payload[1] == UInt64(42)
 
-        resp_data = UInt64[84]
-        GC.@preserve resp_data begin
-            Iceoryx2.send_copy(active, pointer(resp_data), length(resp_data))
-        end
+        response_mut = Iceoryx2.loan_uninit(active)
+        Iceoryx2.write_payload!(response_mut, UInt64(84))
+        Iceoryx2.send!(response_mut)
     end
 
     response = nothing

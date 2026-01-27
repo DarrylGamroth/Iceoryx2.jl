@@ -45,6 +45,14 @@ unsafe_store!(slice.ptr, 0xdeadbeef, 1)
 
 Do not store the pointer or slice past the lifetime of the owning handle.
 
+For scalar payloads, you can use `loan_uninit` + `write_payload!`:
+
+```julia
+sample = Iceoryx2.loan_uninit(publisher)
+Iceoryx2.write_payload!(sample, Distance(get_ultra_sonic_sensor_distance(), 42.0))
+Iceoryx2.send!(sample)
+```
+
 ## Event listener wait helpers
 
 You can wait on listener events directly without a waitset:

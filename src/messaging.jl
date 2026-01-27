@@ -346,6 +346,10 @@ end
     return Slice{T}(Ptr{T}(ptr_ref[]), Int(len_ref[]), sample)
 end
 
+@inline function payload_ptr(sample::Sample{T}) where {T}
+    return payload(sample).ptr
+end
+
 mutable struct SampleMut{T}
     handle::Iceoryx2FFI.iox2_sample_mut_h
     storage::_StorageRef{Iceoryx2FFI.iox2_sample_mut_t}
@@ -365,6 +369,10 @@ end
     len_ref = Ref{Iceoryx2FFI.c_size_t}()
     Iceoryx2FFI.iox2_sample_mut_payload_mut(Ref{Iceoryx2FFI.iox2_sample_mut_h}(sample.handle), ptr_ref, len_ref)
     return Slice{T}(Ptr{T}(ptr_ref[]), Int(len_ref[]), sample)
+end
+
+@inline function payload_mut_ptr(sample::SampleMut{T}) where {T}
+    return payload_mut(sample).ptr
 end
 
 function loan_slice(publisher::Publisher{T}, n::Integer) where {T}
@@ -731,6 +739,16 @@ end
     return Slice{Req}(Ptr{Req}(ptr_ref[]), Int(len_ref[]), request)
 end
 
+@inline function payload_mut_ptr(request::RequestMut{Req,Resp}) where {Req,Resp}
+    return payload_mut(request).ptr
+end
+
+@inline function write_payload!(request::RequestMut{Req,Resp}, value::Req) where {Req,Resp}
+    slice = payload_mut(request)
+    unsafe_store!(slice.ptr, value, 1)
+    return request
+end
+
 mutable struct PendingResponse{Resp}
     handle::Iceoryx2FFI.iox2_pending_response_h
     storage::_StorageRef{Iceoryx2FFI.iox2_pending_response_t}
@@ -754,6 +772,10 @@ function loan_request(client::Client{Req,Resp}, n::Integer) where {Req,Resp}
     request = RequestMut{Req,Resp}(handle_ref[], storage)
     finalizer(_finalize_request_mut, request)
     return request
+end
+
+@inline function loan_uninit(client::Client{Req,Resp}) where {Req,Resp}
+    return loan_request(client, 1)
 end
 
 function loan_request(f::Function, client::Client{Req,Resp}, n::Integer) where {Req,Resp}
@@ -819,6 +841,10 @@ end
     return Slice{RespT}(Ptr{RespT}(ptr_ref[]), Int(len_ref[]), resp)
 end
 
+@inline function payload_ptr(resp::Response{RespT}) where {RespT}
+    return payload(resp).ptr
+end
+
 function receive(pending::PendingResponse{Resp}) where {Resp}
     storage = Ref{Iceoryx2FFI.iox2_response_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_response_h}(_IOX2_NULL)
@@ -854,6 +880,10 @@ end
     return Slice{ReqT}(Ptr{ReqT}(ptr_ref[]), Int(len_ref[]), req)
 end
 
+@inline function payload_ptr(req::ActiveRequest{ReqT,RespT}) where {ReqT,RespT}
+    return payload(req).ptr
+end
+
 mutable struct ResponseMut{Resp}
     handle::Iceoryx2FFI.iox2_response_mut_h
     storage::_StorageRef{Iceoryx2FFI.iox2_response_mut_t}
@@ -873,6 +903,16 @@ end
     len_ref = Ref{Iceoryx2FFI.c_size_t}()
     Iceoryx2FFI.iox2_response_mut_payload_mut(Ref{Iceoryx2FFI.iox2_response_mut_h}(resp.handle), ptr_ref, len_ref)
     return Slice{RespT}(Ptr{RespT}(ptr_ref[]), Int(len_ref[]), resp)
+end
+
+@inline function payload_mut_ptr(resp::ResponseMut{RespT}) where {RespT}
+    return payload_mut(resp).ptr
+end
+
+@inline function write_payload!(resp::ResponseMut{RespT}, value::RespT) where {RespT}
+    slice = payload_mut(resp)
+    unsafe_store!(slice.ptr, value, 1)
+    return resp
 end
 
 function receive(server::Server{Req,Resp}) where {Req,Resp}
@@ -905,6 +945,10 @@ function loan_response(req::ActiveRequest{Req,Resp}, n::Integer) where {Req,Resp
     resp = ResponseMut{Resp}(handle_ref[], storage)
     finalizer(_finalize_response_mut, resp)
     return resp
+end
+
+@inline function loan_uninit(req::ActiveRequest{Req,Resp}) where {Req,Resp}
+    return loan_response(req, 1)
 end
 
 function loan_response(f::Function, req::ActiveRequest{Req,Resp}, n::Integer) where {Req,Resp}
