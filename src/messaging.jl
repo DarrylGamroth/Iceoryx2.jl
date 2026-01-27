@@ -5,10 +5,10 @@
     return nothing
 end
 
-@inline function _type_variant(value)
-    if value isa Iceoryx2FFI.iox2_type_variant_e
-        return value
-    elseif value === :fixed
+@inline _type_variant(value::Iceoryx2FFI.iox2_type_variant_e) = value
+
+@inline function _type_variant(value::Symbol)
+    if value === :fixed
         return Iceoryx2FFI.iox2_type_variant_e_FIXED_SIZE
     elseif value === :dynamic
         return Iceoryx2FFI.iox2_type_variant_e_DYNAMIC
@@ -16,21 +16,19 @@ end
     throw(ArgumentError("unsupported type variant: $value"))
 end
 
+@inline _type_variant(value) = throw(ArgumentError("unsupported type variant: $value"))
+
 @inline function _type_details(::Type{T}) where {T}
     name = string(T)
     return name, Iceoryx2FFI.c_size_t(ncodeunits(name)), Iceoryx2FFI.c_size_t(sizeof(T)), Iceoryx2FFI.c_size_t(Base.datatype_alignment(T))
 end
 
 @inline function _malloc_struct(::Type{T}) where {T}
-    ptr = Ptr{T}(Libc.malloc(sizeof(T)))
-    ptr == _IOX2_NULL && throw(OutOfMemoryError())
-    return ptr
+    return Ref{T}()
 end
 
-@inline function _free_struct!(ptr::Ptr)
-    ptr == _IOX2_NULL && return _IOX2_NULL
-    Libc.free(ptr)
-    return _IOX2_NULL
+@inline function _free_struct!(storage::Base.RefValue{T}) where {T}
+    return Ref{T}()
 end
 
 struct Slice{T}
@@ -61,7 +59,7 @@ end
 
 mutable struct PortFactoryPubSub
     handle::Iceoryx2FFI.iox2_port_factory_pub_sub_h
-    storage::Ptr{Iceoryx2FFI.iox2_port_factory_pub_sub_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_port_factory_pub_sub_t}
     keepalive::Node
 end
 
@@ -98,7 +96,7 @@ end
 
 mutable struct PublisherBuilder{T}
     handle::Iceoryx2FFI.iox2_port_factory_publisher_builder_h
-    storage::Ptr{Iceoryx2FFI.iox2_port_factory_publisher_builder_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_port_factory_publisher_builder_t}
     keepalive::PortFactoryPubSub
 end
 
@@ -120,7 +118,7 @@ end
 
 mutable struct SubscriberBuilder{T}
     handle::Iceoryx2FFI.iox2_port_factory_subscriber_builder_h
-    storage::Ptr{Iceoryx2FFI.iox2_port_factory_subscriber_builder_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_port_factory_subscriber_builder_t}
     keepalive::PortFactoryPubSub
 end
 
@@ -142,7 +140,7 @@ end
 
 mutable struct Publisher{T}
     handle::Iceoryx2FFI.iox2_publisher_h
-    storage::Ptr{Iceoryx2FFI.iox2_publisher_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_publisher_t}
     keepalive::PortFactoryPubSub
 end
 
@@ -179,7 +177,7 @@ end
 
 mutable struct Subscriber{T}
     handle::Iceoryx2FFI.iox2_subscriber_h
-    storage::Ptr{Iceoryx2FFI.iox2_subscriber_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_subscriber_t}
     keepalive::PortFactoryPubSub
 end
 
@@ -216,7 +214,7 @@ end
 
 mutable struct Sample{T}
     handle::Iceoryx2FFI.iox2_sample_h
-    storage::Ptr{Iceoryx2FFI.iox2_sample_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_sample_t}
 end
 
 function _finalize_sample(sample::Sample)
@@ -237,7 +235,7 @@ end
 
 mutable struct SampleMut{T}
     handle::Iceoryx2FFI.iox2_sample_mut_h
-    storage::Ptr{Iceoryx2FFI.iox2_sample_mut_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_sample_mut_t}
 end
 
 function _finalize_sample_mut(sample::SampleMut)
@@ -340,7 +338,7 @@ end
 
 mutable struct PortFactoryRequestResponse
     handle::Iceoryx2FFI.iox2_port_factory_request_response_h
-    storage::Ptr{Iceoryx2FFI.iox2_port_factory_request_response_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_port_factory_request_response_t}
     keepalive::Node
 end
 
@@ -377,7 +375,7 @@ end
 
 mutable struct ClientBuilder{Req,Resp}
     handle::Iceoryx2FFI.iox2_port_factory_client_builder_h
-    storage::Ptr{Iceoryx2FFI.iox2_port_factory_client_builder_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_port_factory_client_builder_t}
     keepalive::PortFactoryRequestResponse
 end
 
@@ -400,7 +398,7 @@ end
 
 mutable struct ServerBuilder{Req,Resp}
     handle::Iceoryx2FFI.iox2_port_factory_server_builder_h
-    storage::Ptr{Iceoryx2FFI.iox2_port_factory_server_builder_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_port_factory_server_builder_t}
     keepalive::PortFactoryRequestResponse
 end
 
@@ -423,7 +421,7 @@ end
 
 mutable struct Client{Req,Resp}
     handle::Iceoryx2FFI.iox2_client_h
-    storage::Ptr{Iceoryx2FFI.iox2_client_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_client_t}
     keepalive::PortFactoryRequestResponse
 end
 
@@ -460,7 +458,7 @@ end
 
 mutable struct Server{Req,Resp}
     handle::Iceoryx2FFI.iox2_server_h
-    storage::Ptr{Iceoryx2FFI.iox2_server_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_server_t}
     keepalive::PortFactoryRequestResponse
 end
 
@@ -497,7 +495,7 @@ end
 
 mutable struct RequestMut{Req,Resp}
     handle::Iceoryx2FFI.iox2_request_mut_h
-    storage::Ptr{Iceoryx2FFI.iox2_request_mut_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_request_mut_t}
 end
 
 function _finalize_request_mut(request::RequestMut)
@@ -518,7 +516,7 @@ end
 
 mutable struct PendingResponse{Resp}
     handle::Iceoryx2FFI.iox2_pending_response_h
-    storage::Ptr{Iceoryx2FFI.iox2_pending_response_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_pending_response_t}
 end
 
 function _finalize_pending_response(pending::PendingResponse)
@@ -572,7 +570,7 @@ end
 
 mutable struct Response{Resp}
     handle::Iceoryx2FFI.iox2_response_h
-    storage::Ptr{Iceoryx2FFI.iox2_response_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_response_t}
 end
 
 function _finalize_response(resp::Response)
@@ -607,7 +605,7 @@ end
 
 mutable struct ActiveRequest{Req,Resp}
     handle::Iceoryx2FFI.iox2_active_request_h
-    storage::Ptr{Iceoryx2FFI.iox2_active_request_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_active_request_t}
 end
 
 function _finalize_active_request(req::ActiveRequest)
@@ -628,7 +626,7 @@ end
 
 mutable struct ResponseMut{Resp}
     handle::Iceoryx2FFI.iox2_response_mut_h
-    storage::Ptr{Iceoryx2FFI.iox2_response_mut_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_response_mut_t}
 end
 
 function _finalize_response_mut(resp::ResponseMut)
@@ -690,7 +688,7 @@ end
 
 mutable struct PortFactoryEvent
     handle::Iceoryx2FFI.iox2_port_factory_event_h
-    storage::Ptr{Iceoryx2FFI.iox2_port_factory_event_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_port_factory_event_t}
     keepalive::Node
 end
 
@@ -727,7 +725,7 @@ end
 
 mutable struct NotifierBuilder
     handle::Iceoryx2FFI.iox2_port_factory_notifier_builder_h
-    storage::Ptr{Iceoryx2FFI.iox2_port_factory_notifier_builder_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_port_factory_notifier_builder_t}
     keepalive::PortFactoryEvent
 end
 
@@ -748,7 +746,7 @@ end
 
 mutable struct ListenerBuilder
     handle::Iceoryx2FFI.iox2_port_factory_listener_builder_h
-    storage::Ptr{Iceoryx2FFI.iox2_port_factory_listener_builder_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_port_factory_listener_builder_t}
     keepalive::PortFactoryEvent
 end
 
@@ -769,7 +767,7 @@ end
 
 mutable struct Notifier
     handle::Iceoryx2FFI.iox2_notifier_h
-    storage::Ptr{Iceoryx2FFI.iox2_notifier_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_notifier_t}
     keepalive::PortFactoryEvent
 end
 
@@ -806,7 +804,7 @@ end
 
 mutable struct Listener
     handle::Iceoryx2FFI.iox2_listener_h
-    storage::Ptr{Iceoryx2FFI.iox2_listener_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_listener_t}
     keepalive::PortFactoryEvent
 end
 
@@ -852,7 +850,7 @@ end
 
 mutable struct PortFactoryBlackboard
     handle::Iceoryx2FFI.iox2_port_factory_blackboard_h
-    storage::Ptr{Iceoryx2FFI.iox2_port_factory_blackboard_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_port_factory_blackboard_t}
     keepalive::Node
 end
 
@@ -911,7 +909,7 @@ end
 
 mutable struct WriterBuilder
     handle::Iceoryx2FFI.iox2_port_factory_writer_builder_h
-    storage::Ptr{Iceoryx2FFI.iox2_port_factory_writer_builder_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_port_factory_writer_builder_t}
     keepalive::PortFactoryBlackboard
 end
 
@@ -932,7 +930,7 @@ end
 
 mutable struct ReaderBuilder
     handle::Iceoryx2FFI.iox2_port_factory_reader_builder_h
-    storage::Ptr{Iceoryx2FFI.iox2_port_factory_reader_builder_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_port_factory_reader_builder_t}
     keepalive::PortFactoryBlackboard
 end
 
@@ -953,7 +951,7 @@ end
 
 mutable struct Writer
     handle::Iceoryx2FFI.iox2_writer_h
-    storage::Ptr{Iceoryx2FFI.iox2_writer_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_writer_t}
     keepalive::PortFactoryBlackboard
 end
 
@@ -990,7 +988,7 @@ end
 
 mutable struct Reader
     handle::Iceoryx2FFI.iox2_reader_h
-    storage::Ptr{Iceoryx2FFI.iox2_reader_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_reader_t}
     keepalive::PortFactoryBlackboard
 end
 

@@ -1,15 +1,17 @@
 # WaitSet wrappers.
 
-@inline function _signal_handling_mode(value)
-    if value isa Iceoryx2FFI.iox2_signal_handling_mode_e
-        return value
-    elseif value === :handle_termination_requests
+@inline _signal_handling_mode(value::Iceoryx2FFI.iox2_signal_handling_mode_e) = value
+
+@inline function _signal_handling_mode(value::Symbol)
+    if value === :handle_termination_requests
         return Iceoryx2FFI.iox2_signal_handling_mode_e_HANDLE_TERMINATION_REQUESTS
     elseif value === :disabled
         return Iceoryx2FFI.iox2_signal_handling_mode_e_DISABLED
     end
     throw(ArgumentError("unsupported signal handling mode: $value"))
 end
+
+@inline _signal_handling_mode(value) = throw(ArgumentError("unsupported signal handling mode: $value"))
 
 function WaitsetBuilder()
     handle_ref = Ref{Iceoryx2FFI.iox2_waitset_builder_h}(_IOX2_NULL)

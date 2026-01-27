@@ -2,10 +2,10 @@
 
 using Logging
 
-@inline function _log_level(value)
-    if value isa Iceoryx2FFI.iox2_log_level_e
-        return value
-    elseif value === :trace
+@inline _log_level(value::Iceoryx2FFI.iox2_log_level_e) = value
+
+@inline function _log_level(value::Symbol)
+    if value === :trace
         return Iceoryx2FFI.iox2_log_level_e_TRACE
     elseif value === :debug
         return Iceoryx2FFI.iox2_log_level_e_DEBUG
@@ -20,6 +20,8 @@ using Logging
     end
     throw(ArgumentError("unsupported log level: $value"))
 end
+
+@inline _log_level(value) = throw(ArgumentError("unsupported log level: $value"))
 
 @inline function log_level()
     return Iceoryx2FFI.iox2_get_log_level()

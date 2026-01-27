@@ -5,29 +5,26 @@
     return nothing
 end
 
-@inline function _service_type(value)
-    if value isa Iceoryx2FFI.iox2_service_type_e
-        return value
-    elseif value isa Symbol
-        if value === :ipc
-            return Iceoryx2FFI.iox2_service_type_e_IPC
-        elseif value === :local
-            return Iceoryx2FFI.iox2_service_type_e_LOCAL
-        end
+@inline _service_type(value::Iceoryx2FFI.iox2_service_type_e) = value
+
+@inline function _service_type(value::Symbol)
+    if value === :ipc
+        return Iceoryx2FFI.iox2_service_type_e_IPC
+    elseif value === :local
+        return Iceoryx2FFI.iox2_service_type_e_LOCAL
     end
     throw(ArgumentError("unsupported service_type: $value"))
 end
 
+@inline _service_type(value) = throw(ArgumentError("unsupported service_type: $value"))
+
 mutable struct NodeBuilder
     handle::Iceoryx2FFI.iox2_node_builder_h
-    storage::Ptr{Iceoryx2FFI.iox2_node_builder_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_node_builder_t}
 end
 
 function _free_node_builder_storage!(builder::NodeBuilder)
-    if builder.storage != _IOX2_NULL
-        Libc.free(builder.storage)
-        builder.storage = Ptr{Iceoryx2FFI.iox2_node_builder_t}(_IOX2_NULL)
-    end
+    builder.storage = Ref{Iceoryx2FFI.iox2_node_builder_t}()
     return nothing
 end
 
@@ -38,8 +35,7 @@ function _finalize_node_builder(builder::NodeBuilder)
 end
 
 function NodeBuilder()
-    storage = Ptr{Iceoryx2FFI.iox2_node_builder_t}(Libc.malloc(sizeof(Iceoryx2FFI.iox2_node_builder_t)))
-    storage == _IOX2_NULL && throw(OutOfMemoryError())
+    storage = Ref{Iceoryx2FFI.iox2_node_builder_t}()
     handle = Iceoryx2FFI.iox2_node_builder_new(storage)
     builder = NodeBuilder(handle, storage)
     finalizer(_finalize_node_builder, builder)
@@ -106,15 +102,12 @@ end
 
 mutable struct ServiceBuilder
     handle::Iceoryx2FFI.iox2_service_builder_h
-    storage::Ptr{Iceoryx2FFI.iox2_service_builder_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node
 end
 
 function _free_service_builder_storage!(builder::ServiceBuilder)
-    if builder.storage != _IOX2_NULL
-        Libc.free(builder.storage)
-        builder.storage = Ptr{Iceoryx2FFI.iox2_service_builder_t}(_IOX2_NULL)
-    end
+    builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
     return nothing
 end
 
@@ -126,8 +119,7 @@ end
 
 function service_builder(node::Node, name::ServiceName)
     _require_valid(unsafe_handle(node), "node")
-    storage = Ptr{Iceoryx2FFI.iox2_service_builder_t}(Libc.malloc(sizeof(Iceoryx2FFI.iox2_service_builder_t)))
-    storage == _IOX2_NULL && throw(OutOfMemoryError())
+    storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
     node_ref = Ref{Iceoryx2FFI.iox2_node_h}(unsafe_handle(node))
     ptr = _service_name_ptr(unsafe_handle(name))
     handle = Iceoryx2FFI.iox2_node_service_builder(node_ref, storage, ptr)
@@ -139,8 +131,7 @@ end
 
 function service_builder(node::Node, name::ServiceNameView)
     _require_valid(unsafe_handle(node), "node")
-    storage = Ptr{Iceoryx2FFI.iox2_service_builder_t}(Libc.malloc(sizeof(Iceoryx2FFI.iox2_service_builder_t)))
-    storage == _IOX2_NULL && throw(OutOfMemoryError())
+    storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
     node_ref = Ref{Iceoryx2FFI.iox2_node_h}(unsafe_handle(node))
     handle = Iceoryx2FFI.iox2_node_service_builder(node_ref, storage, unsafe_handle(name))
     builder = ServiceBuilder(handle, storage, node)
@@ -157,39 +148,36 @@ end
 
 mutable struct EventServiceBuilder
     handle::Iceoryx2FFI.iox2_service_builder_event_h
-    storage::Ptr{Iceoryx2FFI.iox2_service_builder_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node
 end
 
 mutable struct PubSubServiceBuilder
     handle::Iceoryx2FFI.iox2_service_builder_pub_sub_h
-    storage::Ptr{Iceoryx2FFI.iox2_service_builder_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node
 end
 
 mutable struct RequestResponseServiceBuilder
     handle::Iceoryx2FFI.iox2_service_builder_request_response_h
-    storage::Ptr{Iceoryx2FFI.iox2_service_builder_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node
 end
 
 mutable struct BlackboardCreatorBuilder
     handle::Iceoryx2FFI.iox2_service_builder_blackboard_creator_h
-    storage::Ptr{Iceoryx2FFI.iox2_service_builder_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node
 end
 
 mutable struct BlackboardOpenerBuilder
     handle::Iceoryx2FFI.iox2_service_builder_blackboard_opener_h
-    storage::Ptr{Iceoryx2FFI.iox2_service_builder_t}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node
 end
 
 function _finalize_service_builder_variant(builder)
-    if builder.storage != _IOX2_NULL
-        Libc.free(builder.storage)
-        builder.storage = Ptr{Iceoryx2FFI.iox2_service_builder_t}(_IOX2_NULL)
-    end
+    builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
     return nothing
 end
 
@@ -198,7 +186,7 @@ function event(builder::ServiceBuilder)
     handle = Iceoryx2FFI.iox2_service_builder_event(builder.handle)
     builder.handle = _IOX2_NULL
     storage = builder.storage
-    builder.storage = Ptr{Iceoryx2FFI.iox2_service_builder_t}(_IOX2_NULL)
+    builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
     variant = EventServiceBuilder(handle, storage, builder.keepalive)
     finalizer(_finalize_service_builder_variant, variant)
     return variant
@@ -209,7 +197,7 @@ function pub_sub(builder::ServiceBuilder)
     handle = Iceoryx2FFI.iox2_service_builder_pub_sub(builder.handle)
     builder.handle = _IOX2_NULL
     storage = builder.storage
-    builder.storage = Ptr{Iceoryx2FFI.iox2_service_builder_t}(_IOX2_NULL)
+    builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
     variant = PubSubServiceBuilder(handle, storage, builder.keepalive)
     finalizer(_finalize_service_builder_variant, variant)
     return variant
@@ -220,7 +208,7 @@ function request_response(builder::ServiceBuilder)
     handle = Iceoryx2FFI.iox2_service_builder_request_response(builder.handle)
     builder.handle = _IOX2_NULL
     storage = builder.storage
-    builder.storage = Ptr{Iceoryx2FFI.iox2_service_builder_t}(_IOX2_NULL)
+    builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
     variant = RequestResponseServiceBuilder(handle, storage, builder.keepalive)
     finalizer(_finalize_service_builder_variant, variant)
     return variant
@@ -231,7 +219,7 @@ function blackboard_creator(builder::ServiceBuilder)
     handle = Iceoryx2FFI.iox2_service_builder_blackboard_creator(builder.handle)
     builder.handle = _IOX2_NULL
     storage = builder.storage
-    builder.storage = Ptr{Iceoryx2FFI.iox2_service_builder_t}(_IOX2_NULL)
+    builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
     variant = BlackboardCreatorBuilder(handle, storage, builder.keepalive)
     finalizer(_finalize_service_builder_variant, variant)
     return variant
@@ -242,7 +230,7 @@ function blackboard_opener(builder::ServiceBuilder)
     handle = Iceoryx2FFI.iox2_service_builder_blackboard_opener(builder.handle)
     builder.handle = _IOX2_NULL
     storage = builder.storage
-    builder.storage = Ptr{Iceoryx2FFI.iox2_service_builder_t}(_IOX2_NULL)
+    builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
     variant = BlackboardOpenerBuilder(handle, storage, builder.keepalive)
     finalizer(_finalize_service_builder_variant, variant)
     return variant

@@ -1,9 +1,9 @@
 # Config, static config, and dynamic config helpers.
 
-@inline function _messaging_pattern(value)
-    if value isa Iceoryx2FFI.iox2_messaging_pattern_e
-        return value
-    elseif value === :pubsub || value === :publish_subscribe
+@inline _messaging_pattern(value::Iceoryx2FFI.iox2_messaging_pattern_e) = value
+
+@inline function _messaging_pattern(value::Symbol)
+    if value === :pubsub || value === :publish_subscribe
         return Iceoryx2FFI.iox2_messaging_pattern_e_PUBLISH_SUBSCRIBE
     elseif value === :event
         return Iceoryx2FFI.iox2_messaging_pattern_e_EVENT
@@ -14,6 +14,8 @@
     end
     throw(ArgumentError("unsupported messaging pattern: $value"))
 end
+
+@inline _messaging_pattern(value) = throw(ArgumentError("unsupported messaging pattern: $value"))
 
 @inline function _cstring_from_ntuple(nt::NTuple{N, Cchar}) where {N}
     idx = findfirst(==(0), nt)
@@ -94,47 +96,69 @@ end
 end
 
 function service_does_exist(
-    service_name::Union{ServiceName, ServiceNameView, AbstractString};
+    service_name::Union{ServiceName, ServiceNameView};
     service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e} = :ipc,
     messaging_pattern::Union{Symbol, Iceoryx2FFI.iox2_messaging_pattern_e} = :publish_subscribe,
     config::Union{Config, ConfigView, Nothing} = nothing,
 )
-    name_handle = service_name isa AbstractString ? ServiceName(service_name) : nothing
-    name_arg = name_handle === nothing ? service_name : name_handle
     exists = Ref{Bool}(false)
     ret = Iceoryx2FFI.iox2_service_does_exist(
         _service_type(service_type),
-        _service_name_ptr(name_arg),
+        _service_name_ptr(service_name),
         _config_ptr_from_arg(config),
         _messaging_pattern(messaging_pattern),
         exists,
     )
-    name_handle !== nothing && close(name_handle)
     check_ok(ret, Iceoryx2FFI.iox2_service_details_error_e)
     return exists[]
 end
 
-function service_details(
-    service_name::Union{ServiceName, ServiceNameView, AbstractString};
+function service_does_exist(
+    service_name::AbstractString;
     service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e} = :ipc,
     messaging_pattern::Union{Symbol, Iceoryx2FFI.iox2_messaging_pattern_e} = :publish_subscribe,
     config::Union{Config, ConfigView, Nothing} = nothing,
 )
-    name_handle = service_name isa AbstractString ? ServiceName(service_name) : nothing
-    name_arg = name_handle === nothing ? service_name : name_handle
+    name = ServiceName(service_name)
+    try
+        return service_does_exist(name; service_type, messaging_pattern, config)
+    finally
+        close(name)
+    end
+end
+
+function service_details(
+    service_name::Union{ServiceName, ServiceNameView};
+    service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e} = :ipc,
+    messaging_pattern::Union{Symbol, Iceoryx2FFI.iox2_messaging_pattern_e} = :publish_subscribe,
+    config::Union{Config, ConfigView, Nothing} = nothing,
+)
     details_ref = Ref{Iceoryx2FFI.iox2_static_config_t}()
     exists = Ref{Bool}(false)
     ret = Iceoryx2FFI.iox2_service_details(
         _service_type(service_type),
-        _service_name_ptr(name_arg),
+        _service_name_ptr(service_name),
         _config_ptr_from_arg(config),
         _messaging_pattern(messaging_pattern),
         details_ref,
         exists,
     )
-    name_handle !== nothing && close(name_handle)
     check_ok(ret, Iceoryx2FFI.iox2_service_details_error_e)
     return exists[], StaticConfig(details_ref[])
+end
+
+function service_details(
+    service_name::AbstractString;
+    service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e} = :ipc,
+    messaging_pattern::Union{Symbol, Iceoryx2FFI.iox2_messaging_pattern_e} = :publish_subscribe,
+    config::Union{Config, ConfigView, Nothing} = nothing,
+)
+    name = ServiceName(service_name)
+    try
+        return service_details(name; service_type, messaging_pattern, config)
+    finally
+        close(name)
+    end
 end
 
 abstract type AbstractServiceListHandler end

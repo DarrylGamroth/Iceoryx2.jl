@@ -1,15 +1,22 @@
 # Callback and iteration helpers.
 
-@inline function _callback_progression(value)
-    if value isa Iceoryx2FFI.iox2_callback_progression_e
-        return value
-    elseif value === true || value === :continue
+@inline _callback_progression(value::Iceoryx2FFI.iox2_callback_progression_e) = value
+
+@inline function _callback_progression(value::Bool)
+    return value ? Iceoryx2FFI.iox2_callback_progression_e_CONTINUE :
+           Iceoryx2FFI.iox2_callback_progression_e_STOP
+end
+
+@inline function _callback_progression(value::Symbol)
+    if value === :continue
         return Iceoryx2FFI.iox2_callback_progression_e_CONTINUE
-    elseif value === false || value === :stop
+    elseif value === :stop
         return Iceoryx2FFI.iox2_callback_progression_e_STOP
     end
     throw(ArgumentError("unsupported callback progression: $value"))
 end
+
+@inline _callback_progression(value) = throw(ArgumentError("unsupported callback progression: $value"))
 
 @inline function _config_ptr_from_arg(config::Config)
     _require_valid(unsafe_handle(config), "config")
