@@ -133,16 +133,25 @@ Hot path refers to any API that is called per message/event or inside tight loop
 - Provide Julia-idiomatic iteration:
   - `list_nodes(config) do state ... end`
   - Optional `collect` variants that return arrays.
+- Outputs:
+  - Callback helpers: `src/callbacks.jl`
+- Status: Completed (2026-01-27)
 
 ## Phase 9: WaitSet & FileDescriptor
 - `WaitSet`, `WaitSetGuard`, `WaitSetAttachmentId` wrappers.
 - Provide `wait_and_process` and `wait_and_process_once` as Julia methods accepting closures.
 - Ensure guard ownership is enforced via finalizers or explicit `close`.
+- Outputs:
+  - WaitSet wrappers: `src/waitset.jl`
+- Status: Completed (2026-01-27)
 
 ## Phase 10: Config & Static/Dynamic Config
 - Map by-value config structs (static config types) to immutable Julia structs.
 - Provide high-level getters with Julia types (`Duration`, `Alignment`, etc.).
 - For dynamic config, wrap C handles.
+- Outputs:
+  - Config helpers: `src/config.jl`
+- Status: Completed (2026-01-27)
 
 ## Phase 11: Logging Integration
 - Expose `set_log_level`, `set_log_level_from_env` functions.
