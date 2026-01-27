@@ -25,8 +25,6 @@ end
 
 const _StorageRef{T} = Union{Nothing, Base.RefValue{T}}
 
-@inline _free_struct!(::Union{Nothing, Base.RefValue{T}}) where {T} = nothing
-
 struct Slice{T}
     ptr::Ptr{T}
     len::Int
@@ -64,7 +62,7 @@ function _finalize_port_factory_pub_sub(factory::PortFactoryPubSub)
         Iceoryx2FFI.iox2_port_factory_pub_sub_drop(factory.handle)
         factory.handle = _IOX2_NULL
     end
-    factory.storage = _free_struct!(factory.storage)
+    factory.storage = nothing
     return nothing
 end
 
@@ -98,7 +96,7 @@ end
 
 function _finalize_publisher_builder(builder::PublisherBuilder)
     builder.handle = _IOX2_NULL
-    builder.storage = _free_struct!(builder.storage)
+    builder.storage = nothing
     return nothing
 end
 
@@ -120,7 +118,7 @@ end
 
 function _finalize_subscriber_builder(builder::SubscriberBuilder)
     builder.handle = _IOX2_NULL
-    builder.storage = _free_struct!(builder.storage)
+    builder.storage = nothing
     return nothing
 end
 
@@ -145,7 +143,7 @@ function _finalize_publisher(pub::Publisher)
         Iceoryx2FFI.iox2_publisher_drop(pub.handle)
         pub.handle = _IOX2_NULL
     end
-    pub.storage = _free_struct!(pub.storage)
+    pub.storage = nothing
     return nothing
 end
 
@@ -182,7 +180,7 @@ function _finalize_subscriber(sub::Subscriber)
         Iceoryx2FFI.iox2_subscriber_drop(sub.handle)
         sub.handle = _IOX2_NULL
     end
-    sub.storage = _free_struct!(sub.storage)
+    sub.storage = nothing
     return nothing
 end
 
@@ -218,7 +216,7 @@ function _finalize_sample(sample::Sample)
         Iceoryx2FFI.iox2_sample_drop(sample.handle)
         sample.handle = _IOX2_NULL
     end
-    sample.storage = _free_struct!(sample.storage)
+    sample.storage = nothing
     return nothing
 end
 
@@ -239,7 +237,7 @@ function _finalize_sample_mut(sample::SampleMut)
         Iceoryx2FFI.iox2_sample_mut_drop(sample.handle)
         sample.handle = _IOX2_NULL
     end
-    sample.storage = _free_struct!(sample.storage)
+    sample.storage = nothing
     return nothing
 end
 
@@ -265,7 +263,7 @@ end
     ret = Iceoryx2FFI.iox2_sample_mut_send(sample.handle, C_NULL)
     check_ok(ret, Iceoryx2FFI.iox2_send_error_e)
     sample.handle = _IOX2_NULL
-    sample.storage = _free_struct!(sample.storage)
+    sample.storage = nothing
     return nothing
 end
 
@@ -291,7 +289,7 @@ function receive(subscriber::Subscriber{T}) where {T}
     ret = Iceoryx2FFI.iox2_subscriber_receive(Ref{Iceoryx2FFI.iox2_subscriber_h}(subscriber.handle), storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_receive_error_e)
     if handle_ref[] == _IOX2_NULL
-        storage = _free_struct!(storage)
+        storage = nothing
         return nothing
     end
     sample = Sample{T}(handle_ref[], storage)
@@ -343,7 +341,7 @@ function _finalize_port_factory_request_response(factory::PortFactoryRequestResp
         Iceoryx2FFI.iox2_port_factory_request_response_drop(factory.handle)
         factory.handle = _IOX2_NULL
     end
-    factory.storage = _free_struct!(factory.storage)
+    factory.storage = nothing
     return nothing
 end
 
@@ -377,7 +375,7 @@ end
 
 function _finalize_client_builder(builder::ClientBuilder)
     builder.handle = _IOX2_NULL
-    builder.storage = _free_struct!(builder.storage)
+    builder.storage = nothing
     return nothing
 end
 
@@ -400,7 +398,7 @@ end
 
 function _finalize_server_builder(builder::ServerBuilder)
     builder.handle = _IOX2_NULL
-    builder.storage = _free_struct!(builder.storage)
+    builder.storage = nothing
     return nothing
 end
 
@@ -426,7 +424,7 @@ function _finalize_client(client::Client)
         Iceoryx2FFI.iox2_client_drop(client.handle)
         client.handle = _IOX2_NULL
     end
-    client.storage = _free_struct!(client.storage)
+    client.storage = nothing
     return nothing
 end
 
@@ -463,7 +461,7 @@ function _finalize_server(server::Server)
         Iceoryx2FFI.iox2_server_drop(server.handle)
         server.handle = _IOX2_NULL
     end
-    server.storage = _free_struct!(server.storage)
+    server.storage = nothing
     return nothing
 end
 
@@ -499,7 +497,7 @@ function _finalize_request_mut(request::RequestMut)
         Iceoryx2FFI.iox2_request_mut_drop(request.handle)
         request.handle = _IOX2_NULL
     end
-    request.storage = _free_struct!(request.storage)
+    request.storage = nothing
     return nothing
 end
 
@@ -520,7 +518,7 @@ function _finalize_pending_response(pending::PendingResponse)
         Iceoryx2FFI.iox2_pending_response_drop(pending.handle)
         pending.handle = _IOX2_NULL
     end
-    pending.storage = _free_struct!(pending.storage)
+    pending.storage = nothing
     return nothing
 end
 
@@ -541,7 +539,7 @@ function send!(request::RequestMut{Req,Resp}) where {Req,Resp}
     ret = Iceoryx2FFI.iox2_request_mut_send(request.handle, pending_storage, pending_ref)
     check_ok(ret, Iceoryx2FFI.iox2_send_error_e)
     request.handle = _IOX2_NULL
-    request.storage = _free_struct!(request.storage)
+    request.storage = nothing
     pending = PendingResponse{Resp}(pending_ref[], pending_storage)
     finalizer(_finalize_pending_response, pending)
     return pending
@@ -574,7 +572,7 @@ function _finalize_response(resp::Response)
         Iceoryx2FFI.iox2_response_drop(resp.handle)
         resp.handle = _IOX2_NULL
     end
-    resp.storage = _free_struct!(resp.storage)
+    resp.storage = nothing
     return nothing
 end
 
@@ -591,7 +589,7 @@ function receive(pending::PendingResponse{Resp}) where {Resp}
     ret = Iceoryx2FFI.iox2_pending_response_receive(Ref{Iceoryx2FFI.iox2_pending_response_h}(pending.handle), storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_receive_error_e)
     if handle_ref[] == _IOX2_NULL
-        storage = _free_struct!(storage)
+        storage = nothing
         return nothing
     end
     resp = Response{Resp}(handle_ref[], storage)
@@ -609,7 +607,7 @@ function _finalize_active_request(req::ActiveRequest)
         Iceoryx2FFI.iox2_active_request_drop(req.handle)
         req.handle = _IOX2_NULL
     end
-    req.storage = _free_struct!(req.storage)
+    req.storage = nothing
     return nothing
 end
 
@@ -630,7 +628,7 @@ function _finalize_response_mut(resp::ResponseMut)
         Iceoryx2FFI.iox2_response_mut_drop(resp.handle)
         resp.handle = _IOX2_NULL
     end
-    resp.storage = _free_struct!(resp.storage)
+    resp.storage = nothing
     return nothing
 end
 
@@ -648,7 +646,7 @@ function receive(server::Server{Req,Resp}) where {Req,Resp}
     ret = Iceoryx2FFI.iox2_server_receive(Ref{Iceoryx2FFI.iox2_server_h}(server.handle), storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_receive_error_e)
     if handle_ref[] == _IOX2_NULL
-        storage = _free_struct!(storage)
+        storage = nothing
         return nothing
     end
     req = ActiveRequest{Req,Resp}(handle_ref[], storage)
@@ -676,7 +674,7 @@ function send!(resp::ResponseMut)
     ret = Iceoryx2FFI.iox2_response_mut_send(resp.handle)
     check_ok(ret, Iceoryx2FFI.iox2_send_error_e)
     resp.handle = _IOX2_NULL
-    resp.storage = _free_struct!(resp.storage)
+    resp.storage = nothing
     return nothing
 end
 
@@ -693,7 +691,7 @@ function _finalize_port_factory_event(factory::PortFactoryEvent)
         Iceoryx2FFI.iox2_port_factory_event_drop(factory.handle)
         factory.handle = _IOX2_NULL
     end
-    factory.storage = _free_struct!(factory.storage)
+    factory.storage = nothing
     return nothing
 end
 
@@ -727,7 +725,7 @@ end
 
 function _finalize_notifier_builder(builder::NotifierBuilder)
     builder.handle = _IOX2_NULL
-    builder.storage = _free_struct!(builder.storage)
+    builder.storage = nothing
     return nothing
 end
 
@@ -748,7 +746,7 @@ end
 
 function _finalize_listener_builder(builder::ListenerBuilder)
     builder.handle = _IOX2_NULL
-    builder.storage = _free_struct!(builder.storage)
+    builder.storage = nothing
     return nothing
 end
 
@@ -772,7 +770,7 @@ function _finalize_notifier(notifier::Notifier)
         Iceoryx2FFI.iox2_notifier_drop(notifier.handle)
         notifier.handle = _IOX2_NULL
     end
-    notifier.storage = _free_struct!(notifier.storage)
+    notifier.storage = nothing
     return nothing
 end
 
@@ -809,7 +807,7 @@ function _finalize_listener(listener::Listener)
         Iceoryx2FFI.iox2_listener_drop(listener.handle)
         listener.handle = _IOX2_NULL
     end
-    listener.storage = _free_struct!(listener.storage)
+    listener.storage = nothing
     return nothing
 end
 
@@ -856,7 +854,7 @@ function _finalize_port_factory_blackboard(factory::PortFactoryBlackboard)
         Iceoryx2FFI.iox2_port_factory_blackboard_drop(factory.handle)
         factory.handle = _IOX2_NULL
     end
-    factory.storage = _free_struct!(factory.storage)
+    factory.storage = nothing
     empty!(factory.values)
     return nothing
 end
@@ -982,7 +980,7 @@ end
 
 function _finalize_writer_builder(builder::WriterBuilder)
     builder.handle = _IOX2_NULL
-    builder.storage = _free_struct!(builder.storage)
+    builder.storage = nothing
     return nothing
 end
 
@@ -1003,7 +1001,7 @@ end
 
 function _finalize_reader_builder(builder::ReaderBuilder)
     builder.handle = _IOX2_NULL
-    builder.storage = _free_struct!(builder.storage)
+    builder.storage = nothing
     return nothing
 end
 
@@ -1027,7 +1025,7 @@ function _finalize_writer(writer::Writer)
         Iceoryx2FFI.iox2_writer_drop(writer.handle)
         writer.handle = _IOX2_NULL
     end
-    writer.storage = _free_struct!(writer.storage)
+    writer.storage = nothing
     return nothing
 end
 
@@ -1064,7 +1062,7 @@ function _finalize_reader(reader::Reader)
         Iceoryx2FFI.iox2_reader_drop(reader.handle)
         reader.handle = _IOX2_NULL
     end
-    reader.storage = _free_struct!(reader.storage)
+    reader.storage = nothing
     return nothing
 end
 
