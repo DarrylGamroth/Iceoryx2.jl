@@ -9,6 +9,7 @@ include("strings.jl")
 include("builders.jl")
 include("messaging.jl")
 include("callbacks.jl")
+include("logging.jl")
 include("waitset.jl")
 include("config.jl")
 

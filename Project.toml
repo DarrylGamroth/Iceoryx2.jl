@@ -6,6 +6,7 @@ authors = ["Darryl Gamroth <dgamroth@rubus.ca>"]
 [deps]
 Iceoryx2_jll = "c0bada20-47fe-5829-a5d2-36f16f9ecd92"
 CEnum = "fa961155-64e5-5f13-b03f-caf6b980ea82"
+Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

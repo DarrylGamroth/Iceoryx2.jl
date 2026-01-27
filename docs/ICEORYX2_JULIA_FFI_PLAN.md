@@ -156,6 +156,7 @@ Hot path refers to any API that is called per message/event or inside tight loop
 ## Phase 11: Logging Integration
 - Expose `set_log_level`, `set_log_level_from_env` functions.
 - Optionally bridge to Julia's `Logging` by providing a custom logger.
+- Status: Completed (2026-01-27)
 
 ## Phase 12: Testing Strategy
 - Unit tests for:
