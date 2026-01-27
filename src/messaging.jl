@@ -346,7 +346,7 @@ end
     return Slice{T}(Ptr{T}(ptr_ref[]), Int(len_ref[]), sample)
 end
 
-@inline function payload_ptr(sample::Sample{T}) where {T}
+@inline function unsafe_payload_ptr(sample::Sample{T}) where {T}
     return payload(sample).ptr
 end
 
@@ -371,7 +371,7 @@ end
     return Slice{T}(Ptr{T}(ptr_ref[]), Int(len_ref[]), sample)
 end
 
-@inline function payload_mut_ptr(sample::SampleMut{T}) where {T}
+@inline function unsafe_payload_mut_ptr(sample::SampleMut{T}) where {T}
     return payload_mut(sample).ptr
 end
 
@@ -739,7 +739,7 @@ end
     return Slice{Req}(Ptr{Req}(ptr_ref[]), Int(len_ref[]), request)
 end
 
-@inline function payload_mut_ptr(request::RequestMut{Req,Resp}) where {Req,Resp}
+@inline function unsafe_payload_mut_ptr(request::RequestMut{Req,Resp}) where {Req,Resp}
     return payload_mut(request).ptr
 end
 
@@ -841,7 +841,7 @@ end
     return Slice{RespT}(Ptr{RespT}(ptr_ref[]), Int(len_ref[]), resp)
 end
 
-@inline function payload_ptr(resp::Response{RespT}) where {RespT}
+@inline function unsafe_payload_ptr(resp::Response{RespT}) where {RespT}
     return payload(resp).ptr
 end
 
@@ -880,7 +880,7 @@ end
     return Slice{ReqT}(Ptr{ReqT}(ptr_ref[]), Int(len_ref[]), req)
 end
 
-@inline function payload_ptr(req::ActiveRequest{ReqT,RespT}) where {ReqT,RespT}
+@inline function unsafe_payload_ptr(req::ActiveRequest{ReqT,RespT}) where {ReqT,RespT}
     return payload(req).ptr
 end
 
@@ -905,7 +905,7 @@ end
     return Slice{RespT}(Ptr{RespT}(ptr_ref[]), Int(len_ref[]), resp)
 end
 
-@inline function payload_mut_ptr(resp::ResponseMut{RespT}) where {RespT}
+@inline function unsafe_payload_mut_ptr(resp::ResponseMut{RespT}) where {RespT}
     return payload_mut(resp).ptr
 end
 
