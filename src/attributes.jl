@@ -82,7 +82,7 @@ function verify_requirements(verifier::AttributeVerifier, attrs::Union{Attribute
         Iceoryx2FFI.iox2_attribute_verifier_verify_requirements(
             Ref{Iceoryx2FFI.iox2_attribute_verifier_h}(unsafe_handle(verifier)),
             _attribute_set_ptr(attrs),
-            Base.unsafe_convert(Cstring, buffer),
+            Base.unsafe_convert(Cstring, pointer(buffer)),
             Iceoryx2FFI.c_size_t(buf_len + 1),
         )
     end
@@ -107,7 +107,7 @@ end
     GC.@preserve buffer begin
         Iceoryx2FFI.iox2_attribute_key(
             unsafe_handle(attr),
-            Base.unsafe_convert(Cstring, buffer),
+            Base.unsafe_convert(Cstring, pointer(buffer)),
             Iceoryx2FFI.c_size_t(len + 1),
         )
     end
@@ -120,7 +120,7 @@ end
     GC.@preserve buffer begin
         Iceoryx2FFI.iox2_attribute_value(
             unsafe_handle(attr),
-            Base.unsafe_convert(Cstring, buffer),
+            Base.unsafe_convert(Cstring, pointer(buffer)),
             Iceoryx2FFI.c_size_t(len + 1),
         )
     end
@@ -150,7 +150,7 @@ function key_value(attrs::Union{AttributeSet, AttributeSetView}, key::AbstractSt
             _attribute_set_ptr(attrs),
             Base.unsafe_convert(Cstring, key_str),
             Iceoryx2FFI.c_size_t(index - 1),
-            Base.unsafe_convert(Cstring, buffer),
+            Base.unsafe_convert(Cstring, pointer(buffer)),
             Iceoryx2FFI.c_size_t(buffer_len + 1),
             has_value,
         )
@@ -171,7 +171,7 @@ function keys(verifier::AttributeVerifier)
             Iceoryx2FFI.iox2_attribute_verifier_key(
                 handle_ref,
                 Iceoryx2FFI.c_size_t(idx),
-                Base.unsafe_convert(Cstring, buffer),
+                Base.unsafe_convert(Cstring, pointer(buffer)),
                 Iceoryx2FFI.c_size_t(len + 1),
             )
         end
