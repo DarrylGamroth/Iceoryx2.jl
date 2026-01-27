@@ -87,6 +87,15 @@ function open_or_create(builder::PubSubServiceBuilder)
     return factory
 end
 
+function open_or_create(f::Function, builder::PubSubServiceBuilder)
+    factory = open_or_create(builder)
+    try
+        return f(factory)
+    finally
+        close(factory)
+    end
+end
+
 mutable struct PublisherBuilder{T}
     handle::Iceoryx2FFI.iox2_port_factory_publisher_builder_h
     storage::Ptr{Iceoryx2FFI.iox2_port_factory_publisher_builder_t}
@@ -355,6 +364,15 @@ function open_or_create(builder::RequestResponseServiceBuilder)
     factory = PortFactoryRequestResponse(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_port_factory_request_response, factory)
     return factory
+end
+
+function open_or_create(f::Function, builder::RequestResponseServiceBuilder)
+    factory = open_or_create(builder)
+    try
+        return f(factory)
+    finally
+        close(factory)
+    end
 end
 
 mutable struct ClientBuilder{Req,Resp}
@@ -698,6 +716,15 @@ function open_or_create(builder::EventServiceBuilder)
     return factory
 end
 
+function open_or_create(f::Function, builder::EventServiceBuilder)
+    factory = open_or_create(builder)
+    try
+        return f(factory)
+    finally
+        close(factory)
+    end
+end
+
 mutable struct NotifierBuilder
     handle::Iceoryx2FFI.iox2_port_factory_notifier_builder_h
     storage::Ptr{Iceoryx2FFI.iox2_port_factory_notifier_builder_t}
@@ -871,6 +898,15 @@ function open(builder::BlackboardOpenerBuilder)
     factory = PortFactoryBlackboard(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_port_factory_blackboard, factory)
     return factory
+end
+
+function open(f::Function, builder::BlackboardOpenerBuilder)
+    factory = open(builder)
+    try
+        return f(factory)
+    finally
+        close(factory)
+    end
 end
 
 mutable struct WriterBuilder
