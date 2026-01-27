@@ -174,6 +174,7 @@ Hot path refers to any API that is called per message/event or inside tight loop
 - Tests are organized under `test/testsets` and included from `test/runtests.jl`.
 - Coverage script: `scripts/coverage_symbols.jl` compares C header functions to `Iceoryx2FFI` wrappers.
 - Perf gates: `test/testsets/perf_gates.jl` adds `@inferred` and `@allocated` checks for hot-path primitives.
+- Benchmark scaffolding: `scripts/bench_hotpath.jl` provides `BenchmarkTools` baselines for hot-path primitives.
 - Status: Completed (2026-01-27)
 
 ## Phase 13: Documentation & Examples

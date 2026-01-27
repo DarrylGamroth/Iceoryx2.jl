@@ -9,7 +9,9 @@ CEnum = "fa961155-64e5-5f13-b03f-caf6b980ea82"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 
 [extras]
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
 test = ["Test"]
+bench = ["BenchmarkTools"]
