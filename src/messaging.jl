@@ -23,13 +23,9 @@ end
     return name, Iceoryx2FFI.c_size_t(ncodeunits(name)), Iceoryx2FFI.c_size_t(sizeof(T)), Iceoryx2FFI.c_size_t(Base.datatype_alignment(T))
 end
 
-@inline function _malloc_struct(::Type{T}) where {T}
-    return Ref{T}()
-end
+const _StorageRef{T} = Union{Nothing, Base.RefValue{T}}
 
-@inline function _free_struct!(storage::Base.RefValue{T}) where {T}
-    return Ref{T}()
-end
+@inline _free_struct!(::Union{Nothing, Base.RefValue{T}}) where {T} = nothing
 
 struct Slice{T}
     ptr::Ptr{T}
@@ -59,7 +55,7 @@ end
 
 mutable struct PortFactoryPubSub
     handle::Iceoryx2FFI.iox2_port_factory_pub_sub_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_port_factory_pub_sub_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_pub_sub_t}
     keepalive::Node
 end
 
@@ -74,7 +70,7 @@ end
 
 function open_or_create(builder::PubSubServiceBuilder)
     _require_valid(builder.handle, "pub_sub service builder")
-    storage = _malloc_struct(Iceoryx2FFI.iox2_port_factory_pub_sub_t)
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_pub_sub_open_or_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
@@ -96,7 +92,7 @@ end
 
 mutable struct PublisherBuilder{T}
     handle::Iceoryx2FFI.iox2_port_factory_publisher_builder_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_port_factory_publisher_builder_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_publisher_builder_t}
     keepalive::PortFactoryPubSub
 end
 
@@ -109,7 +105,7 @@ end
 function publisher_builder(factory::PortFactoryPubSub, ::Type{T}) where {T}
     _require_valid(factory.handle, "pub_sub port factory")
     _require_isbits(T)
-    storage = _malloc_struct(Iceoryx2FFI.iox2_port_factory_publisher_builder_t)
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_publisher_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_pub_sub_publisher_builder(Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle), storage)
     builder = PublisherBuilder{T}(handle, storage, factory)
     finalizer(_finalize_publisher_builder, builder)
@@ -118,7 +114,7 @@ end
 
 mutable struct SubscriberBuilder{T}
     handle::Iceoryx2FFI.iox2_port_factory_subscriber_builder_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_port_factory_subscriber_builder_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_subscriber_builder_t}
     keepalive::PortFactoryPubSub
 end
 
@@ -131,7 +127,7 @@ end
 function subscriber_builder(factory::PortFactoryPubSub, ::Type{T}) where {T}
     _require_valid(factory.handle, "pub_sub port factory")
     _require_isbits(T)
-    storage = _malloc_struct(Iceoryx2FFI.iox2_port_factory_subscriber_builder_t)
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_subscriber_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_pub_sub_subscriber_builder(Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle), storage)
     builder = SubscriberBuilder{T}(handle, storage, factory)
     finalizer(_finalize_subscriber_builder, builder)
@@ -140,7 +136,7 @@ end
 
 mutable struct Publisher{T}
     handle::Iceoryx2FFI.iox2_publisher_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_publisher_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_publisher_t}
     keepalive::PortFactoryPubSub
 end
 
@@ -155,7 +151,7 @@ end
 
 function create(builder::PublisherBuilder{T}) where {T}
     _require_valid(builder.handle, "publisher builder")
-    storage = _malloc_struct(Iceoryx2FFI.iox2_publisher_t)
+    storage = Ref{Iceoryx2FFI.iox2_publisher_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_publisher_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_publisher_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_publisher_create_error_e)
@@ -177,7 +173,7 @@ end
 
 mutable struct Subscriber{T}
     handle::Iceoryx2FFI.iox2_subscriber_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_subscriber_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_subscriber_t}
     keepalive::PortFactoryPubSub
 end
 
@@ -192,7 +188,7 @@ end
 
 function create(builder::SubscriberBuilder{T}) where {T}
     _require_valid(builder.handle, "subscriber builder")
-    storage = _malloc_struct(Iceoryx2FFI.iox2_subscriber_t)
+    storage = Ref{Iceoryx2FFI.iox2_subscriber_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_subscriber_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_subscriber_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_subscriber_create_error_e)
@@ -214,7 +210,7 @@ end
 
 mutable struct Sample{T}
     handle::Iceoryx2FFI.iox2_sample_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_sample_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_sample_t}
 end
 
 function _finalize_sample(sample::Sample)
@@ -235,7 +231,7 @@ end
 
 mutable struct SampleMut{T}
     handle::Iceoryx2FFI.iox2_sample_mut_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_sample_mut_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_sample_mut_t}
 end
 
 function _finalize_sample_mut(sample::SampleMut)
@@ -256,7 +252,7 @@ end
 
 function loan_slice(publisher::Publisher{T}, n::Integer) where {T}
     _require_valid(publisher.handle, "publisher")
-    storage = _malloc_struct(Iceoryx2FFI.iox2_sample_mut_t)
+    storage = Ref{Iceoryx2FFI.iox2_sample_mut_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_sample_mut_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_publisher_loan_slice_uninit(Ref{Iceoryx2FFI.iox2_publisher_h}(publisher.handle), storage, handle_ref, Iceoryx2FFI.c_size_t(n))
     check_ok(ret, Iceoryx2FFI.iox2_loan_error_e)
@@ -290,7 +286,7 @@ end
 
 function receive(subscriber::Subscriber{T}) where {T}
     _require_valid(subscriber.handle, "subscriber")
-    storage = _malloc_struct(Iceoryx2FFI.iox2_sample_t)
+    storage = Ref{Iceoryx2FFI.iox2_sample_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_sample_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_subscriber_receive(Ref{Iceoryx2FFI.iox2_subscriber_h}(subscriber.handle), storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_receive_error_e)
@@ -338,7 +334,7 @@ end
 
 mutable struct PortFactoryRequestResponse
     handle::Iceoryx2FFI.iox2_port_factory_request_response_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_port_factory_request_response_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_request_response_t}
     keepalive::Node
 end
 
@@ -353,7 +349,7 @@ end
 
 function open_or_create(builder::RequestResponseServiceBuilder)
     _require_valid(builder.handle, "request_response service builder")
-    storage = _malloc_struct(Iceoryx2FFI.iox2_port_factory_request_response_t)
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_request_response_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_request_response_open_or_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
@@ -375,7 +371,7 @@ end
 
 mutable struct ClientBuilder{Req,Resp}
     handle::Iceoryx2FFI.iox2_port_factory_client_builder_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_port_factory_client_builder_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_client_builder_t}
     keepalive::PortFactoryRequestResponse
 end
 
@@ -389,7 +385,7 @@ function client_builder(factory::PortFactoryRequestResponse, ::Type{Req}, ::Type
     _require_valid(factory.handle, "request_response port factory")
     _require_isbits(Req)
     _require_isbits(Resp)
-    storage = _malloc_struct(Iceoryx2FFI.iox2_port_factory_client_builder_t)
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_client_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_request_response_client_builder(Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle), storage)
     builder = ClientBuilder{Req,Resp}(handle, storage, factory)
     finalizer(_finalize_client_builder, builder)
@@ -398,7 +394,7 @@ end
 
 mutable struct ServerBuilder{Req,Resp}
     handle::Iceoryx2FFI.iox2_port_factory_server_builder_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_port_factory_server_builder_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_server_builder_t}
     keepalive::PortFactoryRequestResponse
 end
 
@@ -412,7 +408,7 @@ function server_builder(factory::PortFactoryRequestResponse, ::Type{Req}, ::Type
     _require_valid(factory.handle, "request_response port factory")
     _require_isbits(Req)
     _require_isbits(Resp)
-    storage = _malloc_struct(Iceoryx2FFI.iox2_port_factory_server_builder_t)
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_server_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_request_response_server_builder(Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle), storage)
     builder = ServerBuilder{Req,Resp}(handle, storage, factory)
     finalizer(_finalize_server_builder, builder)
@@ -421,7 +417,7 @@ end
 
 mutable struct Client{Req,Resp}
     handle::Iceoryx2FFI.iox2_client_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_client_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_client_t}
     keepalive::PortFactoryRequestResponse
 end
 
@@ -436,7 +432,7 @@ end
 
 function create(builder::ClientBuilder{Req,Resp}) where {Req,Resp}
     _require_valid(builder.handle, "client builder")
-    storage = _malloc_struct(Iceoryx2FFI.iox2_client_t)
+    storage = Ref{Iceoryx2FFI.iox2_client_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_client_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_client_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_client_create_error_e)
@@ -458,7 +454,7 @@ end
 
 mutable struct Server{Req,Resp}
     handle::Iceoryx2FFI.iox2_server_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_server_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_server_t}
     keepalive::PortFactoryRequestResponse
 end
 
@@ -473,7 +469,7 @@ end
 
 function create(builder::ServerBuilder{Req,Resp}) where {Req,Resp}
     _require_valid(builder.handle, "server builder")
-    storage = _malloc_struct(Iceoryx2FFI.iox2_server_t)
+    storage = Ref{Iceoryx2FFI.iox2_server_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_server_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_server_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_server_create_error_e)
@@ -495,7 +491,7 @@ end
 
 mutable struct RequestMut{Req,Resp}
     handle::Iceoryx2FFI.iox2_request_mut_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_request_mut_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_request_mut_t}
 end
 
 function _finalize_request_mut(request::RequestMut)
@@ -516,7 +512,7 @@ end
 
 mutable struct PendingResponse{Resp}
     handle::Iceoryx2FFI.iox2_pending_response_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_pending_response_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_pending_response_t}
 end
 
 function _finalize_pending_response(pending::PendingResponse)
@@ -530,7 +526,7 @@ end
 
 function loan_request(client::Client{Req,Resp}, n::Integer) where {Req,Resp}
     _require_valid(client.handle, "client")
-    storage = _malloc_struct(Iceoryx2FFI.iox2_request_mut_t)
+    storage = Ref{Iceoryx2FFI.iox2_request_mut_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_request_mut_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_client_loan_slice_uninit(Ref{Iceoryx2FFI.iox2_client_h}(client.handle), storage, handle_ref, Iceoryx2FFI.c_size_t(n))
     check_ok(ret, Iceoryx2FFI.iox2_loan_error_e)
@@ -540,7 +536,7 @@ function loan_request(client::Client{Req,Resp}, n::Integer) where {Req,Resp}
 end
 
 function send!(request::RequestMut{Req,Resp}) where {Req,Resp}
-    pending_storage = _malloc_struct(Iceoryx2FFI.iox2_pending_response_t)
+    pending_storage = Ref{Iceoryx2FFI.iox2_pending_response_t}()
     pending_ref = Ref{Iceoryx2FFI.iox2_pending_response_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_request_mut_send(request.handle, pending_storage, pending_ref)
     check_ok(ret, Iceoryx2FFI.iox2_send_error_e)
@@ -552,7 +548,7 @@ function send!(request::RequestMut{Req,Resp}) where {Req,Resp}
 end
 
 function send_copy(client::Client{Req,Resp}, data::Ptr{Req}, n::Integer) where {Req,Resp}
-    pending_storage = _malloc_struct(Iceoryx2FFI.iox2_pending_response_t)
+    pending_storage = Ref{Iceoryx2FFI.iox2_pending_response_t}()
     pending_ref = Ref{Iceoryx2FFI.iox2_pending_response_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_client_send_copy(Ref{Iceoryx2FFI.iox2_client_h}(client.handle), data, Iceoryx2FFI.c_size_t(sizeof(Req)), Iceoryx2FFI.c_size_t(n), pending_storage, pending_ref)
     check_ok(ret, Iceoryx2FFI.iox2_send_error_e)
@@ -570,7 +566,7 @@ end
 
 mutable struct Response{Resp}
     handle::Iceoryx2FFI.iox2_response_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_response_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_response_t}
 end
 
 function _finalize_response(resp::Response)
@@ -590,7 +586,7 @@ end
 end
 
 function receive(pending::PendingResponse{Resp}) where {Resp}
-    storage = _malloc_struct(Iceoryx2FFI.iox2_response_t)
+    storage = Ref{Iceoryx2FFI.iox2_response_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_response_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_pending_response_receive(Ref{Iceoryx2FFI.iox2_pending_response_h}(pending.handle), storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_receive_error_e)
@@ -605,7 +601,7 @@ end
 
 mutable struct ActiveRequest{Req,Resp}
     handle::Iceoryx2FFI.iox2_active_request_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_active_request_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_active_request_t}
 end
 
 function _finalize_active_request(req::ActiveRequest)
@@ -626,7 +622,7 @@ end
 
 mutable struct ResponseMut{Resp}
     handle::Iceoryx2FFI.iox2_response_mut_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_response_mut_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_response_mut_t}
 end
 
 function _finalize_response_mut(resp::ResponseMut)
@@ -647,7 +643,7 @@ end
 
 function receive(server::Server{Req,Resp}) where {Req,Resp}
     _require_valid(server.handle, "server")
-    storage = _malloc_struct(Iceoryx2FFI.iox2_active_request_t)
+    storage = Ref{Iceoryx2FFI.iox2_active_request_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_active_request_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_server_receive(Ref{Iceoryx2FFI.iox2_server_h}(server.handle), storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_receive_error_e)
@@ -661,7 +657,7 @@ function receive(server::Server{Req,Resp}) where {Req,Resp}
 end
 
 function loan_response(req::ActiveRequest{Req,Resp}, n::Integer) where {Req,Resp}
-    storage = _malloc_struct(Iceoryx2FFI.iox2_response_mut_t)
+    storage = Ref{Iceoryx2FFI.iox2_response_mut_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_response_mut_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_active_request_loan_slice_uninit(Ref{Iceoryx2FFI.iox2_active_request_h}(req.handle), storage, handle_ref, Iceoryx2FFI.c_size_t(n))
     check_ok(ret, Iceoryx2FFI.iox2_loan_error_e)
@@ -688,7 +684,7 @@ end
 
 mutable struct PortFactoryEvent
     handle::Iceoryx2FFI.iox2_port_factory_event_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_port_factory_event_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_event_t}
     keepalive::Node
 end
 
@@ -703,7 +699,7 @@ end
 
 function open_or_create(builder::EventServiceBuilder)
     _require_valid(builder.handle, "event service builder")
-    storage = _malloc_struct(Iceoryx2FFI.iox2_port_factory_event_t)
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_event_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_event_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_event_open_or_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_event_open_or_create_error_e)
@@ -725,7 +721,7 @@ end
 
 mutable struct NotifierBuilder
     handle::Iceoryx2FFI.iox2_port_factory_notifier_builder_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_port_factory_notifier_builder_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_notifier_builder_t}
     keepalive::PortFactoryEvent
 end
 
@@ -737,7 +733,7 @@ end
 
 function notifier_builder(factory::PortFactoryEvent)
     _require_valid(factory.handle, "event port factory")
-    storage = _malloc_struct(Iceoryx2FFI.iox2_port_factory_notifier_builder_t)
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_notifier_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_event_notifier_builder(Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle), storage)
     builder = NotifierBuilder(handle, storage, factory)
     finalizer(_finalize_notifier_builder, builder)
@@ -746,7 +742,7 @@ end
 
 mutable struct ListenerBuilder
     handle::Iceoryx2FFI.iox2_port_factory_listener_builder_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_port_factory_listener_builder_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_listener_builder_t}
     keepalive::PortFactoryEvent
 end
 
@@ -758,7 +754,7 @@ end
 
 function listener_builder(factory::PortFactoryEvent)
     _require_valid(factory.handle, "event port factory")
-    storage = _malloc_struct(Iceoryx2FFI.iox2_port_factory_listener_builder_t)
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_listener_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_event_listener_builder(Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle), storage)
     builder = ListenerBuilder(handle, storage, factory)
     finalizer(_finalize_listener_builder, builder)
@@ -767,7 +763,7 @@ end
 
 mutable struct Notifier
     handle::Iceoryx2FFI.iox2_notifier_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_notifier_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_notifier_t}
     keepalive::PortFactoryEvent
 end
 
@@ -782,7 +778,7 @@ end
 
 function create(builder::NotifierBuilder)
     _require_valid(builder.handle, "notifier builder")
-    storage = _malloc_struct(Iceoryx2FFI.iox2_notifier_t)
+    storage = Ref{Iceoryx2FFI.iox2_notifier_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_notifier_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_notifier_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_notifier_create_error_e)
@@ -804,7 +800,7 @@ end
 
 mutable struct Listener
     handle::Iceoryx2FFI.iox2_listener_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_listener_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_listener_t}
     keepalive::PortFactoryEvent
 end
 
@@ -819,7 +815,7 @@ end
 
 function create(builder::ListenerBuilder)
     _require_valid(builder.handle, "listener builder")
-    storage = _malloc_struct(Iceoryx2FFI.iox2_listener_t)
+    storage = Ref{Iceoryx2FFI.iox2_listener_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_listener_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_listener_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_listener_create_error_e)
@@ -850,7 +846,7 @@ end
 
 mutable struct PortFactoryBlackboard
     handle::Iceoryx2FFI.iox2_port_factory_blackboard_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_port_factory_blackboard_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_blackboard_t}
     keepalive::Node
     values::Vector{Any}
 end
@@ -867,7 +863,7 @@ end
 
 function create(builder::BlackboardCreatorBuilder)
     _require_valid(builder.handle, "blackboard creator")
-    storage = _malloc_struct(Iceoryx2FFI.iox2_port_factory_blackboard_t)
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_blackboard_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_blackboard_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_blackboard_create_error_e)
@@ -891,7 +887,7 @@ end
 
 function open(builder::BlackboardOpenerBuilder)
     _require_valid(builder.handle, "blackboard opener")
-    storage = _malloc_struct(Iceoryx2FFI.iox2_port_factory_blackboard_t)
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_blackboard_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_blackboard_open(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_blackboard_open_error_e)
@@ -980,7 +976,7 @@ end
 
 mutable struct WriterBuilder
     handle::Iceoryx2FFI.iox2_port_factory_writer_builder_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_port_factory_writer_builder_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_writer_builder_t}
     keepalive::PortFactoryBlackboard
 end
 
@@ -992,7 +988,7 @@ end
 
 function writer_builder(factory::PortFactoryBlackboard)
     _require_valid(factory.handle, "blackboard port factory")
-    storage = _malloc_struct(Iceoryx2FFI.iox2_port_factory_writer_builder_t)
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_writer_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_blackboard_writer_builder(Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle), storage)
     builder = WriterBuilder(handle, storage, factory)
     finalizer(_finalize_writer_builder, builder)
@@ -1001,7 +997,7 @@ end
 
 mutable struct ReaderBuilder
     handle::Iceoryx2FFI.iox2_port_factory_reader_builder_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_port_factory_reader_builder_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_reader_builder_t}
     keepalive::PortFactoryBlackboard
 end
 
@@ -1013,7 +1009,7 @@ end
 
 function reader_builder(factory::PortFactoryBlackboard)
     _require_valid(factory.handle, "blackboard port factory")
-    storage = _malloc_struct(Iceoryx2FFI.iox2_port_factory_reader_builder_t)
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_reader_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_blackboard_reader_builder(Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle), storage)
     builder = ReaderBuilder(handle, storage, factory)
     finalizer(_finalize_reader_builder, builder)
@@ -1022,7 +1018,7 @@ end
 
 mutable struct Writer
     handle::Iceoryx2FFI.iox2_writer_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_writer_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_writer_t}
     keepalive::PortFactoryBlackboard
 end
 
@@ -1037,7 +1033,7 @@ end
 
 function create(builder::WriterBuilder)
     _require_valid(builder.handle, "writer builder")
-    storage = _malloc_struct(Iceoryx2FFI.iox2_writer_t)
+    storage = Ref{Iceoryx2FFI.iox2_writer_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_writer_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_writer_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_writer_create_error_e)
@@ -1059,7 +1055,7 @@ end
 
 mutable struct Reader
     handle::Iceoryx2FFI.iox2_reader_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_reader_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_reader_t}
     keepalive::PortFactoryBlackboard
 end
 
@@ -1074,7 +1070,7 @@ end
 
 function create(builder::ReaderBuilder)
     _require_valid(builder.handle, "reader builder")
-    storage = _malloc_struct(Iceoryx2FFI.iox2_reader_t)
+    storage = Ref{Iceoryx2FFI.iox2_reader_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_reader_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_reader_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_reader_create_error_e)
