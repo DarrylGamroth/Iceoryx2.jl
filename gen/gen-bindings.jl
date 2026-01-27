@@ -4,6 +4,7 @@ using Iceoryx2_jll
 cd(@__DIR__)
 
 include_dir = joinpath(Iceoryx2_jll.artifact_dir, "include")
+include("generate-wrappers.jl")
 
 function find_header(root::AbstractString, header::AbstractString)
     for (dir, _, files) in walkdir(root)
@@ -32,3 +33,33 @@ ctx = create_context(headers, args, options)
 
 # run generator
 build!(ctx)
+
+ffi_path = joinpath(@__DIR__, "..", "src", "Iceoryx2FFI.jl")
+handles_path = joinpath(@__DIR__, "..", "src", "handles.jl")
+errors_path = joinpath(@__DIR__, "..", "src", "errors.jl")
+
+ignore_owning = Set([
+    "port_factory_pub_sub",
+    "port_factory_request_response",
+    "port_factory_event",
+    "port_factory_blackboard",
+    "publisher",
+    "subscriber",
+    "sample",
+    "sample_mut",
+    "client",
+    "server",
+    "request_mut",
+    "response",
+    "response_mut",
+    "pending_response",
+    "active_request",
+    "notifier",
+    "listener",
+    "reader",
+    "writer",
+])
+
+ffi_text = read(ffi_path, String)
+generate_handles(ffi_text, handles_path; ignore_owning)
+generate_errors(ffi_text, errors_path)
