@@ -10,5 +10,6 @@ include("builders.jl")
 include("messaging.jl")
 include("callbacks.jl")
 include("waitset.jl")
+include("config.jl")
 
 end # module Iceoryx2
