@@ -9,5 +9,6 @@ include("strings.jl")
 include("builders.jl")
 include("messaging.jl")
 include("callbacks.jl")
+include("waitset.jl")
 
 end # module Iceoryx2
