@@ -18,9 +18,26 @@ end
 
 @inline _type_variant(value) = throw(ArgumentError("unsupported type variant: $value"))
 
+struct TypeDetails
+    name::String
+    name_len::Iceoryx2FFI.c_size_t
+    size::Iceoryx2FFI.c_size_t
+    alignment::Iceoryx2FFI.c_size_t
+end
+
+const _TYPE_DETAILS = IdDict{DataType, TypeDetails}()
+
 @inline function _type_details(::Type{T}) where {T}
-    name = string(T)
-    return name, Iceoryx2FFI.c_size_t(ncodeunits(name)), Iceoryx2FFI.c_size_t(sizeof(T)), Iceoryx2FFI.c_size_t(Base.datatype_alignment(T))
+    details = get!(_TYPE_DETAILS, T) do
+        name = string(T)
+        TypeDetails(
+            name,
+            Iceoryx2FFI.c_size_t(ncodeunits(name)),
+            Iceoryx2FFI.c_size_t(sizeof(T)),
+            Iceoryx2FFI.c_size_t(Base.datatype_alignment(T)),
+        )
+    end::TypeDetails
+    return details.name, details.name_len, details.size, details.alignment
 end
 
 const _StorageRef{T} = Union{Nothing, Base.RefValue{T}}

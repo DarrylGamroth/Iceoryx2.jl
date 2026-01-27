@@ -98,6 +98,47 @@
     Iceoryx2.has_missed_deadline(attachment, guard)
     @test missed_deadline_alloc(attachment, guard) == 0
 
+    event_builder = Iceoryx2.event(Iceoryx2.service_builder(node, unique_service_name()))
+    event_factory = Iceoryx2.open_or_create(event_builder)
+    listener = Iceoryx2.create(Iceoryx2.listener_builder(event_factory))
+    try_wait_alloc(l::Iceoryx2.Listener) = @allocated Iceoryx2.try_wait_one(l)
+    Iceoryx2.try_wait_one(listener)
+    @test try_wait_alloc(listener) == 0
+    close(listener)
+    close(event_factory)
+
+    bb_builder = Iceoryx2.blackboard_creator(Iceoryx2.service_builder(node, unique_service_name()))
+    Iceoryx2.add_with_default!(bb_builder, UInt64(1), UInt64(0))
+    bb_factory = Iceoryx2.create(bb_builder)
+    bb_writer = Iceoryx2.create(Iceoryx2.writer_builder(bb_factory))
+    bb_reader = Iceoryx2.create(Iceoryx2.reader_builder(bb_factory))
+    entry_mut = Iceoryx2.writer_entry(bb_writer, UInt64(1), UInt64)
+    entry = Iceoryx2.reader_entry(bb_reader, UInt64(1), UInt64)
+    value_ref = Ref{UInt64}(0)
+    generation_ref = Ref{UInt64}(0)
+    Iceoryx2.update!(entry_mut, UInt64(1))
+    Iceoryx2.get!(entry, value_ref, generation_ref)
+    Iceoryx2.entry_id(entry)
+    Iceoryx2.is_up_to_date(entry, generation_ref[])
+
+    entry_id_alloc(entry::Iceoryx2.EntryHandle) = @allocated Iceoryx2.entry_id(entry)
+    get_alloc(entry::Iceoryx2.EntryHandle, value_ref, generation_ref) =
+        @allocated Iceoryx2.get!(entry, value_ref, generation_ref)
+    update_alloc(entry::Iceoryx2.EntryHandleMut, value_ref) = @allocated Iceoryx2.update!(entry, value_ref)
+    up_to_date_alloc(entry::Iceoryx2.EntryHandle, generation_ref) =
+        @allocated Iceoryx2.is_up_to_date(entry, generation_ref[])
+
+    @test entry_id_alloc(entry) == 0
+    @test get_alloc(entry, value_ref, generation_ref) == 0
+    @test update_alloc(entry_mut, value_ref) == 0
+    @test up_to_date_alloc(entry, generation_ref) == 0
+
+    close(entry)
+    close(entry_mut)
+    close(bb_reader)
+    close(bb_writer)
+    close(bb_factory)
+
     close(attachment)
     close(guard)
     close(waitset)

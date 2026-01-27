@@ -154,6 +154,7 @@ Hot path refers to any API that is called per message/event or inside tight loop
 - Outputs:
   - Config helpers: `src/config.jl`
 - Status: Completed (2026-01-27)
+  - Update (2026-01-27): added blackboard `list_keys` callback helper.
 
 ## Phase 11: Logging Integration
 - Expose `set_log_level`, `set_log_level_from_env` functions.
@@ -178,6 +179,7 @@ Hot path refers to any API that is called per message/event or inside tight loop
 - Benchmark scaffolding: `scripts/bench_hotpath.jl` provides `BenchmarkTools` baselines for hot-path primitives.
 - Status: Completed (2026-01-27)
   - Update (2026-01-27): added testsets mirroring iceoryx2-cxx coverage (attributes, enum conversion, logging, node/service names, node state, event/blackboard services, unique IDs, waitset notification, config basics).
+  - Update (2026-01-27): added allocation gates for blackboard entry accessors and listener wait helpers.
 
 ## Phase 13: Documentation & Examples
 - Provide examples matching C++ docs:
@@ -206,9 +208,13 @@ Hot path refers to any API that is called per message/event or inside tight loop
 - Improve docs/examples to match Python/C++ quickstart guides.
 - Status: Completed (2026-01-27)
   - Queue benchmark pending on queue API exposure in the C ABI.
+  - Update (2026-01-27): added blackboard tuning (`max_readers!`, `max_nodes!`, key comparison) and cached type details to reduce hot-path allocations.
 
 ## Design Decisions to Mirror iceoryx2-cxx Idioms
 - RAII-style cleanup via finalizers + explicit `close`.
 - Builder chaining and consume-on-create semantics.
 - Typed payload APIs with size/alignment checks.
 - Callbacks wrapped in safe Julia closures with explicit lifetime handling.
+
+## Refactor Notes (Backlog)
+- Consider co-locating struct definitions with their constructors/methods (currently grouped by concern). Defer until a functional change touches those areas to avoid style-only churn.
