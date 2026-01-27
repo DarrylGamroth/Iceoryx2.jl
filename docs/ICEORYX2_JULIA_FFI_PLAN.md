@@ -62,6 +62,9 @@ Hot path refers to any API that is called per message/event or inside tight loop
   - `struct` definitions only for by-value types; `Ptr{Cvoid}` for opaque handles.
 - Add a thin `ccall` wrapper layer for every function with consistent naming.
 - Place raw bindings under a strict unsafe namespace/module; keep safe wrappers in `Iceoryx2`.
+- Generator notes:
+  - `gen/gen-bindings.jl` also regenerates `src/handles.jl` and `src/errors.jl` from `src/Iceoryx2FFI.jl`.
+  - It uses an ignorelist to skip low-level handle wrappers that would collide with high-level messaging types.
 - Status: Completed (2026-01-26)
 
 ## Phase 3: Handle & Ownership Model (Julia)
