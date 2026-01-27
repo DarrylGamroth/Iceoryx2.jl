@@ -2,6 +2,22 @@
 
 import StringViews: StringView
 
+struct AttributeScratch
+    key_buffer::Vector{UInt8}
+    value_buffer::Vector{UInt8}
+    key_value_buffer::Vector{UInt8}
+end
+
+function AttributeScratch()
+    key_len = Int(Iceoryx2FFI.IOX2_ATTRIBUTE_KEY_LENGTH)
+    value_len = Int(Iceoryx2FFI.IOX2_ATTRIBUTE_VALUE_LENGTH)
+    return AttributeScratch(
+        Vector{UInt8}(undef, key_len + 1),
+        Vector{UInt8}(undef, value_len + 1),
+        Vector{UInt8}(undef, value_len + 1),
+    )
+end
+
 @inline function _ensure_valid_attribute(handle, what::AbstractString)
     handle != _IOX2_NULL || throw(ArgumentError("invalid $what"))
     return nothing
@@ -130,6 +146,10 @@ end
     return StringView(buffer)
 end
 
+@inline function key_view!(scratch::AttributeScratch, attr::AttributeRef)
+    return key_view!(scratch.key_buffer, attr)
+end
+
 @inline function value(attr::AttributeRef)
     len = Int(Iceoryx2FFI.iox2_attribute_value_len(unsafe_handle(attr)))
     buffer = Vector{UInt8}(undef, len + 1)
@@ -155,6 +175,10 @@ end
     end
     resize!(buffer, len)
     return StringView(buffer)
+end
+
+@inline function value_view!(scratch::AttributeScratch, attr::AttributeRef)
+    return value_view!(scratch.value_buffer, attr)
 end
 
 function number_of_key_values(attrs::Union{AttributeSet, AttributeSetView}, key::AbstractString)
@@ -207,6 +231,10 @@ function key_value_view!(buffer::Vector{UInt8}, attrs::Union{AttributeSet, Attri
     end
     has_value[] || return nothing
     return _string_view_from_buffer!(buffer)
+end
+
+function key_value_view!(scratch::AttributeScratch, attrs::Union{AttributeSet, AttributeSetView}, key::AbstractString, index::Integer)
+    return key_value_view!(scratch.key_value_buffer, attrs, key, index)
 end
 
 @inline function _string_from_buffer(buffer::Vector{UInt8})

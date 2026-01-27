@@ -5,10 +5,9 @@
     @test Iceoryx2.number_of_attributes(attrs) == 1
     @test Iceoryx2.key(attrs[1]) == "some_key"
     @test Iceoryx2.value(attrs[1]) == "some_value"
-    key_buffer = Vector{UInt8}(undef, 0)
-    value_buffer = Vector{UInt8}(undef, 0)
-    @test String(Iceoryx2.key_view!(key_buffer, attrs[1])) == "some_key"
-    @test String(Iceoryx2.value_view!(value_buffer, attrs[1])) == "some_value"
+    scratch = Iceoryx2.AttributeScratch()
+    @test String(Iceoryx2.key_view!(scratch, attrs[1])) == "some_key"
+    @test String(Iceoryx2.value_view!(scratch, attrs[1])) == "some_value"
 
     verifier_keys = Iceoryx2.AttributeVerifier()
     Iceoryx2.require_key!(verifier_keys, "key_1")
@@ -47,13 +46,12 @@
     @test v2 !== nothing
     @test Set([v1, v2]) == Set(["v1", "v2"])
     @test Iceoryx2.key_value(spec_attrs, "multi", 3) === nothing
-    kv_buffer = Vector{UInt8}(undef, 0)
-    kv1 = Iceoryx2.key_value_view!(kv_buffer, spec_attrs, "multi", 1)
+    kv1 = Iceoryx2.key_value_view!(scratch, spec_attrs, "multi", 1)
     @test kv1 !== nothing
-    kv2 = Iceoryx2.key_value_view!(kv_buffer, spec_attrs, "multi", 2)
+    kv2 = Iceoryx2.key_value_view!(scratch, spec_attrs, "multi", 2)
     @test kv2 !== nothing
     @test Set([String(kv1), String(kv2)]) == Set(["v1", "v2"])
-    @test Iceoryx2.key_value_view!(kv_buffer, spec_attrs, "multi", 3) === nothing
+    @test Iceoryx2.key_value_view!(scratch, spec_attrs, "multi", 3) === nothing
 
     owned = Iceoryx2.to_owned(spec_attrs)
     @test Iceoryx2.number_of_attributes(owned) == Iceoryx2.number_of_attributes(spec_attrs)
