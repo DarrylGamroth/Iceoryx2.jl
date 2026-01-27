@@ -1,13 +1,13 @@
 # String and semantic-string helpers.
 
-@inline function _string_from_ptr(ptr::Iceoryx2FFI.iox2_node_name_ptr)
+@inline function _node_name_string(ptr::Iceoryx2FFI.iox2_node_name_ptr)
     ptr == _IOX2_NULL && throw(ArgumentError("null node name pointer"))
     len = Ref{Iceoryx2FFI.c_size_t}()
     cstr = Iceoryx2FFI.iox2_node_name_as_chars(ptr, len)
     return unsafe_string(cstr, Int(len[]))
 end
 
-@inline function _string_from_ptr(ptr::Iceoryx2FFI.iox2_service_name_ptr)
+@inline function _service_name_string(ptr::Iceoryx2FFI.iox2_service_name_ptr)
     ptr == _IOX2_NULL && throw(ArgumentError("null service name pointer"))
     len = Ref{Iceoryx2FFI.c_size_t}()
     cstr = Iceoryx2FFI.iox2_service_name_as_chars(ptr, len)
@@ -46,8 +46,8 @@ function ServiceName(value::AbstractString)
     return ServiceName(handle_ref[])
 end
 
-@inline Base.string(name::NodeName) = _string_from_ptr(_node_name_ptr(unsafe_handle(name)))
-@inline Base.string(name::ServiceName) = _string_from_ptr(_service_name_ptr(unsafe_handle(name)))
+@inline Base.string(name::NodeName) = _node_name_string(_node_name_ptr(unsafe_handle(name)))
+@inline Base.string(name::ServiceName) = _service_name_string(_service_name_ptr(unsafe_handle(name)))
 
-@inline Base.string(name::NodeNameView) = _string_from_ptr(unsafe_handle(name))
-@inline Base.string(name::ServiceNameView) = _string_from_ptr(unsafe_handle(name))
+@inline Base.string(name::NodeNameView) = _node_name_string(unsafe_handle(name))
+@inline Base.string(name::ServiceNameView) = _service_name_string(unsafe_handle(name))

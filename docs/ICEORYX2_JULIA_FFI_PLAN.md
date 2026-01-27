@@ -104,6 +104,9 @@ Hot path refers to any API that is called per message/event or inside tight loop
   - On `create`, mark builder invalid.
   - Add a finalizer to release if user never calls `create`.
 - Pattern: mutable builder + chainable methods returning `builder` (Julia idiom).
+- Outputs:
+  - Builders: `src/builders.jl`
+- Status: Completed (2026-01-26)
 
 ## Phase 7: Messaging Patterns & Payloads
 - Publish/Subscribe, Request/Response, Event, Blackboard all mirror C++ API:

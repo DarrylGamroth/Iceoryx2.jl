@@ -32,6 +32,11 @@ end
     return unsafe_string(ptr)
 end
 
+@noinline function _error_message(::Type{Iceoryx2FFI.iox2_connection_failure_e}, code::Iceoryx2FFI.iox2_connection_failure_e)
+    ptr = Iceoryx2FFI.iox2_connection_failure_string(code)
+    return unsafe_string(ptr)
+end
+
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_entry_handle_error_e}, code::Iceoryx2FFI.iox2_entry_handle_error_e)
     ptr = Iceoryx2FFI.iox2_entry_handle_error_string(code)
     return unsafe_string(ptr)
@@ -59,6 +64,25 @@ end
 
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_loan_error_e}, code::Iceoryx2FFI.iox2_loan_error_e)
     ptr = Iceoryx2FFI.iox2_loan_error_string(code)
+    return unsafe_string(ptr)
+end
+
+@noinline function _error_message(::Type{Iceoryx2FFI.iox2_node_cleanup_failure_e}, code::Iceoryx2FFI.iox2_node_cleanup_failure_e)
+    return string(code)
+end
+
+@noinline function _error_message(::Type{Iceoryx2FFI.iox2_node_creation_failure_e}, code::Iceoryx2FFI.iox2_node_creation_failure_e)
+    ptr = Iceoryx2FFI.iox2_node_creation_failure_string(code)
+    return unsafe_string(ptr)
+end
+
+@noinline function _error_message(::Type{Iceoryx2FFI.iox2_node_list_failure_e}, code::Iceoryx2FFI.iox2_node_list_failure_e)
+    ptr = Iceoryx2FFI.iox2_node_list_failure_string(code)
+    return unsafe_string(ptr)
+end
+
+@noinline function _error_message(::Type{Iceoryx2FFI.iox2_node_wait_failure_e}, code::Iceoryx2FFI.iox2_node_wait_failure_e)
+    ptr = Iceoryx2FFI.iox2_node_wait_failure_string(code)
     return unsafe_string(ptr)
 end
 
@@ -234,6 +258,19 @@ function Base.showerror(io::IO, err::ConfigCreationError)
     print(io, "ConfigCreationError: ", err.message, " (", err.code, ")")
 end
 
+struct ConnectionFailure <: Exception
+    code::Iceoryx2FFI.iox2_connection_failure_e
+    message::String
+end
+
+@noinline function ConnectionFailure(code::Iceoryx2FFI.iox2_connection_failure_e)
+    return ConnectionFailure(code, _error_message(Iceoryx2FFI.iox2_connection_failure_e, code))
+end
+
+function Base.showerror(io::IO, err::ConnectionFailure)
+    print(io, "ConnectionFailure: ", err.message, " (", err.code, ")")
+end
+
 struct EntryHandleError <: Exception
     code::Iceoryx2FFI.iox2_entry_handle_error_e
     message::String
@@ -310,6 +347,58 @@ end
 
 function Base.showerror(io::IO, err::LoanError)
     print(io, "LoanError: ", err.message, " (", err.code, ")")
+end
+
+struct NodeCleanupFailure <: Exception
+    code::Iceoryx2FFI.iox2_node_cleanup_failure_e
+    message::String
+end
+
+@noinline function NodeCleanupFailure(code::Iceoryx2FFI.iox2_node_cleanup_failure_e)
+    return NodeCleanupFailure(code, _error_message(Iceoryx2FFI.iox2_node_cleanup_failure_e, code))
+end
+
+function Base.showerror(io::IO, err::NodeCleanupFailure)
+    print(io, "NodeCleanupFailure: ", err.message, " (", err.code, ")")
+end
+
+struct NodeCreationFailure <: Exception
+    code::Iceoryx2FFI.iox2_node_creation_failure_e
+    message::String
+end
+
+@noinline function NodeCreationFailure(code::Iceoryx2FFI.iox2_node_creation_failure_e)
+    return NodeCreationFailure(code, _error_message(Iceoryx2FFI.iox2_node_creation_failure_e, code))
+end
+
+function Base.showerror(io::IO, err::NodeCreationFailure)
+    print(io, "NodeCreationFailure: ", err.message, " (", err.code, ")")
+end
+
+struct NodeListFailure <: Exception
+    code::Iceoryx2FFI.iox2_node_list_failure_e
+    message::String
+end
+
+@noinline function NodeListFailure(code::Iceoryx2FFI.iox2_node_list_failure_e)
+    return NodeListFailure(code, _error_message(Iceoryx2FFI.iox2_node_list_failure_e, code))
+end
+
+function Base.showerror(io::IO, err::NodeListFailure)
+    print(io, "NodeListFailure: ", err.message, " (", err.code, ")")
+end
+
+struct NodeWaitFailure <: Exception
+    code::Iceoryx2FFI.iox2_node_wait_failure_e
+    message::String
+end
+
+@noinline function NodeWaitFailure(code::Iceoryx2FFI.iox2_node_wait_failure_e)
+    return NodeWaitFailure(code, _error_message(Iceoryx2FFI.iox2_node_wait_failure_e, code))
+end
+
+function Base.showerror(io::IO, err::NodeWaitFailure)
+    print(io, "NodeWaitFailure: ", err.message, " (", err.code, ")")
 end
 
 struct NotifierCreateError <: Exception
@@ -607,6 +696,14 @@ end
     throw(ConfigCreationError(err))
 end
 
+@inline function check_ok(code::Cint, ::Type{Iceoryx2FFI.iox2_connection_failure_e})
+    if code == _IOX2_OK
+        return nothing
+    end
+    err = Iceoryx2FFI.iox2_connection_failure_e(code)
+    throw(ConnectionFailure(err))
+end
+
 @inline function check_ok(code::Cint, ::Type{Iceoryx2FFI.iox2_entry_handle_error_e})
     if code == _IOX2_OK
         return nothing
@@ -653,6 +750,38 @@ end
     end
     err = Iceoryx2FFI.iox2_loan_error_e(code)
     throw(LoanError(err))
+end
+
+@inline function check_ok(code::Cint, ::Type{Iceoryx2FFI.iox2_node_cleanup_failure_e})
+    if code == _IOX2_OK
+        return nothing
+    end
+    err = Iceoryx2FFI.iox2_node_cleanup_failure_e(code)
+    throw(NodeCleanupFailure(err))
+end
+
+@inline function check_ok(code::Cint, ::Type{Iceoryx2FFI.iox2_node_creation_failure_e})
+    if code == _IOX2_OK
+        return nothing
+    end
+    err = Iceoryx2FFI.iox2_node_creation_failure_e(code)
+    throw(NodeCreationFailure(err))
+end
+
+@inline function check_ok(code::Cint, ::Type{Iceoryx2FFI.iox2_node_list_failure_e})
+    if code == _IOX2_OK
+        return nothing
+    end
+    err = Iceoryx2FFI.iox2_node_list_failure_e(code)
+    throw(NodeListFailure(err))
+end
+
+@inline function check_ok(code::Cint, ::Type{Iceoryx2FFI.iox2_node_wait_failure_e})
+    if code == _IOX2_OK
+        return nothing
+    end
+    err = Iceoryx2FFI.iox2_node_wait_failure_e(code)
+    throw(NodeWaitFailure(err))
 end
 
 @inline function check_ok(code::Cint, ::Type{Iceoryx2FFI.iox2_notifier_create_error_e})
