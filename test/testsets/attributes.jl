@@ -52,9 +52,11 @@
     @test Iceoryx2.key_value(spec_attrs, "multi", 3) === nothing
     kv1 = Iceoryx2.key_value_view!(scratch, spec_attrs, "multi", 1)
     @test kv1 !== nothing
+    kv1_str = kv1 === nothing ? "" : String(kv1)
     kv2 = Iceoryx2.key_value_view!(scratch, spec_attrs, "multi", 2)
     @test kv2 !== nothing
-    @test Set([String(kv1), String(kv2)]) == Set(["v1", "v2"])
+    kv2_str = kv2 === nothing ? "" : String(kv2)
+    @test Set([kv1_str, kv2_str]) == Set(["v1", "v2"])
     @test Iceoryx2.key_value_view!(scratch, spec_attrs, "multi", 3) === nothing
 
     owned = Iceoryx2.to_owned(spec_attrs)

@@ -8,7 +8,7 @@
 
     svc_builder = Iceoryx2.service_builder(node, service_name)
     bb_builder = Iceoryx2.blackboard_creator(svc_builder)
-    @test_throws Iceoryx2.BlackboardCreateError Iceoryx2.create(bb_builder)
+    @test_throws ArgumentError Iceoryx2.create(bb_builder)
     @test !Iceoryx2.service_does_exist(service_name; service_type=:ipc, messaging_pattern=:blackboard)
     close(node)
 end

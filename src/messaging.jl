@@ -73,6 +73,8 @@ Base.length(slice::Slice) = slice.len
 Base.size(slice::Slice) = (slice.len,)
 Base.eltype(::Type{Slice{T}}) where {T} = T
 Base.IndexStyle(::Type{<:Slice}) = IndexLinear()
+Base.firstindex(::Slice) = 1
+Base.lastindex(slice::Slice) = slice.len
 
 @inline function Base.getindex(slice::Slice{T}, i::Int) where {T}
     @boundscheck (i >= 1 && i <= slice.len) || throw(BoundsError(slice, i))

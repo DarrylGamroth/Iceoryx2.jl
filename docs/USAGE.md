@@ -21,6 +21,8 @@ isbitstype(MyPayload) # true
 ```
 
 The service builder checks `isbits` and throws if the payload type is not eligible for zero-copy.
+Pub/sub and request/response factories are typed; you must call `payload_type!` or
+`request_payload_type!`/`response_payload_type!` before `open_or_create`.
 
 ## Slice and payload access
 
@@ -62,6 +64,7 @@ Iceoryx2.with_attribute_scratch() do scratch
     key = Iceoryx2.key_view!(scratch, attrs[1])
     value = Iceoryx2.value_view!(scratch, attrs[1])
     # key/value are StringView instances backed by scratch buffers.
+    # The view is invalidated by the next scratch use; call String(key) to keep it.
 end
 ```
 
@@ -94,6 +97,8 @@ Iceoryx2.reader_entry(reader, UInt64(1), UInt64) do entry
     value, generation = Iceoryx2.get(entry)
 end
 ```
+
+Blackboard factories are typed on the key type; call `key_type!` before `create`/`open`.
 
 ## Callback safety
 
