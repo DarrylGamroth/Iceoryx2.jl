@@ -1,12 +1,26 @@
 using Test
 using Iceoryx2
 
+include("testutils.jl")
+
+include("testsets/node_name.jl")
+include("testsets/service_name.jl")
+include("testsets/enum_conversion.jl")
+include("testsets/logging.jl")
 include("testsets/node_builder.jl")
+include("testsets/node.jl")
+include("testsets/node_state.jl")
 include("testsets/service_builder.jl")
 include("testsets/pubsub.jl")
 include("testsets/request_response.jl")
+include("testsets/service_event.jl")
+include("testsets/service_blackboard.jl")
 include("testsets/list_nodes.jl")
 include("testsets/service_listing.jl")
 include("testsets/waitset_interval.jl")
+include("testsets/waitset_notification.jl")
+include("testsets/unique_port_id.jl")
+include("testsets/attributes.jl")
+include("testsets/config.jl")
 include("testsets/perf_gates.jl")
 include("testsets/allocations_hotpath.jl")

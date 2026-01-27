@@ -1,0 +1,71 @@
+@testset "EnumConversion" begin
+    function assert_nonempty(::Type{T}, code) where {T}
+        msg = Iceoryx2._error_message(T, code)
+        @test !isempty(msg)
+    end
+
+    assert_nonempty(
+        Iceoryx2.Iceoryx2FFI.iox2_config_creation_error_e,
+        Iceoryx2.Iceoryx2FFI.iox2_config_creation_error_e_UNABLE_TO_OPEN_CONFIG_FILE,
+    )
+    assert_nonempty(
+        Iceoryx2.Iceoryx2FFI.iox2_connection_failure_e,
+        Iceoryx2.Iceoryx2FFI.iox2_connection_failure_e_FAILED_TO_ESTABLISH_CONNECTION,
+    )
+    assert_nonempty(
+        Iceoryx2.Iceoryx2FFI.iox2_listener_create_error_e,
+        Iceoryx2.Iceoryx2FFI.iox2_listener_create_error_e_EXCEEDS_MAX_SUPPORTED_LISTENERS,
+    )
+    assert_nonempty(
+        Iceoryx2.Iceoryx2FFI.iox2_listener_wait_error_e,
+        Iceoryx2.Iceoryx2FFI.iox2_listener_wait_error_e_INTERRUPT_SIGNAL,
+    )
+    assert_nonempty(
+        Iceoryx2.Iceoryx2FFI.iox2_node_list_failure_e,
+        Iceoryx2.Iceoryx2FFI.iox2_node_list_failure_e_INTERNAL_ERROR,
+    )
+    assert_nonempty(
+        Iceoryx2.Iceoryx2FFI.iox2_node_creation_failure_e,
+        Iceoryx2.Iceoryx2FFI.iox2_node_creation_failure_e_INTERNAL_ERROR,
+    )
+    assert_nonempty(
+        Iceoryx2.Iceoryx2FFI.iox2_node_wait_failure_e,
+        Iceoryx2.Iceoryx2FFI.iox2_node_wait_failure_e_INTERRUPT,
+    )
+    assert_nonempty(
+        Iceoryx2.Iceoryx2FFI.iox2_notifier_create_error_e,
+        Iceoryx2.Iceoryx2FFI.iox2_notifier_create_error_e_EXCEEDS_MAX_SUPPORTED_NOTIFIERS,
+    )
+    assert_nonempty(
+        Iceoryx2.Iceoryx2FFI.iox2_notifier_notify_error_e,
+        Iceoryx2.Iceoryx2FFI.iox2_notifier_notify_error_e_EVENT_ID_OUT_OF_BOUNDS,
+    )
+    assert_nonempty(
+        Iceoryx2.Iceoryx2FFI.iox2_publisher_create_error_e,
+        Iceoryx2.Iceoryx2FFI.iox2_publisher_create_error_e_EXCEEDS_MAX_SUPPORTED_PUBLISHERS,
+    )
+    assert_nonempty(
+        Iceoryx2.Iceoryx2FFI.iox2_loan_error_e,
+        Iceoryx2.Iceoryx2FFI.iox2_loan_error_e_OUT_OF_MEMORY,
+    )
+    assert_nonempty(
+        Iceoryx2.Iceoryx2FFI.iox2_send_error_e,
+        Iceoryx2.Iceoryx2FFI.iox2_send_error_e_CONNECTION_BROKEN_SINCE_SENDER_NO_LONGER_EXISTS,
+    )
+    assert_nonempty(
+        Iceoryx2.Iceoryx2FFI.iox2_event_open_or_create_error_e,
+        Iceoryx2.Iceoryx2FFI.iox2_event_open_or_create_error_e_O_INTERNAL_FAILURE,
+    )
+    assert_nonempty(
+        Iceoryx2.Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e,
+        Iceoryx2.Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e_O_INTERNAL_FAILURE,
+    )
+    assert_nonempty(
+        Iceoryx2.Iceoryx2FFI.iox2_request_response_open_or_create_error_e,
+        Iceoryx2.Iceoryx2FFI.iox2_request_response_open_or_create_error_e_O_INTERNAL_FAILURE,
+    )
+    assert_nonempty(
+        Iceoryx2.Iceoryx2FFI.iox2_waitset_run_error_e,
+        Iceoryx2.Iceoryx2FFI.iox2_waitset_run_error_e_TERMINATION_REQUEST,
+    )
+end
