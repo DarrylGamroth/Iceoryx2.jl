@@ -2,31 +2,6 @@
 
 const _IOX2_NULL = C_NULL
 
-mutable struct ActiveRequest
-    handle::Iceoryx2FFI.iox2_active_request_h
-    function ActiveRequest(handle::Iceoryx2FFI.iox2_active_request_h)
-        obj = new(handle)
-        finalizer(_finalize_ActiveRequest, obj)
-        return obj
-    end
-end
-
-@inline unsafe_handle(obj::ActiveRequest) = obj.handle
-@inline Base.isvalid(obj::ActiveRequest) = obj.handle != _IOX2_NULL
-@inline invalidate!(obj::ActiveRequest) = (obj.handle = _IOX2_NULL)
-
-function _finalize_ActiveRequest(obj::ActiveRequest)
-    if obj.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_active_request_drop(obj.handle)
-        obj.handle = _IOX2_NULL
-    end
-    return nothing
-end
-
-function Base.close(obj::ActiveRequest)
-    _finalize_ActiveRequest(obj)
-    return nothing
-end
 
 mutable struct AttributeSet
     handle::Iceoryx2FFI.iox2_attribute_set_h
@@ -106,31 +81,6 @@ function Base.close(obj::AttributeVerifier)
     return nothing
 end
 
-mutable struct Client
-    handle::Iceoryx2FFI.iox2_client_h
-    function Client(handle::Iceoryx2FFI.iox2_client_h)
-        obj = new(handle)
-        finalizer(_finalize_Client, obj)
-        return obj
-    end
-end
-
-@inline unsafe_handle(obj::Client) = obj.handle
-@inline Base.isvalid(obj::Client) = obj.handle != _IOX2_NULL
-@inline invalidate!(obj::Client) = (obj.handle = _IOX2_NULL)
-
-function _finalize_Client(obj::Client)
-    if obj.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_client_drop(obj.handle)
-        obj.handle = _IOX2_NULL
-    end
-    return nothing
-end
-
-function Base.close(obj::Client)
-    _finalize_Client(obj)
-    return nothing
-end
 
 mutable struct Config
     handle::Iceoryx2FFI.iox2_config_h
@@ -262,31 +212,6 @@ function Base.close(obj::FileDescriptor)
     return nothing
 end
 
-mutable struct Listener
-    handle::Iceoryx2FFI.iox2_listener_h
-    function Listener(handle::Iceoryx2FFI.iox2_listener_h)
-        obj = new(handle)
-        finalizer(_finalize_Listener, obj)
-        return obj
-    end
-end
-
-@inline unsafe_handle(obj::Listener) = obj.handle
-@inline Base.isvalid(obj::Listener) = obj.handle != _IOX2_NULL
-@inline invalidate!(obj::Listener) = (obj.handle = _IOX2_NULL)
-
-function _finalize_Listener(obj::Listener)
-    if obj.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_listener_drop(obj.handle)
-        obj.handle = _IOX2_NULL
-    end
-    return nothing
-end
-
-function Base.close(obj::Listener)
-    _finalize_Listener(obj)
-    return nothing
-end
 
 mutable struct Node
     handle::Iceoryx2FFI.iox2_node_h
@@ -366,161 +291,11 @@ function Base.close(obj::NodeName)
     return nothing
 end
 
-mutable struct Notifier
-    handle::Iceoryx2FFI.iox2_notifier_h
-    function Notifier(handle::Iceoryx2FFI.iox2_notifier_h)
-        obj = new(handle)
-        finalizer(_finalize_Notifier, obj)
-        return obj
-    end
-end
 
-@inline unsafe_handle(obj::Notifier) = obj.handle
-@inline Base.isvalid(obj::Notifier) = obj.handle != _IOX2_NULL
-@inline invalidate!(obj::Notifier) = (obj.handle = _IOX2_NULL)
 
-function _finalize_Notifier(obj::Notifier)
-    if obj.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_notifier_drop(obj.handle)
-        obj.handle = _IOX2_NULL
-    end
-    return nothing
-end
 
-function Base.close(obj::Notifier)
-    _finalize_Notifier(obj)
-    return nothing
-end
 
-mutable struct PendingResponse
-    handle::Iceoryx2FFI.iox2_pending_response_h
-    function PendingResponse(handle::Iceoryx2FFI.iox2_pending_response_h)
-        obj = new(handle)
-        finalizer(_finalize_PendingResponse, obj)
-        return obj
-    end
-end
 
-@inline unsafe_handle(obj::PendingResponse) = obj.handle
-@inline Base.isvalid(obj::PendingResponse) = obj.handle != _IOX2_NULL
-@inline invalidate!(obj::PendingResponse) = (obj.handle = _IOX2_NULL)
-
-function _finalize_PendingResponse(obj::PendingResponse)
-    if obj.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_pending_response_drop(obj.handle)
-        obj.handle = _IOX2_NULL
-    end
-    return nothing
-end
-
-function Base.close(obj::PendingResponse)
-    _finalize_PendingResponse(obj)
-    return nothing
-end
-
-mutable struct PortFactoryBlackboard
-    handle::Iceoryx2FFI.iox2_port_factory_blackboard_h
-    function PortFactoryBlackboard(handle::Iceoryx2FFI.iox2_port_factory_blackboard_h)
-        obj = new(handle)
-        finalizer(_finalize_PortFactoryBlackboard, obj)
-        return obj
-    end
-end
-
-@inline unsafe_handle(obj::PortFactoryBlackboard) = obj.handle
-@inline Base.isvalid(obj::PortFactoryBlackboard) = obj.handle != _IOX2_NULL
-@inline invalidate!(obj::PortFactoryBlackboard) = (obj.handle = _IOX2_NULL)
-
-function _finalize_PortFactoryBlackboard(obj::PortFactoryBlackboard)
-    if obj.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_port_factory_blackboard_drop(obj.handle)
-        obj.handle = _IOX2_NULL
-    end
-    return nothing
-end
-
-function Base.close(obj::PortFactoryBlackboard)
-    _finalize_PortFactoryBlackboard(obj)
-    return nothing
-end
-
-mutable struct PortFactoryEvent
-    handle::Iceoryx2FFI.iox2_port_factory_event_h
-    function PortFactoryEvent(handle::Iceoryx2FFI.iox2_port_factory_event_h)
-        obj = new(handle)
-        finalizer(_finalize_PortFactoryEvent, obj)
-        return obj
-    end
-end
-
-@inline unsafe_handle(obj::PortFactoryEvent) = obj.handle
-@inline Base.isvalid(obj::PortFactoryEvent) = obj.handle != _IOX2_NULL
-@inline invalidate!(obj::PortFactoryEvent) = (obj.handle = _IOX2_NULL)
-
-function _finalize_PortFactoryEvent(obj::PortFactoryEvent)
-    if obj.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_port_factory_event_drop(obj.handle)
-        obj.handle = _IOX2_NULL
-    end
-    return nothing
-end
-
-function Base.close(obj::PortFactoryEvent)
-    _finalize_PortFactoryEvent(obj)
-    return nothing
-end
-
-mutable struct PortFactoryPubSub
-    handle::Iceoryx2FFI.iox2_port_factory_pub_sub_h
-    function PortFactoryPubSub(handle::Iceoryx2FFI.iox2_port_factory_pub_sub_h)
-        obj = new(handle)
-        finalizer(_finalize_PortFactoryPubSub, obj)
-        return obj
-    end
-end
-
-@inline unsafe_handle(obj::PortFactoryPubSub) = obj.handle
-@inline Base.isvalid(obj::PortFactoryPubSub) = obj.handle != _IOX2_NULL
-@inline invalidate!(obj::PortFactoryPubSub) = (obj.handle = _IOX2_NULL)
-
-function _finalize_PortFactoryPubSub(obj::PortFactoryPubSub)
-    if obj.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_port_factory_pub_sub_drop(obj.handle)
-        obj.handle = _IOX2_NULL
-    end
-    return nothing
-end
-
-function Base.close(obj::PortFactoryPubSub)
-    _finalize_PortFactoryPubSub(obj)
-    return nothing
-end
-
-mutable struct PortFactoryRequestResponse
-    handle::Iceoryx2FFI.iox2_port_factory_request_response_h
-    function PortFactoryRequestResponse(handle::Iceoryx2FFI.iox2_port_factory_request_response_h)
-        obj = new(handle)
-        finalizer(_finalize_PortFactoryRequestResponse, obj)
-        return obj
-    end
-end
-
-@inline unsafe_handle(obj::PortFactoryRequestResponse) = obj.handle
-@inline Base.isvalid(obj::PortFactoryRequestResponse) = obj.handle != _IOX2_NULL
-@inline invalidate!(obj::PortFactoryRequestResponse) = (obj.handle = _IOX2_NULL)
-
-function _finalize_PortFactoryRequestResponse(obj::PortFactoryRequestResponse)
-    if obj.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_port_factory_request_response_drop(obj.handle)
-        obj.handle = _IOX2_NULL
-    end
-    return nothing
-end
-
-function Base.close(obj::PortFactoryRequestResponse)
-    _finalize_PortFactoryRequestResponse(obj)
-    return nothing
-end
 
 mutable struct PublishSubscribeHeader
     handle::Iceoryx2FFI.iox2_publish_subscribe_header_h
@@ -548,57 +323,7 @@ function Base.close(obj::PublishSubscribeHeader)
     return nothing
 end
 
-mutable struct Publisher
-    handle::Iceoryx2FFI.iox2_publisher_h
-    function Publisher(handle::Iceoryx2FFI.iox2_publisher_h)
-        obj = new(handle)
-        finalizer(_finalize_Publisher, obj)
-        return obj
-    end
-end
 
-@inline unsafe_handle(obj::Publisher) = obj.handle
-@inline Base.isvalid(obj::Publisher) = obj.handle != _IOX2_NULL
-@inline invalidate!(obj::Publisher) = (obj.handle = _IOX2_NULL)
-
-function _finalize_Publisher(obj::Publisher)
-    if obj.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_publisher_drop(obj.handle)
-        obj.handle = _IOX2_NULL
-    end
-    return nothing
-end
-
-function Base.close(obj::Publisher)
-    _finalize_Publisher(obj)
-    return nothing
-end
-
-mutable struct Reader
-    handle::Iceoryx2FFI.iox2_reader_h
-    function Reader(handle::Iceoryx2FFI.iox2_reader_h)
-        obj = new(handle)
-        finalizer(_finalize_Reader, obj)
-        return obj
-    end
-end
-
-@inline unsafe_handle(obj::Reader) = obj.handle
-@inline Base.isvalid(obj::Reader) = obj.handle != _IOX2_NULL
-@inline invalidate!(obj::Reader) = (obj.handle = _IOX2_NULL)
-
-function _finalize_Reader(obj::Reader)
-    if obj.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_reader_drop(obj.handle)
-        obj.handle = _IOX2_NULL
-    end
-    return nothing
-end
-
-function Base.close(obj::Reader)
-    _finalize_Reader(obj)
-    return nothing
-end
 
 mutable struct RequestHeader
     handle::Iceoryx2FFI.iox2_request_header_h
@@ -626,57 +351,7 @@ function Base.close(obj::RequestHeader)
     return nothing
 end
 
-mutable struct RequestMut
-    handle::Iceoryx2FFI.iox2_request_mut_h
-    function RequestMut(handle::Iceoryx2FFI.iox2_request_mut_h)
-        obj = new(handle)
-        finalizer(_finalize_RequestMut, obj)
-        return obj
-    end
-end
 
-@inline unsafe_handle(obj::RequestMut) = obj.handle
-@inline Base.isvalid(obj::RequestMut) = obj.handle != _IOX2_NULL
-@inline invalidate!(obj::RequestMut) = (obj.handle = _IOX2_NULL)
-
-function _finalize_RequestMut(obj::RequestMut)
-    if obj.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_request_mut_drop(obj.handle)
-        obj.handle = _IOX2_NULL
-    end
-    return nothing
-end
-
-function Base.close(obj::RequestMut)
-    _finalize_RequestMut(obj)
-    return nothing
-end
-
-mutable struct Response
-    handle::Iceoryx2FFI.iox2_response_h
-    function Response(handle::Iceoryx2FFI.iox2_response_h)
-        obj = new(handle)
-        finalizer(_finalize_Response, obj)
-        return obj
-    end
-end
-
-@inline unsafe_handle(obj::Response) = obj.handle
-@inline Base.isvalid(obj::Response) = obj.handle != _IOX2_NULL
-@inline invalidate!(obj::Response) = (obj.handle = _IOX2_NULL)
-
-function _finalize_Response(obj::Response)
-    if obj.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_response_drop(obj.handle)
-        obj.handle = _IOX2_NULL
-    end
-    return nothing
-end
-
-function Base.close(obj::Response)
-    _finalize_Response(obj)
-    return nothing
-end
 
 mutable struct ResponseHeader
     handle::Iceoryx2FFI.iox2_response_header_h
@@ -704,109 +379,9 @@ function Base.close(obj::ResponseHeader)
     return nothing
 end
 
-mutable struct ResponseMut
-    handle::Iceoryx2FFI.iox2_response_mut_h
-    function ResponseMut(handle::Iceoryx2FFI.iox2_response_mut_h)
-        obj = new(handle)
-        finalizer(_finalize_ResponseMut, obj)
-        return obj
-    end
-end
 
-@inline unsafe_handle(obj::ResponseMut) = obj.handle
-@inline Base.isvalid(obj::ResponseMut) = obj.handle != _IOX2_NULL
-@inline invalidate!(obj::ResponseMut) = (obj.handle = _IOX2_NULL)
 
-function _finalize_ResponseMut(obj::ResponseMut)
-    if obj.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_response_mut_drop(obj.handle)
-        obj.handle = _IOX2_NULL
-    end
-    return nothing
-end
 
-function Base.close(obj::ResponseMut)
-    _finalize_ResponseMut(obj)
-    return nothing
-end
-
-mutable struct Sample
-    handle::Iceoryx2FFI.iox2_sample_h
-    function Sample(handle::Iceoryx2FFI.iox2_sample_h)
-        obj = new(handle)
-        finalizer(_finalize_Sample, obj)
-        return obj
-    end
-end
-
-@inline unsafe_handle(obj::Sample) = obj.handle
-@inline Base.isvalid(obj::Sample) = obj.handle != _IOX2_NULL
-@inline invalidate!(obj::Sample) = (obj.handle = _IOX2_NULL)
-
-function _finalize_Sample(obj::Sample)
-    if obj.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_sample_drop(obj.handle)
-        obj.handle = _IOX2_NULL
-    end
-    return nothing
-end
-
-function Base.close(obj::Sample)
-    _finalize_Sample(obj)
-    return nothing
-end
-
-mutable struct SampleMut
-    handle::Iceoryx2FFI.iox2_sample_mut_h
-    function SampleMut(handle::Iceoryx2FFI.iox2_sample_mut_h)
-        obj = new(handle)
-        finalizer(_finalize_SampleMut, obj)
-        return obj
-    end
-end
-
-@inline unsafe_handle(obj::SampleMut) = obj.handle
-@inline Base.isvalid(obj::SampleMut) = obj.handle != _IOX2_NULL
-@inline invalidate!(obj::SampleMut) = (obj.handle = _IOX2_NULL)
-
-function _finalize_SampleMut(obj::SampleMut)
-    if obj.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_sample_mut_drop(obj.handle)
-        obj.handle = _IOX2_NULL
-    end
-    return nothing
-end
-
-function Base.close(obj::SampleMut)
-    _finalize_SampleMut(obj)
-    return nothing
-end
-
-mutable struct Server
-    handle::Iceoryx2FFI.iox2_server_h
-    function Server(handle::Iceoryx2FFI.iox2_server_h)
-        obj = new(handle)
-        finalizer(_finalize_Server, obj)
-        return obj
-    end
-end
-
-@inline unsafe_handle(obj::Server) = obj.handle
-@inline Base.isvalid(obj::Server) = obj.handle != _IOX2_NULL
-@inline invalidate!(obj::Server) = (obj.handle = _IOX2_NULL)
-
-function _finalize_Server(obj::Server)
-    if obj.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_server_drop(obj.handle)
-        obj.handle = _IOX2_NULL
-    end
-    return nothing
-end
-
-function Base.close(obj::Server)
-    _finalize_Server(obj)
-    return nothing
-end
 
 mutable struct ServiceName
     handle::Iceoryx2FFI.iox2_service_name_h
@@ -834,31 +409,6 @@ function Base.close(obj::ServiceName)
     return nothing
 end
 
-mutable struct Subscriber
-    handle::Iceoryx2FFI.iox2_subscriber_h
-    function Subscriber(handle::Iceoryx2FFI.iox2_subscriber_h)
-        obj = new(handle)
-        finalizer(_finalize_Subscriber, obj)
-        return obj
-    end
-end
-
-@inline unsafe_handle(obj::Subscriber) = obj.handle
-@inline Base.isvalid(obj::Subscriber) = obj.handle != _IOX2_NULL
-@inline invalidate!(obj::Subscriber) = (obj.handle = _IOX2_NULL)
-
-function _finalize_Subscriber(obj::Subscriber)
-    if obj.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_subscriber_drop(obj.handle)
-        obj.handle = _IOX2_NULL
-    end
-    return nothing
-end
-
-function Base.close(obj::Subscriber)
-    _finalize_Subscriber(obj)
-    return nothing
-end
 
 mutable struct UniqueClientId
     handle::Iceoryx2FFI.iox2_unique_client_id_h
@@ -1172,31 +722,6 @@ function Base.close(obj::Waitset)
     return nothing
 end
 
-mutable struct Writer
-    handle::Iceoryx2FFI.iox2_writer_h
-    function Writer(handle::Iceoryx2FFI.iox2_writer_h)
-        obj = new(handle)
-        finalizer(_finalize_Writer, obj)
-        return obj
-    end
-end
-
-@inline unsafe_handle(obj::Writer) = obj.handle
-@inline Base.isvalid(obj::Writer) = obj.handle != _IOX2_NULL
-@inline invalidate!(obj::Writer) = (obj.handle = _IOX2_NULL)
-
-function _finalize_Writer(obj::Writer)
-    if obj.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_writer_drop(obj.handle)
-        obj.handle = _IOX2_NULL
-    end
-    return nothing
-end
-
-function Base.close(obj::Writer)
-    _finalize_Writer(obj)
-    return nothing
-end
 
 struct ActiveRequestRef
     handle::Iceoryx2FFI.iox2_active_request_h_ref

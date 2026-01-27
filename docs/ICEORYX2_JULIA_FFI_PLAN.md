@@ -118,6 +118,9 @@ Hot path refers to any API that is called per message/event or inside tight loop
 - Dynamic slice support:
   - `Slice{T}` wrapper with pointer + length.
   - Methods `loan_slice`, `payload(::Sample)::Slice{T}`.
+- Outputs:
+  - Messaging wrappers: `src/messaging.jl`
+- Status: Completed (2026-01-27)
 
 ## Phase 8: Callbacks & Iteration
 - For callbacks (node listing, waitset, attribute iteration):
