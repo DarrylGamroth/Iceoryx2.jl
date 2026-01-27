@@ -187,6 +187,24 @@ Hot path refers to any API that is called per message/event or inside tight loop
   - required `isbits` payload types,
   - safe vs unsafe pointer access.
 
+## Phase 14: Enhancements for Python/C++ Parity
+- Expand builder tuning knobs surfaced in Julia:
+  - Pub/Sub: `max_publishers`, `max_subscribers`, `history_size`, `subscriber_max_buffer_size`,
+    `subscriber_max_borrowed_samples`, `enable_safe_overflow`.
+  - Event: `max_notifiers`, `max_listeners`, `event_id_max_value`.
+  - Request/Response: `max_clients`, `max_servers`, `max_loaned_requests`,
+    `max_loaned_responses_per_request`, `max_response_buffer_size`,
+    `enable_safe_overflow_for_requests`, `enable_safe_overflow_for_responses`.
+- Add listener wait helpers that mirror higher-level APIs:
+  - `blocking_wait_one`, `try_wait_one`, `timed_wait_one`, and `wait_all` with callbacks.
+- Add higher-level convenience helpers present in Python/C++:
+  - Connection status helpers (`has_requests`, `has_samples`, etc.) where missing.
+  - Convenience `send_copy` overloads and `do`-block helpers for common ownership types.
+- Benchmark parity:
+  - Implement queue benchmark once the queue API is wrapped in the C ABI.
+- Improve docs/examples to match Python/C++ quickstart guides.
+- Status: Pending
+
 ## Design Decisions to Mirror iceoryx2-cxx Idioms
 - RAII-style cleanup via finalizers + explicit `close`.
 - Builder chaining and consume-on-create semantics.
