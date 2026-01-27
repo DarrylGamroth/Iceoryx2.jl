@@ -229,6 +229,15 @@ function max_loaned_samples!(builder::PublisherBuilder, value::Integer)
     return builder
 end
 
+function initial_max_slice_len!(builder::PublisherBuilder, value::Integer)
+    _require_valid(builder.handle, "publisher builder")
+    Iceoryx2FFI.iox2_port_factory_publisher_builder_set_initial_max_slice_len(
+        Ref{Iceoryx2FFI.iox2_port_factory_publisher_builder_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return builder
+end
+
 mutable struct SubscriberBuilder{T}
     handle::Iceoryx2FFI.iox2_port_factory_subscriber_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_subscriber_builder_t}

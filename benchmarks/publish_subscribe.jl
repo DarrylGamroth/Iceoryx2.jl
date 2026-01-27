@@ -38,7 +38,7 @@ end
 
 function build_pubsub_factory(node::Iceoryx2.Node, name::AbstractString)
     builder = Iceoryx2.pub_sub(Iceoryx2.service_builder(node, name))
-    Iceoryx2.payload_type!(builder, UInt8)
+    Iceoryx2.payload_type!(builder, UInt8; variant=:dynamic)
     return Iceoryx2.open_or_create(builder)
 end
 
@@ -61,6 +61,44 @@ function send_sample(pub::Iceoryx2.Publisher{UInt8}, payload_size::Int, payload:
     return nothing
 end
 
+function sync_send_recv(
+    pub::Iceoryx2.Publisher{UInt8},
+    sub::Iceoryx2.Subscriber{UInt8},
+    payload_size::Int,
+    payload::Union{Vector{UInt8}, Nothing};
+    max_attempts::Int = 1_000_000,
+)
+    for _ in 1:max_attempts
+        send_sample(pub, payload_size, payload)
+        sample = Iceoryx2.receive(sub)
+        if sample !== nothing
+            Iceoryx2.close(sample)
+            return true
+        end
+        Base.Threads.yield()
+    end
+    return false
+end
+
+function sync_recv_send(
+    pub::Iceoryx2.Publisher{UInt8},
+    sub::Iceoryx2.Subscriber{UInt8},
+    payload_size::Int,
+    payload::Union{Vector{UInt8}, Nothing};
+    max_attempts::Int = 1_000_000,
+)
+    for _ in 1:max_attempts
+        sample = Iceoryx2.receive(sub)
+        if sample !== nothing
+            Iceoryx2.close(sample)
+            send_sample(pub, payload_size, payload)
+            return true
+        end
+        Base.Threads.yield()
+    end
+    return false
+end
+
 function run_benchmark(iterations::Int, warmup::Int, payload_size::Int, service_type::Symbol; send_copy::Bool)
     suffix = unique_suffix()
     node_builder = Iceoryx2.NodeBuilder()
@@ -71,15 +109,20 @@ function run_benchmark(iterations::Int, warmup::Int, payload_size::Int, service_
     factory_b2a = build_pubsub_factory(node, "b2a_" * suffix)
 
     startup = SpinBarrier(3)
+    sync_barrier = SpinBarrier(3)
     warmup_barrier = SpinBarrier(3)
     start_benchmark = SpinBarrier(3)
 
     t1 = Threads.@spawn begin
-        pub_a2b = Iceoryx2.create(Iceoryx2.publisher_builder(factory_a2b, UInt8))
+        pub_builder_a2b = Iceoryx2.publisher_builder(factory_a2b, UInt8)
+        Iceoryx2.initial_max_slice_len!(pub_builder_a2b, payload_size)
+        pub_a2b = Iceoryx2.create(pub_builder_a2b)
         sub_b2a = Iceoryx2.create(Iceoryx2.subscriber_builder(factory_b2a, UInt8))
         payload = send_copy ? fill(UInt8(0), payload_size) : nothing
 
         wait_barrier(startup)
+        wait_barrier(sync_barrier)
+        sync_send_recv(pub_a2b, sub_b2a, payload_size, payload) || error("pubsub sync failed")
         wait_barrier(warmup_barrier)
 
         for _ in 1:warmup
@@ -100,11 +143,15 @@ function run_benchmark(iterations::Int, warmup::Int, payload_size::Int, service_
     end
 
     t2 = Threads.@spawn begin
-        pub_b2a = Iceoryx2.create(Iceoryx2.publisher_builder(factory_b2a, UInt8))
+        pub_builder_b2a = Iceoryx2.publisher_builder(factory_b2a, UInt8)
+        Iceoryx2.initial_max_slice_len!(pub_builder_b2a, payload_size)
+        pub_b2a = Iceoryx2.create(pub_builder_b2a)
         sub_a2b = Iceoryx2.create(Iceoryx2.subscriber_builder(factory_a2b, UInt8))
         payload = send_copy ? fill(UInt8(0), payload_size) : nothing
 
         wait_barrier(startup)
+        wait_barrier(sync_barrier)
+        sync_recv_send(pub_b2a, sub_a2b, payload_size, payload) || error("pubsub sync failed")
         wait_barrier(warmup_barrier)
 
         for _ in 1:warmup
@@ -125,6 +172,7 @@ function run_benchmark(iterations::Int, warmup::Int, payload_size::Int, service_
     end
 
     wait_barrier(startup)
+    wait_barrier(sync_barrier)
     wait_barrier(warmup_barrier)
     wait_barrier(start_benchmark)
     start_time = time_ns()
