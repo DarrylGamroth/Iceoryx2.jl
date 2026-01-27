@@ -378,6 +378,10 @@ function loan_slice(publisher::Publisher{T}, n::Integer) where {T}
     return sample
 end
 
+@inline function loan_uninit(publisher::Publisher{T}) where {T}
+    return loan_slice(publisher, 1)
+end
+
 function loan_slice(f::Function, publisher::Publisher{T}, n::Integer) where {T}
     sample = loan_slice(publisher, n)
     try
@@ -389,6 +393,12 @@ end
 
 function loan_slice(publisher::Publisher{T}, n::Integer, f::Function) where {T}
     return loan_slice(f, publisher, n)
+end
+
+@inline function write_payload!(sample::SampleMut{T}, value::T) where {T}
+    slice = payload_mut(sample)
+    unsafe_store!(slice.ptr, value, 1)
+    return sample
 end
 
 @inline function send!(sample::SampleMut)

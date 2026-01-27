@@ -102,11 +102,27 @@ end
 on_attribute_value(h::AttributeValueHandler) = h.on_value
 
 function _attribute_value_wrapper(value::Cstring, handler::AbstractAttributeValueHandler)
-    return _callback_progression(on_attribute_value(handler)(value))
+    return _callback_progression(on_attribute_value(handler)(unsafe_string(value)))
 end
 
 function _attribute_value_cfunction(::T) where {T<:AbstractAttributeValueHandler}
     @cfunction(_attribute_value_wrapper, Iceoryx2FFI.iox2_callback_progression_e, (Cstring, Ref{T}))
+end
+
+abstract type AbstractAttributeValuePtrHandler end
+
+mutable struct AttributeValuePtrHandler{T} <: AbstractAttributeValuePtrHandler
+    on_value::T
+end
+
+on_attribute_value_ptr(h::AttributeValuePtrHandler) = h.on_value
+
+function _attribute_value_ptr_wrapper(value::Cstring, handler::AbstractAttributeValuePtrHandler)
+    return _callback_progression(on_attribute_value_ptr(handler)(value))
+end
+
+function _attribute_value_ptr_cfunction(::T) where {T<:AbstractAttributeValuePtrHandler}
+    @cfunction(_attribute_value_ptr_wrapper, Iceoryx2FFI.iox2_callback_progression_e, (Cstring, Ref{T}))
 end
 
 @inline function _attribute_set_ptr(attrs::AttributeSet)
@@ -138,6 +154,28 @@ end
 
 function each_attribute_value(f::Function, attrs::Union{AttributeSet, AttributeSetView}, key::AbstractString)
     return each_attribute_value(attrs, key, f)
+end
+
+function each_attribute_value_ptr(
+    attrs::Union{AttributeSet, AttributeSetView},
+    key::AbstractString,
+    handler::AbstractAttributeValuePtrHandler,
+)
+    key_str = String(key)
+    handler_ref = Ref(handler)
+    GC.@preserve handler_ref key_str begin
+        Iceoryx2FFI.iox2_attribute_set_iter_key_values(
+            _attribute_set_ptr(attrs),
+            Base.unsafe_convert(Cstring, key_str),
+            _attribute_value_ptr_cfunction(handler_ref[]),
+            handler_ref,
+        )
+    end
+    return nothing
+end
+
+function each_attribute_value_ptr(f::Function, attrs::Union{AttributeSet, AttributeSetView}, key::AbstractString)
+    return each_attribute_value_ptr(attrs, key, AttributeValuePtrHandler(f))
 end
 
 function each_attribute_value(attrs::Union{AttributeSet, AttributeSetView}, key::AbstractString, f::Function)

@@ -217,6 +217,8 @@ Hot path refers to any API that is called per message/event or inside tight loop
 - Ensure payload views keep owning handles alive and provide basic iteration interfaces.
 - Provide blackboard entry uninitialized update path (`loan_uninit`, `value_mut`, `update!`, `discard!`).
 - Clarify key comparator semantics and allow custom comparator pointer injection.
+- Make attribute iteration return owned strings by default and provide a pointer-based variant for zero-alloc use.
+- Harden attribute error/value string extraction against missing null terminators.
 - Status: Completed (2026-01-27)
 
 ## Design Decisions to Mirror iceoryx2-cxx Idioms

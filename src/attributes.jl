@@ -87,7 +87,7 @@ function verify_requirements(verifier::AttributeVerifier, attrs::Union{Attribute
         )
     end
     ret == _IOX2_OK && return nothing
-    return unsafe_string(pointer(buffer))
+    return _string_from_buffer(buffer)
 end
 
 @inline function number_of_attributes(attrs::Union{AttributeSet, AttributeSetView})
@@ -156,7 +156,13 @@ function key_value(attrs::Union{AttributeSet, AttributeSetView}, key::AbstractSt
         )
     end
     has_value[] || return nothing
-    return unsafe_string(pointer(buffer))
+    return _string_from_buffer(buffer)
+end
+
+@inline function _string_from_buffer(buffer::Vector{UInt8})
+    idx = findfirst(==(0x00), buffer)
+    len = idx === nothing ? length(buffer) : idx - 1
+    return unsafe_string(pointer(buffer), len)
 end
 
 function keys(verifier::AttributeVerifier)

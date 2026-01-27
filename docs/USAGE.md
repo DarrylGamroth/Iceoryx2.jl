@@ -79,3 +79,5 @@ end
 
 Callbacks are wrapped via `@cfunction` trampolines with `GC.@preserve`. To keep hot paths
 allocation-free, avoid capturing large environments and use `let` blocks when needed.
+Detail view objects and pointer arguments passed into callbacks are only valid for the
+duration of the callback; copy to `String` or owned buffers if you need to keep data.
