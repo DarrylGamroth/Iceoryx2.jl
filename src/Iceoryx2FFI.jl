@@ -4781,7 +4781,7 @@ const char *iox2_semantic_string_error_string(enum iox2_semantic_string_error_e 
 ```
 """
 function iox2_semantic_string_error_string(error)
-    @ccall libiceoryx2.iox2_semantic_string_error_string(error::iox2_semantic_string_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_semantic_string_error_string(error::iox2_semantic_string_error_e)::Cstring
 end
 
 """
@@ -4803,7 +4803,7 @@ bool iox2_active_request_has_disconnect_hint(iox2_active_request_h_ref handle);
 ```
 """
 function iox2_active_request_has_disconnect_hint(handle)
-    @ccall libiceoryx2.iox2_active_request_has_disconnect_hint(handle::iox2_active_request_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_active_request_has_disconnect_hint(handle::iox2_active_request_h_ref)::Bool
 end
 
 """
@@ -4825,7 +4825,7 @@ bool iox2_active_request_is_connected(iox2_active_request_h_ref handle);
 ```
 """
 function iox2_active_request_is_connected(handle)
-    @ccall libiceoryx2.iox2_active_request_is_connected(handle::iox2_active_request_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_active_request_is_connected(handle::iox2_active_request_h_ref)::Bool
 end
 
 """
@@ -4843,7 +4843,7 @@ void iox2_active_request_header(iox2_active_request_h_ref handle, struct iox2_re
 ```
 """
 function iox2_active_request_header(handle, header_struct_ptr, header_handle_ptr)
-    @ccall libiceoryx2.iox2_active_request_header(handle::iox2_active_request_h_ref, header_struct_ptr::Ptr{iox2_request_header_t}, header_handle_ptr::Ptr{iox2_request_header_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_active_request_header(handle::iox2_active_request_h_ref, header_struct_ptr::Ptr{iox2_request_header_t}, header_handle_ptr::Ptr{iox2_request_header_h})::Cvoid
 end
 
 """
@@ -4861,7 +4861,7 @@ void iox2_active_request_user_header(iox2_active_request_h_ref handle, const voi
 ```
 """
 function iox2_active_request_user_header(handle, header_ptr)
-    @ccall libiceoryx2.iox2_active_request_user_header(handle::iox2_active_request_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_active_request_user_header(handle::iox2_active_request_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
 end
 
 """
@@ -4879,7 +4879,7 @@ void iox2_active_request_payload(iox2_active_request_h_ref handle, const void **
 ```
 """
 function iox2_active_request_payload(handle, payload_ptr, number_of_elements)
-    @ccall libiceoryx2.iox2_active_request_payload(handle::iox2_active_request_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_active_request_payload(handle::iox2_active_request_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
 end
 
 """
@@ -4903,7 +4903,7 @@ int iox2_active_request_loan_slice_uninit(iox2_active_request_h_ref active_reque
 ```
 """
 function iox2_active_request_loan_slice_uninit(active_request_handle, response_struct_ptr, response_handle_ptr, number_of_elements)
-    @ccall libiceoryx2.iox2_active_request_loan_slice_uninit(active_request_handle::iox2_active_request_h_ref, response_struct_ptr::Ptr{iox2_response_mut_t}, response_handle_ptr::Ptr{iox2_response_mut_h}, number_of_elements::Csize_t)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_active_request_loan_slice_uninit(active_request_handle::iox2_active_request_h_ref, response_struct_ptr::Ptr{iox2_response_mut_t}, response_handle_ptr::Ptr{iox2_response_mut_h}, number_of_elements::Csize_t)::Cint
 end
 
 """
@@ -4927,7 +4927,7 @@ int iox2_active_request_send_copy(iox2_active_request_h_ref active_request_handl
 ```
 """
 function iox2_active_request_send_copy(active_request_handle, data_ptr, size_of_element, number_of_elements)
-    @ccall libiceoryx2.iox2_active_request_send_copy(active_request_handle::iox2_active_request_h_ref, data_ptr::Ptr{Cvoid}, size_of_element::Csize_t, number_of_elements::Csize_t)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_active_request_send_copy(active_request_handle::iox2_active_request_h_ref, data_ptr::Ptr{Cvoid}, size_of_element::Csize_t, number_of_elements::Csize_t)::Cint
 end
 
 """
@@ -4949,7 +4949,7 @@ void iox2_active_request_drop(iox2_active_request_h handle);
 ```
 """
 function iox2_active_request_drop(handle)
-    @ccall libiceoryx2.iox2_active_request_drop(handle::iox2_active_request_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_active_request_drop(handle::iox2_active_request_h)::Cvoid
 end
 
 """
@@ -4967,7 +4967,7 @@ size_t iox2_attribute_key_len(iox2_attribute_h_ref handle);
 ```
 """
 function iox2_attribute_key_len(handle)
-    @ccall libiceoryx2.iox2_attribute_key_len(handle::iox2_attribute_h_ref)::Csize_t
+    @ccall libiceoryx2_ffi_c.iox2_attribute_key_len(handle::iox2_attribute_h_ref)::Csize_t
 end
 
 """
@@ -4985,7 +4985,7 @@ void iox2_attribute_key(iox2_attribute_h_ref handle, char *buffer, size_t buffer
 ```
 """
 function iox2_attribute_key(handle, buffer, buffer_len)
-    @ccall libiceoryx2.iox2_attribute_key(handle::iox2_attribute_h_ref, buffer::Cstring, buffer_len::Csize_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_attribute_key(handle::iox2_attribute_h_ref, buffer::Cstring, buffer_len::Csize_t)::Cvoid
 end
 
 """
@@ -5003,7 +5003,7 @@ size_t iox2_attribute_value_len(iox2_attribute_h_ref handle);
 ```
 """
 function iox2_attribute_value_len(handle)
-    @ccall libiceoryx2.iox2_attribute_value_len(handle::iox2_attribute_h_ref)::Csize_t
+    @ccall libiceoryx2_ffi_c.iox2_attribute_value_len(handle::iox2_attribute_h_ref)::Csize_t
 end
 
 """
@@ -5021,7 +5021,7 @@ void iox2_attribute_value(iox2_attribute_h_ref handle, char *buffer, size_t buff
 ```
 """
 function iox2_attribute_value(handle, buffer, buffer_len)
-    @ccall libiceoryx2.iox2_attribute_value(handle::iox2_attribute_h_ref, buffer::Cstring, buffer_len::Csize_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_attribute_value(handle::iox2_attribute_h_ref, buffer::Cstring, buffer_len::Csize_t)::Cvoid
 end
 
 """
@@ -5047,7 +5047,7 @@ const char *iox2_attribute_definition_error_create_error_string(enum iox2_attrib
 ```
 """
 function iox2_attribute_definition_error_create_error_string(error)
-    @ccall libiceoryx2.iox2_attribute_definition_error_create_error_string(error::iox2_attribute_definition_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_attribute_definition_error_create_error_string(error::iox2_attribute_definition_error_e)::Cstring
 end
 
 """
@@ -5073,7 +5073,7 @@ const char *iox2_attribute_verification_error_create_error_string(enum iox2_attr
 ```
 """
 function iox2_attribute_verification_error_create_error_string(error)
-    @ccall libiceoryx2.iox2_attribute_verification_error_create_error_string(error::iox2_attribute_verification_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_attribute_verification_error_create_error_string(error::iox2_attribute_verification_error_e)::Cstring
 end
 
 """
@@ -5091,7 +5091,7 @@ void iox2_attribute_set_new_clone(struct iox2_attribute_set_t *struct_ptr, iox2_
 ```
 """
 function iox2_attribute_set_new_clone(struct_ptr, source_ptr, handle_ptr)
-    @ccall libiceoryx2.iox2_attribute_set_new_clone(struct_ptr::Ptr{iox2_attribute_set_t}, source_ptr::iox2_attribute_set_ptr, handle_ptr::Ptr{iox2_attribute_set_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_attribute_set_new_clone(struct_ptr::Ptr{iox2_attribute_set_t}, source_ptr::iox2_attribute_set_ptr, handle_ptr::Ptr{iox2_attribute_set_h})::Cvoid
 end
 
 """
@@ -5109,7 +5109,7 @@ void iox2_attribute_set_drop(iox2_attribute_set_h handle);
 ```
 """
 function iox2_attribute_set_drop(handle)
-    @ccall libiceoryx2.iox2_attribute_set_drop(handle::iox2_attribute_set_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_attribute_set_drop(handle::iox2_attribute_set_h)::Cvoid
 end
 
 """
@@ -5129,7 +5129,7 @@ iox2_attribute_set_ptr iox2_cast_attribute_set_ptr(iox2_attribute_set_h handle);
 ```
 """
 function iox2_cast_attribute_set_ptr(handle)
-    @ccall libiceoryx2.iox2_cast_attribute_set_ptr(handle::iox2_attribute_set_h)::iox2_attribute_set_ptr
+    @ccall libiceoryx2_ffi_c.iox2_cast_attribute_set_ptr(handle::iox2_attribute_set_h)::iox2_attribute_set_ptr
 end
 
 """
@@ -5147,7 +5147,7 @@ size_t iox2_attribute_set_number_of_attributes(iox2_attribute_set_ptr handle);
 ```
 """
 function iox2_attribute_set_number_of_attributes(handle)
-    @ccall libiceoryx2.iox2_attribute_set_number_of_attributes(handle::iox2_attribute_set_ptr)::Csize_t
+    @ccall libiceoryx2_ffi_c.iox2_attribute_set_number_of_attributes(handle::iox2_attribute_set_ptr)::Csize_t
 end
 
 """
@@ -5165,7 +5165,7 @@ iox2_attribute_h_ref iox2_attribute_set_index(iox2_attribute_set_ptr handle, siz
 ```
 """
 function iox2_attribute_set_index(handle, index)
-    @ccall libiceoryx2.iox2_attribute_set_index(handle::iox2_attribute_set_ptr, index::Csize_t)::iox2_attribute_h_ref
+    @ccall libiceoryx2_ffi_c.iox2_attribute_set_index(handle::iox2_attribute_set_ptr, index::Csize_t)::iox2_attribute_h_ref
 end
 
 """
@@ -5183,7 +5183,7 @@ size_t iox2_attribute_set_number_of_key_values(iox2_attribute_set_ptr handle, co
 ```
 """
 function iox2_attribute_set_number_of_key_values(handle, key)
-    @ccall libiceoryx2.iox2_attribute_set_number_of_key_values(handle::iox2_attribute_set_ptr, key::Cstring)::Csize_t
+    @ccall libiceoryx2_ffi_c.iox2_attribute_set_number_of_key_values(handle::iox2_attribute_set_ptr, key::Cstring)::Csize_t
 end
 
 """
@@ -5201,7 +5201,7 @@ void iox2_attribute_set_key_value(iox2_attribute_set_ptr handle, const char *key
 ```
 """
 function iox2_attribute_set_key_value(handle, key, index, buffer, buffer_len, has_value)
-    @ccall libiceoryx2.iox2_attribute_set_key_value(handle::iox2_attribute_set_ptr, key::Cstring, index::Csize_t, buffer::Cstring, buffer_len::Csize_t, has_value::Ptr{Bool})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_attribute_set_key_value(handle::iox2_attribute_set_ptr, key::Cstring, index::Csize_t, buffer::Cstring, buffer_len::Csize_t, has_value::Ptr{Bool})::Cvoid
 end
 
 """
@@ -5219,7 +5219,7 @@ void iox2_attribute_set_iter_key_values(iox2_attribute_set_ptr handle, const cha
 ```
 """
 function iox2_attribute_set_iter_key_values(handle, key, callback, callback_ctx)
-    @ccall libiceoryx2.iox2_attribute_set_iter_key_values(handle::iox2_attribute_set_ptr, key::Cstring, callback::iox2_attribute_set_get_callback, callback_ctx::iox2_callback_context)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_attribute_set_iter_key_values(handle::iox2_attribute_set_ptr, key::Cstring, callback::iox2_attribute_set_get_callback, callback_ctx::iox2_callback_context)::Cvoid
 end
 
 """
@@ -5237,7 +5237,7 @@ int iox2_attribute_specifier_new(struct iox2_attribute_specifier_t *struct_ptr, 
 ```
 """
 function iox2_attribute_specifier_new(struct_ptr, handle_ptr)
-    @ccall libiceoryx2.iox2_attribute_specifier_new(struct_ptr::Ptr{iox2_attribute_specifier_t}, handle_ptr::Ptr{iox2_attribute_specifier_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_attribute_specifier_new(struct_ptr::Ptr{iox2_attribute_specifier_t}, handle_ptr::Ptr{iox2_attribute_specifier_h})::Cint
 end
 
 """
@@ -5255,7 +5255,7 @@ void iox2_attribute_specifier_drop(iox2_attribute_specifier_h handle);
 ```
 """
 function iox2_attribute_specifier_drop(handle)
-    @ccall libiceoryx2.iox2_attribute_specifier_drop(handle::iox2_attribute_specifier_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_attribute_specifier_drop(handle::iox2_attribute_specifier_h)::Cvoid
 end
 
 """
@@ -5275,7 +5275,7 @@ int iox2_attribute_specifier_define(iox2_attribute_specifier_h_ref handle, const
 ```
 """
 function iox2_attribute_specifier_define(handle, key, value)
-    @ccall libiceoryx2.iox2_attribute_specifier_define(handle::iox2_attribute_specifier_h_ref, key::Cstring, value::Cstring)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_attribute_specifier_define(handle::iox2_attribute_specifier_h_ref, key::Cstring, value::Cstring)::Cint
 end
 
 """
@@ -5293,7 +5293,7 @@ iox2_attribute_set_ptr iox2_attribute_specifier_attributes(iox2_attribute_specif
 ```
 """
 function iox2_attribute_specifier_attributes(handle)
-    @ccall libiceoryx2.iox2_attribute_specifier_attributes(handle::iox2_attribute_specifier_h_ref)::iox2_attribute_set_ptr
+    @ccall libiceoryx2_ffi_c.iox2_attribute_specifier_attributes(handle::iox2_attribute_specifier_h_ref)::iox2_attribute_set_ptr
 end
 
 """
@@ -5311,7 +5311,7 @@ int iox2_attribute_verifier_new(struct iox2_attribute_verifier_t *struct_ptr, io
 ```
 """
 function iox2_attribute_verifier_new(struct_ptr, handle_ptr)
-    @ccall libiceoryx2.iox2_attribute_verifier_new(struct_ptr::Ptr{iox2_attribute_verifier_t}, handle_ptr::Ptr{iox2_attribute_verifier_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_attribute_verifier_new(struct_ptr::Ptr{iox2_attribute_verifier_t}, handle_ptr::Ptr{iox2_attribute_verifier_h})::Cint
 end
 
 """
@@ -5329,7 +5329,7 @@ void iox2_attribute_verifier_drop(iox2_attribute_verifier_h handle);
 ```
 """
 function iox2_attribute_verifier_drop(handle)
-    @ccall libiceoryx2.iox2_attribute_verifier_drop(handle::iox2_attribute_verifier_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_attribute_verifier_drop(handle::iox2_attribute_verifier_h)::Cvoid
 end
 
 """
@@ -5349,7 +5349,7 @@ int iox2_attribute_verifier_require(iox2_attribute_verifier_h_ref handle, const 
 ```
 """
 function iox2_attribute_verifier_require(handle, key, value)
-    @ccall libiceoryx2.iox2_attribute_verifier_require(handle::iox2_attribute_verifier_h_ref, key::Cstring, value::Cstring)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_attribute_verifier_require(handle::iox2_attribute_verifier_h_ref, key::Cstring, value::Cstring)::Cint
 end
 
 """
@@ -5369,7 +5369,7 @@ int iox2_attribute_verifier_require_key(iox2_attribute_verifier_h_ref handle, co
 ```
 """
 function iox2_attribute_verifier_require_key(handle, key)
-    @ccall libiceoryx2.iox2_attribute_verifier_require_key(handle::iox2_attribute_verifier_h_ref, key::Cstring)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_attribute_verifier_require_key(handle::iox2_attribute_verifier_h_ref, key::Cstring)::Cint
 end
 
 """
@@ -5387,7 +5387,7 @@ iox2_attribute_set_ptr iox2_attribute_verifier_attributes(iox2_attribute_verifie
 ```
 """
 function iox2_attribute_verifier_attributes(handle)
-    @ccall libiceoryx2.iox2_attribute_verifier_attributes(handle::iox2_attribute_verifier_h_ref)::iox2_attribute_set_ptr
+    @ccall libiceoryx2_ffi_c.iox2_attribute_verifier_attributes(handle::iox2_attribute_verifier_h_ref)::iox2_attribute_set_ptr
 end
 
 """
@@ -5407,7 +5407,7 @@ int iox2_attribute_verifier_verify_requirements(iox2_attribute_verifier_h_ref ha
 ```
 """
 function iox2_attribute_verifier_verify_requirements(handle, rhs, incompatible_key_buffer, incompatible_key_buffer_len)
-    @ccall libiceoryx2.iox2_attribute_verifier_verify_requirements(handle::iox2_attribute_verifier_h_ref, rhs::iox2_attribute_set_ptr, incompatible_key_buffer::Cstring, incompatible_key_buffer_len::Csize_t)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_attribute_verifier_verify_requirements(handle::iox2_attribute_verifier_h_ref, rhs::iox2_attribute_set_ptr, incompatible_key_buffer::Cstring, incompatible_key_buffer_len::Csize_t)::Cint
 end
 
 """
@@ -5425,7 +5425,7 @@ size_t iox2_attribute_verifier_number_of_keys(iox2_attribute_verifier_h_ref hand
 ```
 """
 function iox2_attribute_verifier_number_of_keys(handle)
-    @ccall libiceoryx2.iox2_attribute_verifier_number_of_keys(handle::iox2_attribute_verifier_h_ref)::Csize_t
+    @ccall libiceoryx2_ffi_c.iox2_attribute_verifier_number_of_keys(handle::iox2_attribute_verifier_h_ref)::Csize_t
 end
 
 """
@@ -5443,7 +5443,7 @@ size_t iox2_attribute_verifier_key_len(iox2_attribute_verifier_h_ref handle, siz
 ```
 """
 function iox2_attribute_verifier_key_len(handle, key_index)
-    @ccall libiceoryx2.iox2_attribute_verifier_key_len(handle::iox2_attribute_verifier_h_ref, key_index::Csize_t)::Csize_t
+    @ccall libiceoryx2_ffi_c.iox2_attribute_verifier_key_len(handle::iox2_attribute_verifier_h_ref, key_index::Csize_t)::Csize_t
 end
 
 """
@@ -5461,7 +5461,7 @@ size_t iox2_attribute_verifier_key(iox2_attribute_verifier_h_ref handle, size_t 
 ```
 """
 function iox2_attribute_verifier_key(handle, key_index, key_value_buffer, key_value_buffer_len)
-    @ccall libiceoryx2.iox2_attribute_verifier_key(handle::iox2_attribute_verifier_h_ref, key_index::Csize_t, key_value_buffer::Cstring, key_value_buffer_len::Csize_t)::Csize_t
+    @ccall libiceoryx2_ffi_c.iox2_attribute_verifier_key(handle::iox2_attribute_verifier_h_ref, key_index::Csize_t, key_value_buffer::Cstring, key_value_buffer_len::Csize_t)::Csize_t
 end
 
 """
@@ -5485,7 +5485,7 @@ enum iox2_unable_to_deliver_strategy_e iox2_client_unable_to_deliver_strategy(io
 ```
 """
 function iox2_client_unable_to_deliver_strategy(handle)
-    @ccall libiceoryx2.iox2_client_unable_to_deliver_strategy(handle::iox2_client_h_ref)::iox2_unable_to_deliver_strategy_e
+    @ccall libiceoryx2_ffi_c.iox2_client_unable_to_deliver_strategy(handle::iox2_client_h_ref)::iox2_unable_to_deliver_strategy_e
 end
 
 """
@@ -5507,7 +5507,7 @@ c_size_t iox2_client_initial_max_slice_len(iox2_client_h_ref handle);
 ```
 """
 function iox2_client_initial_max_slice_len(handle)
-    @ccall libiceoryx2.iox2_client_initial_max_slice_len(handle::iox2_client_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_client_initial_max_slice_len(handle::iox2_client_h_ref)::c_size_t
 end
 
 """
@@ -5529,7 +5529,7 @@ void iox2_client_id(iox2_client_h_ref handle, struct iox2_unique_client_id_t *id
 ```
 """
 function iox2_client_id(handle, id_struct_ptr, id_handle_ptr)
-    @ccall libiceoryx2.iox2_client_id(handle::iox2_client_h_ref, id_struct_ptr::Ptr{iox2_unique_client_id_t}, id_handle_ptr::Ptr{iox2_unique_client_id_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_client_id(handle::iox2_client_h_ref, id_struct_ptr::Ptr{iox2_unique_client_id_t}, id_handle_ptr::Ptr{iox2_unique_client_id_h})::Cvoid
 end
 
 """
@@ -5553,7 +5553,7 @@ int iox2_client_loan_slice_uninit(iox2_client_h_ref client_handle, struct iox2_r
 ```
 """
 function iox2_client_loan_slice_uninit(client_handle, request_struct_ptr, request_handle_ptr, number_of_elements)
-    @ccall libiceoryx2.iox2_client_loan_slice_uninit(client_handle::iox2_client_h_ref, request_struct_ptr::Ptr{iox2_request_mut_t}, request_handle_ptr::Ptr{iox2_request_mut_h}, number_of_elements::Csize_t)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_client_loan_slice_uninit(client_handle::iox2_client_h_ref, request_struct_ptr::Ptr{iox2_request_mut_t}, request_handle_ptr::Ptr{iox2_request_mut_h}, number_of_elements::Csize_t)::Cint
 end
 
 """
@@ -5577,7 +5577,7 @@ int iox2_client_send_copy(iox2_client_h_ref client_handle, const void *data_ptr,
 ```
 """
 function iox2_client_send_copy(client_handle, data_ptr, size_of_element, number_of_elements, pending_response_struct_ptr, pending_response_handle_ptr)
-    @ccall libiceoryx2.iox2_client_send_copy(client_handle::iox2_client_h_ref, data_ptr::Ptr{Cvoid}, size_of_element::Csize_t, number_of_elements::Csize_t, pending_response_struct_ptr::Ptr{iox2_pending_response_t}, pending_response_handle_ptr::Ptr{iox2_pending_response_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_client_send_copy(client_handle::iox2_client_h_ref, data_ptr::Ptr{Cvoid}, size_of_element::Csize_t, number_of_elements::Csize_t, pending_response_struct_ptr::Ptr{iox2_pending_response_t}, pending_response_handle_ptr::Ptr{iox2_pending_response_h})::Cint
 end
 
 """
@@ -5599,7 +5599,7 @@ void iox2_client_drop(iox2_client_h client_handle);
 ```
 """
 function iox2_client_drop(client_handle)
-    @ccall libiceoryx2.iox2_client_drop(client_handle::iox2_client_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_client_drop(client_handle::iox2_client_h)::Cvoid
 end
 
 """
@@ -5617,7 +5617,7 @@ void iox2_client_details_client_id(iox2_client_details_ptr handle, struct iox2_u
 ```
 """
 function iox2_client_details_client_id(handle, id_struct_ptr, id_handle_ptr)
-    @ccall libiceoryx2.iox2_client_details_client_id(handle::iox2_client_details_ptr, id_struct_ptr::Ptr{iox2_unique_client_id_t}, id_handle_ptr::Ptr{iox2_unique_client_id_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_client_details_client_id(handle::iox2_client_details_ptr, id_struct_ptr::Ptr{iox2_unique_client_id_t}, id_handle_ptr::Ptr{iox2_unique_client_id_h})::Cvoid
 end
 
 """
@@ -5635,7 +5635,7 @@ iox2_node_id_ptr iox2_client_details_node_id(iox2_client_details_ptr handle);
 ```
 """
 function iox2_client_details_node_id(handle)
-    @ccall libiceoryx2.iox2_client_details_node_id(handle::iox2_client_details_ptr)::iox2_node_id_ptr
+    @ccall libiceoryx2_ffi_c.iox2_client_details_node_id(handle::iox2_client_details_ptr)::iox2_node_id_ptr
 end
 
 """
@@ -5653,7 +5653,7 @@ c_size_t iox2_client_details_response_buffer_size(iox2_client_details_ptr handle
 ```
 """
 function iox2_client_details_response_buffer_size(handle)
-    @ccall libiceoryx2.iox2_client_details_response_buffer_size(handle::iox2_client_details_ptr)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_client_details_response_buffer_size(handle::iox2_client_details_ptr)::c_size_t
 end
 
 """
@@ -5671,7 +5671,7 @@ c_size_t iox2_client_details_number_of_requests(iox2_client_details_ptr handle);
 ```
 """
 function iox2_client_details_number_of_requests(handle)
-    @ccall libiceoryx2.iox2_client_details_number_of_requests(handle::iox2_client_details_ptr)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_client_details_number_of_requests(handle::iox2_client_details_ptr)::c_size_t
 end
 
 """
@@ -5689,7 +5689,7 @@ c_size_t iox2_client_details_max_slice_len(iox2_client_details_ptr handle);
 ```
 """
 function iox2_client_details_max_slice_len(handle)
-    @ccall libiceoryx2.iox2_client_details_max_slice_len(handle::iox2_client_details_ptr)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_client_details_max_slice_len(handle::iox2_client_details_ptr)::c_size_t
 end
 
 """
@@ -5715,7 +5715,7 @@ const char *iox2_config_creation_error_string(enum iox2_config_creation_error_e 
 ```
 """
 function iox2_config_creation_error_string(error)
-    @ccall libiceoryx2.iox2_config_creation_error_string(error::iox2_config_creation_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_config_creation_error_string(error::iox2_config_creation_error_e)::Cstring
 end
 
 """
@@ -5739,7 +5739,7 @@ iox2_config_ptr iox2_cast_config_ptr(iox2_config_h config_handle);
 ```
 """
 function iox2_cast_config_ptr(config_handle)
-    @ccall libiceoryx2.iox2_cast_config_ptr(config_handle::iox2_config_h)::iox2_config_ptr
+    @ccall libiceoryx2_ffi_c.iox2_cast_config_ptr(config_handle::iox2_config_h)::iox2_config_ptr
 end
 
 """
@@ -5753,7 +5753,7 @@ iox2_config_ptr iox2_config_global_config(void);
 ```
 """
 function iox2_config_global_config()
-    @ccall libiceoryx2.iox2_config_global_config()::iox2_config_ptr
+    @ccall libiceoryx2_ffi_c.iox2_config_global_config()::iox2_config_ptr
 end
 
 """
@@ -5771,7 +5771,7 @@ int iox2_config_default(struct iox2_config_t *struct_ptr, iox2_config_h *handle_
 ```
 """
 function iox2_config_default(struct_ptr, handle_ptr)
-    @ccall libiceoryx2.iox2_config_default(struct_ptr::Ptr{iox2_config_t}, handle_ptr::Ptr{iox2_config_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_config_default(struct_ptr::Ptr{iox2_config_t}, handle_ptr::Ptr{iox2_config_h})::Cint
 end
 
 """
@@ -5789,7 +5789,7 @@ int iox2_config_from_file(struct iox2_config_t *struct_ptr, iox2_config_h *handl
 ```
 """
 function iox2_config_from_file(struct_ptr, handle_ptr, config_file)
-    @ccall libiceoryx2.iox2_config_from_file(struct_ptr::Ptr{iox2_config_t}, handle_ptr::Ptr{iox2_config_h}, config_file::Cstring)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_config_from_file(struct_ptr::Ptr{iox2_config_t}, handle_ptr::Ptr{iox2_config_h}, config_file::Cstring)::Cint
 end
 
 """
@@ -5807,7 +5807,7 @@ void iox2_config_from_ptr(iox2_config_ptr config, struct iox2_config_t *struct_p
 ```
 """
 function iox2_config_from_ptr(config, struct_ptr, handle_ptr)
-    @ccall libiceoryx2.iox2_config_from_ptr(config::iox2_config_ptr, struct_ptr::Ptr{iox2_config_t}, handle_ptr::Ptr{iox2_config_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_from_ptr(config::iox2_config_ptr, struct_ptr::Ptr{iox2_config_t}, handle_ptr::Ptr{iox2_config_h})::Cvoid
 end
 
 """
@@ -5825,7 +5825,7 @@ void iox2_config_clone(iox2_config_h_ref handle, struct iox2_config_t *struct_pt
 ```
 """
 function iox2_config_clone(handle, struct_ptr, handle_ptr)
-    @ccall libiceoryx2.iox2_config_clone(handle::iox2_config_h_ref, struct_ptr::Ptr{iox2_config_t}, handle_ptr::Ptr{iox2_config_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_clone(handle::iox2_config_h_ref, struct_ptr::Ptr{iox2_config_t}, handle_ptr::Ptr{iox2_config_h})::Cvoid
 end
 
 """
@@ -5843,7 +5843,7 @@ void iox2_config_drop(iox2_config_h handle);
 ```
 """
 function iox2_config_drop(handle)
-    @ccall libiceoryx2.iox2_config_drop(handle::iox2_config_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_drop(handle::iox2_config_h)::Cvoid
 end
 
 """
@@ -5861,7 +5861,7 @@ const char *iox2_config_global_prefix(iox2_config_h_ref handle);
 ```
 """
 function iox2_config_global_prefix(handle)
-    @ccall libiceoryx2.iox2_config_global_prefix(handle::iox2_config_h_ref)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_config_global_prefix(handle::iox2_config_h_ref)::Cstring
 end
 
 """
@@ -5881,7 +5881,7 @@ int iox2_config_global_set_prefix(iox2_config_h_ref handle, const char *value);
 ```
 """
 function iox2_config_global_set_prefix(handle, value)
-    @ccall libiceoryx2.iox2_config_global_set_prefix(handle::iox2_config_h_ref, value::Cstring)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_config_global_set_prefix(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
 """
@@ -5899,7 +5899,7 @@ const char *iox2_config_global_root_path(iox2_config_h_ref handle);
 ```
 """
 function iox2_config_global_root_path(handle)
-    @ccall libiceoryx2.iox2_config_global_root_path(handle::iox2_config_h_ref)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_config_global_root_path(handle::iox2_config_h_ref)::Cstring
 end
 
 """
@@ -5919,7 +5919,7 @@ int iox2_config_global_set_root_path(iox2_config_h_ref handle, const char *value
 ```
 """
 function iox2_config_global_set_root_path(handle, value)
-    @ccall libiceoryx2.iox2_config_global_set_root_path(handle::iox2_config_h_ref, value::Cstring)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_config_global_set_root_path(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
 """
@@ -5937,7 +5937,7 @@ const char *iox2_config_global_node_directory(iox2_config_h_ref handle);
 ```
 """
 function iox2_config_global_node_directory(handle)
-    @ccall libiceoryx2.iox2_config_global_node_directory(handle::iox2_config_h_ref)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_config_global_node_directory(handle::iox2_config_h_ref)::Cstring
 end
 
 """
@@ -5957,7 +5957,7 @@ int iox2_config_global_node_set_directory(iox2_config_h_ref handle, const char *
 ```
 """
 function iox2_config_global_node_set_directory(handle, value)
-    @ccall libiceoryx2.iox2_config_global_node_set_directory(handle::iox2_config_h_ref, value::Cstring)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_config_global_node_set_directory(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
 """
@@ -5975,7 +5975,7 @@ const char *iox2_config_global_node_monitor_suffix(iox2_config_h_ref handle);
 ```
 """
 function iox2_config_global_node_monitor_suffix(handle)
-    @ccall libiceoryx2.iox2_config_global_node_monitor_suffix(handle::iox2_config_h_ref)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_config_global_node_monitor_suffix(handle::iox2_config_h_ref)::Cstring
 end
 
 """
@@ -5995,7 +5995,7 @@ int iox2_config_global_node_set_monitor_suffix(iox2_config_h_ref handle, const c
 ```
 """
 function iox2_config_global_node_set_monitor_suffix(handle, value)
-    @ccall libiceoryx2.iox2_config_global_node_set_monitor_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_config_global_node_set_monitor_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
 """
@@ -6013,7 +6013,7 @@ const char *iox2_config_global_node_static_config_suffix(iox2_config_h_ref handl
 ```
 """
 function iox2_config_global_node_static_config_suffix(handle)
-    @ccall libiceoryx2.iox2_config_global_node_static_config_suffix(handle::iox2_config_h_ref)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_config_global_node_static_config_suffix(handle::iox2_config_h_ref)::Cstring
 end
 
 """
@@ -6033,7 +6033,7 @@ int iox2_config_global_node_set_static_config_suffix(iox2_config_h_ref handle, c
 ```
 """
 function iox2_config_global_node_set_static_config_suffix(handle, value)
-    @ccall libiceoryx2.iox2_config_global_node_set_static_config_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_config_global_node_set_static_config_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
 """
@@ -6051,7 +6051,7 @@ const char *iox2_config_global_node_service_tag_suffix(iox2_config_h_ref handle)
 ```
 """
 function iox2_config_global_node_service_tag_suffix(handle)
-    @ccall libiceoryx2.iox2_config_global_node_service_tag_suffix(handle::iox2_config_h_ref)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_config_global_node_service_tag_suffix(handle::iox2_config_h_ref)::Cstring
 end
 
 """
@@ -6071,7 +6071,7 @@ int iox2_config_global_node_set_service_tag_suffix(iox2_config_h_ref handle, con
 ```
 """
 function iox2_config_global_node_set_service_tag_suffix(handle, value)
-    @ccall libiceoryx2.iox2_config_global_node_set_service_tag_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_config_global_node_set_service_tag_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
 """
@@ -6089,7 +6089,7 @@ bool iox2_config_global_node_cleanup_dead_nodes_on_creation(iox2_config_h_ref ha
 ```
 """
 function iox2_config_global_node_cleanup_dead_nodes_on_creation(handle)
-    @ccall libiceoryx2.iox2_config_global_node_cleanup_dead_nodes_on_creation(handle::iox2_config_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_config_global_node_cleanup_dead_nodes_on_creation(handle::iox2_config_h_ref)::Bool
 end
 
 """
@@ -6107,7 +6107,7 @@ void iox2_config_global_node_set_cleanup_dead_nodes_on_creation(iox2_config_h_re
 ```
 """
 function iox2_config_global_node_set_cleanup_dead_nodes_on_creation(handle, value)
-    @ccall libiceoryx2.iox2_config_global_node_set_cleanup_dead_nodes_on_creation(handle::iox2_config_h_ref, value::Bool)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_global_node_set_cleanup_dead_nodes_on_creation(handle::iox2_config_h_ref, value::Bool)::Cvoid
 end
 
 """
@@ -6125,7 +6125,7 @@ bool iox2_config_global_node_cleanup_dead_nodes_on_destruction(iox2_config_h_ref
 ```
 """
 function iox2_config_global_node_cleanup_dead_nodes_on_destruction(handle)
-    @ccall libiceoryx2.iox2_config_global_node_cleanup_dead_nodes_on_destruction(handle::iox2_config_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_config_global_node_cleanup_dead_nodes_on_destruction(handle::iox2_config_h_ref)::Bool
 end
 
 """
@@ -6143,7 +6143,7 @@ void iox2_config_global_node_set_cleanup_dead_nodes_on_destruction(iox2_config_h
 ```
 """
 function iox2_config_global_node_set_cleanup_dead_nodes_on_destruction(handle, value)
-    @ccall libiceoryx2.iox2_config_global_node_set_cleanup_dead_nodes_on_destruction(handle::iox2_config_h_ref, value::Bool)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_global_node_set_cleanup_dead_nodes_on_destruction(handle::iox2_config_h_ref, value::Bool)::Cvoid
 end
 
 """
@@ -6161,7 +6161,7 @@ const char *iox2_config_global_service_directory(iox2_config_h_ref handle);
 ```
 """
 function iox2_config_global_service_directory(handle)
-    @ccall libiceoryx2.iox2_config_global_service_directory(handle::iox2_config_h_ref)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_config_global_service_directory(handle::iox2_config_h_ref)::Cstring
 end
 
 """
@@ -6181,7 +6181,7 @@ int iox2_config_global_service_set_directory(iox2_config_h_ref handle, const cha
 ```
 """
 function iox2_config_global_service_set_directory(handle, value)
-    @ccall libiceoryx2.iox2_config_global_service_set_directory(handle::iox2_config_h_ref, value::Cstring)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_config_global_service_set_directory(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
 """
@@ -6199,7 +6199,7 @@ const char *iox2_config_global_service_data_segment_suffix(iox2_config_h_ref han
 ```
 """
 function iox2_config_global_service_data_segment_suffix(handle)
-    @ccall libiceoryx2.iox2_config_global_service_data_segment_suffix(handle::iox2_config_h_ref)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_config_global_service_data_segment_suffix(handle::iox2_config_h_ref)::Cstring
 end
 
 """
@@ -6219,7 +6219,7 @@ int iox2_config_global_service_set_data_segment_suffix(iox2_config_h_ref handle,
 ```
 """
 function iox2_config_global_service_set_data_segment_suffix(handle, value)
-    @ccall libiceoryx2.iox2_config_global_service_set_data_segment_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_config_global_service_set_data_segment_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
 """
@@ -6237,7 +6237,7 @@ const char *iox2_config_global_service_static_config_storage_suffix(iox2_config_
 ```
 """
 function iox2_config_global_service_static_config_storage_suffix(handle)
-    @ccall libiceoryx2.iox2_config_global_service_static_config_storage_suffix(handle::iox2_config_h_ref)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_config_global_service_static_config_storage_suffix(handle::iox2_config_h_ref)::Cstring
 end
 
 """
@@ -6257,7 +6257,7 @@ int iox2_config_global_service_set_static_config_storage_suffix(iox2_config_h_re
 ```
 """
 function iox2_config_global_service_set_static_config_storage_suffix(handle, value)
-    @ccall libiceoryx2.iox2_config_global_service_set_static_config_storage_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_config_global_service_set_static_config_storage_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
 """
@@ -6275,7 +6275,7 @@ const char *iox2_config_global_service_dynamic_config_storage_suffix(iox2_config
 ```
 """
 function iox2_config_global_service_dynamic_config_storage_suffix(handle)
-    @ccall libiceoryx2.iox2_config_global_service_dynamic_config_storage_suffix(handle::iox2_config_h_ref)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_config_global_service_dynamic_config_storage_suffix(handle::iox2_config_h_ref)::Cstring
 end
 
 """
@@ -6295,7 +6295,7 @@ int iox2_config_global_service_set_dynamic_config_storage_suffix(iox2_config_h_r
 ```
 """
 function iox2_config_global_service_set_dynamic_config_storage_suffix(handle, value)
-    @ccall libiceoryx2.iox2_config_global_service_set_dynamic_config_storage_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_config_global_service_set_dynamic_config_storage_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
 """
@@ -6313,7 +6313,7 @@ void iox2_config_global_service_creation_timeout(iox2_config_h_ref handle, uint6
 ```
 """
 function iox2_config_global_service_creation_timeout(handle, secs, nsecs)
-    @ccall libiceoryx2.iox2_config_global_service_creation_timeout(handle::iox2_config_h_ref, secs::Ptr{UInt64}, nsecs::Ptr{UInt32})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_global_service_creation_timeout(handle::iox2_config_h_ref, secs::Ptr{UInt64}, nsecs::Ptr{UInt32})::Cvoid
 end
 
 """
@@ -6333,7 +6333,7 @@ void iox2_config_global_service_set_creation_timeout(iox2_config_h_ref handle, u
 ```
 """
 function iox2_config_global_service_set_creation_timeout(handle, sec, nsec)
-    @ccall libiceoryx2.iox2_config_global_service_set_creation_timeout(handle::iox2_config_h_ref, sec::UInt64, nsec::UInt32)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_global_service_set_creation_timeout(handle::iox2_config_h_ref, sec::UInt64, nsec::UInt32)::Cvoid
 end
 
 """
@@ -6351,7 +6351,7 @@ const char *iox2_config_global_service_connection_suffix(iox2_config_h_ref handl
 ```
 """
 function iox2_config_global_service_connection_suffix(handle)
-    @ccall libiceoryx2.iox2_config_global_service_connection_suffix(handle::iox2_config_h_ref)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_config_global_service_connection_suffix(handle::iox2_config_h_ref)::Cstring
 end
 
 """
@@ -6371,7 +6371,7 @@ int iox2_config_global_service_set_connection_suffix(iox2_config_h_ref handle, c
 ```
 """
 function iox2_config_global_service_set_connection_suffix(handle, value)
-    @ccall libiceoryx2.iox2_config_global_service_set_connection_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_config_global_service_set_connection_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
 """
@@ -6389,7 +6389,7 @@ const char *iox2_config_global_service_event_connection_suffix(iox2_config_h_ref
 ```
 """
 function iox2_config_global_service_event_connection_suffix(handle)
-    @ccall libiceoryx2.iox2_config_global_service_event_connection_suffix(handle::iox2_config_h_ref)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_config_global_service_event_connection_suffix(handle::iox2_config_h_ref)::Cstring
 end
 
 """
@@ -6409,7 +6409,7 @@ int iox2_config_global_service_set_event_connection_suffix(iox2_config_h_ref han
 ```
 """
 function iox2_config_global_service_set_event_connection_suffix(handle, value)
-    @ccall libiceoryx2.iox2_config_global_service_set_event_connection_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_config_global_service_set_event_connection_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
 """
@@ -6427,7 +6427,7 @@ const char *iox2_config_global_service_blackboard_mgmt_suffix(iox2_config_h_ref 
 ```
 """
 function iox2_config_global_service_blackboard_mgmt_suffix(handle)
-    @ccall libiceoryx2.iox2_config_global_service_blackboard_mgmt_suffix(handle::iox2_config_h_ref)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_config_global_service_blackboard_mgmt_suffix(handle::iox2_config_h_ref)::Cstring
 end
 
 """
@@ -6447,7 +6447,7 @@ int iox2_config_global_service_set_blackboard_mgmt_suffix(iox2_config_h_ref hand
 ```
 """
 function iox2_config_global_service_set_blackboard_mgmt_suffix(handle, value)
-    @ccall libiceoryx2.iox2_config_global_service_set_blackboard_mgmt_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_config_global_service_set_blackboard_mgmt_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
 """
@@ -6465,7 +6465,7 @@ const char *iox2_config_global_service_blackboard_data_suffix(iox2_config_h_ref 
 ```
 """
 function iox2_config_global_service_blackboard_data_suffix(handle)
-    @ccall libiceoryx2.iox2_config_global_service_blackboard_data_suffix(handle::iox2_config_h_ref)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_config_global_service_blackboard_data_suffix(handle::iox2_config_h_ref)::Cstring
 end
 
 """
@@ -6485,7 +6485,7 @@ int iox2_config_global_service_set_blackboard_data_suffix(iox2_config_h_ref hand
 ```
 """
 function iox2_config_global_service_set_blackboard_data_suffix(handle, value)
-    @ccall libiceoryx2.iox2_config_global_service_set_blackboard_data_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_config_global_service_set_blackboard_data_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
 """
@@ -6503,7 +6503,7 @@ c_size_t iox2_config_defaults_publish_subscribe_max_subscribers(iox2_config_h_re
 ```
 """
 function iox2_config_defaults_publish_subscribe_max_subscribers(handle)
-    @ccall libiceoryx2.iox2_config_defaults_publish_subscribe_max_subscribers(handle::iox2_config_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_max_subscribers(handle::iox2_config_h_ref)::c_size_t
 end
 
 """
@@ -6521,7 +6521,7 @@ void iox2_config_defaults_publish_subscribe_set_max_subscribers(iox2_config_h_re
 ```
 """
 function iox2_config_defaults_publish_subscribe_set_max_subscribers(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_publish_subscribe_set_max_subscribers(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_set_max_subscribers(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -6539,7 +6539,7 @@ c_size_t iox2_config_defaults_publish_subscribe_max_publishers(iox2_config_h_ref
 ```
 """
 function iox2_config_defaults_publish_subscribe_max_publishers(handle)
-    @ccall libiceoryx2.iox2_config_defaults_publish_subscribe_max_publishers(handle::iox2_config_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_max_publishers(handle::iox2_config_h_ref)::c_size_t
 end
 
 """
@@ -6557,7 +6557,7 @@ void iox2_config_defaults_publish_subscribe_set_max_publishers(iox2_config_h_ref
 ```
 """
 function iox2_config_defaults_publish_subscribe_set_max_publishers(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_publish_subscribe_set_max_publishers(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_set_max_publishers(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -6575,7 +6575,7 @@ c_size_t iox2_config_defaults_publish_subscribe_max_nodes(iox2_config_h_ref hand
 ```
 """
 function iox2_config_defaults_publish_subscribe_max_nodes(handle)
-    @ccall libiceoryx2.iox2_config_defaults_publish_subscribe_max_nodes(handle::iox2_config_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_max_nodes(handle::iox2_config_h_ref)::c_size_t
 end
 
 """
@@ -6593,7 +6593,7 @@ void iox2_config_defaults_publish_subscribe_set_max_nodes(iox2_config_h_ref hand
 ```
 """
 function iox2_config_defaults_publish_subscribe_set_max_nodes(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_publish_subscribe_set_max_nodes(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_set_max_nodes(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -6611,7 +6611,7 @@ c_size_t iox2_config_defaults_publish_subscribe_subscriber_max_buffer_size(iox2_
 ```
 """
 function iox2_config_defaults_publish_subscribe_subscriber_max_buffer_size(handle)
-    @ccall libiceoryx2.iox2_config_defaults_publish_subscribe_subscriber_max_buffer_size(handle::iox2_config_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_subscriber_max_buffer_size(handle::iox2_config_h_ref)::c_size_t
 end
 
 """
@@ -6629,7 +6629,7 @@ void iox2_config_defaults_publish_subscribe_set_subscriber_max_buffer_size(iox2_
 ```
 """
 function iox2_config_defaults_publish_subscribe_set_subscriber_max_buffer_size(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_publish_subscribe_set_subscriber_max_buffer_size(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_set_subscriber_max_buffer_size(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -6647,7 +6647,7 @@ c_size_t iox2_config_defaults_publish_subscribe_subscriber_max_borrowed_samples(
 ```
 """
 function iox2_config_defaults_publish_subscribe_subscriber_max_borrowed_samples(handle)
-    @ccall libiceoryx2.iox2_config_defaults_publish_subscribe_subscriber_max_borrowed_samples(handle::iox2_config_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_subscriber_max_borrowed_samples(handle::iox2_config_h_ref)::c_size_t
 end
 
 """
@@ -6665,7 +6665,7 @@ void iox2_config_defaults_publish_subscribe_set_subscriber_max_borrowed_samples(
 ```
 """
 function iox2_config_defaults_publish_subscribe_set_subscriber_max_borrowed_samples(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_publish_subscribe_set_subscriber_max_borrowed_samples(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_set_subscriber_max_borrowed_samples(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -6683,7 +6683,7 @@ c_size_t iox2_config_defaults_publish_subscribe_publisher_max_loaned_samples(iox
 ```
 """
 function iox2_config_defaults_publish_subscribe_publisher_max_loaned_samples(handle)
-    @ccall libiceoryx2.iox2_config_defaults_publish_subscribe_publisher_max_loaned_samples(handle::iox2_config_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_publisher_max_loaned_samples(handle::iox2_config_h_ref)::c_size_t
 end
 
 """
@@ -6701,7 +6701,7 @@ void iox2_config_defaults_publish_subscribe_set_publisher_max_loaned_samples(iox
 ```
 """
 function iox2_config_defaults_publish_subscribe_set_publisher_max_loaned_samples(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_publish_subscribe_set_publisher_max_loaned_samples(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_set_publisher_max_loaned_samples(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -6719,7 +6719,7 @@ c_size_t iox2_config_defaults_publish_subscribe_publisher_history_size(iox2_conf
 ```
 """
 function iox2_config_defaults_publish_subscribe_publisher_history_size(handle)
-    @ccall libiceoryx2.iox2_config_defaults_publish_subscribe_publisher_history_size(handle::iox2_config_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_publisher_history_size(handle::iox2_config_h_ref)::c_size_t
 end
 
 """
@@ -6737,7 +6737,7 @@ void iox2_config_defaults_publish_subscribe_set_publisher_history_size(iox2_conf
 ```
 """
 function iox2_config_defaults_publish_subscribe_set_publisher_history_size(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_publish_subscribe_set_publisher_history_size(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_set_publisher_history_size(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -6755,7 +6755,7 @@ bool iox2_config_defaults_publish_subscribe_enable_safe_overflow(iox2_config_h_r
 ```
 """
 function iox2_config_defaults_publish_subscribe_enable_safe_overflow(handle)
-    @ccall libiceoryx2.iox2_config_defaults_publish_subscribe_enable_safe_overflow(handle::iox2_config_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_enable_safe_overflow(handle::iox2_config_h_ref)::Bool
 end
 
 """
@@ -6773,7 +6773,7 @@ void iox2_config_defaults_publish_subscribe_set_enable_safe_overflow(iox2_config
 ```
 """
 function iox2_config_defaults_publish_subscribe_set_enable_safe_overflow(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_publish_subscribe_set_enable_safe_overflow(handle::iox2_config_h_ref, value::Bool)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_set_enable_safe_overflow(handle::iox2_config_h_ref, value::Bool)::Cvoid
 end
 
 """
@@ -6793,7 +6793,7 @@ int iox2_config_defaults_publish_subscribe_unable_to_deliver_strategy(iox2_confi
 ```
 """
 function iox2_config_defaults_publish_subscribe_unable_to_deliver_strategy(handle)
-    @ccall libiceoryx2.iox2_config_defaults_publish_subscribe_unable_to_deliver_strategy(handle::iox2_config_h_ref)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_unable_to_deliver_strategy(handle::iox2_config_h_ref)::Cint
 end
 
 """
@@ -6811,7 +6811,7 @@ void iox2_config_defaults_publish_subscribe_set_unable_to_deliver_strategy(iox2_
 ```
 """
 function iox2_config_defaults_publish_subscribe_set_unable_to_deliver_strategy(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_publish_subscribe_set_unable_to_deliver_strategy(handle::iox2_config_h_ref, value::iox2_unable_to_deliver_strategy_e)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_set_unable_to_deliver_strategy(handle::iox2_config_h_ref, value::iox2_unable_to_deliver_strategy_e)::Cvoid
 end
 
 """
@@ -6829,7 +6829,7 @@ c_size_t iox2_config_defaults_publish_subscribe_subscriber_expired_connection_bu
 ```
 """
 function iox2_config_defaults_publish_subscribe_subscriber_expired_connection_buffer(handle)
-    @ccall libiceoryx2.iox2_config_defaults_publish_subscribe_subscriber_expired_connection_buffer(handle::iox2_config_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_subscriber_expired_connection_buffer(handle::iox2_config_h_ref)::c_size_t
 end
 
 """
@@ -6847,7 +6847,7 @@ void iox2_config_defaults_publish_subscribe_set_subscriber_expired_connection_bu
 ```
 """
 function iox2_config_defaults_publish_subscribe_set_subscriber_expired_connection_buffer(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_publish_subscribe_set_subscriber_expired_connection_buffer(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_set_subscriber_expired_connection_buffer(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -6865,7 +6865,7 @@ c_size_t iox2_config_defaults_request_response_client_expired_connection_buffer(
 ```
 """
 function iox2_config_defaults_request_response_client_expired_connection_buffer(handle)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_client_expired_connection_buffer(handle::iox2_config_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_client_expired_connection_buffer(handle::iox2_config_h_ref)::c_size_t
 end
 
 """
@@ -6883,7 +6883,7 @@ void iox2_config_defaults_request_response_set_client_expired_connection_buffer(
 ```
 """
 function iox2_config_defaults_request_response_set_client_expired_connection_buffer(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_set_client_expired_connection_buffer(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_client_expired_connection_buffer(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -6901,7 +6901,7 @@ c_size_t iox2_config_defaults_request_response_server_expired_connection_buffer(
 ```
 """
 function iox2_config_defaults_request_response_server_expired_connection_buffer(handle)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_server_expired_connection_buffer(handle::iox2_config_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_server_expired_connection_buffer(handle::iox2_config_h_ref)::c_size_t
 end
 
 """
@@ -6919,7 +6919,7 @@ void iox2_config_defaults_request_response_set_server_expired_connection_buffer(
 ```
 """
 function iox2_config_defaults_request_response_set_server_expired_connection_buffer(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_set_server_expired_connection_buffer(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_server_expired_connection_buffer(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -6939,7 +6939,7 @@ int iox2_config_defaults_request_response_client_unable_to_deliver_strategy(iox2
 ```
 """
 function iox2_config_defaults_request_response_client_unable_to_deliver_strategy(handle)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_client_unable_to_deliver_strategy(handle::iox2_config_h_ref)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_client_unable_to_deliver_strategy(handle::iox2_config_h_ref)::Cint
 end
 
 """
@@ -6957,7 +6957,7 @@ void iox2_config_defaults_request_response_set_client_unable_to_deliver_strategy
 ```
 """
 function iox2_config_defaults_request_response_set_client_unable_to_deliver_strategy(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_set_client_unable_to_deliver_strategy(handle::iox2_config_h_ref, value::iox2_unable_to_deliver_strategy_e)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_client_unable_to_deliver_strategy(handle::iox2_config_h_ref, value::iox2_unable_to_deliver_strategy_e)::Cvoid
 end
 
 """
@@ -6977,7 +6977,7 @@ int iox2_config_defaults_request_response_server_unable_to_deliver_strategy(iox2
 ```
 """
 function iox2_config_defaults_request_response_server_unable_to_deliver_strategy(handle)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_server_unable_to_deliver_strategy(handle::iox2_config_h_ref)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_server_unable_to_deliver_strategy(handle::iox2_config_h_ref)::Cint
 end
 
 """
@@ -6995,7 +6995,7 @@ void iox2_config_defaults_request_response_set_server_unable_to_deliver_strategy
 ```
 """
 function iox2_config_defaults_request_response_set_server_unable_to_deliver_strategy(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_set_server_unable_to_deliver_strategy(handle::iox2_config_h_ref, value::iox2_unable_to_deliver_strategy_e)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_server_unable_to_deliver_strategy(handle::iox2_config_h_ref, value::iox2_unable_to_deliver_strategy_e)::Cvoid
 end
 
 """
@@ -7013,7 +7013,7 @@ bool iox2_config_defaults_request_response_has_fire_and_forget_requests(iox2_con
 ```
 """
 function iox2_config_defaults_request_response_has_fire_and_forget_requests(handle)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_has_fire_and_forget_requests(handle::iox2_config_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_has_fire_and_forget_requests(handle::iox2_config_h_ref)::Bool
 end
 
 """
@@ -7031,7 +7031,7 @@ void iox2_config_defaults_request_response_set_fire_and_forget_requests(iox2_con
 ```
 """
 function iox2_config_defaults_request_response_set_fire_and_forget_requests(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_set_fire_and_forget_requests(handle::iox2_config_h_ref, value::Bool)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_fire_and_forget_requests(handle::iox2_config_h_ref, value::Bool)::Cvoid
 end
 
 """
@@ -7049,7 +7049,7 @@ bool iox2_config_defaults_request_response_enable_safe_overflow_for_requests(iox
 ```
 """
 function iox2_config_defaults_request_response_enable_safe_overflow_for_requests(handle)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_enable_safe_overflow_for_requests(handle::iox2_config_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_enable_safe_overflow_for_requests(handle::iox2_config_h_ref)::Bool
 end
 
 """
@@ -7067,7 +7067,7 @@ void iox2_config_defaults_request_response_set_enable_safe_overflow_for_requests
 ```
 """
 function iox2_config_defaults_request_response_set_enable_safe_overflow_for_requests(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_set_enable_safe_overflow_for_requests(handle::iox2_config_h_ref, value::Bool)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_enable_safe_overflow_for_requests(handle::iox2_config_h_ref, value::Bool)::Cvoid
 end
 
 """
@@ -7085,7 +7085,7 @@ bool iox2_config_defaults_request_response_enable_safe_overflow_for_responses(io
 ```
 """
 function iox2_config_defaults_request_response_enable_safe_overflow_for_responses(handle)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_enable_safe_overflow_for_responses(handle::iox2_config_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_enable_safe_overflow_for_responses(handle::iox2_config_h_ref)::Bool
 end
 
 """
@@ -7103,7 +7103,7 @@ void iox2_config_defaults_request_response_set_enable_safe_overflow_for_response
 ```
 """
 function iox2_config_defaults_request_response_set_enable_safe_overflow_for_responses(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_set_enable_safe_overflow_for_responses(handle::iox2_config_h_ref, value::Bool)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_enable_safe_overflow_for_responses(handle::iox2_config_h_ref, value::Bool)::Cvoid
 end
 
 """
@@ -7121,7 +7121,7 @@ c_size_t iox2_config_defaults_request_response_max_active_requests_per_client(io
 ```
 """
 function iox2_config_defaults_request_response_max_active_requests_per_client(handle)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_max_active_requests_per_client(handle::iox2_config_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_max_active_requests_per_client(handle::iox2_config_h_ref)::c_size_t
 end
 
 """
@@ -7139,7 +7139,7 @@ void iox2_config_defaults_request_response_set_max_active_requests_per_client(io
 ```
 """
 function iox2_config_defaults_request_response_set_max_active_requests_per_client(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_set_max_active_requests_per_client(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_max_active_requests_per_client(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -7157,7 +7157,7 @@ c_size_t iox2_config_defaults_request_response_max_response_buffer_size(iox2_con
 ```
 """
 function iox2_config_defaults_request_response_max_response_buffer_size(handle)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_max_response_buffer_size(handle::iox2_config_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_max_response_buffer_size(handle::iox2_config_h_ref)::c_size_t
 end
 
 """
@@ -7175,7 +7175,7 @@ void iox2_config_defaults_request_response_set_max_response_buffer_size(iox2_con
 ```
 """
 function iox2_config_defaults_request_response_set_max_response_buffer_size(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_set_max_response_buffer_size(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_max_response_buffer_size(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -7193,7 +7193,7 @@ c_size_t iox2_config_defaults_request_response_max_servers(iox2_config_h_ref han
 ```
 """
 function iox2_config_defaults_request_response_max_servers(handle)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_max_servers(handle::iox2_config_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_max_servers(handle::iox2_config_h_ref)::c_size_t
 end
 
 """
@@ -7211,7 +7211,7 @@ void iox2_config_defaults_request_response_set_max_servers(iox2_config_h_ref han
 ```
 """
 function iox2_config_defaults_request_response_set_max_servers(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_set_max_servers(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_max_servers(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -7229,7 +7229,7 @@ c_size_t iox2_config_defaults_request_response_max_clients(iox2_config_h_ref han
 ```
 """
 function iox2_config_defaults_request_response_max_clients(handle)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_max_clients(handle::iox2_config_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_max_clients(handle::iox2_config_h_ref)::c_size_t
 end
 
 """
@@ -7247,7 +7247,7 @@ void iox2_config_defaults_request_response_set_max_clients(iox2_config_h_ref han
 ```
 """
 function iox2_config_defaults_request_response_set_max_clients(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_set_max_clients(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_max_clients(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -7265,7 +7265,7 @@ c_size_t iox2_config_defaults_request_response_max_nodes(iox2_config_h_ref handl
 ```
 """
 function iox2_config_defaults_request_response_max_nodes(handle)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_max_nodes(handle::iox2_config_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_max_nodes(handle::iox2_config_h_ref)::c_size_t
 end
 
 """
@@ -7283,7 +7283,7 @@ void iox2_config_defaults_request_response_set_max_nodes(iox2_config_h_ref handl
 ```
 """
 function iox2_config_defaults_request_response_set_max_nodes(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_set_max_nodes(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_max_nodes(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -7301,7 +7301,7 @@ c_size_t iox2_config_defaults_request_response_max_borrowed_responses_per_pendin
 ```
 """
 function iox2_config_defaults_request_response_max_borrowed_responses_per_pending_response(handle)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_max_borrowed_responses_per_pending_response(handle::iox2_config_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_max_borrowed_responses_per_pending_response(handle::iox2_config_h_ref)::c_size_t
 end
 
 """
@@ -7319,7 +7319,7 @@ void iox2_config_defaults_request_response_set_max_borrowed_responses_per_pendin
 ```
 """
 function iox2_config_defaults_request_response_set_max_borrowed_responses_per_pending_response(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_set_max_borrowed_responses_per_pending_response(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_max_borrowed_responses_per_pending_response(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -7337,7 +7337,7 @@ c_size_t iox2_config_defaults_request_response_max_loaned_requests(iox2_config_h
 ```
 """
 function iox2_config_defaults_request_response_max_loaned_requests(handle)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_max_loaned_requests(handle::iox2_config_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_max_loaned_requests(handle::iox2_config_h_ref)::c_size_t
 end
 
 """
@@ -7355,7 +7355,7 @@ void iox2_config_defaults_request_response_set_max_loaned_requests(iox2_config_h
 ```
 """
 function iox2_config_defaults_request_response_set_max_loaned_requests(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_set_max_loaned_requests(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_max_loaned_requests(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -7373,7 +7373,7 @@ c_size_t iox2_config_defaults_request_response_server_max_loaned_responses_per_r
 ```
 """
 function iox2_config_defaults_request_response_server_max_loaned_responses_per_request(handle)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_server_max_loaned_responses_per_request(handle::iox2_config_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_server_max_loaned_responses_per_request(handle::iox2_config_h_ref)::c_size_t
 end
 
 """
@@ -7391,7 +7391,7 @@ void iox2_config_defaults_request_response_set_server_max_loaned_responses_per_r
 ```
 """
 function iox2_config_defaults_request_response_set_server_max_loaned_responses_per_request(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_request_response_set_server_max_loaned_responses_per_request(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_server_max_loaned_responses_per_request(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -7409,7 +7409,7 @@ c_size_t iox2_config_defaults_event_max_listeners(iox2_config_h_ref handle);
 ```
 """
 function iox2_config_defaults_event_max_listeners(handle)
-    @ccall libiceoryx2.iox2_config_defaults_event_max_listeners(handle::iox2_config_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_max_listeners(handle::iox2_config_h_ref)::c_size_t
 end
 
 """
@@ -7427,7 +7427,7 @@ void iox2_config_defaults_event_set_max_listeners(iox2_config_h_ref handle, c_si
 ```
 """
 function iox2_config_defaults_event_set_max_listeners(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_event_set_max_listeners(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_set_max_listeners(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -7445,7 +7445,7 @@ bool iox2_config_defaults_event_deadline(iox2_config_h_ref handle, uint64_t *sec
 ```
 """
 function iox2_config_defaults_event_deadline(handle, seconds, nanoseconds)
-    @ccall libiceoryx2.iox2_config_defaults_event_deadline(handle::iox2_config_h_ref, seconds::Ptr{UInt64}, nanoseconds::Ptr{UInt32})::Bool
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_deadline(handle::iox2_config_h_ref, seconds::Ptr{UInt64}, nanoseconds::Ptr{UInt32})::Bool
 end
 
 """
@@ -7463,7 +7463,7 @@ void iox2_config_defaults_event_set_deadline(iox2_config_h_ref handle, const uin
 ```
 """
 function iox2_config_defaults_event_set_deadline(handle, seconds, nanoseconds)
-    @ccall libiceoryx2.iox2_config_defaults_event_set_deadline(handle::iox2_config_h_ref, seconds::Ptr{UInt64}, nanoseconds::Ptr{UInt32})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_set_deadline(handle::iox2_config_h_ref, seconds::Ptr{UInt64}, nanoseconds::Ptr{UInt32})::Cvoid
 end
 
 """
@@ -7481,7 +7481,7 @@ bool iox2_config_defaults_event_notifier_created_event(iox2_config_h_ref handle,
 ```
 """
 function iox2_config_defaults_event_notifier_created_event(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_event_notifier_created_event(handle::iox2_config_h_ref, value::Ptr{c_size_t})::Bool
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_notifier_created_event(handle::iox2_config_h_ref, value::Ptr{c_size_t})::Bool
 end
 
 """
@@ -7499,7 +7499,7 @@ void iox2_config_defaults_event_set_notifier_created_event(iox2_config_h_ref han
 ```
 """
 function iox2_config_defaults_event_set_notifier_created_event(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_event_set_notifier_created_event(handle::iox2_config_h_ref, value::Ptr{c_size_t})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_set_notifier_created_event(handle::iox2_config_h_ref, value::Ptr{c_size_t})::Cvoid
 end
 
 """
@@ -7517,7 +7517,7 @@ bool iox2_config_defaults_event_notifier_dropped_event(iox2_config_h_ref handle,
 ```
 """
 function iox2_config_defaults_event_notifier_dropped_event(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_event_notifier_dropped_event(handle::iox2_config_h_ref, value::Ptr{c_size_t})::Bool
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_notifier_dropped_event(handle::iox2_config_h_ref, value::Ptr{c_size_t})::Bool
 end
 
 """
@@ -7535,7 +7535,7 @@ void iox2_config_defaults_event_set_notifier_dropped_event(iox2_config_h_ref han
 ```
 """
 function iox2_config_defaults_event_set_notifier_dropped_event(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_event_set_notifier_dropped_event(handle::iox2_config_h_ref, value::Ptr{c_size_t})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_set_notifier_dropped_event(handle::iox2_config_h_ref, value::Ptr{c_size_t})::Cvoid
 end
 
 """
@@ -7553,7 +7553,7 @@ bool iox2_config_defaults_event_notifier_dead_event(iox2_config_h_ref handle, c_
 ```
 """
 function iox2_config_defaults_event_notifier_dead_event(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_event_notifier_dead_event(handle::iox2_config_h_ref, value::Ptr{c_size_t})::Bool
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_notifier_dead_event(handle::iox2_config_h_ref, value::Ptr{c_size_t})::Bool
 end
 
 """
@@ -7571,7 +7571,7 @@ void iox2_config_defaults_event_set_notifier_dead_event(iox2_config_h_ref handle
 ```
 """
 function iox2_config_defaults_event_set_notifier_dead_event(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_event_set_notifier_dead_event(handle::iox2_config_h_ref, value::Ptr{c_size_t})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_set_notifier_dead_event(handle::iox2_config_h_ref, value::Ptr{c_size_t})::Cvoid
 end
 
 """
@@ -7589,7 +7589,7 @@ c_size_t iox2_config_defaults_event_max_notifiers(iox2_config_h_ref handle);
 ```
 """
 function iox2_config_defaults_event_max_notifiers(handle)
-    @ccall libiceoryx2.iox2_config_defaults_event_max_notifiers(handle::iox2_config_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_max_notifiers(handle::iox2_config_h_ref)::c_size_t
 end
 
 """
@@ -7607,7 +7607,7 @@ void iox2_config_defaults_event_set_max_notifiers(iox2_config_h_ref handle, c_si
 ```
 """
 function iox2_config_defaults_event_set_max_notifiers(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_event_set_max_notifiers(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_set_max_notifiers(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -7625,7 +7625,7 @@ c_size_t iox2_config_defaults_event_max_nodes(iox2_config_h_ref handle);
 ```
 """
 function iox2_config_defaults_event_max_nodes(handle)
-    @ccall libiceoryx2.iox2_config_defaults_event_max_nodes(handle::iox2_config_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_max_nodes(handle::iox2_config_h_ref)::c_size_t
 end
 
 """
@@ -7643,7 +7643,7 @@ void iox2_config_defaults_event_set_max_nodes(iox2_config_h_ref handle, c_size_t
 ```
 """
 function iox2_config_defaults_event_set_max_nodes(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_event_set_max_nodes(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_set_max_nodes(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -7661,7 +7661,7 @@ c_size_t iox2_config_defaults_event_event_id_max_value(iox2_config_h_ref handle)
 ```
 """
 function iox2_config_defaults_event_event_id_max_value(handle)
-    @ccall libiceoryx2.iox2_config_defaults_event_event_id_max_value(handle::iox2_config_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_event_id_max_value(handle::iox2_config_h_ref)::c_size_t
 end
 
 """
@@ -7679,7 +7679,7 @@ void iox2_config_defaults_event_set_event_id_max_value(iox2_config_h_ref handle,
 ```
 """
 function iox2_config_defaults_event_set_event_id_max_value(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_event_set_event_id_max_value(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_set_event_id_max_value(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -7697,7 +7697,7 @@ c_size_t iox2_config_defaults_blackboard_max_readers(iox2_config_h_ref handle);
 ```
 """
 function iox2_config_defaults_blackboard_max_readers(handle)
-    @ccall libiceoryx2.iox2_config_defaults_blackboard_max_readers(handle::iox2_config_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_blackboard_max_readers(handle::iox2_config_h_ref)::c_size_t
 end
 
 """
@@ -7715,7 +7715,7 @@ void iox2_config_defaults_blackboard_set_max_readers(iox2_config_h_ref handle, c
 ```
 """
 function iox2_config_defaults_blackboard_set_max_readers(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_blackboard_set_max_readers(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_blackboard_set_max_readers(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -7733,7 +7733,7 @@ c_size_t iox2_config_defaults_blackboard_max_nodes(iox2_config_h_ref handle);
 ```
 """
 function iox2_config_defaults_blackboard_max_nodes(handle)
-    @ccall libiceoryx2.iox2_config_defaults_blackboard_max_nodes(handle::iox2_config_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_blackboard_max_nodes(handle::iox2_config_h_ref)::c_size_t
 end
 
 """
@@ -7751,7 +7751,7 @@ void iox2_config_defaults_blackboard_set_max_nodes(iox2_config_h_ref handle, c_s
 ```
 """
 function iox2_config_defaults_blackboard_set_max_nodes(handle, value)
-    @ccall libiceoryx2.iox2_config_defaults_blackboard_set_max_nodes(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_blackboard_set_max_nodes(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -7769,7 +7769,7 @@ void iox2_entry_handle_get(iox2_entry_handle_h_ref entry_handle_handle, void *va
 ```
 """
 function iox2_entry_handle_get(entry_handle_handle, value_ptr, value_size, value_alignment, generation_counter_ptr)
-    @ccall libiceoryx2.iox2_entry_handle_get(entry_handle_handle::iox2_entry_handle_h_ref, value_ptr::Ptr{Cvoid}, value_size::c_size_t, value_alignment::c_size_t, generation_counter_ptr::Ptr{Cvoid})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_entry_handle_get(entry_handle_handle::iox2_entry_handle_h_ref, value_ptr::Ptr{Cvoid}, value_size::c_size_t, value_alignment::c_size_t, generation_counter_ptr::Ptr{Cvoid})::Cvoid
 end
 
 """
@@ -7787,7 +7787,7 @@ bool iox2_entry_handle_is_up_to_date(iox2_entry_handle_h_ref entry_handle_handle
 ```
 """
 function iox2_entry_handle_is_up_to_date(entry_handle_handle, generation_counter)
-    @ccall libiceoryx2.iox2_entry_handle_is_up_to_date(entry_handle_handle::iox2_entry_handle_h_ref, generation_counter::UInt64)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_entry_handle_is_up_to_date(entry_handle_handle::iox2_entry_handle_h_ref, generation_counter::UInt64)::Bool
 end
 
 """
@@ -7805,7 +7805,7 @@ void iox2_entry_handle_entry_id(iox2_entry_handle_h_ref entry_handle_handle, str
 ```
 """
 function iox2_entry_handle_entry_id(entry_handle_handle, entry_id)
-    @ccall libiceoryx2.iox2_entry_handle_entry_id(entry_handle_handle::iox2_entry_handle_h_ref, entry_id::Ptr{iox2_event_id_t})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_entry_handle_entry_id(entry_handle_handle::iox2_entry_handle_h_ref, entry_id::Ptr{iox2_event_id_t})::Cvoid
 end
 
 """
@@ -7827,7 +7827,7 @@ void iox2_entry_handle_drop(iox2_entry_handle_h entry_handle_handle);
 ```
 """
 function iox2_entry_handle_drop(entry_handle_handle)
-    @ccall libiceoryx2.iox2_entry_handle_drop(entry_handle_handle::iox2_entry_handle_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_entry_handle_drop(entry_handle_handle::iox2_entry_handle_h)::Cvoid
 end
 
 """
@@ -7845,7 +7845,7 @@ void iox2_entry_handle_mut_loan_uninit(iox2_entry_handle_mut_h entry_handle_mut_
 ```
 """
 function iox2_entry_handle_mut_loan_uninit(entry_handle_mut_handle, entry_value_uninit_struct_ptr, entry_value_uninit_handle_ptr, value_size, value_alignment)
-    @ccall libiceoryx2.iox2_entry_handle_mut_loan_uninit(entry_handle_mut_handle::iox2_entry_handle_mut_h, entry_value_uninit_struct_ptr::Ptr{iox2_entry_value_uninit_t}, entry_value_uninit_handle_ptr::Ptr{iox2_entry_value_uninit_h}, value_size::Csize_t, value_alignment::Csize_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_entry_handle_mut_loan_uninit(entry_handle_mut_handle::iox2_entry_handle_mut_h, entry_value_uninit_struct_ptr::Ptr{iox2_entry_value_uninit_t}, entry_value_uninit_handle_ptr::Ptr{iox2_entry_value_uninit_h}, value_size::Csize_t, value_alignment::Csize_t)::Cvoid
 end
 
 """
@@ -7863,7 +7863,7 @@ void iox2_entry_handle_mut_update_with_copy(iox2_entry_handle_mut_h_ref entry_ha
 ```
 """
 function iox2_entry_handle_mut_update_with_copy(entry_handle_mut_handle, value_ptr, value_size, value_alignment)
-    @ccall libiceoryx2.iox2_entry_handle_mut_update_with_copy(entry_handle_mut_handle::iox2_entry_handle_mut_h_ref, value_ptr::Ptr{Cvoid}, value_size::Csize_t, value_alignment::Csize_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_entry_handle_mut_update_with_copy(entry_handle_mut_handle::iox2_entry_handle_mut_h_ref, value_ptr::Ptr{Cvoid}, value_size::Csize_t, value_alignment::Csize_t)::Cvoid
 end
 
 """
@@ -7881,7 +7881,7 @@ void iox2_entry_handle_mut_entry_id(iox2_entry_handle_mut_h_ref entry_handle_mut
 ```
 """
 function iox2_entry_handle_mut_entry_id(entry_handle_mut_handle, entry_id)
-    @ccall libiceoryx2.iox2_entry_handle_mut_entry_id(entry_handle_mut_handle::iox2_entry_handle_mut_h_ref, entry_id::Ptr{iox2_event_id_t})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_entry_handle_mut_entry_id(entry_handle_mut_handle::iox2_entry_handle_mut_h_ref, entry_id::Ptr{iox2_event_id_t})::Cvoid
 end
 
 """
@@ -7903,7 +7903,7 @@ void iox2_entry_handle_mut_drop(iox2_entry_handle_mut_h entry_handle_mut_handle)
 ```
 """
 function iox2_entry_handle_mut_drop(entry_handle_mut_handle)
-    @ccall libiceoryx2.iox2_entry_handle_mut_drop(entry_handle_mut_handle::iox2_entry_handle_mut_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_entry_handle_mut_drop(entry_handle_mut_handle::iox2_entry_handle_mut_h)::Cvoid
 end
 
 """
@@ -7921,7 +7921,7 @@ void iox2_entry_value_uninit_value_mut(iox2_entry_value_uninit_h_ref entry_value
 ```
 """
 function iox2_entry_value_uninit_value_mut(entry_value_uninit_handle, value_ptr)
-    @ccall libiceoryx2.iox2_entry_value_uninit_value_mut(entry_value_uninit_handle::iox2_entry_value_uninit_h_ref, value_ptr::Ptr{Ptr{Cvoid}})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_entry_value_uninit_value_mut(entry_value_uninit_handle::iox2_entry_value_uninit_h_ref, value_ptr::Ptr{Ptr{Cvoid}})::Cvoid
 end
 
 """
@@ -7939,7 +7939,7 @@ void iox2_entry_value_uninit_update(iox2_entry_value_uninit_h entry_value_uninit
 ```
 """
 function iox2_entry_value_uninit_update(entry_value_uninit_handle, entry_handle_mut_struct_ptr, entry_handle_mut_handle_ptr)
-    @ccall libiceoryx2.iox2_entry_value_uninit_update(entry_value_uninit_handle::iox2_entry_value_uninit_h, entry_handle_mut_struct_ptr::Ptr{iox2_entry_handle_mut_t}, entry_handle_mut_handle_ptr::Ptr{iox2_entry_handle_mut_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_entry_value_uninit_update(entry_value_uninit_handle::iox2_entry_value_uninit_h, entry_handle_mut_struct_ptr::Ptr{iox2_entry_handle_mut_t}, entry_handle_mut_handle_ptr::Ptr{iox2_entry_handle_mut_h})::Cvoid
 end
 
 """
@@ -7957,7 +7957,7 @@ void iox2_entry_value_uninit_discard(iox2_entry_value_uninit_h entry_value_unini
 ```
 """
 function iox2_entry_value_uninit_discard(entry_value_uninit_handle, entry_handle_mut_struct_ptr, entry_handle_mut_handle_ptr)
-    @ccall libiceoryx2.iox2_entry_value_uninit_discard(entry_value_uninit_handle::iox2_entry_value_uninit_h, entry_handle_mut_struct_ptr::Ptr{iox2_entry_handle_mut_t}, entry_handle_mut_handle_ptr::Ptr{iox2_entry_handle_mut_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_entry_value_uninit_discard(entry_value_uninit_handle::iox2_entry_value_uninit_h, entry_handle_mut_struct_ptr::Ptr{iox2_entry_handle_mut_t}, entry_handle_mut_handle_ptr::Ptr{iox2_entry_handle_mut_h})::Cvoid
 end
 
 """
@@ -7979,7 +7979,7 @@ void iox2_entry_value_uninit_drop(iox2_entry_value_uninit_h entry_value_uninit_h
 ```
 """
 function iox2_entry_value_uninit_drop(entry_value_uninit_handle)
-    @ccall libiceoryx2.iox2_entry_value_uninit_drop(entry_value_uninit_handle::iox2_entry_value_uninit_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_entry_value_uninit_drop(entry_value_uninit_handle::iox2_entry_value_uninit_h)::Cvoid
 end
 
 """
@@ -7997,7 +7997,7 @@ iox2_file_descriptor_ptr iox2_cast_file_descriptor_ptr(iox2_file_descriptor_h ha
 ```
 """
 function iox2_cast_file_descriptor_ptr(handle)
-    @ccall libiceoryx2.iox2_cast_file_descriptor_ptr(handle::iox2_file_descriptor_h)::iox2_file_descriptor_ptr
+    @ccall libiceoryx2_ffi_c.iox2_cast_file_descriptor_ptr(handle::iox2_file_descriptor_h)::iox2_file_descriptor_ptr
 end
 
 """
@@ -8015,7 +8015,7 @@ void iox2_file_descriptor_drop(iox2_file_descriptor_h handle);
 ```
 """
 function iox2_file_descriptor_drop(handle)
-    @ccall libiceoryx2.iox2_file_descriptor_drop(handle::iox2_file_descriptor_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_file_descriptor_drop(handle::iox2_file_descriptor_h)::Cvoid
 end
 
 """
@@ -8033,7 +8033,7 @@ int32_t iox2_file_descriptor_native_handle(iox2_file_descriptor_ptr handle);
 ```
 """
 function iox2_file_descriptor_native_handle(handle)
-    @ccall libiceoryx2.iox2_file_descriptor_native_handle(handle::iox2_file_descriptor_ptr)::Int32
+    @ccall libiceoryx2_ffi_c.iox2_file_descriptor_native_handle(handle::iox2_file_descriptor_ptr)::Int32
 end
 
 """
@@ -8055,7 +8055,7 @@ bool iox2_file_descriptor_new(int32_t value, bool is_owned, struct iox2_file_des
 ```
 """
 function iox2_file_descriptor_new(value, is_owned, struct_ptr, handle_ptr)
-    @ccall libiceoryx2.iox2_file_descriptor_new(value::Int32, is_owned::Bool, struct_ptr::Ptr{iox2_file_descriptor_t}, handle_ptr::Ptr{iox2_file_descriptor_h})::Bool
+    @ccall libiceoryx2_ffi_c.iox2_file_descriptor_new(value::Int32, is_owned::Bool, struct_ptr::Ptr{iox2_file_descriptor_t}, handle_ptr::Ptr{iox2_file_descriptor_h})::Bool
 end
 
 """
@@ -8081,7 +8081,7 @@ const char *iox2_listener_wait_error_string(enum iox2_listener_wait_error_e erro
 ```
 """
 function iox2_listener_wait_error_string(error)
-    @ccall libiceoryx2.iox2_listener_wait_error_string(error::iox2_listener_wait_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_listener_wait_error_string(error::iox2_listener_wait_error_e)::Cstring
 end
 
 """
@@ -8103,7 +8103,7 @@ void iox2_listener_drop(iox2_listener_h listener_handle);
 ```
 """
 function iox2_listener_drop(listener_handle)
-    @ccall libiceoryx2.iox2_listener_drop(listener_handle::iox2_listener_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_listener_drop(listener_handle::iox2_listener_h)::Cvoid
 end
 
 """
@@ -8125,7 +8125,7 @@ iox2_file_descriptor_ptr iox2_listener_get_file_descriptor(iox2_listener_h_ref l
 ```
 """
 function iox2_listener_get_file_descriptor(listener_handle)
-    @ccall libiceoryx2.iox2_listener_get_file_descriptor(listener_handle::iox2_listener_h_ref)::iox2_file_descriptor_ptr
+    @ccall libiceoryx2_ffi_c.iox2_listener_get_file_descriptor(listener_handle::iox2_listener_h_ref)::iox2_file_descriptor_ptr
 end
 
 """
@@ -8147,7 +8147,7 @@ int iox2_listener_try_wait_all(iox2_listener_h_ref listener_handle, iox2_listene
 ```
 """
 function iox2_listener_try_wait_all(listener_handle, callback, callback_ctx)
-    @ccall libiceoryx2.iox2_listener_try_wait_all(listener_handle::iox2_listener_h_ref, callback::iox2_listener_wait_all_callback, callback_ctx::iox2_callback_context)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_listener_try_wait_all(listener_handle::iox2_listener_h_ref, callback::iox2_listener_wait_all_callback, callback_ctx::iox2_callback_context)::Cint
 end
 
 """
@@ -8169,7 +8169,7 @@ int iox2_listener_timed_wait_all(iox2_listener_h_ref listener_handle, iox2_liste
 ```
 """
 function iox2_listener_timed_wait_all(listener_handle, callback, callback_ctx, seconds, nanoseconds)
-    @ccall libiceoryx2.iox2_listener_timed_wait_all(listener_handle::iox2_listener_h_ref, callback::iox2_listener_wait_all_callback, callback_ctx::iox2_callback_context, seconds::UInt64, nanoseconds::UInt32)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_listener_timed_wait_all(listener_handle::iox2_listener_h_ref, callback::iox2_listener_wait_all_callback, callback_ctx::iox2_callback_context, seconds::UInt64, nanoseconds::UInt32)::Cint
 end
 
 """
@@ -8191,7 +8191,7 @@ void iox2_listener_id(iox2_listener_h_ref listener_handle, struct iox2_unique_li
 ```
 """
 function iox2_listener_id(listener_handle, id_struct_ptr, id_handle_ptr)
-    @ccall libiceoryx2.iox2_listener_id(listener_handle::iox2_listener_h_ref, id_struct_ptr::Ptr{iox2_unique_listener_id_t}, id_handle_ptr::Ptr{iox2_unique_listener_id_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_listener_id(listener_handle::iox2_listener_h_ref, id_struct_ptr::Ptr{iox2_unique_listener_id_t}, id_handle_ptr::Ptr{iox2_unique_listener_id_h})::Cvoid
 end
 
 """
@@ -8209,7 +8209,7 @@ bool iox2_listener_deadline(iox2_listener_h_ref listener_handle, uint64_t *secon
 ```
 """
 function iox2_listener_deadline(listener_handle, seconds, nanoseconds)
-    @ccall libiceoryx2.iox2_listener_deadline(listener_handle::iox2_listener_h_ref, seconds::Ptr{UInt64}, nanoseconds::Ptr{UInt32})::Bool
+    @ccall libiceoryx2_ffi_c.iox2_listener_deadline(listener_handle::iox2_listener_h_ref, seconds::Ptr{UInt64}, nanoseconds::Ptr{UInt32})::Bool
 end
 
 """
@@ -8231,7 +8231,7 @@ int iox2_listener_blocking_wait_all(iox2_listener_h_ref listener_handle, iox2_li
 ```
 """
 function iox2_listener_blocking_wait_all(listener_handle, callback, callback_ctx)
-    @ccall libiceoryx2.iox2_listener_blocking_wait_all(listener_handle::iox2_listener_h_ref, callback::iox2_listener_wait_all_callback, callback_ctx::iox2_callback_context)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_listener_blocking_wait_all(listener_handle::iox2_listener_h_ref, callback::iox2_listener_wait_all_callback, callback_ctx::iox2_callback_context)::Cint
 end
 
 """
@@ -8253,7 +8253,7 @@ int iox2_listener_try_wait_one(iox2_listener_h_ref listener_handle, struct iox2_
 ```
 """
 function iox2_listener_try_wait_one(listener_handle, event_id, has_received_one)
-    @ccall libiceoryx2.iox2_listener_try_wait_one(listener_handle::iox2_listener_h_ref, event_id::Ptr{iox2_event_id_t}, has_received_one::Ptr{Bool})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_listener_try_wait_one(listener_handle::iox2_listener_h_ref, event_id::Ptr{iox2_event_id_t}, has_received_one::Ptr{Bool})::Cint
 end
 
 """
@@ -8275,7 +8275,7 @@ int iox2_listener_timed_wait_one(iox2_listener_h_ref listener_handle, struct iox
 ```
 """
 function iox2_listener_timed_wait_one(listener_handle, event_id, has_received_one, seconds, nanoseconds)
-    @ccall libiceoryx2.iox2_listener_timed_wait_one(listener_handle::iox2_listener_h_ref, event_id::Ptr{iox2_event_id_t}, has_received_one::Ptr{Bool}, seconds::UInt64, nanoseconds::UInt32)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_listener_timed_wait_one(listener_handle::iox2_listener_h_ref, event_id::Ptr{iox2_event_id_t}, has_received_one::Ptr{Bool}, seconds::UInt64, nanoseconds::UInt32)::Cint
 end
 
 """
@@ -8297,7 +8297,7 @@ int iox2_listener_blocking_wait_one(iox2_listener_h_ref listener_handle, struct 
 ```
 """
 function iox2_listener_blocking_wait_one(listener_handle, event_id, has_received_one)
-    @ccall libiceoryx2.iox2_listener_blocking_wait_one(listener_handle::iox2_listener_h_ref, event_id::Ptr{iox2_event_id_t}, has_received_one::Ptr{Bool})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_listener_blocking_wait_one(listener_handle::iox2_listener_h_ref, event_id::Ptr{iox2_event_id_t}, has_received_one::Ptr{Bool})::Cint
 end
 
 """
@@ -8315,7 +8315,7 @@ void iox2_listener_details_listener_id(iox2_listener_details_ptr handle, struct 
 ```
 """
 function iox2_listener_details_listener_id(handle, id_struct_ptr, id_handle_ptr)
-    @ccall libiceoryx2.iox2_listener_details_listener_id(handle::iox2_listener_details_ptr, id_struct_ptr::Ptr{iox2_unique_listener_id_t}, id_handle_ptr::Ptr{iox2_unique_listener_id_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_listener_details_listener_id(handle::iox2_listener_details_ptr, id_struct_ptr::Ptr{iox2_unique_listener_id_t}, id_handle_ptr::Ptr{iox2_unique_listener_id_h})::Cvoid
 end
 
 """
@@ -8333,7 +8333,7 @@ iox2_node_id_ptr iox2_listener_details_node_id(iox2_listener_details_ptr handle)
 ```
 """
 function iox2_listener_details_node_id(handle)
-    @ccall libiceoryx2.iox2_listener_details_node_id(handle::iox2_listener_details_ptr)::iox2_node_id_ptr
+    @ccall libiceoryx2_ffi_c.iox2_listener_details_node_id(handle::iox2_listener_details_ptr)::iox2_node_id_ptr
 end
 
 """
@@ -8351,7 +8351,7 @@ void iox2_log(enum iox2_log_level_e log_level, const char *origin, const char *m
 ```
 """
 function iox2_log(log_level, origin, message)
-    @ccall libiceoryx2.iox2_log(log_level::iox2_log_level_e, origin::Cstring, message::Cstring)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_log(log_level::iox2_log_level_e, origin::Cstring, message::Cstring)::Cvoid
 end
 
 """
@@ -8365,7 +8365,7 @@ void iox2_set_log_level_from_env_or_default(void);
 ```
 """
 function iox2_set_log_level_from_env_or_default()
-    @ccall libiceoryx2.iox2_set_log_level_from_env_or_default()::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_set_log_level_from_env_or_default()::Cvoid
 end
 
 """
@@ -8379,7 +8379,7 @@ void iox2_set_log_level_from_env_or(enum iox2_log_level_e v);
 ```
 """
 function iox2_set_log_level_from_env_or(v)
-    @ccall libiceoryx2.iox2_set_log_level_from_env_or(v::iox2_log_level_e)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_set_log_level_from_env_or(v::iox2_log_level_e)::Cvoid
 end
 
 """
@@ -8393,7 +8393,7 @@ void iox2_set_log_level(enum iox2_log_level_e v);
 ```
 """
 function iox2_set_log_level(v)
-    @ccall libiceoryx2.iox2_set_log_level(v::iox2_log_level_e)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_set_log_level(v::iox2_log_level_e)::Cvoid
 end
 
 """
@@ -8407,7 +8407,7 @@ enum iox2_log_level_e iox2_get_log_level(void);
 ```
 """
 function iox2_get_log_level()
-    @ccall libiceoryx2.iox2_get_log_level()::iox2_log_level_e
+    @ccall libiceoryx2_ffi_c.iox2_get_log_level()::iox2_log_level_e
 end
 
 """
@@ -8421,7 +8421,7 @@ bool iox2_set_logger(iox2_log_callback logger);
 ```
 """
 function iox2_set_logger(logger)
-    @ccall libiceoryx2.iox2_set_logger(logger::iox2_log_callback)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_set_logger(logger::iox2_log_callback)::Bool
 end
 
 """
@@ -8445,7 +8445,7 @@ const char *iox2_node_list_failure_string(enum iox2_node_list_failure_e error);
 ```
 """
 function iox2_node_list_failure_string(error)
-    @ccall libiceoryx2.iox2_node_list_failure_string(error::iox2_node_list_failure_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_node_list_failure_string(error::iox2_node_list_failure_e)::Cstring
 end
 
 """
@@ -8471,7 +8471,7 @@ const char *iox2_node_wait_failure_string(enum iox2_node_wait_failure_e error);
 ```
 """
 function iox2_node_wait_failure_string(error)
-    @ccall libiceoryx2.iox2_node_wait_failure_string(error::iox2_node_wait_failure_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_node_wait_failure_string(error::iox2_node_wait_failure_e)::Cstring
 end
 
 """
@@ -8489,7 +8489,7 @@ iox2_node_name_ptr iox2_node_name(iox2_node_h_ref node_handle);
 ```
 """
 function iox2_node_name(node_handle)
-    @ccall libiceoryx2.iox2_node_name(node_handle::iox2_node_h_ref)::iox2_node_name_ptr
+    @ccall libiceoryx2_ffi_c.iox2_node_name(node_handle::iox2_node_h_ref)::iox2_node_name_ptr
 end
 
 """
@@ -8507,7 +8507,7 @@ int iox2_node_wait(iox2_node_h_ref node_handle, uint64_t cycle_time_sec, uint32_
 ```
 """
 function iox2_node_wait(node_handle, cycle_time_sec, cycle_time_nsec)
-    @ccall libiceoryx2.iox2_node_wait(node_handle::iox2_node_h_ref, cycle_time_sec::UInt64, cycle_time_nsec::UInt32)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_node_wait(node_handle::iox2_node_h_ref, cycle_time_sec::UInt64, cycle_time_nsec::UInt32)::Cint
 end
 
 """
@@ -8525,7 +8525,7 @@ iox2_config_ptr iox2_node_config(iox2_node_h_ref node_handle);
 ```
 """
 function iox2_node_config(node_handle)
-    @ccall libiceoryx2.iox2_node_config(node_handle::iox2_node_h_ref)::iox2_config_ptr
+    @ccall libiceoryx2_ffi_c.iox2_node_config(node_handle::iox2_node_h_ref)::iox2_config_ptr
 end
 
 """
@@ -8543,7 +8543,7 @@ enum iox2_signal_handling_mode_e iox2_node_signal_handling_mode(iox2_node_h_ref 
 ```
 """
 function iox2_node_signal_handling_mode(node_handle)
-    @ccall libiceoryx2.iox2_node_signal_handling_mode(node_handle::iox2_node_h_ref)::iox2_signal_handling_mode_e
+    @ccall libiceoryx2_ffi_c.iox2_node_signal_handling_mode(node_handle::iox2_node_h_ref)::iox2_signal_handling_mode_e
 end
 
 """
@@ -8561,7 +8561,7 @@ iox2_node_id_ptr iox2_node_id(iox2_node_h_ref node_handle, enum iox2_service_typ
 ```
 """
 function iox2_node_id(node_handle, service_type)
-    @ccall libiceoryx2.iox2_node_id(node_handle::iox2_node_h_ref, service_type::iox2_service_type_e)::iox2_node_id_ptr
+    @ccall libiceoryx2_ffi_c.iox2_node_id(node_handle::iox2_node_h_ref, service_type::iox2_service_type_e)::iox2_node_id_ptr
 end
 
 """
@@ -8581,7 +8581,7 @@ int iox2_dead_node_remove_stale_resources(enum iox2_service_type_e service_type,
 ```
 """
 function iox2_dead_node_remove_stale_resources(service_type, node_id, config, has_success)
-    @ccall libiceoryx2.iox2_dead_node_remove_stale_resources(service_type::iox2_service_type_e, node_id::iox2_node_id_h_ref, config::iox2_config_h_ref, has_success::Ptr{Bool})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_dead_node_remove_stale_resources(service_type::iox2_service_type_e, node_id::iox2_node_id_h_ref, config::iox2_config_h_ref, has_success::Ptr{Bool})::Cint
 end
 
 """
@@ -8605,7 +8605,7 @@ int iox2_node_list(enum iox2_service_type_e service_type, iox2_config_ptr config
 ```
 """
 function iox2_node_list(service_type, config_ptr, callback, callback_ctx)
-    @ccall libiceoryx2.iox2_node_list(service_type::iox2_service_type_e, config_ptr::iox2_config_ptr, callback::iox2_node_list_callback, callback_ctx::iox2_callback_context)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_node_list(service_type::iox2_service_type_e, config_ptr::iox2_config_ptr, callback::iox2_node_list_callback, callback_ctx::iox2_callback_context)::Cint
 end
 
 """
@@ -8629,7 +8629,7 @@ iox2_service_builder_h iox2_node_service_builder(iox2_node_h_ref node_handle, st
 ```
 """
 function iox2_node_service_builder(node_handle, service_builder_struct_ptr, service_name_ptr)
-    @ccall libiceoryx2.iox2_node_service_builder(node_handle::iox2_node_h_ref, service_builder_struct_ptr::Ptr{iox2_service_builder_t}, service_name_ptr::iox2_service_name_ptr)::iox2_service_builder_h
+    @ccall libiceoryx2_ffi_c.iox2_node_service_builder(node_handle::iox2_node_h_ref, service_builder_struct_ptr::Ptr{iox2_service_builder_t}, service_name_ptr::iox2_service_name_ptr)::iox2_service_builder_h
 end
 
 """
@@ -8651,7 +8651,7 @@ void iox2_node_drop(iox2_node_h node_handle);
 ```
 """
 function iox2_node_drop(node_handle)
-    @ccall libiceoryx2.iox2_node_drop(node_handle::iox2_node_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_node_drop(node_handle::iox2_node_h)::Cvoid
 end
 
 """
@@ -8677,7 +8677,7 @@ const char *iox2_node_creation_failure_string(enum iox2_node_creation_failure_e 
 ```
 """
 function iox2_node_creation_failure_string(error)
-    @ccall libiceoryx2.iox2_node_creation_failure_string(error::iox2_node_creation_failure_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_node_creation_failure_string(error::iox2_node_creation_failure_e)::Cstring
 end
 
 """
@@ -8703,7 +8703,7 @@ iox2_node_builder_h iox2_node_builder_new(struct iox2_node_builder_t *node_build
 ```
 """
 function iox2_node_builder_new(node_builder_struct_ptr)
-    @ccall libiceoryx2.iox2_node_builder_new(node_builder_struct_ptr::Ptr{iox2_node_builder_t})::iox2_node_builder_h
+    @ccall libiceoryx2_ffi_c.iox2_node_builder_new(node_builder_struct_ptr::Ptr{iox2_node_builder_t})::iox2_node_builder_h
 end
 
 """
@@ -8725,7 +8725,7 @@ void iox2_node_builder_set_name(iox2_node_builder_h_ref node_builder_handle, iox
 ```
 """
 function iox2_node_builder_set_name(node_builder_handle, node_name_ptr)
-    @ccall libiceoryx2.iox2_node_builder_set_name(node_builder_handle::iox2_node_builder_h_ref, node_name_ptr::iox2_node_name_ptr)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_node_builder_set_name(node_builder_handle::iox2_node_builder_h_ref, node_name_ptr::iox2_node_name_ptr)::Cvoid
 end
 
 """
@@ -8747,7 +8747,7 @@ void iox2_node_builder_set_signal_handling_mode(iox2_node_builder_h_ref node_bui
 ```
 """
 function iox2_node_builder_set_signal_handling_mode(node_builder_handle, signal_handling_mode)
-    @ccall libiceoryx2.iox2_node_builder_set_signal_handling_mode(node_builder_handle::iox2_node_builder_h_ref, signal_handling_mode::iox2_signal_handling_mode_e)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_node_builder_set_signal_handling_mode(node_builder_handle::iox2_node_builder_h_ref, signal_handling_mode::iox2_signal_handling_mode_e)::Cvoid
 end
 
 """
@@ -8767,7 +8767,7 @@ void iox2_node_builder_set_config(iox2_node_builder_h_ref node_builder_handle, i
 ```
 """
 function iox2_node_builder_set_config(node_builder_handle, config_handle)
-    @ccall libiceoryx2.iox2_node_builder_set_config(node_builder_handle::iox2_node_builder_h_ref, config_handle::iox2_config_h_ref)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_node_builder_set_config(node_builder_handle::iox2_node_builder_h_ref, config_handle::iox2_config_h_ref)::Cvoid
 end
 
 """
@@ -8791,7 +8791,7 @@ int iox2_node_builder_create(iox2_node_builder_h node_builder_handle, struct iox
 ```
 """
 function iox2_node_builder_create(node_builder_handle, node_struct_ptr, service_type, node_handle_ptr)
-    @ccall libiceoryx2.iox2_node_builder_create(node_builder_handle::iox2_node_builder_h, node_struct_ptr::Ptr{iox2_node_t}, service_type::iox2_service_type_e, node_handle_ptr::Ptr{iox2_node_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_node_builder_create(node_builder_handle::iox2_node_builder_h, node_struct_ptr::Ptr{iox2_node_t}, service_type::iox2_service_type_e, node_handle_ptr::Ptr{iox2_node_h})::Cint
 end
 
 """
@@ -8809,7 +8809,7 @@ void iox2_node_id_clone_from_ptr(struct iox2_node_id_t *node_id_struct_ptr, iox2
 ```
 """
 function iox2_node_id_clone_from_ptr(node_id_struct_ptr, node_id_ptr, node_id_handle_ptr)
-    @ccall libiceoryx2.iox2_node_id_clone_from_ptr(node_id_struct_ptr::Ptr{iox2_node_id_t}, node_id_ptr::iox2_node_id_ptr, node_id_handle_ptr::Ptr{iox2_node_id_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_node_id_clone_from_ptr(node_id_struct_ptr::Ptr{iox2_node_id_t}, node_id_ptr::iox2_node_id_ptr, node_id_handle_ptr::Ptr{iox2_node_id_h})::Cvoid
 end
 
 """
@@ -8827,7 +8827,7 @@ void iox2_node_id_clone_from_handle(struct iox2_node_id_t *node_id_struct_ptr, i
 ```
 """
 function iox2_node_id_clone_from_handle(node_id_struct_ptr, node_id_handle, node_id_handle_ptr)
-    @ccall libiceoryx2.iox2_node_id_clone_from_handle(node_id_struct_ptr::Ptr{iox2_node_id_t}, node_id_handle::iox2_node_id_h_ref, node_id_handle_ptr::Ptr{iox2_node_id_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_node_id_clone_from_handle(node_id_struct_ptr::Ptr{iox2_node_id_t}, node_id_handle::iox2_node_id_h_ref, node_id_handle_ptr::Ptr{iox2_node_id_h})::Cvoid
 end
 
 """
@@ -8845,7 +8845,7 @@ uint64_t iox2_node_id_value_high(iox2_node_id_h_ref node_id_handle);
 ```
 """
 function iox2_node_id_value_high(node_id_handle)
-    @ccall libiceoryx2.iox2_node_id_value_high(node_id_handle::iox2_node_id_h_ref)::UInt64
+    @ccall libiceoryx2_ffi_c.iox2_node_id_value_high(node_id_handle::iox2_node_id_h_ref)::UInt64
 end
 
 """
@@ -8863,7 +8863,7 @@ uint64_t iox2_node_id_value_low(iox2_node_id_h_ref node_id_handle);
 ```
 """
 function iox2_node_id_value_low(node_id_handle)
-    @ccall libiceoryx2.iox2_node_id_value_low(node_id_handle::iox2_node_id_h_ref)::UInt64
+    @ccall libiceoryx2_ffi_c.iox2_node_id_value_low(node_id_handle::iox2_node_id_h_ref)::UInt64
 end
 
 """
@@ -8881,7 +8881,7 @@ int32_t iox2_node_id_pid(iox2_node_id_h_ref node_id_handle);
 ```
 """
 function iox2_node_id_pid(node_id_handle)
-    @ccall libiceoryx2.iox2_node_id_pid(node_id_handle::iox2_node_id_h_ref)::Int32
+    @ccall libiceoryx2_ffi_c.iox2_node_id_pid(node_id_handle::iox2_node_id_h_ref)::Int32
 end
 
 """
@@ -8899,7 +8899,7 @@ void iox2_node_id_creation_time(iox2_node_id_h_ref node_id_handle, uint64_t *sec
 ```
 """
 function iox2_node_id_creation_time(node_id_handle, seconds, nanoseconds)
-    @ccall libiceoryx2.iox2_node_id_creation_time(node_id_handle::iox2_node_id_h_ref, seconds::Ptr{UInt64}, nanoseconds::Ptr{UInt32})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_node_id_creation_time(node_id_handle::iox2_node_id_h_ref, seconds::Ptr{UInt64}, nanoseconds::Ptr{UInt32})::Cvoid
 end
 
 """
@@ -8917,7 +8917,7 @@ void iox2_node_id_drop(iox2_node_id_h node_id_handle);
 ```
 """
 function iox2_node_id_drop(node_id_handle)
-    @ccall libiceoryx2.iox2_node_id_drop(node_id_handle::iox2_node_id_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_node_id_drop(node_id_handle::iox2_node_id_h)::Cvoid
 end
 
 """
@@ -8941,7 +8941,7 @@ int iox2_node_name_new(struct iox2_node_name_t *node_name_struct_ptr, const char
 ```
 """
 function iox2_node_name_new(node_name_struct_ptr, node_name_str, node_name_len, node_name_handle_ptr)
-    @ccall libiceoryx2.iox2_node_name_new(node_name_struct_ptr::Ptr{iox2_node_name_t}, node_name_str::Cstring, node_name_len::c_size_t, node_name_handle_ptr::Ptr{iox2_node_name_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_node_name_new(node_name_struct_ptr::Ptr{iox2_node_name_t}, node_name_str::Cstring, node_name_len::c_size_t, node_name_handle_ptr::Ptr{iox2_node_name_h})::Cint
 end
 
 """
@@ -8965,7 +8965,7 @@ iox2_node_name_ptr iox2_cast_node_name_ptr(iox2_node_name_h node_name_handle);
 ```
 """
 function iox2_cast_node_name_ptr(node_name_handle)
-    @ccall libiceoryx2.iox2_cast_node_name_ptr(node_name_handle::iox2_node_name_h)::iox2_node_name_ptr
+    @ccall libiceoryx2_ffi_c.iox2_cast_node_name_ptr(node_name_handle::iox2_node_name_h)::iox2_node_name_ptr
 end
 
 """
@@ -8989,7 +8989,7 @@ const char *iox2_node_name_as_chars(iox2_node_name_ptr node_name_ptr, c_size_t *
 ```
 """
 function iox2_node_name_as_chars(node_name_ptr, node_name_len)
-    @ccall libiceoryx2.iox2_node_name_as_chars(node_name_ptr::iox2_node_name_ptr, node_name_len::Ptr{c_size_t})::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_node_name_as_chars(node_name_ptr::iox2_node_name_ptr, node_name_len::Ptr{c_size_t})::Cstring
 end
 
 """
@@ -9013,7 +9013,7 @@ void iox2_node_name_drop(iox2_node_name_h node_name_handle);
 ```
 """
 function iox2_node_name_drop(node_name_handle)
-    @ccall libiceoryx2.iox2_node_name_drop(node_name_handle::iox2_node_name_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_node_name_drop(node_name_handle::iox2_node_name_h)::Cvoid
 end
 
 """
@@ -9039,7 +9039,7 @@ const char *iox2_notifier_notify_error_string(enum iox2_notifier_notify_error_e 
 ```
 """
 function iox2_notifier_notify_error_string(error)
-    @ccall libiceoryx2.iox2_notifier_notify_error_string(error::iox2_notifier_notify_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_notifier_notify_error_string(error::iox2_notifier_notify_error_e)::Cstring
 end
 
 """
@@ -9057,7 +9057,7 @@ void iox2_notifier_id(iox2_notifier_h_ref notifier_handle, struct iox2_unique_no
 ```
 """
 function iox2_notifier_id(notifier_handle, id_struct_ptr, id_handle_ptr)
-    @ccall libiceoryx2.iox2_notifier_id(notifier_handle::iox2_notifier_h_ref, id_struct_ptr::Ptr{iox2_unique_notifier_id_t}, id_handle_ptr::Ptr{iox2_unique_notifier_id_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_notifier_id(notifier_handle::iox2_notifier_h_ref, id_struct_ptr::Ptr{iox2_unique_notifier_id_t}, id_handle_ptr::Ptr{iox2_unique_notifier_id_h})::Cvoid
 end
 
 """
@@ -9075,7 +9075,7 @@ bool iox2_notifier_deadline(iox2_notifier_h_ref notifier_handle, uint64_t *secon
 ```
 """
 function iox2_notifier_deadline(notifier_handle, seconds, nanoseconds)
-    @ccall libiceoryx2.iox2_notifier_deadline(notifier_handle::iox2_notifier_h_ref, seconds::Ptr{UInt64}, nanoseconds::Ptr{UInt32})::Bool
+    @ccall libiceoryx2_ffi_c.iox2_notifier_deadline(notifier_handle::iox2_notifier_h_ref, seconds::Ptr{UInt64}, nanoseconds::Ptr{UInt32})::Bool
 end
 
 """
@@ -9099,7 +9099,7 @@ int iox2_notifier_notify(iox2_notifier_h_ref notifier_handle, c_size_t *number_o
 ```
 """
 function iox2_notifier_notify(notifier_handle, number_of_notified_listener_ptr)
-    @ccall libiceoryx2.iox2_notifier_notify(notifier_handle::iox2_notifier_h_ref, number_of_notified_listener_ptr::Ptr{c_size_t})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_notifier_notify(notifier_handle::iox2_notifier_h_ref, number_of_notified_listener_ptr::Ptr{c_size_t})::Cint
 end
 
 """
@@ -9123,7 +9123,7 @@ int iox2_notifier_notify_with_custom_event_id(iox2_notifier_h_ref notifier_handl
 ```
 """
 function iox2_notifier_notify_with_custom_event_id(notifier_handle, custom_event_id_ptr, number_of_notified_listener_ptr)
-    @ccall libiceoryx2.iox2_notifier_notify_with_custom_event_id(notifier_handle::iox2_notifier_h_ref, custom_event_id_ptr::Ptr{iox2_event_id_t}, number_of_notified_listener_ptr::Ptr{c_size_t})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_notifier_notify_with_custom_event_id(notifier_handle::iox2_notifier_h_ref, custom_event_id_ptr::Ptr{iox2_event_id_t}, number_of_notified_listener_ptr::Ptr{c_size_t})::Cint
 end
 
 """
@@ -9145,7 +9145,7 @@ void iox2_notifier_drop(iox2_notifier_h notifier_handle);
 ```
 """
 function iox2_notifier_drop(notifier_handle)
-    @ccall libiceoryx2.iox2_notifier_drop(notifier_handle::iox2_notifier_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_notifier_drop(notifier_handle::iox2_notifier_h)::Cvoid
 end
 
 """
@@ -9163,7 +9163,7 @@ void iox2_notifier_details_notifier_id(iox2_notifier_details_ptr handle, struct 
 ```
 """
 function iox2_notifier_details_notifier_id(handle, id_struct_ptr, id_handle_ptr)
-    @ccall libiceoryx2.iox2_notifier_details_notifier_id(handle::iox2_notifier_details_ptr, id_struct_ptr::Ptr{iox2_unique_notifier_id_t}, id_handle_ptr::Ptr{iox2_unique_notifier_id_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_notifier_details_notifier_id(handle::iox2_notifier_details_ptr, id_struct_ptr::Ptr{iox2_unique_notifier_id_t}, id_handle_ptr::Ptr{iox2_unique_notifier_id_h})::Cvoid
 end
 
 """
@@ -9181,7 +9181,7 @@ iox2_node_id_ptr iox2_notifier_details_node_id(iox2_notifier_details_ptr handle)
 ```
 """
 function iox2_notifier_details_node_id(handle)
-    @ccall libiceoryx2.iox2_notifier_details_node_id(handle::iox2_notifier_details_ptr)::iox2_node_id_ptr
+    @ccall libiceoryx2_ffi_c.iox2_notifier_details_node_id(handle::iox2_notifier_details_ptr)::iox2_node_id_ptr
 end
 
 """
@@ -9203,7 +9203,7 @@ bool iox2_pending_response_is_connected(iox2_pending_response_h_ref handle);
 ```
 """
 function iox2_pending_response_is_connected(handle)
-    @ccall libiceoryx2.iox2_pending_response_is_connected(handle::iox2_pending_response_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_pending_response_is_connected(handle::iox2_pending_response_h_ref)::Bool
 end
 
 """
@@ -9225,7 +9225,7 @@ void iox2_pending_response_set_disconnect_hint(iox2_pending_response_h_ref handl
 ```
 """
 function iox2_pending_response_set_disconnect_hint(handle)
-    @ccall libiceoryx2.iox2_pending_response_set_disconnect_hint(handle::iox2_pending_response_h_ref)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_pending_response_set_disconnect_hint(handle::iox2_pending_response_h_ref)::Cvoid
 end
 
 """
@@ -9247,7 +9247,7 @@ c_size_t iox2_pending_response_number_of_server_connections(iox2_pending_respons
 ```
 """
 function iox2_pending_response_number_of_server_connections(handle)
-    @ccall libiceoryx2.iox2_pending_response_number_of_server_connections(handle::iox2_pending_response_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_pending_response_number_of_server_connections(handle::iox2_pending_response_h_ref)::c_size_t
 end
 
 """
@@ -9269,7 +9269,7 @@ bool iox2_pending_response_has_response(iox2_pending_response_h_ref handle);
 ```
 """
 function iox2_pending_response_has_response(handle)
-    @ccall libiceoryx2.iox2_pending_response_has_response(handle::iox2_pending_response_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_pending_response_has_response(handle::iox2_pending_response_h_ref)::Bool
 end
 
 """
@@ -9287,7 +9287,7 @@ void iox2_pending_response_header(iox2_pending_response_h_ref handle, struct iox
 ```
 """
 function iox2_pending_response_header(handle, header_struct_ptr, header_handle_ptr)
-    @ccall libiceoryx2.iox2_pending_response_header(handle::iox2_pending_response_h_ref, header_struct_ptr::Ptr{iox2_request_header_t}, header_handle_ptr::Ptr{iox2_request_header_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_pending_response_header(handle::iox2_pending_response_h_ref, header_struct_ptr::Ptr{iox2_request_header_t}, header_handle_ptr::Ptr{iox2_request_header_h})::Cvoid
 end
 
 """
@@ -9305,7 +9305,7 @@ void iox2_pending_response_user_header(iox2_pending_response_h_ref handle, const
 ```
 """
 function iox2_pending_response_user_header(handle, header_ptr)
-    @ccall libiceoryx2.iox2_pending_response_user_header(handle::iox2_pending_response_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_pending_response_user_header(handle::iox2_pending_response_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
 end
 
 """
@@ -9323,7 +9323,7 @@ void iox2_pending_response_payload(iox2_pending_response_h_ref handle, const voi
 ```
 """
 function iox2_pending_response_payload(handle, payload_ptr, number_of_elements)
-    @ccall libiceoryx2.iox2_pending_response_payload(handle::iox2_pending_response_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_pending_response_payload(handle::iox2_pending_response_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
 end
 
 """
@@ -9347,7 +9347,7 @@ int iox2_pending_response_receive(iox2_pending_response_h_ref handle, struct iox
 ```
 """
 function iox2_pending_response_receive(handle, response_struct_ptr, response_handle_ptr)
-    @ccall libiceoryx2.iox2_pending_response_receive(handle::iox2_pending_response_h_ref, response_struct_ptr::Ptr{iox2_response_t}, response_handle_ptr::Ptr{iox2_response_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_pending_response_receive(handle::iox2_pending_response_h_ref, response_struct_ptr::Ptr{iox2_response_t}, response_handle_ptr::Ptr{iox2_response_h})::Cint
 end
 
 """
@@ -9369,7 +9369,7 @@ void iox2_pending_response_drop(iox2_pending_response_h handle);
 ```
 """
 function iox2_pending_response_drop(handle)
-    @ccall libiceoryx2.iox2_pending_response_drop(handle::iox2_pending_response_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_pending_response_drop(handle::iox2_pending_response_h)::Cvoid
 end
 
 """
@@ -9393,7 +9393,7 @@ iox2_port_factory_writer_builder_h iox2_port_factory_blackboard_writer_builder(i
 ```
 """
 function iox2_port_factory_blackboard_writer_builder(port_factory_handle, writer_builder_struct_ptr)
-    @ccall libiceoryx2.iox2_port_factory_blackboard_writer_builder(port_factory_handle::iox2_port_factory_blackboard_h_ref, writer_builder_struct_ptr::Ptr{iox2_port_factory_writer_builder_t})::iox2_port_factory_writer_builder_h
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_writer_builder(port_factory_handle::iox2_port_factory_blackboard_h_ref, writer_builder_struct_ptr::Ptr{iox2_port_factory_writer_builder_t})::iox2_port_factory_writer_builder_h
 end
 
 """
@@ -9417,7 +9417,7 @@ iox2_port_factory_reader_builder_h iox2_port_factory_blackboard_reader_builder(i
 ```
 """
 function iox2_port_factory_blackboard_reader_builder(port_factory_handle, reader_builder_struct_ptr)
-    @ccall libiceoryx2.iox2_port_factory_blackboard_reader_builder(port_factory_handle::iox2_port_factory_blackboard_h_ref, reader_builder_struct_ptr::Ptr{iox2_port_factory_reader_builder_t})::iox2_port_factory_reader_builder_h
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_reader_builder(port_factory_handle::iox2_port_factory_blackboard_h_ref, reader_builder_struct_ptr::Ptr{iox2_port_factory_reader_builder_t})::iox2_port_factory_reader_builder_h
 end
 
 """
@@ -9435,7 +9435,7 @@ iox2_attribute_set_ptr iox2_port_factory_blackboard_attributes(iox2_port_factory
 ```
 """
 function iox2_port_factory_blackboard_attributes(port_factory_handle)
-    @ccall libiceoryx2.iox2_port_factory_blackboard_attributes(port_factory_handle::iox2_port_factory_blackboard_h_ref)::iox2_attribute_set_ptr
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_attributes(port_factory_handle::iox2_port_factory_blackboard_h_ref)::iox2_attribute_set_ptr
 end
 
 """
@@ -9453,7 +9453,7 @@ void iox2_port_factory_blackboard_static_config(iox2_port_factory_blackboard_h_r
 ```
 """
 function iox2_port_factory_blackboard_static_config(port_factory_handle, static_config)
-    @ccall libiceoryx2.iox2_port_factory_blackboard_static_config(port_factory_handle::iox2_port_factory_blackboard_h_ref, static_config::Ptr{iox2_static_config_blackboard_t})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_static_config(port_factory_handle::iox2_port_factory_blackboard_h_ref, static_config::Ptr{iox2_static_config_blackboard_t})::Cvoid
 end
 
 """
@@ -9471,7 +9471,7 @@ size_t iox2_port_factory_blackboard_dynamic_config_number_of_writers(iox2_port_f
 ```
 """
 function iox2_port_factory_blackboard_dynamic_config_number_of_writers(handle)
-    @ccall libiceoryx2.iox2_port_factory_blackboard_dynamic_config_number_of_writers(handle::iox2_port_factory_blackboard_h_ref)::Csize_t
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_dynamic_config_number_of_writers(handle::iox2_port_factory_blackboard_h_ref)::Csize_t
 end
 
 """
@@ -9491,7 +9491,7 @@ int iox2_port_factory_blackboard_nodes(iox2_port_factory_blackboard_h_ref handle
 ```
 """
 function iox2_port_factory_blackboard_nodes(handle, callback, callback_ctx)
-    @ccall libiceoryx2.iox2_port_factory_blackboard_nodes(handle::iox2_port_factory_blackboard_h_ref, callback::iox2_node_list_callback, callback_ctx::iox2_callback_context)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_nodes(handle::iox2_port_factory_blackboard_h_ref, callback::iox2_node_list_callback, callback_ctx::iox2_callback_context)::Cint
 end
 
 """
@@ -9509,7 +9509,7 @@ iox2_service_name_ptr iox2_port_factory_blackboard_service_name(iox2_port_factor
 ```
 """
 function iox2_port_factory_blackboard_service_name(handle)
-    @ccall libiceoryx2.iox2_port_factory_blackboard_service_name(handle::iox2_port_factory_blackboard_h_ref)::iox2_service_name_ptr
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_service_name(handle::iox2_port_factory_blackboard_h_ref)::iox2_service_name_ptr
 end
 
 """
@@ -9527,7 +9527,7 @@ void iox2_port_factory_blackboard_service_id(iox2_port_factory_blackboard_h_ref 
 ```
 """
 function iox2_port_factory_blackboard_service_id(handle, buffer, buffer_len)
-    @ccall libiceoryx2.iox2_port_factory_blackboard_service_id(handle::iox2_port_factory_blackboard_h_ref, buffer::Cstring, buffer_len::Csize_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_service_id(handle::iox2_port_factory_blackboard_h_ref, buffer::Cstring, buffer_len::Csize_t)::Cvoid
 end
 
 """
@@ -9545,7 +9545,7 @@ size_t iox2_port_factory_blackboard_dynamic_config_number_of_readers(iox2_port_f
 ```
 """
 function iox2_port_factory_blackboard_dynamic_config_number_of_readers(handle)
-    @ccall libiceoryx2.iox2_port_factory_blackboard_dynamic_config_number_of_readers(handle::iox2_port_factory_blackboard_h_ref)::Csize_t
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_dynamic_config_number_of_readers(handle::iox2_port_factory_blackboard_h_ref)::Csize_t
 end
 
 """
@@ -9563,7 +9563,7 @@ void iox2_port_factory_blackboard_dynamic_config_list_readers(iox2_port_factory_
 ```
 """
 function iox2_port_factory_blackboard_dynamic_config_list_readers(handle, callback, callback_ctx)
-    @ccall libiceoryx2.iox2_port_factory_blackboard_dynamic_config_list_readers(handle::iox2_port_factory_blackboard_h_ref, callback::iox2_list_readers_callback, callback_ctx::iox2_callback_context)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_dynamic_config_list_readers(handle::iox2_port_factory_blackboard_h_ref, callback::iox2_list_readers_callback, callback_ctx::iox2_callback_context)::Cvoid
 end
 
 """
@@ -9581,7 +9581,7 @@ void iox2_port_factory_blackboard_dynamic_config_list_writers(iox2_port_factory_
 ```
 """
 function iox2_port_factory_blackboard_dynamic_config_list_writers(handle, callback, callback_ctx)
-    @ccall libiceoryx2.iox2_port_factory_blackboard_dynamic_config_list_writers(handle::iox2_port_factory_blackboard_h_ref, callback::iox2_list_writers_callback, callback_ctx::iox2_callback_context)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_dynamic_config_list_writers(handle::iox2_port_factory_blackboard_h_ref, callback::iox2_list_writers_callback, callback_ctx::iox2_callback_context)::Cvoid
 end
 
 """
@@ -9603,7 +9603,7 @@ void iox2_port_factory_blackboard_drop(iox2_port_factory_blackboard_h port_facto
 ```
 """
 function iox2_port_factory_blackboard_drop(port_factory_handle)
-    @ccall libiceoryx2.iox2_port_factory_blackboard_drop(port_factory_handle::iox2_port_factory_blackboard_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_drop(port_factory_handle::iox2_port_factory_blackboard_h)::Cvoid
 end
 
 """
@@ -9621,7 +9621,7 @@ void iox2_port_factory_blackboard_list_keys(iox2_port_factory_blackboard_h_ref h
 ```
 """
 function iox2_port_factory_blackboard_list_keys(handle, callback, callback_ctx)
-    @ccall libiceoryx2.iox2_port_factory_blackboard_list_keys(handle::iox2_port_factory_blackboard_h_ref, callback::iox2_port_factory_blackboard_list_keys_callback, callback_ctx::iox2_callback_context)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_list_keys(handle::iox2_port_factory_blackboard_h_ref, callback::iox2_port_factory_blackboard_list_keys_callback, callback_ctx::iox2_callback_context)::Cvoid
 end
 
 """
@@ -9647,7 +9647,7 @@ const char *iox2_client_create_error_string(enum iox2_client_create_error_e erro
 ```
 """
 function iox2_client_create_error_string(error)
-    @ccall libiceoryx2.iox2_client_create_error_string(error::iox2_client_create_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_client_create_error_string(error::iox2_client_create_error_e)::Cstring
 end
 
 """
@@ -9669,7 +9669,7 @@ void iox2_port_factory_client_builder_set_allocation_strategy(iox2_port_factory_
 ```
 """
 function iox2_port_factory_client_builder_set_allocation_strategy(port_factory_handle, value)
-    @ccall libiceoryx2.iox2_port_factory_client_builder_set_allocation_strategy(port_factory_handle::iox2_port_factory_client_builder_h_ref, value::iox2_allocation_strategy_e)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_client_builder_set_allocation_strategy(port_factory_handle::iox2_port_factory_client_builder_h_ref, value::iox2_allocation_strategy_e)::Cvoid
 end
 
 """
@@ -9691,7 +9691,7 @@ void iox2_port_factory_client_builder_set_initial_max_slice_len(iox2_port_factor
 ```
 """
 function iox2_port_factory_client_builder_set_initial_max_slice_len(port_factory_handle, value)
-    @ccall libiceoryx2.iox2_port_factory_client_builder_set_initial_max_slice_len(port_factory_handle::iox2_port_factory_client_builder_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_client_builder_set_initial_max_slice_len(port_factory_handle::iox2_port_factory_client_builder_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -9713,7 +9713,7 @@ void iox2_port_factory_client_builder_unable_to_deliver_strategy(iox2_port_facto
 ```
 """
 function iox2_port_factory_client_builder_unable_to_deliver_strategy(port_factory_handle, value)
-    @ccall libiceoryx2.iox2_port_factory_client_builder_unable_to_deliver_strategy(port_factory_handle::iox2_port_factory_client_builder_h_ref, value::iox2_unable_to_deliver_strategy_e)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_client_builder_unable_to_deliver_strategy(port_factory_handle::iox2_port_factory_client_builder_h_ref, value::iox2_unable_to_deliver_strategy_e)::Cvoid
 end
 
 """
@@ -9737,7 +9737,7 @@ int iox2_port_factory_client_builder_create(iox2_port_factory_client_builder_h p
 ```
 """
 function iox2_port_factory_client_builder_create(port_factory_handle, struct_ptr, handle_ptr)
-    @ccall libiceoryx2.iox2_port_factory_client_builder_create(port_factory_handle::iox2_port_factory_client_builder_h, struct_ptr::Ptr{iox2_client_t}, handle_ptr::Ptr{iox2_client_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_client_builder_create(port_factory_handle::iox2_port_factory_client_builder_h, struct_ptr::Ptr{iox2_client_t}, handle_ptr::Ptr{iox2_client_h})::Cint
 end
 
 """
@@ -9755,7 +9755,7 @@ iox2_service_name_ptr iox2_port_factory_event_service_name(iox2_port_factory_eve
 ```
 """
 function iox2_port_factory_event_service_name(port_factory_handle)
-    @ccall libiceoryx2.iox2_port_factory_event_service_name(port_factory_handle::iox2_port_factory_event_h_ref)::iox2_service_name_ptr
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_event_service_name(port_factory_handle::iox2_port_factory_event_h_ref)::iox2_service_name_ptr
 end
 
 """
@@ -9773,7 +9773,7 @@ void iox2_port_factory_event_static_config(iox2_port_factory_event_h_ref port_fa
 ```
 """
 function iox2_port_factory_event_static_config(port_factory_handle, static_config)
-    @ccall libiceoryx2.iox2_port_factory_event_static_config(port_factory_handle::iox2_port_factory_event_h_ref, static_config::Ptr{iox2_static_config_event_t})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_event_static_config(port_factory_handle::iox2_port_factory_event_h_ref, static_config::Ptr{iox2_static_config_event_t})::Cvoid
 end
 
 """
@@ -9797,7 +9797,7 @@ iox2_port_factory_notifier_builder_h iox2_port_factory_event_notifier_builder(io
 ```
 """
 function iox2_port_factory_event_notifier_builder(port_factory_handle, notifier_builder_struct_ptr)
-    @ccall libiceoryx2.iox2_port_factory_event_notifier_builder(port_factory_handle::iox2_port_factory_event_h_ref, notifier_builder_struct_ptr::Ptr{iox2_port_factory_notifier_builder_t})::iox2_port_factory_notifier_builder_h
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_event_notifier_builder(port_factory_handle::iox2_port_factory_event_h_ref, notifier_builder_struct_ptr::Ptr{iox2_port_factory_notifier_builder_t})::iox2_port_factory_notifier_builder_h
 end
 
 """
@@ -9821,7 +9821,7 @@ iox2_port_factory_listener_builder_h iox2_port_factory_event_listener_builder(io
 ```
 """
 function iox2_port_factory_event_listener_builder(port_factory_handle, listener_builder_struct_ptr)
-    @ccall libiceoryx2.iox2_port_factory_event_listener_builder(port_factory_handle::iox2_port_factory_event_h_ref, listener_builder_struct_ptr::Ptr{iox2_port_factory_listener_builder_t})::iox2_port_factory_listener_builder_h
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_event_listener_builder(port_factory_handle::iox2_port_factory_event_h_ref, listener_builder_struct_ptr::Ptr{iox2_port_factory_listener_builder_t})::iox2_port_factory_listener_builder_h
 end
 
 """
@@ -9839,7 +9839,7 @@ iox2_attribute_set_ptr iox2_port_factory_event_attributes(iox2_port_factory_even
 ```
 """
 function iox2_port_factory_event_attributes(port_factory_handle)
-    @ccall libiceoryx2.iox2_port_factory_event_attributes(port_factory_handle::iox2_port_factory_event_h_ref)::iox2_attribute_set_ptr
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_event_attributes(port_factory_handle::iox2_port_factory_event_h_ref)::iox2_attribute_set_ptr
 end
 
 """
@@ -9857,7 +9857,7 @@ size_t iox2_port_factory_event_dynamic_config_number_of_listeners(iox2_port_fact
 ```
 """
 function iox2_port_factory_event_dynamic_config_number_of_listeners(handle)
-    @ccall libiceoryx2.iox2_port_factory_event_dynamic_config_number_of_listeners(handle::iox2_port_factory_event_h_ref)::Csize_t
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_event_dynamic_config_number_of_listeners(handle::iox2_port_factory_event_h_ref)::Csize_t
 end
 
 """
@@ -9875,7 +9875,7 @@ size_t iox2_port_factory_event_dynamic_config_number_of_notifiers(iox2_port_fact
 ```
 """
 function iox2_port_factory_event_dynamic_config_number_of_notifiers(handle)
-    @ccall libiceoryx2.iox2_port_factory_event_dynamic_config_number_of_notifiers(handle::iox2_port_factory_event_h_ref)::Csize_t
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_event_dynamic_config_number_of_notifiers(handle::iox2_port_factory_event_h_ref)::Csize_t
 end
 
 """
@@ -9893,7 +9893,7 @@ void iox2_port_factory_event_service_id(iox2_port_factory_event_h_ref handle, ch
 ```
 """
 function iox2_port_factory_event_service_id(handle, buffer, buffer_len)
-    @ccall libiceoryx2.iox2_port_factory_event_service_id(handle::iox2_port_factory_event_h_ref, buffer::Cstring, buffer_len::Csize_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_event_service_id(handle::iox2_port_factory_event_h_ref, buffer::Cstring, buffer_len::Csize_t)::Cvoid
 end
 
 """
@@ -9913,7 +9913,7 @@ int iox2_port_factory_event_nodes(iox2_port_factory_event_h_ref handle, iox2_nod
 ```
 """
 function iox2_port_factory_event_nodes(handle, callback, callback_ctx)
-    @ccall libiceoryx2.iox2_port_factory_event_nodes(handle::iox2_port_factory_event_h_ref, callback::iox2_node_list_callback, callback_ctx::iox2_callback_context)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_event_nodes(handle::iox2_port_factory_event_h_ref, callback::iox2_node_list_callback, callback_ctx::iox2_callback_context)::Cint
 end
 
 """
@@ -9931,7 +9931,7 @@ void iox2_port_factory_event_dynamic_config_list_listeners(iox2_port_factory_eve
 ```
 """
 function iox2_port_factory_event_dynamic_config_list_listeners(handle, callback, callback_ctx)
-    @ccall libiceoryx2.iox2_port_factory_event_dynamic_config_list_listeners(handle::iox2_port_factory_event_h_ref, callback::iox2_list_listeners_callback, callback_ctx::iox2_callback_context)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_event_dynamic_config_list_listeners(handle::iox2_port_factory_event_h_ref, callback::iox2_list_listeners_callback, callback_ctx::iox2_callback_context)::Cvoid
 end
 
 """
@@ -9949,7 +9949,7 @@ void iox2_port_factory_event_dynamic_config_list_notifiers(iox2_port_factory_eve
 ```
 """
 function iox2_port_factory_event_dynamic_config_list_notifiers(handle, callback, callback_ctx)
-    @ccall libiceoryx2.iox2_port_factory_event_dynamic_config_list_notifiers(handle::iox2_port_factory_event_h_ref, callback::iox2_list_notifiers_callback, callback_ctx::iox2_callback_context)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_event_dynamic_config_list_notifiers(handle::iox2_port_factory_event_h_ref, callback::iox2_list_notifiers_callback, callback_ctx::iox2_callback_context)::Cvoid
 end
 
 """
@@ -9971,7 +9971,7 @@ void iox2_port_factory_event_drop(iox2_port_factory_event_h port_factory_handle)
 ```
 """
 function iox2_port_factory_event_drop(port_factory_handle)
-    @ccall libiceoryx2.iox2_port_factory_event_drop(port_factory_handle::iox2_port_factory_event_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_event_drop(port_factory_handle::iox2_port_factory_event_h)::Cvoid
 end
 
 """
@@ -9997,7 +9997,7 @@ const char *iox2_listener_create_error_string(enum iox2_listener_create_error_e 
 ```
 """
 function iox2_listener_create_error_string(error)
-    @ccall libiceoryx2.iox2_listener_create_error_string(error::iox2_listener_create_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_listener_create_error_string(error::iox2_listener_create_error_e)::Cstring
 end
 
 """
@@ -10021,7 +10021,7 @@ int iox2_port_factory_listener_builder_create(iox2_port_factory_listener_builder
 ```
 """
 function iox2_port_factory_listener_builder_create(port_factory_handle, listener_struct_ptr, listener_handle_ptr)
-    @ccall libiceoryx2.iox2_port_factory_listener_builder_create(port_factory_handle::iox2_port_factory_listener_builder_h, listener_struct_ptr::Ptr{iox2_listener_t}, listener_handle_ptr::Ptr{iox2_listener_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_listener_builder_create(port_factory_handle::iox2_port_factory_listener_builder_h, listener_struct_ptr::Ptr{iox2_listener_t}, listener_handle_ptr::Ptr{iox2_listener_h})::Cint
 end
 
 """
@@ -10047,7 +10047,7 @@ const char *iox2_notifier_create_error_string(enum iox2_notifier_create_error_e 
 ```
 """
 function iox2_notifier_create_error_string(error)
-    @ccall libiceoryx2.iox2_notifier_create_error_string(error::iox2_notifier_create_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_notifier_create_error_string(error::iox2_notifier_create_error_e)::Cstring
 end
 
 """
@@ -10069,7 +10069,7 @@ void iox2_port_factory_notifier_builder_set_default_event_id(iox2_port_factory_n
 ```
 """
 function iox2_port_factory_notifier_builder_set_default_event_id(port_factory_handle, value)
-    @ccall libiceoryx2.iox2_port_factory_notifier_builder_set_default_event_id(port_factory_handle::iox2_port_factory_notifier_builder_h_ref, value::Ptr{iox2_event_id_t})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_notifier_builder_set_default_event_id(port_factory_handle::iox2_port_factory_notifier_builder_h_ref, value::Ptr{iox2_event_id_t})::Cvoid
 end
 
 """
@@ -10093,7 +10093,7 @@ int iox2_port_factory_notifier_builder_create(iox2_port_factory_notifier_builder
 ```
 """
 function iox2_port_factory_notifier_builder_create(port_factory_handle, notifier_struct_ptr, notifier_handle_ptr)
-    @ccall libiceoryx2.iox2_port_factory_notifier_builder_create(port_factory_handle::iox2_port_factory_notifier_builder_h, notifier_struct_ptr::Ptr{iox2_notifier_t}, notifier_handle_ptr::Ptr{iox2_notifier_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_notifier_builder_create(port_factory_handle::iox2_port_factory_notifier_builder_h, notifier_struct_ptr::Ptr{iox2_notifier_t}, notifier_handle_ptr::Ptr{iox2_notifier_h})::Cint
 end
 
 """
@@ -10117,7 +10117,7 @@ iox2_port_factory_publisher_builder_h iox2_port_factory_pub_sub_publisher_builde
 ```
 """
 function iox2_port_factory_pub_sub_publisher_builder(port_factory_handle, publisher_builder_struct_ptr)
-    @ccall libiceoryx2.iox2_port_factory_pub_sub_publisher_builder(port_factory_handle::iox2_port_factory_pub_sub_h_ref, publisher_builder_struct_ptr::Ptr{iox2_port_factory_publisher_builder_t})::iox2_port_factory_publisher_builder_h
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_publisher_builder(port_factory_handle::iox2_port_factory_pub_sub_h_ref, publisher_builder_struct_ptr::Ptr{iox2_port_factory_publisher_builder_t})::iox2_port_factory_publisher_builder_h
 end
 
 """
@@ -10141,7 +10141,7 @@ iox2_port_factory_subscriber_builder_h iox2_port_factory_pub_sub_subscriber_buil
 ```
 """
 function iox2_port_factory_pub_sub_subscriber_builder(port_factory_handle, subscriber_builder_struct_ptr)
-    @ccall libiceoryx2.iox2_port_factory_pub_sub_subscriber_builder(port_factory_handle::iox2_port_factory_pub_sub_h_ref, subscriber_builder_struct_ptr::Ptr{iox2_port_factory_subscriber_builder_t})::iox2_port_factory_subscriber_builder_h
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_subscriber_builder(port_factory_handle::iox2_port_factory_pub_sub_h_ref, subscriber_builder_struct_ptr::Ptr{iox2_port_factory_subscriber_builder_t})::iox2_port_factory_subscriber_builder_h
 end
 
 """
@@ -10159,7 +10159,7 @@ iox2_attribute_set_ptr iox2_port_factory_pub_sub_attributes(iox2_port_factory_pu
 ```
 """
 function iox2_port_factory_pub_sub_attributes(port_factory_handle)
-    @ccall libiceoryx2.iox2_port_factory_pub_sub_attributes(port_factory_handle::iox2_port_factory_pub_sub_h_ref)::iox2_attribute_set_ptr
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_attributes(port_factory_handle::iox2_port_factory_pub_sub_h_ref)::iox2_attribute_set_ptr
 end
 
 """
@@ -10177,7 +10177,7 @@ void iox2_port_factory_pub_sub_static_config(iox2_port_factory_pub_sub_h_ref por
 ```
 """
 function iox2_port_factory_pub_sub_static_config(port_factory_handle, static_config)
-    @ccall libiceoryx2.iox2_port_factory_pub_sub_static_config(port_factory_handle::iox2_port_factory_pub_sub_h_ref, static_config::Ptr{iox2_static_config_publish_subscribe_t})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_static_config(port_factory_handle::iox2_port_factory_pub_sub_h_ref, static_config::Ptr{iox2_static_config_publish_subscribe_t})::Cvoid
 end
 
 """
@@ -10195,7 +10195,7 @@ size_t iox2_port_factory_pub_sub_dynamic_config_number_of_publishers(iox2_port_f
 ```
 """
 function iox2_port_factory_pub_sub_dynamic_config_number_of_publishers(handle)
-    @ccall libiceoryx2.iox2_port_factory_pub_sub_dynamic_config_number_of_publishers(handle::iox2_port_factory_pub_sub_h_ref)::Csize_t
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_dynamic_config_number_of_publishers(handle::iox2_port_factory_pub_sub_h_ref)::Csize_t
 end
 
 """
@@ -10215,7 +10215,7 @@ int iox2_port_factory_pub_sub_nodes(iox2_port_factory_pub_sub_h_ref handle, iox2
 ```
 """
 function iox2_port_factory_pub_sub_nodes(handle, callback, callback_ctx)
-    @ccall libiceoryx2.iox2_port_factory_pub_sub_nodes(handle::iox2_port_factory_pub_sub_h_ref, callback::iox2_node_list_callback, callback_ctx::iox2_callback_context)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_nodes(handle::iox2_port_factory_pub_sub_h_ref, callback::iox2_node_list_callback, callback_ctx::iox2_callback_context)::Cint
 end
 
 """
@@ -10233,7 +10233,7 @@ iox2_service_name_ptr iox2_port_factory_pub_sub_service_name(iox2_port_factory_p
 ```
 """
 function iox2_port_factory_pub_sub_service_name(handle)
-    @ccall libiceoryx2.iox2_port_factory_pub_sub_service_name(handle::iox2_port_factory_pub_sub_h_ref)::iox2_service_name_ptr
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_service_name(handle::iox2_port_factory_pub_sub_h_ref)::iox2_service_name_ptr
 end
 
 """
@@ -10251,7 +10251,7 @@ void iox2_port_factory_pub_sub_service_id(iox2_port_factory_pub_sub_h_ref handle
 ```
 """
 function iox2_port_factory_pub_sub_service_id(handle, buffer, buffer_len)
-    @ccall libiceoryx2.iox2_port_factory_pub_sub_service_id(handle::iox2_port_factory_pub_sub_h_ref, buffer::Cstring, buffer_len::Csize_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_service_id(handle::iox2_port_factory_pub_sub_h_ref, buffer::Cstring, buffer_len::Csize_t)::Cvoid
 end
 
 """
@@ -10269,7 +10269,7 @@ size_t iox2_port_factory_pub_sub_dynamic_config_number_of_subscribers(iox2_port_
 ```
 """
 function iox2_port_factory_pub_sub_dynamic_config_number_of_subscribers(handle)
-    @ccall libiceoryx2.iox2_port_factory_pub_sub_dynamic_config_number_of_subscribers(handle::iox2_port_factory_pub_sub_h_ref)::Csize_t
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_dynamic_config_number_of_subscribers(handle::iox2_port_factory_pub_sub_h_ref)::Csize_t
 end
 
 """
@@ -10287,7 +10287,7 @@ void iox2_port_factory_pub_sub_dynamic_config_list_subscribers(iox2_port_factory
 ```
 """
 function iox2_port_factory_pub_sub_dynamic_config_list_subscribers(handle, callback, callback_ctx)
-    @ccall libiceoryx2.iox2_port_factory_pub_sub_dynamic_config_list_subscribers(handle::iox2_port_factory_pub_sub_h_ref, callback::iox2_list_subscribers_callback, callback_ctx::iox2_callback_context)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_dynamic_config_list_subscribers(handle::iox2_port_factory_pub_sub_h_ref, callback::iox2_list_subscribers_callback, callback_ctx::iox2_callback_context)::Cvoid
 end
 
 """
@@ -10305,7 +10305,7 @@ void iox2_port_factory_pub_sub_dynamic_config_list_publishers(iox2_port_factory_
 ```
 """
 function iox2_port_factory_pub_sub_dynamic_config_list_publishers(handle, callback, callback_ctx)
-    @ccall libiceoryx2.iox2_port_factory_pub_sub_dynamic_config_list_publishers(handle::iox2_port_factory_pub_sub_h_ref, callback::iox2_list_publishers_callback, callback_ctx::iox2_callback_context)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_dynamic_config_list_publishers(handle::iox2_port_factory_pub_sub_h_ref, callback::iox2_list_publishers_callback, callback_ctx::iox2_callback_context)::Cvoid
 end
 
 """
@@ -10327,7 +10327,7 @@ void iox2_port_factory_pub_sub_drop(iox2_port_factory_pub_sub_h port_factory_han
 ```
 """
 function iox2_port_factory_pub_sub_drop(port_factory_handle)
-    @ccall libiceoryx2.iox2_port_factory_pub_sub_drop(port_factory_handle::iox2_port_factory_pub_sub_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_drop(port_factory_handle::iox2_port_factory_pub_sub_h)::Cvoid
 end
 
 """
@@ -10353,7 +10353,7 @@ const char *iox2_publisher_create_error_string(enum iox2_publisher_create_error_
 ```
 """
 function iox2_publisher_create_error_string(error)
-    @ccall libiceoryx2.iox2_publisher_create_error_string(error::iox2_publisher_create_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_publisher_create_error_string(error::iox2_publisher_create_error_e)::Cstring
 end
 
 """
@@ -10375,7 +10375,7 @@ void iox2_port_factory_publisher_builder_set_allocation_strategy(iox2_port_facto
 ```
 """
 function iox2_port_factory_publisher_builder_set_allocation_strategy(port_factory_handle, value)
-    @ccall libiceoryx2.iox2_port_factory_publisher_builder_set_allocation_strategy(port_factory_handle::iox2_port_factory_publisher_builder_h_ref, value::iox2_allocation_strategy_e)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_publisher_builder_set_allocation_strategy(port_factory_handle::iox2_port_factory_publisher_builder_h_ref, value::iox2_allocation_strategy_e)::Cvoid
 end
 
 """
@@ -10397,7 +10397,7 @@ void iox2_port_factory_publisher_builder_set_initial_max_slice_len(iox2_port_fac
 ```
 """
 function iox2_port_factory_publisher_builder_set_initial_max_slice_len(port_factory_handle, value)
-    @ccall libiceoryx2.iox2_port_factory_publisher_builder_set_initial_max_slice_len(port_factory_handle::iox2_port_factory_publisher_builder_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_publisher_builder_set_initial_max_slice_len(port_factory_handle::iox2_port_factory_publisher_builder_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -10419,7 +10419,7 @@ void iox2_port_factory_publisher_builder_set_max_loaned_samples(iox2_port_factor
 ```
 """
 function iox2_port_factory_publisher_builder_set_max_loaned_samples(port_factory_handle, value)
-    @ccall libiceoryx2.iox2_port_factory_publisher_builder_set_max_loaned_samples(port_factory_handle::iox2_port_factory_publisher_builder_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_publisher_builder_set_max_loaned_samples(port_factory_handle::iox2_port_factory_publisher_builder_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -10441,7 +10441,7 @@ void iox2_port_factory_publisher_builder_unable_to_deliver_strategy(iox2_port_fa
 ```
 """
 function iox2_port_factory_publisher_builder_unable_to_deliver_strategy(port_factory_handle, value)
-    @ccall libiceoryx2.iox2_port_factory_publisher_builder_unable_to_deliver_strategy(port_factory_handle::iox2_port_factory_publisher_builder_h_ref, value::iox2_unable_to_deliver_strategy_e)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_publisher_builder_unable_to_deliver_strategy(port_factory_handle::iox2_port_factory_publisher_builder_h_ref, value::iox2_unable_to_deliver_strategy_e)::Cvoid
 end
 
 """
@@ -10465,7 +10465,7 @@ int iox2_port_factory_publisher_builder_create(iox2_port_factory_publisher_build
 ```
 """
 function iox2_port_factory_publisher_builder_create(port_factory_handle, publisher_struct_ptr, publisher_handle_ptr)
-    @ccall libiceoryx2.iox2_port_factory_publisher_builder_create(port_factory_handle::iox2_port_factory_publisher_builder_h, publisher_struct_ptr::Ptr{iox2_publisher_t}, publisher_handle_ptr::Ptr{iox2_publisher_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_publisher_builder_create(port_factory_handle::iox2_port_factory_publisher_builder_h, publisher_struct_ptr::Ptr{iox2_publisher_t}, publisher_handle_ptr::Ptr{iox2_publisher_h})::Cint
 end
 
 """
@@ -10491,7 +10491,7 @@ const char *iox2_reader_create_error_string(enum iox2_reader_create_error_e erro
 ```
 """
 function iox2_reader_create_error_string(error)
-    @ccall libiceoryx2.iox2_reader_create_error_string(error::iox2_reader_create_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_reader_create_error_string(error::iox2_reader_create_error_e)::Cstring
 end
 
 """
@@ -10515,7 +10515,7 @@ int iox2_port_factory_reader_builder_create(iox2_port_factory_reader_builder_h p
 ```
 """
 function iox2_port_factory_reader_builder_create(port_factory_handle, reader_struct_ptr, reader_handle_ptr)
-    @ccall libiceoryx2.iox2_port_factory_reader_builder_create(port_factory_handle::iox2_port_factory_reader_builder_h, reader_struct_ptr::Ptr{iox2_reader_t}, reader_handle_ptr::Ptr{iox2_reader_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_reader_builder_create(port_factory_handle::iox2_port_factory_reader_builder_h, reader_struct_ptr::Ptr{iox2_reader_t}, reader_handle_ptr::Ptr{iox2_reader_h})::Cint
 end
 
 """
@@ -10539,7 +10539,7 @@ iox2_port_factory_server_builder_h iox2_port_factory_request_response_server_bui
 ```
 """
 function iox2_port_factory_request_response_server_builder(port_factory_handle, builder_struct_ptr)
-    @ccall libiceoryx2.iox2_port_factory_request_response_server_builder(port_factory_handle::iox2_port_factory_request_response_h_ref, builder_struct_ptr::Ptr{iox2_port_factory_server_builder_t})::iox2_port_factory_server_builder_h
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_server_builder(port_factory_handle::iox2_port_factory_request_response_h_ref, builder_struct_ptr::Ptr{iox2_port_factory_server_builder_t})::iox2_port_factory_server_builder_h
 end
 
 """
@@ -10563,7 +10563,7 @@ iox2_port_factory_client_builder_h iox2_port_factory_request_response_client_bui
 ```
 """
 function iox2_port_factory_request_response_client_builder(port_factory_handle, builder_struct_ptr)
-    @ccall libiceoryx2.iox2_port_factory_request_response_client_builder(port_factory_handle::iox2_port_factory_request_response_h_ref, builder_struct_ptr::Ptr{iox2_port_factory_client_builder_t})::iox2_port_factory_client_builder_h
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_client_builder(port_factory_handle::iox2_port_factory_request_response_h_ref, builder_struct_ptr::Ptr{iox2_port_factory_client_builder_t})::iox2_port_factory_client_builder_h
 end
 
 """
@@ -10581,7 +10581,7 @@ iox2_attribute_set_ptr iox2_port_factory_request_response_attributes(iox2_port_f
 ```
 """
 function iox2_port_factory_request_response_attributes(port_factory_handle)
-    @ccall libiceoryx2.iox2_port_factory_request_response_attributes(port_factory_handle::iox2_port_factory_request_response_h_ref)::iox2_attribute_set_ptr
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_attributes(port_factory_handle::iox2_port_factory_request_response_h_ref)::iox2_attribute_set_ptr
 end
 
 """
@@ -10599,7 +10599,7 @@ void iox2_port_factory_request_response_static_config(iox2_port_factory_request_
 ```
 """
 function iox2_port_factory_request_response_static_config(port_factory_handle, static_config)
-    @ccall libiceoryx2.iox2_port_factory_request_response_static_config(port_factory_handle::iox2_port_factory_request_response_h_ref, static_config::Ptr{iox2_static_config_request_response_t})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_static_config(port_factory_handle::iox2_port_factory_request_response_h_ref, static_config::Ptr{iox2_static_config_request_response_t})::Cvoid
 end
 
 """
@@ -10617,7 +10617,7 @@ size_t iox2_port_factory_request_response_dynamic_config_number_of_servers(iox2_
 ```
 """
 function iox2_port_factory_request_response_dynamic_config_number_of_servers(handle)
-    @ccall libiceoryx2.iox2_port_factory_request_response_dynamic_config_number_of_servers(handle::iox2_port_factory_request_response_h_ref)::Csize_t
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_dynamic_config_number_of_servers(handle::iox2_port_factory_request_response_h_ref)::Csize_t
 end
 
 """
@@ -10635,7 +10635,7 @@ size_t iox2_port_factory_request_response_dynamic_config_number_of_clients(iox2_
 ```
 """
 function iox2_port_factory_request_response_dynamic_config_number_of_clients(handle)
-    @ccall libiceoryx2.iox2_port_factory_request_response_dynamic_config_number_of_clients(handle::iox2_port_factory_request_response_h_ref)::Csize_t
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_dynamic_config_number_of_clients(handle::iox2_port_factory_request_response_h_ref)::Csize_t
 end
 
 """
@@ -10655,7 +10655,7 @@ int iox2_port_factory_request_response_nodes(iox2_port_factory_request_response_
 ```
 """
 function iox2_port_factory_request_response_nodes(handle, callback, callback_ctx)
-    @ccall libiceoryx2.iox2_port_factory_request_response_nodes(handle::iox2_port_factory_request_response_h_ref, callback::iox2_node_list_callback, callback_ctx::iox2_callback_context)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_nodes(handle::iox2_port_factory_request_response_h_ref, callback::iox2_node_list_callback, callback_ctx::iox2_callback_context)::Cint
 end
 
 """
@@ -10673,7 +10673,7 @@ iox2_service_name_ptr iox2_port_factory_request_response_service_name(iox2_port_
 ```
 """
 function iox2_port_factory_request_response_service_name(handle)
-    @ccall libiceoryx2.iox2_port_factory_request_response_service_name(handle::iox2_port_factory_request_response_h_ref)::iox2_service_name_ptr
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_service_name(handle::iox2_port_factory_request_response_h_ref)::iox2_service_name_ptr
 end
 
 """
@@ -10691,7 +10691,7 @@ void iox2_port_factory_request_response_service_id(iox2_port_factory_request_res
 ```
 """
 function iox2_port_factory_request_response_service_id(handle, buffer, buffer_len)
-    @ccall libiceoryx2.iox2_port_factory_request_response_service_id(handle::iox2_port_factory_request_response_h_ref, buffer::Cstring, buffer_len::Csize_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_service_id(handle::iox2_port_factory_request_response_h_ref, buffer::Cstring, buffer_len::Csize_t)::Cvoid
 end
 
 """
@@ -10709,7 +10709,7 @@ void iox2_port_factory_request_response_dynamic_config_list_servers(iox2_port_fa
 ```
 """
 function iox2_port_factory_request_response_dynamic_config_list_servers(handle, callback, callback_ctx)
-    @ccall libiceoryx2.iox2_port_factory_request_response_dynamic_config_list_servers(handle::iox2_port_factory_request_response_h_ref, callback::iox2_list_servers_callback, callback_ctx::iox2_callback_context)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_dynamic_config_list_servers(handle::iox2_port_factory_request_response_h_ref, callback::iox2_list_servers_callback, callback_ctx::iox2_callback_context)::Cvoid
 end
 
 """
@@ -10727,7 +10727,7 @@ void iox2_port_factory_request_response_dynamic_config_list_clients(iox2_port_fa
 ```
 """
 function iox2_port_factory_request_response_dynamic_config_list_clients(handle, callback, callback_ctx)
-    @ccall libiceoryx2.iox2_port_factory_request_response_dynamic_config_list_clients(handle::iox2_port_factory_request_response_h_ref, callback::iox2_list_clients_callback, callback_ctx::iox2_callback_context)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_dynamic_config_list_clients(handle::iox2_port_factory_request_response_h_ref, callback::iox2_list_clients_callback, callback_ctx::iox2_callback_context)::Cvoid
 end
 
 """
@@ -10749,7 +10749,7 @@ void iox2_port_factory_request_response_drop(iox2_port_factory_request_response_
 ```
 """
 function iox2_port_factory_request_response_drop(port_factory_handle)
-    @ccall libiceoryx2.iox2_port_factory_request_response_drop(port_factory_handle::iox2_port_factory_request_response_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_drop(port_factory_handle::iox2_port_factory_request_response_h)::Cvoid
 end
 
 """
@@ -10775,7 +10775,7 @@ const char *iox2_server_create_error_string(enum iox2_server_create_error_e erro
 ```
 """
 function iox2_server_create_error_string(error)
-    @ccall libiceoryx2.iox2_server_create_error_string(error::iox2_server_create_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_server_create_error_string(error::iox2_server_create_error_e)::Cstring
 end
 
 """
@@ -10797,7 +10797,7 @@ void iox2_port_factory_server_builder_set_allocation_strategy(iox2_port_factory_
 ```
 """
 function iox2_port_factory_server_builder_set_allocation_strategy(port_factory_handle, value)
-    @ccall libiceoryx2.iox2_port_factory_server_builder_set_allocation_strategy(port_factory_handle::iox2_port_factory_server_builder_h_ref, value::iox2_allocation_strategy_e)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_server_builder_set_allocation_strategy(port_factory_handle::iox2_port_factory_server_builder_h_ref, value::iox2_allocation_strategy_e)::Cvoid
 end
 
 """
@@ -10819,7 +10819,7 @@ void iox2_port_factory_server_builder_set_initial_max_slice_len(iox2_port_factor
 ```
 """
 function iox2_port_factory_server_builder_set_initial_max_slice_len(port_factory_handle, value)
-    @ccall libiceoryx2.iox2_port_factory_server_builder_set_initial_max_slice_len(port_factory_handle::iox2_port_factory_server_builder_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_server_builder_set_initial_max_slice_len(port_factory_handle::iox2_port_factory_server_builder_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -10841,7 +10841,7 @@ void iox2_port_factory_server_builder_set_max_loaned_responses_per_request(iox2_
 ```
 """
 function iox2_port_factory_server_builder_set_max_loaned_responses_per_request(port_factory_handle, value)
-    @ccall libiceoryx2.iox2_port_factory_server_builder_set_max_loaned_responses_per_request(port_factory_handle::iox2_port_factory_server_builder_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_server_builder_set_max_loaned_responses_per_request(port_factory_handle::iox2_port_factory_server_builder_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -10863,7 +10863,7 @@ void iox2_port_factory_server_builder_unable_to_deliver_strategy(iox2_port_facto
 ```
 """
 function iox2_port_factory_server_builder_unable_to_deliver_strategy(port_factory_handle, value)
-    @ccall libiceoryx2.iox2_port_factory_server_builder_unable_to_deliver_strategy(port_factory_handle::iox2_port_factory_server_builder_h_ref, value::iox2_unable_to_deliver_strategy_e)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_server_builder_unable_to_deliver_strategy(port_factory_handle::iox2_port_factory_server_builder_h_ref, value::iox2_unable_to_deliver_strategy_e)::Cvoid
 end
 
 """
@@ -10887,7 +10887,7 @@ int iox2_port_factory_server_builder_create(iox2_port_factory_server_builder_h p
 ```
 """
 function iox2_port_factory_server_builder_create(port_factory_handle, struct_ptr, handle_ptr)
-    @ccall libiceoryx2.iox2_port_factory_server_builder_create(port_factory_handle::iox2_port_factory_server_builder_h, struct_ptr::Ptr{iox2_server_t}, handle_ptr::Ptr{iox2_server_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_server_builder_create(port_factory_handle::iox2_port_factory_server_builder_h, struct_ptr::Ptr{iox2_server_t}, handle_ptr::Ptr{iox2_server_h})::Cint
 end
 
 """
@@ -10913,7 +10913,7 @@ const char *iox2_subscriber_create_error_string(enum iox2_subscriber_create_erro
 ```
 """
 function iox2_subscriber_create_error_string(error)
-    @ccall libiceoryx2.iox2_subscriber_create_error_string(error::iox2_subscriber_create_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_subscriber_create_error_string(error::iox2_subscriber_create_error_e)::Cstring
 end
 
 """
@@ -10935,7 +10935,7 @@ void iox2_port_factory_subscriber_builder_set_buffer_size(iox2_port_factory_subs
 ```
 """
 function iox2_port_factory_subscriber_builder_set_buffer_size(port_factory_handle, value)
-    @ccall libiceoryx2.iox2_port_factory_subscriber_builder_set_buffer_size(port_factory_handle::iox2_port_factory_subscriber_builder_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_subscriber_builder_set_buffer_size(port_factory_handle::iox2_port_factory_subscriber_builder_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -10959,7 +10959,7 @@ int iox2_port_factory_subscriber_builder_create(iox2_port_factory_subscriber_bui
 ```
 """
 function iox2_port_factory_subscriber_builder_create(port_factory_handle, subscriber_struct_ptr, subscriber_handle_ptr)
-    @ccall libiceoryx2.iox2_port_factory_subscriber_builder_create(port_factory_handle::iox2_port_factory_subscriber_builder_h, subscriber_struct_ptr::Ptr{iox2_subscriber_t}, subscriber_handle_ptr::Ptr{iox2_subscriber_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_subscriber_builder_create(port_factory_handle::iox2_port_factory_subscriber_builder_h, subscriber_struct_ptr::Ptr{iox2_subscriber_t}, subscriber_handle_ptr::Ptr{iox2_subscriber_h})::Cint
 end
 
 """
@@ -10985,7 +10985,7 @@ const char *iox2_writer_create_error_string(enum iox2_writer_create_error_e erro
 ```
 """
 function iox2_writer_create_error_string(error)
-    @ccall libiceoryx2.iox2_writer_create_error_string(error::iox2_writer_create_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_writer_create_error_string(error::iox2_writer_create_error_e)::Cstring
 end
 
 """
@@ -11009,7 +11009,7 @@ int iox2_port_factory_writer_builder_create(iox2_port_factory_writer_builder_h p
 ```
 """
 function iox2_port_factory_writer_builder_create(port_factory_handle, writer_struct_ptr, writer_handle_ptr)
-    @ccall libiceoryx2.iox2_port_factory_writer_builder_create(port_factory_handle::iox2_port_factory_writer_builder_h, writer_struct_ptr::Ptr{iox2_writer_t}, writer_handle_ptr::Ptr{iox2_writer_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_writer_builder_create(port_factory_handle::iox2_port_factory_writer_builder_h, writer_struct_ptr::Ptr{iox2_writer_t}, writer_handle_ptr::Ptr{iox2_writer_h})::Cint
 end
 
 """
@@ -11027,7 +11027,7 @@ void iox2_publish_subscribe_header_drop(iox2_publish_subscribe_header_h handle);
 ```
 """
 function iox2_publish_subscribe_header_drop(handle)
-    @ccall libiceoryx2.iox2_publish_subscribe_header_drop(handle::iox2_publish_subscribe_header_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_publish_subscribe_header_drop(handle::iox2_publish_subscribe_header_h)::Cvoid
 end
 
 """
@@ -11049,7 +11049,7 @@ void iox2_publish_subscribe_header_publisher_id(iox2_publish_subscribe_header_h_
 ```
 """
 function iox2_publish_subscribe_header_publisher_id(header_handle, id_struct_ptr, id_handle_ptr)
-    @ccall libiceoryx2.iox2_publish_subscribe_header_publisher_id(header_handle::iox2_publish_subscribe_header_h_ref, id_struct_ptr::Ptr{iox2_unique_publisher_id_t}, id_handle_ptr::Ptr{iox2_unique_publisher_id_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_publish_subscribe_header_publisher_id(header_handle::iox2_publish_subscribe_header_h_ref, id_struct_ptr::Ptr{iox2_unique_publisher_id_t}, id_handle_ptr::Ptr{iox2_unique_publisher_id_h})::Cvoid
 end
 
 """
@@ -11071,7 +11071,7 @@ uint64_t iox2_publish_subscribe_header_number_of_elements(iox2_publish_subscribe
 ```
 """
 function iox2_publish_subscribe_header_number_of_elements(header_handle)
-    @ccall libiceoryx2.iox2_publish_subscribe_header_number_of_elements(header_handle::iox2_publish_subscribe_header_h_ref)::UInt64
+    @ccall libiceoryx2_ffi_c.iox2_publish_subscribe_header_number_of_elements(header_handle::iox2_publish_subscribe_header_h_ref)::UInt64
 end
 
 """
@@ -11097,7 +11097,7 @@ const char *iox2_send_error_string(enum iox2_send_error_e error);
 ```
 """
 function iox2_send_error_string(error)
-    @ccall libiceoryx2.iox2_send_error_string(error::iox2_send_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_send_error_string(error::iox2_send_error_e)::Cstring
 end
 
 """
@@ -11123,7 +11123,7 @@ const char *iox2_loan_error_string(enum iox2_loan_error_e error);
 ```
 """
 function iox2_loan_error_string(error)
-    @ccall libiceoryx2.iox2_loan_error_string(error::iox2_loan_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_loan_error_string(error::iox2_loan_error_e)::Cstring
 end
 
 """
@@ -11147,7 +11147,7 @@ enum iox2_unable_to_deliver_strategy_e iox2_publisher_unable_to_deliver_strategy
 ```
 """
 function iox2_publisher_unable_to_deliver_strategy(publisher_handle)
-    @ccall libiceoryx2.iox2_publisher_unable_to_deliver_strategy(publisher_handle::iox2_publisher_h_ref)::iox2_unable_to_deliver_strategy_e
+    @ccall libiceoryx2_ffi_c.iox2_publisher_unable_to_deliver_strategy(publisher_handle::iox2_publisher_h_ref)::iox2_unable_to_deliver_strategy_e
 end
 
 """
@@ -11171,7 +11171,7 @@ c_size_t iox2_publisher_initial_max_slice_len(iox2_publisher_h_ref publisher_han
 ```
 """
 function iox2_publisher_initial_max_slice_len(publisher_handle)
-    @ccall libiceoryx2.iox2_publisher_initial_max_slice_len(publisher_handle::iox2_publisher_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_publisher_initial_max_slice_len(publisher_handle::iox2_publisher_h_ref)::c_size_t
 end
 
 """
@@ -11193,7 +11193,7 @@ void iox2_publisher_id(iox2_publisher_h_ref publisher_handle, struct iox2_unique
 ```
 """
 function iox2_publisher_id(publisher_handle, id_struct_ptr, id_handle_ptr)
-    @ccall libiceoryx2.iox2_publisher_id(publisher_handle::iox2_publisher_h_ref, id_struct_ptr::Ptr{iox2_unique_publisher_id_t}, id_handle_ptr::Ptr{iox2_unique_publisher_id_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_publisher_id(publisher_handle::iox2_publisher_h_ref, id_struct_ptr::Ptr{iox2_unique_publisher_id_t}, id_handle_ptr::Ptr{iox2_unique_publisher_id_h})::Cvoid
 end
 
 """
@@ -11219,7 +11219,7 @@ int iox2_publisher_send_slice_copy(iox2_publisher_h_ref publisher_handle, const 
 ```
 """
 function iox2_publisher_send_slice_copy(publisher_handle, data_ptr, size_of_element, number_of_elements, number_of_recipients)
-    @ccall libiceoryx2.iox2_publisher_send_slice_copy(publisher_handle::iox2_publisher_h_ref, data_ptr::Ptr{Cvoid}, size_of_element::Csize_t, number_of_elements::Csize_t, number_of_recipients::Ptr{Csize_t})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_publisher_send_slice_copy(publisher_handle::iox2_publisher_h_ref, data_ptr::Ptr{Cvoid}, size_of_element::Csize_t, number_of_elements::Csize_t, number_of_recipients::Ptr{Csize_t})::Cint
 end
 
 """
@@ -11243,7 +11243,7 @@ int iox2_publisher_send_copy(iox2_publisher_h_ref publisher_handle, const void *
 ```
 """
 function iox2_publisher_send_copy(publisher_handle, data_ptr, data_len, number_of_recipients)
-    @ccall libiceoryx2.iox2_publisher_send_copy(publisher_handle::iox2_publisher_h_ref, data_ptr::Ptr{Cvoid}, data_len::Csize_t, number_of_recipients::Ptr{Csize_t})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_publisher_send_copy(publisher_handle::iox2_publisher_h_ref, data_ptr::Ptr{Cvoid}, data_len::Csize_t, number_of_recipients::Ptr{Csize_t})::Cint
 end
 
 """
@@ -11267,7 +11267,7 @@ int iox2_publisher_loan_slice_uninit(iox2_publisher_h_ref publisher_handle, stru
 ```
 """
 function iox2_publisher_loan_slice_uninit(publisher_handle, sample_struct_ptr, sample_handle_ptr, number_of_elements)
-    @ccall libiceoryx2.iox2_publisher_loan_slice_uninit(publisher_handle::iox2_publisher_h_ref, sample_struct_ptr::Ptr{iox2_sample_mut_t}, sample_handle_ptr::Ptr{iox2_sample_mut_h}, number_of_elements::Csize_t)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_publisher_loan_slice_uninit(publisher_handle::iox2_publisher_h_ref, sample_struct_ptr::Ptr{iox2_sample_mut_t}, sample_handle_ptr::Ptr{iox2_sample_mut_h}, number_of_elements::Csize_t)::Cint
 end
 
 """
@@ -11289,7 +11289,7 @@ int iox2_publisher_update_connections(iox2_publisher_h_ref publisher_handle);
 ```
 """
 function iox2_publisher_update_connections(publisher_handle)
-    @ccall libiceoryx2.iox2_publisher_update_connections(publisher_handle::iox2_publisher_h_ref)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_publisher_update_connections(publisher_handle::iox2_publisher_h_ref)::Cint
 end
 
 """
@@ -11311,7 +11311,7 @@ void iox2_publisher_drop(iox2_publisher_h publisher_handle);
 ```
 """
 function iox2_publisher_drop(publisher_handle)
-    @ccall libiceoryx2.iox2_publisher_drop(publisher_handle::iox2_publisher_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_publisher_drop(publisher_handle::iox2_publisher_h)::Cvoid
 end
 
 """
@@ -11329,7 +11329,7 @@ void iox2_publisher_details_publisher_id(iox2_publisher_details_ptr handle, stru
 ```
 """
 function iox2_publisher_details_publisher_id(handle, id_struct_ptr, id_handle_ptr)
-    @ccall libiceoryx2.iox2_publisher_details_publisher_id(handle::iox2_publisher_details_ptr, id_struct_ptr::Ptr{iox2_unique_publisher_id_t}, id_handle_ptr::Ptr{iox2_unique_publisher_id_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_publisher_details_publisher_id(handle::iox2_publisher_details_ptr, id_struct_ptr::Ptr{iox2_unique_publisher_id_t}, id_handle_ptr::Ptr{iox2_unique_publisher_id_h})::Cvoid
 end
 
 """
@@ -11347,7 +11347,7 @@ iox2_node_id_ptr iox2_publisher_details_node_id(iox2_publisher_details_ptr handl
 ```
 """
 function iox2_publisher_details_node_id(handle)
-    @ccall libiceoryx2.iox2_publisher_details_node_id(handle::iox2_publisher_details_ptr)::iox2_node_id_ptr
+    @ccall libiceoryx2_ffi_c.iox2_publisher_details_node_id(handle::iox2_publisher_details_ptr)::iox2_node_id_ptr
 end
 
 """
@@ -11365,7 +11365,7 @@ c_size_t iox2_publisher_details_number_of_samples(iox2_publisher_details_ptr han
 ```
 """
 function iox2_publisher_details_number_of_samples(handle)
-    @ccall libiceoryx2.iox2_publisher_details_number_of_samples(handle::iox2_publisher_details_ptr)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_publisher_details_number_of_samples(handle::iox2_publisher_details_ptr)::c_size_t
 end
 
 """
@@ -11383,7 +11383,7 @@ c_size_t iox2_publisher_details_max_slice_len(iox2_publisher_details_ptr handle)
 ```
 """
 function iox2_publisher_details_max_slice_len(handle)
-    @ccall libiceoryx2.iox2_publisher_details_max_slice_len(handle::iox2_publisher_details_ptr)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_publisher_details_max_slice_len(handle::iox2_publisher_details_ptr)::c_size_t
 end
 
 """
@@ -11395,7 +11395,7 @@ enum iox2_semantic_string_error_e __iox2_internal_semantic_string_error_stub(voi
 ```
 """
 function __iox2_internal_semantic_string_error_stub()
-    @ccall libiceoryx2.__iox2_internal_semantic_string_error_stub()::iox2_semantic_string_error_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_semantic_string_error_stub()::iox2_semantic_string_error_e
 end
 
 """
@@ -11407,7 +11407,7 @@ enum iox2_node_creation_failure_e __iox2_internal_node_creation_failure_stub(voi
 ```
 """
 function __iox2_internal_node_creation_failure_stub()
-    @ccall libiceoryx2.__iox2_internal_node_creation_failure_stub()::iox2_node_creation_failure_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_node_creation_failure_stub()::iox2_node_creation_failure_e
 end
 
 """
@@ -11419,7 +11419,7 @@ enum iox2_node_list_failure_e __iox2_internal_node_list_failure_stub(void);
 ```
 """
 function __iox2_internal_node_list_failure_stub()
-    @ccall libiceoryx2.__iox2_internal_node_list_failure_stub()::iox2_node_list_failure_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_node_list_failure_stub()::iox2_node_list_failure_e
 end
 
 """
@@ -11431,7 +11431,7 @@ enum iox2_node_wait_failure_e __iox2_internal_node_wait_failure_stub(void);
 ```
 """
 function __iox2_internal_node_wait_failure_stub()
-    @ccall libiceoryx2.__iox2_internal_node_wait_failure_stub()::iox2_node_wait_failure_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_node_wait_failure_stub()::iox2_node_wait_failure_e
 end
 
 """
@@ -11443,7 +11443,7 @@ enum iox2_service_details_error_e __iox2_internal_service_details_error_stub(voi
 ```
 """
 function __iox2_internal_service_details_error_stub()
-    @ccall libiceoryx2.__iox2_internal_service_details_error_stub()::iox2_service_details_error_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_service_details_error_stub()::iox2_service_details_error_e
 end
 
 """
@@ -11455,7 +11455,7 @@ enum iox2_event_open_or_create_error_e __iox2_internal_event_open_or_create_erro
 ```
 """
 function __iox2_internal_event_open_or_create_error_stub()
-    @ccall libiceoryx2.__iox2_internal_event_open_or_create_error_stub()::iox2_event_open_or_create_error_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_event_open_or_create_error_stub()::iox2_event_open_or_create_error_e
 end
 
 """
@@ -11467,7 +11467,7 @@ enum iox2_pub_sub_open_or_create_error_e __iox2_internal_pub_sub_open_or_create_
 ```
 """
 function __iox2_internal_pub_sub_open_or_create_error_stub()
-    @ccall libiceoryx2.__iox2_internal_pub_sub_open_or_create_error_stub()::iox2_pub_sub_open_or_create_error_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_pub_sub_open_or_create_error_stub()::iox2_pub_sub_open_or_create_error_e
 end
 
 """
@@ -11479,7 +11479,7 @@ enum iox2_notifier_create_error_e __iox2_internal_notifier_create_error_stub(voi
 ```
 """
 function __iox2_internal_notifier_create_error_stub()
-    @ccall libiceoryx2.__iox2_internal_notifier_create_error_stub()::iox2_notifier_create_error_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_notifier_create_error_stub()::iox2_notifier_create_error_e
 end
 
 """
@@ -11491,7 +11491,7 @@ enum iox2_type_detail_error_e __iox2_internal_type_detail_error_stub(void);
 ```
 """
 function __iox2_internal_type_detail_error_stub()
-    @ccall libiceoryx2.__iox2_internal_type_detail_error_stub()::iox2_type_detail_error_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_type_detail_error_stub()::iox2_type_detail_error_e
 end
 
 """
@@ -11503,7 +11503,7 @@ enum iox2_listener_create_error_e __iox2_internal_listener_create_error_stub(voi
 ```
 """
 function __iox2_internal_listener_create_error_stub()
-    @ccall libiceoryx2.__iox2_internal_listener_create_error_stub()::iox2_listener_create_error_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_listener_create_error_stub()::iox2_listener_create_error_e
 end
 
 """
@@ -11515,7 +11515,7 @@ enum iox2_notifier_notify_error_e __iox2_internal_notifier_notify_error_stub(voi
 ```
 """
 function __iox2_internal_notifier_notify_error_stub()
-    @ccall libiceoryx2.__iox2_internal_notifier_notify_error_stub()::iox2_notifier_notify_error_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_notifier_notify_error_stub()::iox2_notifier_notify_error_e
 end
 
 """
@@ -11527,7 +11527,7 @@ enum iox2_listener_wait_error_e __iox2_internal_listener_wait_error_stub(void);
 ```
 """
 function __iox2_internal_listener_wait_error_stub()
-    @ccall libiceoryx2.__iox2_internal_listener_wait_error_stub()::iox2_listener_wait_error_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_listener_wait_error_stub()::iox2_listener_wait_error_e
 end
 
 """
@@ -11539,7 +11539,7 @@ enum iox2_publisher_create_error_e __iox2_internal_publisher_create_error_stub(v
 ```
 """
 function __iox2_internal_publisher_create_error_stub()
-    @ccall libiceoryx2.__iox2_internal_publisher_create_error_stub()::iox2_publisher_create_error_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_publisher_create_error_stub()::iox2_publisher_create_error_e
 end
 
 """
@@ -11551,7 +11551,7 @@ enum iox2_subscriber_create_error_e __iox2_internal_subscriber_create_error_stub
 ```
 """
 function __iox2_internal_subscriber_create_error_stub()
-    @ccall libiceoryx2.__iox2_internal_subscriber_create_error_stub()::iox2_subscriber_create_error_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_subscriber_create_error_stub()::iox2_subscriber_create_error_e
 end
 
 """
@@ -11563,7 +11563,7 @@ enum iox2_send_error_e __iox2_internal_send_error_stub(void);
 ```
 """
 function __iox2_internal_send_error_stub()
-    @ccall libiceoryx2.__iox2_internal_send_error_stub()::iox2_send_error_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_send_error_stub()::iox2_send_error_e
 end
 
 """
@@ -11575,7 +11575,7 @@ enum iox2_loan_error_e __iox2_internal_loan_error_stub(void);
 ```
 """
 function __iox2_internal_loan_error_stub()
-    @ccall libiceoryx2.__iox2_internal_loan_error_stub()::iox2_loan_error_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_loan_error_stub()::iox2_loan_error_e
 end
 
 """
@@ -11587,7 +11587,7 @@ enum iox2_receive_error_e __iox2_internal_receive_error_stub(void);
 ```
 """
 function __iox2_internal_receive_error_stub()
-    @ccall libiceoryx2.__iox2_internal_receive_error_stub()::iox2_receive_error_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_receive_error_stub()::iox2_receive_error_e
 end
 
 """
@@ -11599,7 +11599,7 @@ enum iox2_service_list_error_e __iox2_internal_service_list_error_stub(void);
 ```
 """
 function __iox2_internal_service_list_error_stub()
-    @ccall libiceoryx2.__iox2_internal_service_list_error_stub()::iox2_service_list_error_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_service_list_error_stub()::iox2_service_list_error_e
 end
 
 """
@@ -11611,7 +11611,7 @@ enum iox2_connection_failure_e __iox2_internal_connection_failure_stub(void);
 ```
 """
 function __iox2_internal_connection_failure_stub()
-    @ccall libiceoryx2.__iox2_internal_connection_failure_stub()::iox2_connection_failure_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_connection_failure_stub()::iox2_connection_failure_e
 end
 
 """
@@ -11623,7 +11623,7 @@ enum iox2_config_creation_error_e __iox2_internal_config_creation_error_stub(voi
 ```
 """
 function __iox2_internal_config_creation_error_stub()
-    @ccall libiceoryx2.__iox2_internal_config_creation_error_stub()::iox2_config_creation_error_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_config_creation_error_stub()::iox2_config_creation_error_e
 end
 
 """
@@ -11635,7 +11635,7 @@ enum iox2_waitset_create_error_e __iox2_internal_waitset_create_error_stub(void)
 ```
 """
 function __iox2_internal_waitset_create_error_stub()
-    @ccall libiceoryx2.__iox2_internal_waitset_create_error_stub()::iox2_waitset_create_error_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_waitset_create_error_stub()::iox2_waitset_create_error_e
 end
 
 """
@@ -11647,7 +11647,7 @@ enum iox2_waitset_run_error_e __iox2_internal_waitset_run_error_stub(void);
 ```
 """
 function __iox2_internal_waitset_run_error_stub()
-    @ccall libiceoryx2.__iox2_internal_waitset_run_error_stub()::iox2_waitset_run_error_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_waitset_run_error_stub()::iox2_waitset_run_error_e
 end
 
 """
@@ -11659,7 +11659,7 @@ enum iox2_waitset_run_result_e __iox2_internal_waitset_run_result_stub(void);
 ```
 """
 function __iox2_internal_waitset_run_result_stub()
-    @ccall libiceoryx2.__iox2_internal_waitset_run_result_stub()::iox2_waitset_run_result_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_waitset_run_result_stub()::iox2_waitset_run_result_e
 end
 
 """
@@ -11671,7 +11671,7 @@ enum iox2_waitset_attachment_error_e __iox2_internal_waitset_attachment_error_st
 ```
 """
 function __iox2_internal_waitset_attachment_error_stub()
-    @ccall libiceoryx2.__iox2_internal_waitset_attachment_error_stub()::iox2_waitset_attachment_error_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_waitset_attachment_error_stub()::iox2_waitset_attachment_error_e
 end
 
 """
@@ -11683,7 +11683,7 @@ enum iox2_node_cleanup_failure_e __iox2_internal_node_cleanup_failure_stub(void)
 ```
 """
 function __iox2_internal_node_cleanup_failure_stub()
-    @ccall libiceoryx2.__iox2_internal_node_cleanup_failure_stub()::iox2_node_cleanup_failure_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_node_cleanup_failure_stub()::iox2_node_cleanup_failure_e
 end
 
 """
@@ -11695,7 +11695,7 @@ enum iox2_request_response_open_or_create_error_e __iox2_internal_request_respon
 ```
 """
 function __iox2_internal_request_response_open_or_create_error_stub()
-    @ccall libiceoryx2.__iox2_internal_request_response_open_or_create_error_stub()::iox2_request_response_open_or_create_error_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_request_response_open_or_create_error_stub()::iox2_request_response_open_or_create_error_e
 end
 
 """
@@ -11707,7 +11707,7 @@ enum iox2_client_create_error_e __iox2_internal_client_create_error_stub(void);
 ```
 """
 function __iox2_internal_client_create_error_stub()
-    @ccall libiceoryx2.__iox2_internal_client_create_error_stub()::iox2_client_create_error_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_client_create_error_stub()::iox2_client_create_error_e
 end
 
 """
@@ -11719,7 +11719,7 @@ enum iox2_server_create_error_e __iox2_internal_server_create_error_stub(void);
 ```
 """
 function __iox2_internal_server_create_error_stub()
-    @ccall libiceoryx2.__iox2_internal_server_create_error_stub()::iox2_server_create_error_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_server_create_error_stub()::iox2_server_create_error_e
 end
 
 """
@@ -11731,7 +11731,7 @@ enum iox2_request_send_error_e __iox2_internal_request_send_error_stub(void);
 ```
 """
 function __iox2_internal_request_send_error_stub()
-    @ccall libiceoryx2.__iox2_internal_request_send_error_stub()::iox2_request_send_error_e
+    @ccall libiceoryx2_ffi_c.__iox2_internal_request_send_error_stub()::iox2_request_send_error_e
 end
 
 """
@@ -11757,7 +11757,7 @@ const char *iox2_entry_handle_error_string(enum iox2_entry_handle_error_e error)
 ```
 """
 function iox2_entry_handle_error_string(error)
-    @ccall libiceoryx2.iox2_entry_handle_error_string(error::iox2_entry_handle_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_entry_handle_error_string(error::iox2_entry_handle_error_e)::Cstring
 end
 
 """
@@ -11779,7 +11779,7 @@ void iox2_reader_id(iox2_reader_h_ref reader_handle, struct iox2_unique_reader_i
 ```
 """
 function iox2_reader_id(reader_handle, id_struct_ptr, id_handle_ptr)
-    @ccall libiceoryx2.iox2_reader_id(reader_handle::iox2_reader_h_ref, id_struct_ptr::Ptr{iox2_unique_reader_id_t}, id_handle_ptr::Ptr{iox2_unique_reader_id_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_reader_id(reader_handle::iox2_reader_h_ref, id_struct_ptr::Ptr{iox2_unique_reader_id_t}, id_handle_ptr::Ptr{iox2_unique_reader_id_h})::Cvoid
 end
 
 """
@@ -11801,7 +11801,7 @@ int iox2_reader_entry(iox2_reader_h_ref reader_handle, struct iox2_entry_handle_
 ```
 """
 function iox2_reader_entry(reader_handle, entry_handle_struct_ptr, entry_handle_handle_ptr, key, value_type_name_str, value_type_name_len, value_size, value_alignment)
-    @ccall libiceoryx2.iox2_reader_entry(reader_handle::iox2_reader_h_ref, entry_handle_struct_ptr::Ptr{iox2_entry_handle_t}, entry_handle_handle_ptr::Ptr{iox2_entry_handle_h}, key::Ptr{Cvoid}, value_type_name_str::Cstring, value_type_name_len::c_size_t, value_size::c_size_t, value_alignment::c_size_t)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_reader_entry(reader_handle::iox2_reader_h_ref, entry_handle_struct_ptr::Ptr{iox2_entry_handle_t}, entry_handle_handle_ptr::Ptr{iox2_entry_handle_h}, key::Ptr{Cvoid}, value_type_name_str::Cstring, value_type_name_len::c_size_t, value_size::c_size_t, value_alignment::c_size_t)::Cint
 end
 
 """
@@ -11823,7 +11823,7 @@ void iox2_reader_drop(iox2_reader_h reader_handle);
 ```
 """
 function iox2_reader_drop(reader_handle)
-    @ccall libiceoryx2.iox2_reader_drop(reader_handle::iox2_reader_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_reader_drop(reader_handle::iox2_reader_h)::Cvoid
 end
 
 """
@@ -11841,7 +11841,7 @@ void iox2_reader_details_reader_id(iox2_reader_details_ptr handle, struct iox2_u
 ```
 """
 function iox2_reader_details_reader_id(handle, id_struct_ptr, id_handle_ptr)
-    @ccall libiceoryx2.iox2_reader_details_reader_id(handle::iox2_reader_details_ptr, id_struct_ptr::Ptr{iox2_unique_reader_id_t}, id_handle_ptr::Ptr{iox2_unique_reader_id_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_reader_details_reader_id(handle::iox2_reader_details_ptr, id_struct_ptr::Ptr{iox2_unique_reader_id_t}, id_handle_ptr::Ptr{iox2_unique_reader_id_h})::Cvoid
 end
 
 """
@@ -11859,7 +11859,7 @@ iox2_node_id_ptr iox2_reader_details_node_id(iox2_reader_details_ptr handle);
 ```
 """
 function iox2_reader_details_node_id(handle)
-    @ccall libiceoryx2.iox2_reader_details_node_id(handle::iox2_reader_details_ptr)::iox2_node_id_ptr
+    @ccall libiceoryx2_ffi_c.iox2_reader_details_node_id(handle::iox2_reader_details_ptr)::iox2_node_id_ptr
 end
 
 """
@@ -11877,7 +11877,7 @@ void iox2_request_header_drop(iox2_request_header_h handle);
 ```
 """
 function iox2_request_header_drop(handle)
-    @ccall libiceoryx2.iox2_request_header_drop(handle::iox2_request_header_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_request_header_drop(handle::iox2_request_header_h)::Cvoid
 end
 
 """
@@ -11899,7 +11899,7 @@ void iox2_request_header_client_id(iox2_request_header_h_ref header_handle, stru
 ```
 """
 function iox2_request_header_client_id(header_handle, id_struct_ptr, id_handle_ptr)
-    @ccall libiceoryx2.iox2_request_header_client_id(header_handle::iox2_request_header_h_ref, id_struct_ptr::Ptr{iox2_unique_client_id_t}, id_handle_ptr::Ptr{iox2_unique_client_id_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_request_header_client_id(header_handle::iox2_request_header_h_ref, id_struct_ptr::Ptr{iox2_unique_client_id_t}, id_handle_ptr::Ptr{iox2_unique_client_id_h})::Cvoid
 end
 
 """
@@ -11921,7 +11921,7 @@ uint64_t iox2_request_header_number_of_elements(iox2_request_header_h_ref header
 ```
 """
 function iox2_request_header_number_of_elements(header_handle)
-    @ccall libiceoryx2.iox2_request_header_number_of_elements(header_handle::iox2_request_header_h_ref)::UInt64
+    @ccall libiceoryx2_ffi_c.iox2_request_header_number_of_elements(header_handle::iox2_request_header_h_ref)::UInt64
 end
 
 """
@@ -11947,7 +11947,7 @@ const char *iox2_request_send_error_string(enum iox2_request_send_error_e error)
 ```
 """
 function iox2_request_send_error_string(error)
-    @ccall libiceoryx2.iox2_request_send_error_string(error::iox2_request_send_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_request_send_error_string(error::iox2_request_send_error_e)::Cstring
 end
 
 """
@@ -11965,7 +11965,7 @@ void iox2_request_mut_user_header(iox2_request_mut_h_ref handle, const void **he
 ```
 """
 function iox2_request_mut_user_header(handle, header_ptr)
-    @ccall libiceoryx2.iox2_request_mut_user_header(handle::iox2_request_mut_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_request_mut_user_header(handle::iox2_request_mut_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
 end
 
 """
@@ -11983,7 +11983,7 @@ void iox2_request_mut_header(iox2_request_mut_h_ref handle, struct iox2_request_
 ```
 """
 function iox2_request_mut_header(handle, header_struct_ptr, header_handle_ptr)
-    @ccall libiceoryx2.iox2_request_mut_header(handle::iox2_request_mut_h_ref, header_struct_ptr::Ptr{iox2_request_header_t}, header_handle_ptr::Ptr{iox2_request_header_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_request_mut_header(handle::iox2_request_mut_h_ref, header_struct_ptr::Ptr{iox2_request_header_t}, header_handle_ptr::Ptr{iox2_request_header_h})::Cvoid
 end
 
 """
@@ -12001,7 +12001,7 @@ void iox2_request_mut_user_header_mut(iox2_request_mut_h_ref handle, void **head
 ```
 """
 function iox2_request_mut_user_header_mut(handle, header_ptr)
-    @ccall libiceoryx2.iox2_request_mut_user_header_mut(handle::iox2_request_mut_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_request_mut_user_header_mut(handle::iox2_request_mut_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
 end
 
 """
@@ -12019,7 +12019,7 @@ void iox2_request_mut_payload_mut(iox2_request_mut_h_ref handle, void **payload_
 ```
 """
 function iox2_request_mut_payload_mut(handle, payload_ptr, number_of_elements)
-    @ccall libiceoryx2.iox2_request_mut_payload_mut(handle::iox2_request_mut_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_request_mut_payload_mut(handle::iox2_request_mut_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
 end
 
 """
@@ -12037,7 +12037,7 @@ void iox2_request_mut_payload(iox2_request_mut_h_ref handle, const void **payloa
 ```
 """
 function iox2_request_mut_payload(handle, payload_ptr, number_of_elements)
-    @ccall libiceoryx2.iox2_request_mut_payload(handle::iox2_request_mut_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_request_mut_payload(handle::iox2_request_mut_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
 end
 
 """
@@ -12055,7 +12055,7 @@ int iox2_request_mut_send(iox2_request_mut_h handle, struct iox2_pending_respons
 ```
 """
 function iox2_request_mut_send(handle, pending_response_struct_ptr, pending_response_handle_ptr)
-    @ccall libiceoryx2.iox2_request_mut_send(handle::iox2_request_mut_h, pending_response_struct_ptr::Ptr{iox2_pending_response_t}, pending_response_handle_ptr::Ptr{iox2_pending_response_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_request_mut_send(handle::iox2_request_mut_h, pending_response_struct_ptr::Ptr{iox2_pending_response_t}, pending_response_handle_ptr::Ptr{iox2_pending_response_h})::Cint
 end
 
 """
@@ -12077,7 +12077,7 @@ void iox2_request_mut_drop(iox2_request_mut_h handle);
 ```
 """
 function iox2_request_mut_drop(handle)
-    @ccall libiceoryx2.iox2_request_mut_drop(handle::iox2_request_mut_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_request_mut_drop(handle::iox2_request_mut_h)::Cvoid
 end
 
 """
@@ -12095,7 +12095,7 @@ void iox2_response_header(iox2_response_h_ref handle, struct iox2_response_heade
 ```
 """
 function iox2_response_header(handle, header_struct_ptr, header_handle_ptr)
-    @ccall libiceoryx2.iox2_response_header(handle::iox2_response_h_ref, header_struct_ptr::Ptr{iox2_response_header_t}, header_handle_ptr::Ptr{iox2_response_header_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_response_header(handle::iox2_response_h_ref, header_struct_ptr::Ptr{iox2_response_header_t}, header_handle_ptr::Ptr{iox2_response_header_h})::Cvoid
 end
 
 """
@@ -12113,7 +12113,7 @@ void iox2_response_user_header(iox2_response_h_ref handle, const void **header_p
 ```
 """
 function iox2_response_user_header(handle, header_ptr)
-    @ccall libiceoryx2.iox2_response_user_header(handle::iox2_response_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_response_user_header(handle::iox2_response_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
 end
 
 """
@@ -12131,7 +12131,7 @@ void iox2_response_payload(iox2_response_h_ref handle, const void **payload_ptr,
 ```
 """
 function iox2_response_payload(handle, payload_ptr, number_of_elements)
-    @ccall libiceoryx2.iox2_response_payload(handle::iox2_response_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_response_payload(handle::iox2_response_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
 end
 
 """
@@ -12149,7 +12149,7 @@ void iox2_response_drop(iox2_response_h handle);
 ```
 """
 function iox2_response_drop(handle)
-    @ccall libiceoryx2.iox2_response_drop(handle::iox2_response_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_response_drop(handle::iox2_response_h)::Cvoid
 end
 
 """
@@ -12167,7 +12167,7 @@ void iox2_response_header_drop(iox2_response_header_h handle);
 ```
 """
 function iox2_response_header_drop(handle)
-    @ccall libiceoryx2.iox2_response_header_drop(handle::iox2_response_header_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_response_header_drop(handle::iox2_response_header_h)::Cvoid
 end
 
 """
@@ -12189,7 +12189,7 @@ void iox2_response_header_server_id(iox2_response_header_h_ref header_handle, st
 ```
 """
 function iox2_response_header_server_id(header_handle, id_struct_ptr, id_handle_ptr)
-    @ccall libiceoryx2.iox2_response_header_server_id(header_handle::iox2_response_header_h_ref, id_struct_ptr::Ptr{iox2_unique_server_id_t}, id_handle_ptr::Ptr{iox2_unique_server_id_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_response_header_server_id(header_handle::iox2_response_header_h_ref, id_struct_ptr::Ptr{iox2_unique_server_id_t}, id_handle_ptr::Ptr{iox2_unique_server_id_h})::Cvoid
 end
 
 """
@@ -12211,7 +12211,7 @@ uint64_t iox2_response_header_number_of_elements(iox2_response_header_h_ref head
 ```
 """
 function iox2_response_header_number_of_elements(header_handle)
-    @ccall libiceoryx2.iox2_response_header_number_of_elements(header_handle::iox2_response_header_h_ref)::UInt64
+    @ccall libiceoryx2_ffi_c.iox2_response_header_number_of_elements(header_handle::iox2_response_header_h_ref)::UInt64
 end
 
 """
@@ -12229,7 +12229,7 @@ void iox2_response_mut_header(iox2_response_mut_h_ref handle, struct iox2_respon
 ```
 """
 function iox2_response_mut_header(handle, header_struct_ptr, header_handle_ptr)
-    @ccall libiceoryx2.iox2_response_mut_header(handle::iox2_response_mut_h_ref, header_struct_ptr::Ptr{iox2_response_header_t}, header_handle_ptr::Ptr{iox2_response_header_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_response_mut_header(handle::iox2_response_mut_h_ref, header_struct_ptr::Ptr{iox2_response_header_t}, header_handle_ptr::Ptr{iox2_response_header_h})::Cvoid
 end
 
 """
@@ -12247,7 +12247,7 @@ void iox2_response_mut_user_header(iox2_response_mut_h_ref handle, const void **
 ```
 """
 function iox2_response_mut_user_header(handle, header_ptr)
-    @ccall libiceoryx2.iox2_response_mut_user_header(handle::iox2_response_mut_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_response_mut_user_header(handle::iox2_response_mut_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
 end
 
 """
@@ -12265,7 +12265,7 @@ void iox2_response_mut_user_header_mut(iox2_response_mut_h_ref handle, void **he
 ```
 """
 function iox2_response_mut_user_header_mut(handle, header_ptr)
-    @ccall libiceoryx2.iox2_response_mut_user_header_mut(handle::iox2_response_mut_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_response_mut_user_header_mut(handle::iox2_response_mut_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
 end
 
 """
@@ -12283,7 +12283,7 @@ void iox2_response_mut_payload(iox2_response_mut_h_ref handle, const void **payl
 ```
 """
 function iox2_response_mut_payload(handle, payload_ptr, number_of_elements)
-    @ccall libiceoryx2.iox2_response_mut_payload(handle::iox2_response_mut_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_response_mut_payload(handle::iox2_response_mut_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
 end
 
 """
@@ -12301,7 +12301,7 @@ void iox2_response_mut_payload_mut(iox2_response_mut_h_ref handle, void **payloa
 ```
 """
 function iox2_response_mut_payload_mut(handle, payload_ptr, number_of_elements)
-    @ccall libiceoryx2.iox2_response_mut_payload_mut(handle::iox2_response_mut_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_response_mut_payload_mut(handle::iox2_response_mut_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
 end
 
 """
@@ -12319,7 +12319,7 @@ int iox2_response_mut_send(iox2_response_mut_h response_handle);
 ```
 """
 function iox2_response_mut_send(response_handle)
-    @ccall libiceoryx2.iox2_response_mut_send(response_handle::iox2_response_mut_h)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_response_mut_send(response_handle::iox2_response_mut_h)::Cint
 end
 
 """
@@ -12337,7 +12337,7 @@ void iox2_response_mut_drop(iox2_response_mut_h response_handle);
 ```
 """
 function iox2_response_mut_drop(response_handle)
-    @ccall libiceoryx2.iox2_response_mut_drop(response_handle::iox2_response_mut_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_response_mut_drop(response_handle::iox2_response_mut_h)::Cvoid
 end
 
 """
@@ -12355,7 +12355,7 @@ void iox2_sample_header(iox2_sample_h_ref handle, struct iox2_publish_subscribe_
 ```
 """
 function iox2_sample_header(handle, header_struct_ptr, header_handle_ptr)
-    @ccall libiceoryx2.iox2_sample_header(handle::iox2_sample_h_ref, header_struct_ptr::Ptr{iox2_publish_subscribe_header_t}, header_handle_ptr::Ptr{iox2_publish_subscribe_header_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_sample_header(handle::iox2_sample_h_ref, header_struct_ptr::Ptr{iox2_publish_subscribe_header_t}, header_handle_ptr::Ptr{iox2_publish_subscribe_header_h})::Cvoid
 end
 
 """
@@ -12373,7 +12373,7 @@ void iox2_sample_user_header(iox2_sample_h_ref handle, const void **header_ptr);
 ```
 """
 function iox2_sample_user_header(handle, header_ptr)
-    @ccall libiceoryx2.iox2_sample_user_header(handle::iox2_sample_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_sample_user_header(handle::iox2_sample_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
 end
 
 """
@@ -12391,7 +12391,7 @@ void iox2_sample_payload(iox2_sample_h_ref handle, const void **payload_ptr, c_s
 ```
 """
 function iox2_sample_payload(handle, payload_ptr, number_of_elements)
-    @ccall libiceoryx2.iox2_sample_payload(handle::iox2_sample_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_sample_payload(handle::iox2_sample_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
 end
 
 """
@@ -12413,7 +12413,7 @@ void iox2_sample_drop(iox2_sample_h sample_handle);
 ```
 """
 function iox2_sample_drop(sample_handle)
-    @ccall libiceoryx2.iox2_sample_drop(sample_handle::iox2_sample_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_sample_drop(sample_handle::iox2_sample_h)::Cvoid
 end
 
 """
@@ -12431,7 +12431,7 @@ void iox2_sample_mut_user_header(iox2_sample_mut_h_ref handle, const void **head
 ```
 """
 function iox2_sample_mut_user_header(handle, header_ptr)
-    @ccall libiceoryx2.iox2_sample_mut_user_header(handle::iox2_sample_mut_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_sample_mut_user_header(handle::iox2_sample_mut_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
 end
 
 """
@@ -12449,7 +12449,7 @@ void iox2_sample_mut_header(iox2_sample_mut_h_ref handle, struct iox2_publish_su
 ```
 """
 function iox2_sample_mut_header(handle, header_struct_ptr, header_handle_ptr)
-    @ccall libiceoryx2.iox2_sample_mut_header(handle::iox2_sample_mut_h_ref, header_struct_ptr::Ptr{iox2_publish_subscribe_header_t}, header_handle_ptr::Ptr{iox2_publish_subscribe_header_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_sample_mut_header(handle::iox2_sample_mut_h_ref, header_struct_ptr::Ptr{iox2_publish_subscribe_header_t}, header_handle_ptr::Ptr{iox2_publish_subscribe_header_h})::Cvoid
 end
 
 """
@@ -12467,7 +12467,7 @@ void iox2_sample_mut_user_header_mut(iox2_sample_mut_h_ref handle, void **header
 ```
 """
 function iox2_sample_mut_user_header_mut(handle, header_ptr)
-    @ccall libiceoryx2.iox2_sample_mut_user_header_mut(handle::iox2_sample_mut_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_sample_mut_user_header_mut(handle::iox2_sample_mut_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
 end
 
 """
@@ -12485,7 +12485,7 @@ void iox2_sample_mut_payload_mut(iox2_sample_mut_h_ref handle, void **payload_pt
 ```
 """
 function iox2_sample_mut_payload_mut(handle, payload_ptr, number_of_elements)
-    @ccall libiceoryx2.iox2_sample_mut_payload_mut(handle::iox2_sample_mut_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_sample_mut_payload_mut(handle::iox2_sample_mut_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
 end
 
 """
@@ -12503,7 +12503,7 @@ void iox2_sample_mut_payload(iox2_sample_mut_h_ref handle, const void **payload_
 ```
 """
 function iox2_sample_mut_payload(handle, payload_ptr, number_of_elements)
-    @ccall libiceoryx2.iox2_sample_mut_payload(handle::iox2_sample_mut_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_sample_mut_payload(handle::iox2_sample_mut_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
 end
 
 """
@@ -12521,7 +12521,7 @@ int iox2_sample_mut_send(iox2_sample_mut_h sample_handle, c_size_t *number_of_re
 ```
 """
 function iox2_sample_mut_send(sample_handle, number_of_recipients)
-    @ccall libiceoryx2.iox2_sample_mut_send(sample_handle::iox2_sample_mut_h, number_of_recipients::Ptr{c_size_t})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_sample_mut_send(sample_handle::iox2_sample_mut_h, number_of_recipients::Ptr{c_size_t})::Cint
 end
 
 """
@@ -12543,7 +12543,7 @@ void iox2_sample_mut_drop(iox2_sample_mut_h sample_handle);
 ```
 """
 function iox2_sample_mut_drop(sample_handle)
-    @ccall libiceoryx2.iox2_sample_mut_drop(sample_handle::iox2_sample_mut_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_sample_mut_drop(sample_handle::iox2_sample_mut_h)::Cvoid
 end
 
 """
@@ -12565,7 +12565,7 @@ void iox2_server_id(iox2_server_h_ref handle, struct iox2_unique_server_id_t *id
 ```
 """
 function iox2_server_id(handle, id_struct_ptr, id_handle_ptr)
-    @ccall libiceoryx2.iox2_server_id(handle::iox2_server_h_ref, id_struct_ptr::Ptr{iox2_unique_server_id_t}, id_handle_ptr::Ptr{iox2_unique_server_id_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_server_id(handle::iox2_server_h_ref, id_struct_ptr::Ptr{iox2_unique_server_id_t}, id_handle_ptr::Ptr{iox2_unique_server_id_h})::Cvoid
 end
 
 """
@@ -12589,7 +12589,7 @@ int iox2_server_has_requests(iox2_server_h_ref handle, bool *result_ptr);
 ```
 """
 function iox2_server_has_requests(handle, result_ptr)
-    @ccall libiceoryx2.iox2_server_has_requests(handle::iox2_server_h_ref, result_ptr::Ptr{Bool})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_server_has_requests(handle::iox2_server_h_ref, result_ptr::Ptr{Bool})::Cint
 end
 
 """
@@ -12607,7 +12607,7 @@ c_size_t iox2_server_initial_max_slice_len(iox2_server_h_ref handle);
 ```
 """
 function iox2_server_initial_max_slice_len(handle)
-    @ccall libiceoryx2.iox2_server_initial_max_slice_len(handle::iox2_server_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_server_initial_max_slice_len(handle::iox2_server_h_ref)::c_size_t
 end
 
 """
@@ -12631,7 +12631,7 @@ int iox2_server_receive(iox2_server_h_ref server_handle, struct iox2_active_requ
 ```
 """
 function iox2_server_receive(server_handle, active_request_struct_ptr, active_request_handle_ptr)
-    @ccall libiceoryx2.iox2_server_receive(server_handle::iox2_server_h_ref, active_request_struct_ptr::Ptr{iox2_active_request_t}, active_request_handle_ptr::Ptr{iox2_active_request_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_server_receive(server_handle::iox2_server_h_ref, active_request_struct_ptr::Ptr{iox2_active_request_t}, active_request_handle_ptr::Ptr{iox2_active_request_h})::Cint
 end
 
 """
@@ -12653,7 +12653,7 @@ void iox2_server_drop(iox2_server_h handle);
 ```
 """
 function iox2_server_drop(handle)
-    @ccall libiceoryx2.iox2_server_drop(handle::iox2_server_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_server_drop(handle::iox2_server_h)::Cvoid
 end
 
 """
@@ -12671,7 +12671,7 @@ void iox2_server_details_server_id(iox2_server_details_ptr handle, struct iox2_u
 ```
 """
 function iox2_server_details_server_id(handle, id_struct_ptr, id_handle_ptr)
-    @ccall libiceoryx2.iox2_server_details_server_id(handle::iox2_server_details_ptr, id_struct_ptr::Ptr{iox2_unique_server_id_t}, id_handle_ptr::Ptr{iox2_unique_server_id_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_server_details_server_id(handle::iox2_server_details_ptr, id_struct_ptr::Ptr{iox2_unique_server_id_t}, id_handle_ptr::Ptr{iox2_unique_server_id_h})::Cvoid
 end
 
 """
@@ -12689,7 +12689,7 @@ iox2_node_id_ptr iox2_server_details_node_id(iox2_server_details_ptr handle);
 ```
 """
 function iox2_server_details_node_id(handle)
-    @ccall libiceoryx2.iox2_server_details_node_id(handle::iox2_server_details_ptr)::iox2_node_id_ptr
+    @ccall libiceoryx2_ffi_c.iox2_server_details_node_id(handle::iox2_server_details_ptr)::iox2_node_id_ptr
 end
 
 """
@@ -12707,7 +12707,7 @@ c_size_t iox2_server_details_request_buffer_size(iox2_server_details_ptr handle)
 ```
 """
 function iox2_server_details_request_buffer_size(handle)
-    @ccall libiceoryx2.iox2_server_details_request_buffer_size(handle::iox2_server_details_ptr)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_server_details_request_buffer_size(handle::iox2_server_details_ptr)::c_size_t
 end
 
 """
@@ -12725,7 +12725,7 @@ c_size_t iox2_server_details_number_of_responses(iox2_server_details_ptr handle)
 ```
 """
 function iox2_server_details_number_of_responses(handle)
-    @ccall libiceoryx2.iox2_server_details_number_of_responses(handle::iox2_server_details_ptr)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_server_details_number_of_responses(handle::iox2_server_details_ptr)::c_size_t
 end
 
 """
@@ -12743,7 +12743,7 @@ c_size_t iox2_server_details_max_slice_len(iox2_server_details_ptr handle);
 ```
 """
 function iox2_server_details_max_slice_len(handle)
-    @ccall libiceoryx2.iox2_server_details_max_slice_len(handle::iox2_server_details_ptr)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_server_details_max_slice_len(handle::iox2_server_details_ptr)::c_size_t
 end
 
 """
@@ -12769,7 +12769,7 @@ const char *iox2_service_details_error_string(enum iox2_service_details_error_e 
 ```
 """
 function iox2_service_details_error_string(error)
-    @ccall libiceoryx2.iox2_service_details_error_string(error::iox2_service_details_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_service_details_error_string(error::iox2_service_details_error_e)::Cstring
 end
 
 """
@@ -12795,7 +12795,7 @@ const char *iox2_service_list_error_string(enum iox2_service_list_error_e error)
 ```
 """
 function iox2_service_list_error_string(error)
-    @ccall libiceoryx2.iox2_service_list_error_string(error::iox2_service_list_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_service_list_error_string(error::iox2_service_list_error_e)::Cstring
 end
 
 """
@@ -12813,7 +12813,7 @@ int iox2_service_does_exist(enum iox2_service_type_e service_type, iox2_service_
 ```
 """
 function iox2_service_does_exist(service_type, service_name, config, messaging_pattern, does_exist)
-    @ccall libiceoryx2.iox2_service_does_exist(service_type::iox2_service_type_e, service_name::iox2_service_name_ptr, config::iox2_config_ptr, messaging_pattern::iox2_messaging_pattern_e, does_exist::Ptr{Bool})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_does_exist(service_type::iox2_service_type_e, service_name::iox2_service_name_ptr, config::iox2_config_ptr, messaging_pattern::iox2_messaging_pattern_e, does_exist::Ptr{Bool})::Cint
 end
 
 """
@@ -12831,7 +12831,7 @@ int iox2_service_details(enum iox2_service_type_e service_type, iox2_service_nam
 ```
 """
 function iox2_service_details(service_type, service_name, config, messaging_pattern, service_details, does_exist)
-    @ccall libiceoryx2.iox2_service_details(service_type::iox2_service_type_e, service_name::iox2_service_name_ptr, config::iox2_config_ptr, messaging_pattern::iox2_messaging_pattern_e, service_details::Ptr{iox2_static_config_t}, does_exist::Ptr{Bool})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_details(service_type::iox2_service_type_e, service_name::iox2_service_name_ptr, config::iox2_config_ptr, messaging_pattern::iox2_messaging_pattern_e, service_details::Ptr{iox2_static_config_t}, does_exist::Ptr{Bool})::Cint
 end
 
 """
@@ -12849,7 +12849,7 @@ int iox2_service_list(enum iox2_service_type_e service_type, iox2_config_ptr con
 ```
 """
 function iox2_service_list(service_type, config_ptr, callback, callback_ctx)
-    @ccall libiceoryx2.iox2_service_list(service_type::iox2_service_type_e, config_ptr::iox2_config_ptr, callback::iox2_service_list_callback, callback_ctx::iox2_callback_context)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_list(service_type::iox2_service_type_e, config_ptr::iox2_config_ptr, callback::iox2_service_list_callback, callback_ctx::iox2_callback_context)::Cint
 end
 
 """
@@ -12873,7 +12873,7 @@ iox2_service_builder_event_h iox2_service_builder_event(iox2_service_builder_h s
 ```
 """
 function iox2_service_builder_event(service_builder_handle)
-    @ccall libiceoryx2.iox2_service_builder_event(service_builder_handle::iox2_service_builder_h)::iox2_service_builder_event_h
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_event(service_builder_handle::iox2_service_builder_h)::iox2_service_builder_event_h
 end
 
 """
@@ -12897,7 +12897,7 @@ iox2_service_builder_pub_sub_h iox2_service_builder_pub_sub(iox2_service_builder
 ```
 """
 function iox2_service_builder_pub_sub(service_builder_handle)
-    @ccall libiceoryx2.iox2_service_builder_pub_sub(service_builder_handle::iox2_service_builder_h)::iox2_service_builder_pub_sub_h
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub(service_builder_handle::iox2_service_builder_h)::iox2_service_builder_pub_sub_h
 end
 
 """
@@ -12921,7 +12921,7 @@ iox2_service_builder_request_response_h iox2_service_builder_request_response(io
 ```
 """
 function iox2_service_builder_request_response(service_builder_handle)
-    @ccall libiceoryx2.iox2_service_builder_request_response(service_builder_handle::iox2_service_builder_h)::iox2_service_builder_request_response_h
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response(service_builder_handle::iox2_service_builder_h)::iox2_service_builder_request_response_h
 end
 
 """
@@ -12945,7 +12945,7 @@ iox2_service_builder_blackboard_creator_h iox2_service_builder_blackboard_creato
 ```
 """
 function iox2_service_builder_blackboard_creator(service_builder_handle)
-    @ccall libiceoryx2.iox2_service_builder_blackboard_creator(service_builder_handle::iox2_service_builder_h)::iox2_service_builder_blackboard_creator_h
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_creator(service_builder_handle::iox2_service_builder_h)::iox2_service_builder_blackboard_creator_h
 end
 
 """
@@ -12969,7 +12969,7 @@ iox2_service_builder_blackboard_opener_h iox2_service_builder_blackboard_opener(
 ```
 """
 function iox2_service_builder_blackboard_opener(service_builder_handle)
-    @ccall libiceoryx2.iox2_service_builder_blackboard_opener(service_builder_handle::iox2_service_builder_h)::iox2_service_builder_blackboard_opener_h
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_opener(service_builder_handle::iox2_service_builder_h)::iox2_service_builder_blackboard_opener_h
 end
 
 """
@@ -12995,7 +12995,7 @@ const char *iox2_blackboard_open_error_string(enum iox2_blackboard_open_error_e 
 ```
 """
 function iox2_blackboard_open_error_string(error)
-    @ccall libiceoryx2.iox2_blackboard_open_error_string(error::iox2_blackboard_open_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_blackboard_open_error_string(error::iox2_blackboard_open_error_e)::Cstring
 end
 
 """
@@ -13021,7 +13021,7 @@ const char *iox2_blackboard_create_error_string(enum iox2_blackboard_create_erro
 ```
 """
 function iox2_blackboard_create_error_string(error)
-    @ccall libiceoryx2.iox2_blackboard_create_error_string(error::iox2_blackboard_create_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_blackboard_create_error_string(error::iox2_blackboard_create_error_e)::Cstring
 end
 
 """
@@ -13045,7 +13045,7 @@ int iox2_service_builder_blackboard_creator_set_key_type_details(iox2_service_bu
 ```
 """
 function iox2_service_builder_blackboard_creator_set_key_type_details(service_builder_handle, type_name_str, type_name_len, size, alignment)
-    @ccall libiceoryx2.iox2_service_builder_blackboard_creator_set_key_type_details(service_builder_handle::iox2_service_builder_blackboard_creator_h_ref, type_name_str::Cstring, type_name_len::c_size_t, size::c_size_t, alignment::c_size_t)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_creator_set_key_type_details(service_builder_handle::iox2_service_builder_blackboard_creator_h_ref, type_name_str::Cstring, type_name_len::c_size_t, size::c_size_t, alignment::c_size_t)::Cint
 end
 
 """
@@ -13069,7 +13069,7 @@ int iox2_service_builder_blackboard_opener_set_key_type_details(iox2_service_bui
 ```
 """
 function iox2_service_builder_blackboard_opener_set_key_type_details(service_builder_handle, type_name_str, type_name_len, size, alignment)
-    @ccall libiceoryx2.iox2_service_builder_blackboard_opener_set_key_type_details(service_builder_handle::iox2_service_builder_blackboard_opener_h_ref, type_name_str::Cstring, type_name_len::c_size_t, size::c_size_t, alignment::c_size_t)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_opener_set_key_type_details(service_builder_handle::iox2_service_builder_blackboard_opener_h_ref, type_name_str::Cstring, type_name_len::c_size_t, size::c_size_t, alignment::c_size_t)::Cint
 end
 
 """
@@ -13091,7 +13091,7 @@ void iox2_service_builder_blackboard_creator_set_key_eq_comparison_function(iox2
 ```
 """
 function iox2_service_builder_blackboard_creator_set_key_eq_comparison_function(service_builder_handle, key_eq_func)
-    @ccall libiceoryx2.iox2_service_builder_blackboard_creator_set_key_eq_comparison_function(service_builder_handle::iox2_service_builder_blackboard_creator_h_ref, key_eq_func::iox2_service_blackboard_key_eq_cmp_func)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_creator_set_key_eq_comparison_function(service_builder_handle::iox2_service_builder_blackboard_creator_h_ref, key_eq_func::iox2_service_blackboard_key_eq_cmp_func)::Cvoid
 end
 
 """
@@ -13113,7 +13113,7 @@ void iox2_service_builder_blackboard_creator_set_max_readers(iox2_service_builde
 ```
 """
 function iox2_service_builder_blackboard_creator_set_max_readers(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_blackboard_creator_set_max_readers(service_builder_handle::iox2_service_builder_blackboard_creator_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_creator_set_max_readers(service_builder_handle::iox2_service_builder_blackboard_creator_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -13135,7 +13135,7 @@ void iox2_service_builder_blackboard_opener_set_max_readers(iox2_service_builder
 ```
 """
 function iox2_service_builder_blackboard_opener_set_max_readers(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_blackboard_opener_set_max_readers(service_builder_handle::iox2_service_builder_blackboard_opener_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_opener_set_max_readers(service_builder_handle::iox2_service_builder_blackboard_opener_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -13157,7 +13157,7 @@ void iox2_service_builder_blackboard_creator_set_max_nodes(iox2_service_builder_
 ```
 """
 function iox2_service_builder_blackboard_creator_set_max_nodes(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_blackboard_creator_set_max_nodes(service_builder_handle::iox2_service_builder_blackboard_creator_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_creator_set_max_nodes(service_builder_handle::iox2_service_builder_blackboard_creator_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -13179,7 +13179,7 @@ void iox2_service_builder_blackboard_opener_set_max_nodes(iox2_service_builder_b
 ```
 """
 function iox2_service_builder_blackboard_opener_set_max_nodes(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_blackboard_opener_set_max_nodes(service_builder_handle::iox2_service_builder_blackboard_opener_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_opener_set_max_nodes(service_builder_handle::iox2_service_builder_blackboard_opener_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -13201,7 +13201,7 @@ void iox2_service_builder_blackboard_creator_add(iox2_service_builder_blackboard
 ```
 """
 function iox2_service_builder_blackboard_creator_add(service_builder_handle, key, value_ptr, release_callback, type_name, type_name_len, type_size, type_align)
-    @ccall libiceoryx2.iox2_service_builder_blackboard_creator_add(service_builder_handle::iox2_service_builder_blackboard_creator_h_ref, key::Ptr{Cvoid}, value_ptr::Ptr{Cvoid}, release_callback::iox2_service_blackboard_creator_add_release_callback, type_name::Cstring, type_name_len::Csize_t, type_size::Csize_t, type_align::Csize_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_creator_add(service_builder_handle::iox2_service_builder_blackboard_creator_h_ref, key::Ptr{Cvoid}, value_ptr::Ptr{Cvoid}, release_callback::iox2_service_blackboard_creator_add_release_callback, type_name::Cstring, type_name_len::Csize_t, type_size::Csize_t, type_align::Csize_t)::Cvoid
 end
 
 """
@@ -13225,7 +13225,7 @@ int iox2_service_builder_blackboard_open(iox2_service_builder_blackboard_opener_
 ```
 """
 function iox2_service_builder_blackboard_open(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
-    @ccall libiceoryx2.iox2_service_builder_blackboard_open(service_builder_handle::iox2_service_builder_blackboard_opener_h, port_factory_struct_ptr::Ptr{iox2_port_factory_blackboard_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_blackboard_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_open(service_builder_handle::iox2_service_builder_blackboard_opener_h, port_factory_struct_ptr::Ptr{iox2_port_factory_blackboard_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_blackboard_h})::Cint
 end
 
 """
@@ -13249,7 +13249,7 @@ int iox2_service_builder_blackboard_open_with_attributes(iox2_service_builder_bl
 ```
 """
 function iox2_service_builder_blackboard_open_with_attributes(service_builder_handle, attribute_verifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
-    @ccall libiceoryx2.iox2_service_builder_blackboard_open_with_attributes(service_builder_handle::iox2_service_builder_blackboard_opener_h, attribute_verifier_handle::iox2_attribute_verifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_blackboard_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_blackboard_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_open_with_attributes(service_builder_handle::iox2_service_builder_blackboard_opener_h, attribute_verifier_handle::iox2_attribute_verifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_blackboard_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_blackboard_h})::Cint
 end
 
 """
@@ -13273,7 +13273,7 @@ int iox2_service_builder_blackboard_create(iox2_service_builder_blackboard_creat
 ```
 """
 function iox2_service_builder_blackboard_create(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
-    @ccall libiceoryx2.iox2_service_builder_blackboard_create(service_builder_handle::iox2_service_builder_blackboard_creator_h, port_factory_struct_ptr::Ptr{iox2_port_factory_blackboard_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_blackboard_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_create(service_builder_handle::iox2_service_builder_blackboard_creator_h, port_factory_struct_ptr::Ptr{iox2_port_factory_blackboard_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_blackboard_h})::Cint
 end
 
 """
@@ -13297,7 +13297,7 @@ int iox2_service_builder_blackboard_create_with_attributes(iox2_service_builder_
 ```
 """
 function iox2_service_builder_blackboard_create_with_attributes(service_builder_handle, attribute_specifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
-    @ccall libiceoryx2.iox2_service_builder_blackboard_create_with_attributes(service_builder_handle::iox2_service_builder_blackboard_creator_h, attribute_specifier_handle::iox2_attribute_specifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_blackboard_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_blackboard_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_create_with_attributes(service_builder_handle::iox2_service_builder_blackboard_creator_h, attribute_specifier_handle::iox2_attribute_specifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_blackboard_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_blackboard_h})::Cint
 end
 
 """
@@ -13323,7 +13323,7 @@ const char *iox2_event_open_or_create_error_string(enum iox2_event_open_or_creat
 ```
 """
 function iox2_event_open_or_create_error_string(error)
-    @ccall libiceoryx2.iox2_event_open_or_create_error_string(error::iox2_event_open_or_create_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_event_open_or_create_error_string(error::iox2_event_open_or_create_error_e)::Cstring
 end
 
 """
@@ -13345,7 +13345,7 @@ void iox2_service_builder_event_set_deadline(iox2_service_builder_event_h_ref se
 ```
 """
 function iox2_service_builder_event_set_deadline(service_builder_handle, seconds, nanoseconds)
-    @ccall libiceoryx2.iox2_service_builder_event_set_deadline(service_builder_handle::iox2_service_builder_event_h_ref, seconds::UInt64, nanoseconds::UInt32)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_event_set_deadline(service_builder_handle::iox2_service_builder_event_h_ref, seconds::UInt64, nanoseconds::UInt32)::Cvoid
 end
 
 """
@@ -13367,7 +13367,7 @@ void iox2_service_builder_event_disable_deadline(iox2_service_builder_event_h_re
 ```
 """
 function iox2_service_builder_event_disable_deadline(service_builder_handle)
-    @ccall libiceoryx2.iox2_service_builder_event_disable_deadline(service_builder_handle::iox2_service_builder_event_h_ref)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_event_disable_deadline(service_builder_handle::iox2_service_builder_event_h_ref)::Cvoid
 end
 
 """
@@ -13389,7 +13389,7 @@ void iox2_service_builder_event_set_notifier_dead_event(iox2_service_builder_eve
 ```
 """
 function iox2_service_builder_event_set_notifier_dead_event(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_event_set_notifier_dead_event(service_builder_handle::iox2_service_builder_event_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_event_set_notifier_dead_event(service_builder_handle::iox2_service_builder_event_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -13411,7 +13411,7 @@ void iox2_service_builder_event_disable_notifier_dead_event(iox2_service_builder
 ```
 """
 function iox2_service_builder_event_disable_notifier_dead_event(service_builder_handle)
-    @ccall libiceoryx2.iox2_service_builder_event_disable_notifier_dead_event(service_builder_handle::iox2_service_builder_event_h_ref)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_event_disable_notifier_dead_event(service_builder_handle::iox2_service_builder_event_h_ref)::Cvoid
 end
 
 """
@@ -13433,7 +13433,7 @@ void iox2_service_builder_event_set_notifier_created_event(iox2_service_builder_
 ```
 """
 function iox2_service_builder_event_set_notifier_created_event(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_event_set_notifier_created_event(service_builder_handle::iox2_service_builder_event_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_event_set_notifier_created_event(service_builder_handle::iox2_service_builder_event_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -13455,7 +13455,7 @@ void iox2_service_builder_event_disable_notifier_created_event(iox2_service_buil
 ```
 """
 function iox2_service_builder_event_disable_notifier_created_event(service_builder_handle)
-    @ccall libiceoryx2.iox2_service_builder_event_disable_notifier_created_event(service_builder_handle::iox2_service_builder_event_h_ref)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_event_disable_notifier_created_event(service_builder_handle::iox2_service_builder_event_h_ref)::Cvoid
 end
 
 """
@@ -13477,7 +13477,7 @@ void iox2_service_builder_event_set_notifier_dropped_event(iox2_service_builder_
 ```
 """
 function iox2_service_builder_event_set_notifier_dropped_event(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_event_set_notifier_dropped_event(service_builder_handle::iox2_service_builder_event_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_event_set_notifier_dropped_event(service_builder_handle::iox2_service_builder_event_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -13499,7 +13499,7 @@ void iox2_service_builder_event_disable_notifier_dropped_event(iox2_service_buil
 ```
 """
 function iox2_service_builder_event_disable_notifier_dropped_event(service_builder_handle)
-    @ccall libiceoryx2.iox2_service_builder_event_disable_notifier_dropped_event(service_builder_handle::iox2_service_builder_event_h_ref)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_event_disable_notifier_dropped_event(service_builder_handle::iox2_service_builder_event_h_ref)::Cvoid
 end
 
 """
@@ -13521,7 +13521,7 @@ void iox2_service_builder_event_set_max_notifiers(iox2_service_builder_event_h_r
 ```
 """
 function iox2_service_builder_event_set_max_notifiers(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_event_set_max_notifiers(service_builder_handle::iox2_service_builder_event_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_event_set_max_notifiers(service_builder_handle::iox2_service_builder_event_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -13543,7 +13543,7 @@ void iox2_service_builder_event_set_max_nodes(iox2_service_builder_event_h_ref s
 ```
 """
 function iox2_service_builder_event_set_max_nodes(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_event_set_max_nodes(service_builder_handle::iox2_service_builder_event_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_event_set_max_nodes(service_builder_handle::iox2_service_builder_event_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -13565,7 +13565,7 @@ void iox2_service_builder_event_set_event_id_max_value(iox2_service_builder_even
 ```
 """
 function iox2_service_builder_event_set_event_id_max_value(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_event_set_event_id_max_value(service_builder_handle::iox2_service_builder_event_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_event_set_event_id_max_value(service_builder_handle::iox2_service_builder_event_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -13587,7 +13587,7 @@ void iox2_service_builder_event_set_max_listeners(iox2_service_builder_event_h_r
 ```
 """
 function iox2_service_builder_event_set_max_listeners(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_event_set_max_listeners(service_builder_handle::iox2_service_builder_event_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_event_set_max_listeners(service_builder_handle::iox2_service_builder_event_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -13611,7 +13611,7 @@ int iox2_service_builder_event_open_or_create(iox2_service_builder_event_h servi
 ```
 """
 function iox2_service_builder_event_open_or_create(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
-    @ccall libiceoryx2.iox2_service_builder_event_open_or_create(service_builder_handle::iox2_service_builder_event_h, port_factory_struct_ptr::Ptr{iox2_port_factory_event_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_event_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_event_open_or_create(service_builder_handle::iox2_service_builder_event_h, port_factory_struct_ptr::Ptr{iox2_port_factory_event_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_event_h})::Cint
 end
 
 """
@@ -13635,7 +13635,7 @@ int iox2_service_builder_event_open_or_create_with_attributes(iox2_service_build
 ```
 """
 function iox2_service_builder_event_open_or_create_with_attributes(service_builder_handle, attribute_verifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
-    @ccall libiceoryx2.iox2_service_builder_event_open_or_create_with_attributes(service_builder_handle::iox2_service_builder_event_h, attribute_verifier_handle::iox2_attribute_verifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_event_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_event_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_event_open_or_create_with_attributes(service_builder_handle::iox2_service_builder_event_h, attribute_verifier_handle::iox2_attribute_verifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_event_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_event_h})::Cint
 end
 
 """
@@ -13659,7 +13659,7 @@ int iox2_service_builder_event_open(iox2_service_builder_event_h service_builder
 ```
 """
 function iox2_service_builder_event_open(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
-    @ccall libiceoryx2.iox2_service_builder_event_open(service_builder_handle::iox2_service_builder_event_h, port_factory_struct_ptr::Ptr{iox2_port_factory_event_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_event_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_event_open(service_builder_handle::iox2_service_builder_event_h, port_factory_struct_ptr::Ptr{iox2_port_factory_event_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_event_h})::Cint
 end
 
 """
@@ -13683,7 +13683,7 @@ int iox2_service_builder_event_open_with_attributes(iox2_service_builder_event_h
 ```
 """
 function iox2_service_builder_event_open_with_attributes(service_builder_handle, attribute_verifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
-    @ccall libiceoryx2.iox2_service_builder_event_open_with_attributes(service_builder_handle::iox2_service_builder_event_h, attribute_verifier_handle::iox2_attribute_verifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_event_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_event_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_event_open_with_attributes(service_builder_handle::iox2_service_builder_event_h, attribute_verifier_handle::iox2_attribute_verifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_event_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_event_h})::Cint
 end
 
 """
@@ -13707,7 +13707,7 @@ int iox2_service_builder_event_create(iox2_service_builder_event_h service_build
 ```
 """
 function iox2_service_builder_event_create(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
-    @ccall libiceoryx2.iox2_service_builder_event_create(service_builder_handle::iox2_service_builder_event_h, port_factory_struct_ptr::Ptr{iox2_port_factory_event_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_event_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_event_create(service_builder_handle::iox2_service_builder_event_h, port_factory_struct_ptr::Ptr{iox2_port_factory_event_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_event_h})::Cint
 end
 
 """
@@ -13731,7 +13731,7 @@ int iox2_service_builder_event_create_with_attributes(iox2_service_builder_event
 ```
 """
 function iox2_service_builder_event_create_with_attributes(service_builder_handle, attribute_specifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
-    @ccall libiceoryx2.iox2_service_builder_event_create_with_attributes(service_builder_handle::iox2_service_builder_event_h, attribute_specifier_handle::iox2_attribute_specifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_event_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_event_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_event_create_with_attributes(service_builder_handle::iox2_service_builder_event_h, attribute_specifier_handle::iox2_attribute_specifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_event_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_event_h})::Cint
 end
 
 """
@@ -13757,7 +13757,7 @@ const char *iox2_pub_sub_open_or_create_error_string(enum iox2_pub_sub_open_or_c
 ```
 """
 function iox2_pub_sub_open_or_create_error_string(error)
-    @ccall libiceoryx2.iox2_pub_sub_open_or_create_error_string(error::iox2_pub_sub_open_or_create_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_pub_sub_open_or_create_error_string(error::iox2_pub_sub_open_or_create_error_e)::Cstring
 end
 
 """
@@ -13781,7 +13781,7 @@ int iox2_service_builder_pub_sub_set_user_header_type_details(iox2_service_build
 ```
 """
 function iox2_service_builder_pub_sub_set_user_header_type_details(service_builder_handle, type_variant, type_name_str, type_name_len, size, alignment)
-    @ccall libiceoryx2.iox2_service_builder_pub_sub_set_user_header_type_details(service_builder_handle::iox2_service_builder_pub_sub_h_ref, type_variant::iox2_type_variant_e, type_name_str::Cstring, type_name_len::c_size_t, size::c_size_t, alignment::c_size_t)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_set_user_header_type_details(service_builder_handle::iox2_service_builder_pub_sub_h_ref, type_variant::iox2_type_variant_e, type_name_str::Cstring, type_name_len::c_size_t, size::c_size_t, alignment::c_size_t)::Cint
 end
 
 """
@@ -13805,7 +13805,7 @@ int iox2_service_builder_pub_sub_set_payload_type_details(iox2_service_builder_p
 ```
 """
 function iox2_service_builder_pub_sub_set_payload_type_details(service_builder_handle, type_variant, type_name_str, type_name_len, size, alignment)
-    @ccall libiceoryx2.iox2_service_builder_pub_sub_set_payload_type_details(service_builder_handle::iox2_service_builder_pub_sub_h_ref, type_variant::iox2_type_variant_e, type_name_str::Cstring, type_name_len::c_size_t, size::c_size_t, alignment::c_size_t)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_set_payload_type_details(service_builder_handle::iox2_service_builder_pub_sub_h_ref, type_variant::iox2_type_variant_e, type_name_str::Cstring, type_name_len::c_size_t, size::c_size_t, alignment::c_size_t)::Cint
 end
 
 """
@@ -13827,7 +13827,7 @@ void iox2_service_builder_pub_sub_set_max_nodes(iox2_service_builder_pub_sub_h_r
 ```
 """
 function iox2_service_builder_pub_sub_set_max_nodes(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_pub_sub_set_max_nodes(service_builder_handle::iox2_service_builder_pub_sub_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_set_max_nodes(service_builder_handle::iox2_service_builder_pub_sub_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -13849,7 +13849,7 @@ void iox2_service_builder_pub_sub_set_max_publishers(iox2_service_builder_pub_su
 ```
 """
 function iox2_service_builder_pub_sub_set_max_publishers(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_pub_sub_set_max_publishers(service_builder_handle::iox2_service_builder_pub_sub_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_set_max_publishers(service_builder_handle::iox2_service_builder_pub_sub_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -13871,7 +13871,7 @@ void iox2_service_builder_pub_sub_set_max_subscribers(iox2_service_builder_pub_s
 ```
 """
 function iox2_service_builder_pub_sub_set_max_subscribers(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_pub_sub_set_max_subscribers(service_builder_handle::iox2_service_builder_pub_sub_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_set_max_subscribers(service_builder_handle::iox2_service_builder_pub_sub_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -13893,7 +13893,7 @@ void iox2_service_builder_pub_sub_set_payload_alignment(iox2_service_builder_pub
 ```
 """
 function iox2_service_builder_pub_sub_set_payload_alignment(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_pub_sub_set_payload_alignment(service_builder_handle::iox2_service_builder_pub_sub_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_set_payload_alignment(service_builder_handle::iox2_service_builder_pub_sub_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -13915,7 +13915,7 @@ void iox2_service_builder_pub_sub_set_history_size(iox2_service_builder_pub_sub_
 ```
 """
 function iox2_service_builder_pub_sub_set_history_size(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_pub_sub_set_history_size(service_builder_handle::iox2_service_builder_pub_sub_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_set_history_size(service_builder_handle::iox2_service_builder_pub_sub_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -13937,7 +13937,7 @@ void iox2_service_builder_pub_sub_set_subscriber_max_buffer_size(iox2_service_bu
 ```
 """
 function iox2_service_builder_pub_sub_set_subscriber_max_buffer_size(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_pub_sub_set_subscriber_max_buffer_size(service_builder_handle::iox2_service_builder_pub_sub_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_set_subscriber_max_buffer_size(service_builder_handle::iox2_service_builder_pub_sub_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -13959,7 +13959,7 @@ void iox2_service_builder_pub_sub_set_subscriber_max_borrowed_samples(iox2_servi
 ```
 """
 function iox2_service_builder_pub_sub_set_subscriber_max_borrowed_samples(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_pub_sub_set_subscriber_max_borrowed_samples(service_builder_handle::iox2_service_builder_pub_sub_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_set_subscriber_max_borrowed_samples(service_builder_handle::iox2_service_builder_pub_sub_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -13981,7 +13981,7 @@ void iox2_service_builder_pub_sub_set_enable_safe_overflow(iox2_service_builder_
 ```
 """
 function iox2_service_builder_pub_sub_set_enable_safe_overflow(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_pub_sub_set_enable_safe_overflow(service_builder_handle::iox2_service_builder_pub_sub_h_ref, value::Bool)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_set_enable_safe_overflow(service_builder_handle::iox2_service_builder_pub_sub_h_ref, value::Bool)::Cvoid
 end
 
 """
@@ -14005,7 +14005,7 @@ int iox2_service_builder_pub_sub_open_or_create(iox2_service_builder_pub_sub_h s
 ```
 """
 function iox2_service_builder_pub_sub_open_or_create(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
-    @ccall libiceoryx2.iox2_service_builder_pub_sub_open_or_create(service_builder_handle::iox2_service_builder_pub_sub_h, port_factory_struct_ptr::Ptr{iox2_port_factory_pub_sub_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_pub_sub_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_open_or_create(service_builder_handle::iox2_service_builder_pub_sub_h, port_factory_struct_ptr::Ptr{iox2_port_factory_pub_sub_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_pub_sub_h})::Cint
 end
 
 """
@@ -14029,7 +14029,7 @@ int iox2_service_builder_pub_sub_open_or_create_with_attributes(iox2_service_bui
 ```
 """
 function iox2_service_builder_pub_sub_open_or_create_with_attributes(service_builder_handle, attribute_verifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
-    @ccall libiceoryx2.iox2_service_builder_pub_sub_open_or_create_with_attributes(service_builder_handle::iox2_service_builder_pub_sub_h, attribute_verifier_handle::iox2_attribute_verifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_pub_sub_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_pub_sub_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_open_or_create_with_attributes(service_builder_handle::iox2_service_builder_pub_sub_h, attribute_verifier_handle::iox2_attribute_verifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_pub_sub_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_pub_sub_h})::Cint
 end
 
 """
@@ -14053,7 +14053,7 @@ int iox2_service_builder_pub_sub_open(iox2_service_builder_pub_sub_h service_bui
 ```
 """
 function iox2_service_builder_pub_sub_open(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
-    @ccall libiceoryx2.iox2_service_builder_pub_sub_open(service_builder_handle::iox2_service_builder_pub_sub_h, port_factory_struct_ptr::Ptr{iox2_port_factory_pub_sub_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_pub_sub_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_open(service_builder_handle::iox2_service_builder_pub_sub_h, port_factory_struct_ptr::Ptr{iox2_port_factory_pub_sub_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_pub_sub_h})::Cint
 end
 
 """
@@ -14077,7 +14077,7 @@ int iox2_service_builder_pub_sub_open_with_attributes(iox2_service_builder_pub_s
 ```
 """
 function iox2_service_builder_pub_sub_open_with_attributes(service_builder_handle, attribute_verifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
-    @ccall libiceoryx2.iox2_service_builder_pub_sub_open_with_attributes(service_builder_handle::iox2_service_builder_pub_sub_h, attribute_verifier_handle::iox2_attribute_verifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_pub_sub_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_pub_sub_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_open_with_attributes(service_builder_handle::iox2_service_builder_pub_sub_h, attribute_verifier_handle::iox2_attribute_verifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_pub_sub_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_pub_sub_h})::Cint
 end
 
 """
@@ -14101,7 +14101,7 @@ int iox2_service_builder_pub_sub_create(iox2_service_builder_pub_sub_h service_b
 ```
 """
 function iox2_service_builder_pub_sub_create(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
-    @ccall libiceoryx2.iox2_service_builder_pub_sub_create(service_builder_handle::iox2_service_builder_pub_sub_h, port_factory_struct_ptr::Ptr{iox2_port_factory_pub_sub_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_pub_sub_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_create(service_builder_handle::iox2_service_builder_pub_sub_h, port_factory_struct_ptr::Ptr{iox2_port_factory_pub_sub_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_pub_sub_h})::Cint
 end
 
 """
@@ -14125,7 +14125,7 @@ int iox2_service_builder_pub_sub_create_with_attributes(iox2_service_builder_pub
 ```
 """
 function iox2_service_builder_pub_sub_create_with_attributes(service_builder_handle, attribute_specifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
-    @ccall libiceoryx2.iox2_service_builder_pub_sub_create_with_attributes(service_builder_handle::iox2_service_builder_pub_sub_h, attribute_specifier_handle::iox2_attribute_specifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_pub_sub_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_pub_sub_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_create_with_attributes(service_builder_handle::iox2_service_builder_pub_sub_h, attribute_specifier_handle::iox2_attribute_specifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_pub_sub_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_pub_sub_h})::Cint
 end
 
 """
@@ -14151,7 +14151,7 @@ const char *iox2_request_response_open_or_create_error_string(enum iox2_request_
 ```
 """
 function iox2_request_response_open_or_create_error_string(error)
-    @ccall libiceoryx2.iox2_request_response_open_or_create_error_string(error::iox2_request_response_open_or_create_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_request_response_open_or_create_error_string(error::iox2_request_response_open_or_create_error_e)::Cstring
 end
 
 """
@@ -14175,7 +14175,7 @@ int iox2_service_builder_request_response_set_request_header_type_details(iox2_s
 ```
 """
 function iox2_service_builder_request_response_set_request_header_type_details(service_builder_handle, type_variant, type_name_str, type_name_len, size, alignment)
-    @ccall libiceoryx2.iox2_service_builder_request_response_set_request_header_type_details(service_builder_handle::iox2_service_builder_request_response_h_ref, type_variant::iox2_type_variant_e, type_name_str::Cstring, type_name_len::c_size_t, size::c_size_t, alignment::c_size_t)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_set_request_header_type_details(service_builder_handle::iox2_service_builder_request_response_h_ref, type_variant::iox2_type_variant_e, type_name_str::Cstring, type_name_len::c_size_t, size::c_size_t, alignment::c_size_t)::Cint
 end
 
 """
@@ -14199,7 +14199,7 @@ int iox2_service_builder_request_response_set_response_header_type_details(iox2_
 ```
 """
 function iox2_service_builder_request_response_set_response_header_type_details(service_builder_handle, type_variant, type_name_str, type_name_len, size, alignment)
-    @ccall libiceoryx2.iox2_service_builder_request_response_set_response_header_type_details(service_builder_handle::iox2_service_builder_request_response_h_ref, type_variant::iox2_type_variant_e, type_name_str::Cstring, type_name_len::c_size_t, size::c_size_t, alignment::c_size_t)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_set_response_header_type_details(service_builder_handle::iox2_service_builder_request_response_h_ref, type_variant::iox2_type_variant_e, type_name_str::Cstring, type_name_len::c_size_t, size::c_size_t, alignment::c_size_t)::Cint
 end
 
 """
@@ -14223,7 +14223,7 @@ int iox2_service_builder_request_response_set_request_payload_type_details(iox2_
 ```
 """
 function iox2_service_builder_request_response_set_request_payload_type_details(service_builder_handle, type_variant, type_name_str, type_name_len, size, alignment)
-    @ccall libiceoryx2.iox2_service_builder_request_response_set_request_payload_type_details(service_builder_handle::iox2_service_builder_request_response_h_ref, type_variant::iox2_type_variant_e, type_name_str::Cstring, type_name_len::c_size_t, size::c_size_t, alignment::c_size_t)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_set_request_payload_type_details(service_builder_handle::iox2_service_builder_request_response_h_ref, type_variant::iox2_type_variant_e, type_name_str::Cstring, type_name_len::c_size_t, size::c_size_t, alignment::c_size_t)::Cint
 end
 
 """
@@ -14247,7 +14247,7 @@ int iox2_service_builder_request_response_set_response_payload_type_details(iox2
 ```
 """
 function iox2_service_builder_request_response_set_response_payload_type_details(service_builder_handle, type_variant, type_name_str, type_name_len, size, alignment)
-    @ccall libiceoryx2.iox2_service_builder_request_response_set_response_payload_type_details(service_builder_handle::iox2_service_builder_request_response_h_ref, type_variant::iox2_type_variant_e, type_name_str::Cstring, type_name_len::c_size_t, size::c_size_t, alignment::c_size_t)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_set_response_payload_type_details(service_builder_handle::iox2_service_builder_request_response_h_ref, type_variant::iox2_type_variant_e, type_name_str::Cstring, type_name_len::c_size_t, size::c_size_t, alignment::c_size_t)::Cint
 end
 
 """
@@ -14265,7 +14265,7 @@ void iox2_service_builder_request_response_enable_fire_and_forget_requests(iox2_
 ```
 """
 function iox2_service_builder_request_response_enable_fire_and_forget_requests(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_request_response_enable_fire_and_forget_requests(service_builder_handle::iox2_service_builder_request_response_h_ref, value::Bool)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_enable_fire_and_forget_requests(service_builder_handle::iox2_service_builder_request_response_h_ref, value::Bool)::Cvoid
 end
 
 """
@@ -14283,7 +14283,7 @@ void iox2_service_builder_request_response_enable_safe_overflow_for_requests(iox
 ```
 """
 function iox2_service_builder_request_response_enable_safe_overflow_for_requests(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_request_response_enable_safe_overflow_for_requests(service_builder_handle::iox2_service_builder_request_response_h_ref, value::Bool)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_enable_safe_overflow_for_requests(service_builder_handle::iox2_service_builder_request_response_h_ref, value::Bool)::Cvoid
 end
 
 """
@@ -14301,7 +14301,7 @@ void iox2_service_builder_request_response_enable_safe_overflow_for_responses(io
 ```
 """
 function iox2_service_builder_request_response_enable_safe_overflow_for_responses(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_request_response_enable_safe_overflow_for_responses(service_builder_handle::iox2_service_builder_request_response_h_ref, value::Bool)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_enable_safe_overflow_for_responses(service_builder_handle::iox2_service_builder_request_response_h_ref, value::Bool)::Cvoid
 end
 
 """
@@ -14319,7 +14319,7 @@ void iox2_service_builder_request_response_max_active_requests_per_client(iox2_s
 ```
 """
 function iox2_service_builder_request_response_max_active_requests_per_client(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_request_response_max_active_requests_per_client(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_max_active_requests_per_client(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -14337,7 +14337,7 @@ void iox2_service_builder_request_response_max_borrowed_responses_per_pending_re
 ```
 """
 function iox2_service_builder_request_response_max_borrowed_responses_per_pending_response(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_request_response_max_borrowed_responses_per_pending_response(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_max_borrowed_responses_per_pending_response(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -14355,7 +14355,7 @@ void iox2_service_builder_request_response_max_clients(iox2_service_builder_requ
 ```
 """
 function iox2_service_builder_request_response_max_clients(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_request_response_max_clients(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_max_clients(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -14373,7 +14373,7 @@ void iox2_service_builder_request_response_max_loaned_requests(iox2_service_buil
 ```
 """
 function iox2_service_builder_request_response_max_loaned_requests(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_request_response_max_loaned_requests(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_max_loaned_requests(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -14391,7 +14391,7 @@ void iox2_service_builder_request_response_set_max_nodes(iox2_service_builder_re
 ```
 """
 function iox2_service_builder_request_response_set_max_nodes(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_request_response_set_max_nodes(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_set_max_nodes(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -14409,7 +14409,7 @@ void iox2_service_builder_request_response_max_response_buffer_size(iox2_service
 ```
 """
 function iox2_service_builder_request_response_max_response_buffer_size(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_request_response_max_response_buffer_size(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_max_response_buffer_size(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -14427,7 +14427,7 @@ void iox2_service_builder_request_response_max_servers(iox2_service_builder_requ
 ```
 """
 function iox2_service_builder_request_response_max_servers(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_request_response_max_servers(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_max_servers(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -14445,7 +14445,7 @@ void iox2_service_builder_request_response_request_payload_alignment(iox2_servic
 ```
 """
 function iox2_service_builder_request_response_request_payload_alignment(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_request_response_request_payload_alignment(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_request_payload_alignment(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -14463,7 +14463,7 @@ void iox2_service_builder_request_response_response_payload_alignment(iox2_servi
 ```
 """
 function iox2_service_builder_request_response_response_payload_alignment(service_builder_handle, value)
-    @ccall libiceoryx2.iox2_service_builder_request_response_response_payload_alignment(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_response_payload_alignment(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
 end
 
 """
@@ -14487,7 +14487,7 @@ int iox2_service_builder_request_response_open_or_create(iox2_service_builder_re
 ```
 """
 function iox2_service_builder_request_response_open_or_create(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
-    @ccall libiceoryx2.iox2_service_builder_request_response_open_or_create(service_builder_handle::iox2_service_builder_request_response_h, port_factory_struct_ptr::Ptr{iox2_port_factory_request_response_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_request_response_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_open_or_create(service_builder_handle::iox2_service_builder_request_response_h, port_factory_struct_ptr::Ptr{iox2_port_factory_request_response_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_request_response_h})::Cint
 end
 
 """
@@ -14511,7 +14511,7 @@ int iox2_service_builder_request_response_open_or_create_with_attributes(iox2_se
 ```
 """
 function iox2_service_builder_request_response_open_or_create_with_attributes(service_builder_handle, attribute_verifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
-    @ccall libiceoryx2.iox2_service_builder_request_response_open_or_create_with_attributes(service_builder_handle::iox2_service_builder_request_response_h, attribute_verifier_handle::iox2_attribute_verifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_request_response_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_request_response_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_open_or_create_with_attributes(service_builder_handle::iox2_service_builder_request_response_h, attribute_verifier_handle::iox2_attribute_verifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_request_response_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_request_response_h})::Cint
 end
 
 """
@@ -14535,7 +14535,7 @@ int iox2_service_builder_request_response_open(iox2_service_builder_request_resp
 ```
 """
 function iox2_service_builder_request_response_open(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
-    @ccall libiceoryx2.iox2_service_builder_request_response_open(service_builder_handle::iox2_service_builder_request_response_h, port_factory_struct_ptr::Ptr{iox2_port_factory_request_response_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_request_response_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_open(service_builder_handle::iox2_service_builder_request_response_h, port_factory_struct_ptr::Ptr{iox2_port_factory_request_response_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_request_response_h})::Cint
 end
 
 """
@@ -14559,7 +14559,7 @@ int iox2_service_builder_request_response_open_with_attributes(iox2_service_buil
 ```
 """
 function iox2_service_builder_request_response_open_with_attributes(service_builder_handle, attribute_verifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
-    @ccall libiceoryx2.iox2_service_builder_request_response_open_with_attributes(service_builder_handle::iox2_service_builder_request_response_h, attribute_verifier_handle::iox2_attribute_verifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_request_response_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_request_response_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_open_with_attributes(service_builder_handle::iox2_service_builder_request_response_h, attribute_verifier_handle::iox2_attribute_verifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_request_response_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_request_response_h})::Cint
 end
 
 """
@@ -14583,7 +14583,7 @@ int iox2_service_builder_request_response_create(iox2_service_builder_request_re
 ```
 """
 function iox2_service_builder_request_response_create(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
-    @ccall libiceoryx2.iox2_service_builder_request_response_create(service_builder_handle::iox2_service_builder_request_response_h, port_factory_struct_ptr::Ptr{iox2_port_factory_request_response_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_request_response_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_create(service_builder_handle::iox2_service_builder_request_response_h, port_factory_struct_ptr::Ptr{iox2_port_factory_request_response_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_request_response_h})::Cint
 end
 
 """
@@ -14607,7 +14607,7 @@ int iox2_service_builder_request_response_create_with_attributes(iox2_service_bu
 ```
 """
 function iox2_service_builder_request_response_create_with_attributes(service_builder_handle, attribute_specifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
-    @ccall libiceoryx2.iox2_service_builder_request_response_create_with_attributes(service_builder_handle::iox2_service_builder_request_response_h, attribute_specifier_handle::iox2_attribute_specifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_request_response_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_request_response_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_create_with_attributes(service_builder_handle::iox2_service_builder_request_response_h, attribute_specifier_handle::iox2_attribute_specifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_request_response_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_request_response_h})::Cint
 end
 
 """
@@ -14631,7 +14631,7 @@ int iox2_service_name_new(struct iox2_service_name_t *service_name_struct_ptr, c
 ```
 """
 function iox2_service_name_new(service_name_struct_ptr, service_name_str, service_name_len, service_name_handle_ptr)
-    @ccall libiceoryx2.iox2_service_name_new(service_name_struct_ptr::Ptr{iox2_service_name_t}, service_name_str::Cstring, service_name_len::c_size_t, service_name_handle_ptr::Ptr{iox2_service_name_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_service_name_new(service_name_struct_ptr::Ptr{iox2_service_name_t}, service_name_str::Cstring, service_name_len::c_size_t, service_name_handle_ptr::Ptr{iox2_service_name_h})::Cint
 end
 
 """
@@ -14655,7 +14655,7 @@ iox2_service_name_ptr iox2_cast_service_name_ptr(iox2_service_name_h service_nam
 ```
 """
 function iox2_cast_service_name_ptr(service_name_handle)
-    @ccall libiceoryx2.iox2_cast_service_name_ptr(service_name_handle::iox2_service_name_h)::iox2_service_name_ptr
+    @ccall libiceoryx2_ffi_c.iox2_cast_service_name_ptr(service_name_handle::iox2_service_name_h)::iox2_service_name_ptr
 end
 
 """
@@ -14679,7 +14679,7 @@ const char *iox2_service_name_as_chars(iox2_service_name_ptr service_name_ptr, c
 ```
 """
 function iox2_service_name_as_chars(service_name_ptr, service_name_len)
-    @ccall libiceoryx2.iox2_service_name_as_chars(service_name_ptr::iox2_service_name_ptr, service_name_len::Ptr{c_size_t})::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_service_name_as_chars(service_name_ptr::iox2_service_name_ptr, service_name_len::Ptr{c_size_t})::Cstring
 end
 
 """
@@ -14703,7 +14703,7 @@ void iox2_service_name_drop(iox2_service_name_h service_name_handle);
 ```
 """
 function iox2_service_name_drop(service_name_handle)
-    @ccall libiceoryx2.iox2_service_name_drop(service_name_handle::iox2_service_name_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_service_name_drop(service_name_handle::iox2_service_name_h)::Cvoid
 end
 
 """
@@ -14729,7 +14729,7 @@ const char *iox2_receive_error_string(enum iox2_receive_error_e error);
 ```
 """
 function iox2_receive_error_string(error)
-    @ccall libiceoryx2.iox2_receive_error_string(error::iox2_receive_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_receive_error_string(error::iox2_receive_error_e)::Cstring
 end
 
 """
@@ -14755,7 +14755,7 @@ const char *iox2_connection_failure_string(enum iox2_connection_failure_e error)
 ```
 """
 function iox2_connection_failure_string(error)
-    @ccall libiceoryx2.iox2_connection_failure_string(error::iox2_connection_failure_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_connection_failure_string(error::iox2_connection_failure_e)::Cstring
 end
 
 """
@@ -14777,7 +14777,7 @@ c_size_t iox2_subscriber_buffer_size(iox2_subscriber_h_ref subscriber_handle);
 ```
 """
 function iox2_subscriber_buffer_size(subscriber_handle)
-    @ccall libiceoryx2.iox2_subscriber_buffer_size(subscriber_handle::iox2_subscriber_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_subscriber_buffer_size(subscriber_handle::iox2_subscriber_h_ref)::c_size_t
 end
 
 """
@@ -14799,7 +14799,7 @@ void iox2_subscriber_id(iox2_subscriber_h_ref subscriber_handle, struct iox2_uni
 ```
 """
 function iox2_subscriber_id(subscriber_handle, id_struct_ptr, id_handle_ptr)
-    @ccall libiceoryx2.iox2_subscriber_id(subscriber_handle::iox2_subscriber_h_ref, id_struct_ptr::Ptr{iox2_unique_subscriber_id_t}, id_handle_ptr::Ptr{iox2_unique_subscriber_id_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_subscriber_id(subscriber_handle::iox2_subscriber_h_ref, id_struct_ptr::Ptr{iox2_unique_subscriber_id_t}, id_handle_ptr::Ptr{iox2_unique_subscriber_id_h})::Cvoid
 end
 
 """
@@ -14823,7 +14823,7 @@ int iox2_subscriber_receive(iox2_subscriber_h_ref subscriber_handle, struct iox2
 ```
 """
 function iox2_subscriber_receive(subscriber_handle, sample_struct_ptr, sample_handle_ptr)
-    @ccall libiceoryx2.iox2_subscriber_receive(subscriber_handle::iox2_subscriber_h_ref, sample_struct_ptr::Ptr{iox2_sample_t}, sample_handle_ptr::Ptr{iox2_sample_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_subscriber_receive(subscriber_handle::iox2_subscriber_h_ref, sample_struct_ptr::Ptr{iox2_sample_t}, sample_handle_ptr::Ptr{iox2_sample_h})::Cint
 end
 
 """
@@ -14847,7 +14847,7 @@ int iox2_subscriber_has_samples(iox2_subscriber_h_ref subscriber_handle, bool *r
 ```
 """
 function iox2_subscriber_has_samples(subscriber_handle, result_ptr)
-    @ccall libiceoryx2.iox2_subscriber_has_samples(subscriber_handle::iox2_subscriber_h_ref, result_ptr::Ptr{Bool})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_subscriber_has_samples(subscriber_handle::iox2_subscriber_h_ref, result_ptr::Ptr{Bool})::Cint
 end
 
 """
@@ -14869,7 +14869,7 @@ void iox2_subscriber_drop(iox2_subscriber_h subscriber_handle);
 ```
 """
 function iox2_subscriber_drop(subscriber_handle)
-    @ccall libiceoryx2.iox2_subscriber_drop(subscriber_handle::iox2_subscriber_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_subscriber_drop(subscriber_handle::iox2_subscriber_h)::Cvoid
 end
 
 """
@@ -14887,7 +14887,7 @@ void iox2_subscriber_details_subscriber_id(iox2_subscriber_details_ptr handle, s
 ```
 """
 function iox2_subscriber_details_subscriber_id(handle, id_struct_ptr, id_handle_ptr)
-    @ccall libiceoryx2.iox2_subscriber_details_subscriber_id(handle::iox2_subscriber_details_ptr, id_struct_ptr::Ptr{iox2_unique_subscriber_id_t}, id_handle_ptr::Ptr{iox2_unique_subscriber_id_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_subscriber_details_subscriber_id(handle::iox2_subscriber_details_ptr, id_struct_ptr::Ptr{iox2_unique_subscriber_id_t}, id_handle_ptr::Ptr{iox2_unique_subscriber_id_h})::Cvoid
 end
 
 """
@@ -14905,7 +14905,7 @@ iox2_node_id_ptr iox2_subscriber_details_node_id(iox2_subscriber_details_ptr han
 ```
 """
 function iox2_subscriber_details_node_id(handle)
-    @ccall libiceoryx2.iox2_subscriber_details_node_id(handle::iox2_subscriber_details_ptr)::iox2_node_id_ptr
+    @ccall libiceoryx2_ffi_c.iox2_subscriber_details_node_id(handle::iox2_subscriber_details_ptr)::iox2_node_id_ptr
 end
 
 """
@@ -14923,7 +14923,7 @@ c_size_t iox2_subscriber_details_buffer_size(iox2_subscriber_details_ptr handle)
 ```
 """
 function iox2_subscriber_details_buffer_size(handle)
-    @ccall libiceoryx2.iox2_subscriber_details_buffer_size(handle::iox2_subscriber_details_ptr)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_subscriber_details_buffer_size(handle::iox2_subscriber_details_ptr)::c_size_t
 end
 
 """
@@ -14945,7 +14945,7 @@ void iox2_unique_client_id_value(iox2_unique_client_id_h handle, uint8_t *id_ptr
 ```
 """
 function iox2_unique_client_id_value(handle, id_ptr, id_length)
-    @ccall libiceoryx2.iox2_unique_client_id_value(handle::iox2_unique_client_id_h, id_ptr::Ptr{UInt8}, id_length::Csize_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_unique_client_id_value(handle::iox2_unique_client_id_h, id_ptr::Ptr{UInt8}, id_length::Csize_t)::Cvoid
 end
 
 """
@@ -14967,7 +14967,7 @@ void iox2_unique_client_id_drop(iox2_unique_client_id_h handle);
 ```
 """
 function iox2_unique_client_id_drop(handle)
-    @ccall libiceoryx2.iox2_unique_client_id_drop(handle::iox2_unique_client_id_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_unique_client_id_drop(handle::iox2_unique_client_id_h)::Cvoid
 end
 
 """
@@ -14985,7 +14985,7 @@ bool iox2_unique_client_id_eq(iox2_unique_client_id_h_ref lhs, iox2_unique_clien
 ```
 """
 function iox2_unique_client_id_eq(lhs, rhs)
-    @ccall libiceoryx2.iox2_unique_client_id_eq(lhs::iox2_unique_client_id_h_ref, rhs::iox2_unique_client_id_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_unique_client_id_eq(lhs::iox2_unique_client_id_h_ref, rhs::iox2_unique_client_id_h_ref)::Bool
 end
 
 """
@@ -15003,7 +15003,7 @@ bool iox2_unique_client_id_less(iox2_unique_client_id_h_ref lhs, iox2_unique_cli
 ```
 """
 function iox2_unique_client_id_less(lhs, rhs)
-    @ccall libiceoryx2.iox2_unique_client_id_less(lhs::iox2_unique_client_id_h_ref, rhs::iox2_unique_client_id_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_unique_client_id_less(lhs::iox2_unique_client_id_h_ref, rhs::iox2_unique_client_id_h_ref)::Bool
 end
 
 """
@@ -15025,7 +15025,7 @@ void iox2_unique_listener_id_value(iox2_unique_listener_id_h handle, uint8_t *id
 ```
 """
 function iox2_unique_listener_id_value(handle, id_ptr, id_length)
-    @ccall libiceoryx2.iox2_unique_listener_id_value(handle::iox2_unique_listener_id_h, id_ptr::Ptr{UInt8}, id_length::Csize_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_unique_listener_id_value(handle::iox2_unique_listener_id_h, id_ptr::Ptr{UInt8}, id_length::Csize_t)::Cvoid
 end
 
 """
@@ -15047,7 +15047,7 @@ void iox2_unique_listener_id_drop(iox2_unique_listener_id_h handle);
 ```
 """
 function iox2_unique_listener_id_drop(handle)
-    @ccall libiceoryx2.iox2_unique_listener_id_drop(handle::iox2_unique_listener_id_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_unique_listener_id_drop(handle::iox2_unique_listener_id_h)::Cvoid
 end
 
 """
@@ -15065,7 +15065,7 @@ bool iox2_unique_listener_id_eq(iox2_unique_listener_id_h_ref lhs, iox2_unique_l
 ```
 """
 function iox2_unique_listener_id_eq(lhs, rhs)
-    @ccall libiceoryx2.iox2_unique_listener_id_eq(lhs::iox2_unique_listener_id_h_ref, rhs::iox2_unique_listener_id_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_unique_listener_id_eq(lhs::iox2_unique_listener_id_h_ref, rhs::iox2_unique_listener_id_h_ref)::Bool
 end
 
 """
@@ -15083,7 +15083,7 @@ bool iox2_unique_listener_id_less(iox2_unique_listener_id_h_ref lhs, iox2_unique
 ```
 """
 function iox2_unique_listener_id_less(lhs, rhs)
-    @ccall libiceoryx2.iox2_unique_listener_id_less(lhs::iox2_unique_listener_id_h_ref, rhs::iox2_unique_listener_id_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_unique_listener_id_less(lhs::iox2_unique_listener_id_h_ref, rhs::iox2_unique_listener_id_h_ref)::Bool
 end
 
 """
@@ -15105,7 +15105,7 @@ void iox2_unique_notifier_id_value(iox2_unique_notifier_id_h handle, uint8_t *id
 ```
 """
 function iox2_unique_notifier_id_value(handle, id_ptr, id_length)
-    @ccall libiceoryx2.iox2_unique_notifier_id_value(handle::iox2_unique_notifier_id_h, id_ptr::Ptr{UInt8}, id_length::Csize_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_unique_notifier_id_value(handle::iox2_unique_notifier_id_h, id_ptr::Ptr{UInt8}, id_length::Csize_t)::Cvoid
 end
 
 """
@@ -15127,7 +15127,7 @@ void iox2_unique_notifier_id_drop(iox2_unique_notifier_id_h handle);
 ```
 """
 function iox2_unique_notifier_id_drop(handle)
-    @ccall libiceoryx2.iox2_unique_notifier_id_drop(handle::iox2_unique_notifier_id_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_unique_notifier_id_drop(handle::iox2_unique_notifier_id_h)::Cvoid
 end
 
 """
@@ -15145,7 +15145,7 @@ bool iox2_unique_notifier_id_eq(iox2_unique_notifier_id_h_ref lhs, iox2_unique_n
 ```
 """
 function iox2_unique_notifier_id_eq(lhs, rhs)
-    @ccall libiceoryx2.iox2_unique_notifier_id_eq(lhs::iox2_unique_notifier_id_h_ref, rhs::iox2_unique_notifier_id_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_unique_notifier_id_eq(lhs::iox2_unique_notifier_id_h_ref, rhs::iox2_unique_notifier_id_h_ref)::Bool
 end
 
 """
@@ -15163,7 +15163,7 @@ bool iox2_unique_notifier_id_less(iox2_unique_notifier_id_h_ref lhs, iox2_unique
 ```
 """
 function iox2_unique_notifier_id_less(lhs, rhs)
-    @ccall libiceoryx2.iox2_unique_notifier_id_less(lhs::iox2_unique_notifier_id_h_ref, rhs::iox2_unique_notifier_id_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_unique_notifier_id_less(lhs::iox2_unique_notifier_id_h_ref, rhs::iox2_unique_notifier_id_h_ref)::Bool
 end
 
 """
@@ -15185,7 +15185,7 @@ void iox2_unique_publisher_id_value(iox2_unique_publisher_id_h handle, uint8_t *
 ```
 """
 function iox2_unique_publisher_id_value(handle, id_ptr, id_length)
-    @ccall libiceoryx2.iox2_unique_publisher_id_value(handle::iox2_unique_publisher_id_h, id_ptr::Ptr{UInt8}, id_length::Csize_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_unique_publisher_id_value(handle::iox2_unique_publisher_id_h, id_ptr::Ptr{UInt8}, id_length::Csize_t)::Cvoid
 end
 
 """
@@ -15207,7 +15207,7 @@ void iox2_unique_publisher_id_drop(iox2_unique_publisher_id_h handle);
 ```
 """
 function iox2_unique_publisher_id_drop(handle)
-    @ccall libiceoryx2.iox2_unique_publisher_id_drop(handle::iox2_unique_publisher_id_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_unique_publisher_id_drop(handle::iox2_unique_publisher_id_h)::Cvoid
 end
 
 """
@@ -15225,7 +15225,7 @@ bool iox2_unique_publisher_id_eq(iox2_unique_publisher_id_h_ref lhs, iox2_unique
 ```
 """
 function iox2_unique_publisher_id_eq(lhs, rhs)
-    @ccall libiceoryx2.iox2_unique_publisher_id_eq(lhs::iox2_unique_publisher_id_h_ref, rhs::iox2_unique_publisher_id_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_unique_publisher_id_eq(lhs::iox2_unique_publisher_id_h_ref, rhs::iox2_unique_publisher_id_h_ref)::Bool
 end
 
 """
@@ -15243,7 +15243,7 @@ bool iox2_unique_publisher_id_less(iox2_unique_publisher_id_h_ref lhs, iox2_uniq
 ```
 """
 function iox2_unique_publisher_id_less(lhs, rhs)
-    @ccall libiceoryx2.iox2_unique_publisher_id_less(lhs::iox2_unique_publisher_id_h_ref, rhs::iox2_unique_publisher_id_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_unique_publisher_id_less(lhs::iox2_unique_publisher_id_h_ref, rhs::iox2_unique_publisher_id_h_ref)::Bool
 end
 
 """
@@ -15265,7 +15265,7 @@ void iox2_unique_reader_id_value(iox2_unique_reader_id_h handle, uint8_t *id_ptr
 ```
 """
 function iox2_unique_reader_id_value(handle, id_ptr, id_length)
-    @ccall libiceoryx2.iox2_unique_reader_id_value(handle::iox2_unique_reader_id_h, id_ptr::Ptr{UInt8}, id_length::Csize_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_unique_reader_id_value(handle::iox2_unique_reader_id_h, id_ptr::Ptr{UInt8}, id_length::Csize_t)::Cvoid
 end
 
 """
@@ -15287,7 +15287,7 @@ void iox2_unique_reader_id_drop(iox2_unique_reader_id_h handle);
 ```
 """
 function iox2_unique_reader_id_drop(handle)
-    @ccall libiceoryx2.iox2_unique_reader_id_drop(handle::iox2_unique_reader_id_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_unique_reader_id_drop(handle::iox2_unique_reader_id_h)::Cvoid
 end
 
 """
@@ -15305,7 +15305,7 @@ bool iox2_unique_reader_id_eq(iox2_unique_reader_id_h_ref lhs, iox2_unique_reade
 ```
 """
 function iox2_unique_reader_id_eq(lhs, rhs)
-    @ccall libiceoryx2.iox2_unique_reader_id_eq(lhs::iox2_unique_reader_id_h_ref, rhs::iox2_unique_reader_id_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_unique_reader_id_eq(lhs::iox2_unique_reader_id_h_ref, rhs::iox2_unique_reader_id_h_ref)::Bool
 end
 
 """
@@ -15323,7 +15323,7 @@ bool iox2_unique_reader_id_less(iox2_unique_reader_id_h_ref lhs, iox2_unique_rea
 ```
 """
 function iox2_unique_reader_id_less(lhs, rhs)
-    @ccall libiceoryx2.iox2_unique_reader_id_less(lhs::iox2_unique_reader_id_h_ref, rhs::iox2_unique_reader_id_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_unique_reader_id_less(lhs::iox2_unique_reader_id_h_ref, rhs::iox2_unique_reader_id_h_ref)::Bool
 end
 
 """
@@ -15345,7 +15345,7 @@ void iox2_unique_server_id_value(iox2_unique_server_id_h handle, uint8_t *id_ptr
 ```
 """
 function iox2_unique_server_id_value(handle, id_ptr, id_length)
-    @ccall libiceoryx2.iox2_unique_server_id_value(handle::iox2_unique_server_id_h, id_ptr::Ptr{UInt8}, id_length::Csize_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_unique_server_id_value(handle::iox2_unique_server_id_h, id_ptr::Ptr{UInt8}, id_length::Csize_t)::Cvoid
 end
 
 """
@@ -15367,7 +15367,7 @@ void iox2_unique_server_id_drop(iox2_unique_server_id_h handle);
 ```
 """
 function iox2_unique_server_id_drop(handle)
-    @ccall libiceoryx2.iox2_unique_server_id_drop(handle::iox2_unique_server_id_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_unique_server_id_drop(handle::iox2_unique_server_id_h)::Cvoid
 end
 
 """
@@ -15385,7 +15385,7 @@ bool iox2_unique_server_id_eq(iox2_unique_server_id_h_ref lhs, iox2_unique_serve
 ```
 """
 function iox2_unique_server_id_eq(lhs, rhs)
-    @ccall libiceoryx2.iox2_unique_server_id_eq(lhs::iox2_unique_server_id_h_ref, rhs::iox2_unique_server_id_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_unique_server_id_eq(lhs::iox2_unique_server_id_h_ref, rhs::iox2_unique_server_id_h_ref)::Bool
 end
 
 """
@@ -15403,7 +15403,7 @@ bool iox2_unique_server_id_less(iox2_unique_server_id_h_ref lhs, iox2_unique_ser
 ```
 """
 function iox2_unique_server_id_less(lhs, rhs)
-    @ccall libiceoryx2.iox2_unique_server_id_less(lhs::iox2_unique_server_id_h_ref, rhs::iox2_unique_server_id_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_unique_server_id_less(lhs::iox2_unique_server_id_h_ref, rhs::iox2_unique_server_id_h_ref)::Bool
 end
 
 """
@@ -15425,7 +15425,7 @@ void iox2_unique_subscriber_id_value(iox2_unique_subscriber_id_h handle, uint8_t
 ```
 """
 function iox2_unique_subscriber_id_value(handle, id_ptr, id_length)
-    @ccall libiceoryx2.iox2_unique_subscriber_id_value(handle::iox2_unique_subscriber_id_h, id_ptr::Ptr{UInt8}, id_length::Csize_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_unique_subscriber_id_value(handle::iox2_unique_subscriber_id_h, id_ptr::Ptr{UInt8}, id_length::Csize_t)::Cvoid
 end
 
 """
@@ -15447,7 +15447,7 @@ void iox2_unique_subscriber_id_drop(iox2_unique_subscriber_id_h handle);
 ```
 """
 function iox2_unique_subscriber_id_drop(handle)
-    @ccall libiceoryx2.iox2_unique_subscriber_id_drop(handle::iox2_unique_subscriber_id_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_unique_subscriber_id_drop(handle::iox2_unique_subscriber_id_h)::Cvoid
 end
 
 """
@@ -15465,7 +15465,7 @@ bool iox2_unique_subscriber_id_eq(iox2_unique_subscriber_id_h_ref lhs, iox2_uniq
 ```
 """
 function iox2_unique_subscriber_id_eq(lhs, rhs)
-    @ccall libiceoryx2.iox2_unique_subscriber_id_eq(lhs::iox2_unique_subscriber_id_h_ref, rhs::iox2_unique_subscriber_id_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_unique_subscriber_id_eq(lhs::iox2_unique_subscriber_id_h_ref, rhs::iox2_unique_subscriber_id_h_ref)::Bool
 end
 
 """
@@ -15483,7 +15483,7 @@ bool iox2_unique_subscriber_id_less(iox2_unique_subscriber_id_h_ref lhs, iox2_un
 ```
 """
 function iox2_unique_subscriber_id_less(lhs, rhs)
-    @ccall libiceoryx2.iox2_unique_subscriber_id_less(lhs::iox2_unique_subscriber_id_h_ref, rhs::iox2_unique_subscriber_id_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_unique_subscriber_id_less(lhs::iox2_unique_subscriber_id_h_ref, rhs::iox2_unique_subscriber_id_h_ref)::Bool
 end
 
 """
@@ -15505,7 +15505,7 @@ void iox2_unique_writer_id_value(iox2_unique_writer_id_h handle, uint8_t *id_ptr
 ```
 """
 function iox2_unique_writer_id_value(handle, id_ptr, id_length)
-    @ccall libiceoryx2.iox2_unique_writer_id_value(handle::iox2_unique_writer_id_h, id_ptr::Ptr{UInt8}, id_length::Csize_t)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_unique_writer_id_value(handle::iox2_unique_writer_id_h, id_ptr::Ptr{UInt8}, id_length::Csize_t)::Cvoid
 end
 
 """
@@ -15527,7 +15527,7 @@ void iox2_unique_writer_id_drop(iox2_unique_writer_id_h handle);
 ```
 """
 function iox2_unique_writer_id_drop(handle)
-    @ccall libiceoryx2.iox2_unique_writer_id_drop(handle::iox2_unique_writer_id_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_unique_writer_id_drop(handle::iox2_unique_writer_id_h)::Cvoid
 end
 
 """
@@ -15545,7 +15545,7 @@ bool iox2_unique_writer_id_eq(iox2_unique_writer_id_h_ref lhs, iox2_unique_write
 ```
 """
 function iox2_unique_writer_id_eq(lhs, rhs)
-    @ccall libiceoryx2.iox2_unique_writer_id_eq(lhs::iox2_unique_writer_id_h_ref, rhs::iox2_unique_writer_id_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_unique_writer_id_eq(lhs::iox2_unique_writer_id_h_ref, rhs::iox2_unique_writer_id_h_ref)::Bool
 end
 
 """
@@ -15563,7 +15563,7 @@ bool iox2_unique_writer_id_less(iox2_unique_writer_id_h_ref lhs, iox2_unique_wri
 ```
 """
 function iox2_unique_writer_id_less(lhs, rhs)
-    @ccall libiceoryx2.iox2_unique_writer_id_less(lhs::iox2_unique_writer_id_h_ref, rhs::iox2_unique_writer_id_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_unique_writer_id_less(lhs::iox2_unique_writer_id_h_ref, rhs::iox2_unique_writer_id_h_ref)::Bool
 end
 
 """
@@ -15589,7 +15589,7 @@ const char *iox2_waitset_create_error_string(enum iox2_waitset_create_error_e er
 ```
 """
 function iox2_waitset_create_error_string(error)
-    @ccall libiceoryx2.iox2_waitset_create_error_string(error::iox2_waitset_create_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_waitset_create_error_string(error::iox2_waitset_create_error_e)::Cstring
 end
 
 """
@@ -15615,7 +15615,7 @@ const char *iox2_waitset_attachment_error_string(enum iox2_waitset_attachment_er
 ```
 """
 function iox2_waitset_attachment_error_string(error)
-    @ccall libiceoryx2.iox2_waitset_attachment_error_string(error::iox2_waitset_attachment_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_waitset_attachment_error_string(error::iox2_waitset_attachment_error_e)::Cstring
 end
 
 """
@@ -15641,7 +15641,7 @@ const char *iox2_waitset_run_error_string(enum iox2_waitset_run_error_e error);
 ```
 """
 function iox2_waitset_run_error_string(error)
-    @ccall libiceoryx2.iox2_waitset_run_error_string(error::iox2_waitset_run_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_waitset_run_error_string(error::iox2_waitset_run_error_e)::Cstring
 end
 
 """
@@ -15659,7 +15659,7 @@ void iox2_waitset_drop(iox2_waitset_h handle);
 ```
 """
 function iox2_waitset_drop(handle)
-    @ccall libiceoryx2.iox2_waitset_drop(handle::iox2_waitset_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_waitset_drop(handle::iox2_waitset_h)::Cvoid
 end
 
 """
@@ -15677,7 +15677,7 @@ bool iox2_waitset_is_empty(iox2_waitset_h_ref handle);
 ```
 """
 function iox2_waitset_is_empty(handle)
-    @ccall libiceoryx2.iox2_waitset_is_empty(handle::iox2_waitset_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_waitset_is_empty(handle::iox2_waitset_h_ref)::Bool
 end
 
 """
@@ -15695,7 +15695,7 @@ enum iox2_signal_handling_mode_e iox2_waitset_signal_handling_mode(iox2_waitset_
 ```
 """
 function iox2_waitset_signal_handling_mode(handle)
-    @ccall libiceoryx2.iox2_waitset_signal_handling_mode(handle::iox2_waitset_h_ref)::iox2_signal_handling_mode_e
+    @ccall libiceoryx2_ffi_c.iox2_waitset_signal_handling_mode(handle::iox2_waitset_h_ref)::iox2_signal_handling_mode_e
 end
 
 """
@@ -15713,7 +15713,7 @@ c_size_t iox2_waitset_len(iox2_waitset_h_ref handle);
 ```
 """
 function iox2_waitset_len(handle)
-    @ccall libiceoryx2.iox2_waitset_len(handle::iox2_waitset_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_waitset_len(handle::iox2_waitset_h_ref)::c_size_t
 end
 
 """
@@ -15731,7 +15731,7 @@ c_size_t iox2_waitset_capacity(iox2_waitset_h_ref handle);
 ```
 """
 function iox2_waitset_capacity(handle)
-    @ccall libiceoryx2.iox2_waitset_capacity(handle::iox2_waitset_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_waitset_capacity(handle::iox2_waitset_h_ref)::c_size_t
 end
 
 """
@@ -15755,7 +15755,7 @@ int iox2_waitset_attach_notification(iox2_waitset_h_ref handle, iox2_file_descri
 ```
 """
 function iox2_waitset_attach_notification(handle, fd, guard_struct_ptr, guard_handle_ptr)
-    @ccall libiceoryx2.iox2_waitset_attach_notification(handle::iox2_waitset_h_ref, fd::iox2_file_descriptor_ptr, guard_struct_ptr::Ptr{iox2_waitset_guard_t}, guard_handle_ptr::Ptr{iox2_waitset_guard_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_waitset_attach_notification(handle::iox2_waitset_h_ref, fd::iox2_file_descriptor_ptr, guard_struct_ptr::Ptr{iox2_waitset_guard_t}, guard_handle_ptr::Ptr{iox2_waitset_guard_h})::Cint
 end
 
 """
@@ -15779,7 +15779,7 @@ int iox2_waitset_attach_deadline(iox2_waitset_h_ref handle, iox2_file_descriptor
 ```
 """
 function iox2_waitset_attach_deadline(handle, fd, seconds, nanoseconds, guard_struct_ptr, guard_handle_ptr)
-    @ccall libiceoryx2.iox2_waitset_attach_deadline(handle::iox2_waitset_h_ref, fd::iox2_file_descriptor_ptr, seconds::UInt64, nanoseconds::UInt32, guard_struct_ptr::Ptr{iox2_waitset_guard_t}, guard_handle_ptr::Ptr{iox2_waitset_guard_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_waitset_attach_deadline(handle::iox2_waitset_h_ref, fd::iox2_file_descriptor_ptr, seconds::UInt64, nanoseconds::UInt32, guard_struct_ptr::Ptr{iox2_waitset_guard_t}, guard_handle_ptr::Ptr{iox2_waitset_guard_h})::Cint
 end
 
 """
@@ -15803,7 +15803,7 @@ int iox2_waitset_attach_interval(iox2_waitset_h_ref handle, uint64_t seconds, ui
 ```
 """
 function iox2_waitset_attach_interval(handle, seconds, nanoseconds, guard_struct_ptr, guard_handle_ptr)
-    @ccall libiceoryx2.iox2_waitset_attach_interval(handle::iox2_waitset_h_ref, seconds::UInt64, nanoseconds::UInt32, guard_struct_ptr::Ptr{iox2_waitset_guard_t}, guard_handle_ptr::Ptr{iox2_waitset_guard_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_waitset_attach_interval(handle::iox2_waitset_h_ref, seconds::UInt64, nanoseconds::UInt32, guard_struct_ptr::Ptr{iox2_waitset_guard_t}, guard_handle_ptr::Ptr{iox2_waitset_guard_h})::Cint
 end
 
 """
@@ -15829,7 +15829,7 @@ int iox2_waitset_wait_and_process_once(iox2_waitset_h_ref handle, iox2_waitset_r
 ```
 """
 function iox2_waitset_wait_and_process_once(handle, callback, callback_ctx, result)
-    @ccall libiceoryx2.iox2_waitset_wait_and_process_once(handle::iox2_waitset_h_ref, callback::iox2_waitset_run_callback, callback_ctx::iox2_callback_context, result::Ptr{iox2_waitset_run_result_e})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_waitset_wait_and_process_once(handle::iox2_waitset_h_ref, callback::iox2_waitset_run_callback, callback_ctx::iox2_callback_context, result::Ptr{iox2_waitset_run_result_e})::Cint
 end
 
 """
@@ -15855,7 +15855,7 @@ int iox2_waitset_wait_and_process_once_with_timeout(iox2_waitset_h_ref handle, i
 ```
 """
 function iox2_waitset_wait_and_process_once_with_timeout(handle, callback, callback_ctx, seconds, nanoseconds, result)
-    @ccall libiceoryx2.iox2_waitset_wait_and_process_once_with_timeout(handle::iox2_waitset_h_ref, callback::iox2_waitset_run_callback, callback_ctx::iox2_callback_context, seconds::UInt64, nanoseconds::UInt32, result::Ptr{iox2_waitset_run_result_e})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_waitset_wait_and_process_once_with_timeout(handle::iox2_waitset_h_ref, callback::iox2_waitset_run_callback, callback_ctx::iox2_callback_context, seconds::UInt64, nanoseconds::UInt32, result::Ptr{iox2_waitset_run_result_e})::Cint
 end
 
 """
@@ -15879,7 +15879,7 @@ int iox2_waitset_wait_and_process(iox2_waitset_h_ref handle, iox2_waitset_run_ca
 ```
 """
 function iox2_waitset_wait_and_process(handle, callback, callback_ctx, result)
-    @ccall libiceoryx2.iox2_waitset_wait_and_process(handle::iox2_waitset_h_ref, callback::iox2_waitset_run_callback, callback_ctx::iox2_callback_context, result::Ptr{iox2_waitset_run_result_e})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_waitset_wait_and_process(handle::iox2_waitset_h_ref, callback::iox2_waitset_run_callback, callback_ctx::iox2_callback_context, result::Ptr{iox2_waitset_run_result_e})::Cint
 end
 
 """
@@ -15895,7 +15895,7 @@ void iox2_waitset_attachment_id_drop(iox2_waitset_attachment_id_h handle);
 ```
 """
 function iox2_waitset_attachment_id_drop(handle)
-    @ccall libiceoryx2.iox2_waitset_attachment_id_drop(handle::iox2_waitset_attachment_id_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_waitset_attachment_id_drop(handle::iox2_waitset_attachment_id_h)::Cvoid
 end
 
 """
@@ -15911,7 +15911,7 @@ bool iox2_waitset_attachment_id_equal(iox2_waitset_attachment_id_h_ref lhs, iox2
 ```
 """
 function iox2_waitset_attachment_id_equal(lhs, rhs)
-    @ccall libiceoryx2.iox2_waitset_attachment_id_equal(lhs::iox2_waitset_attachment_id_h_ref, rhs::iox2_waitset_attachment_id_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_waitset_attachment_id_equal(lhs::iox2_waitset_attachment_id_h_ref, rhs::iox2_waitset_attachment_id_h_ref)::Bool
 end
 
 """
@@ -15927,7 +15927,7 @@ bool iox2_waitset_attachment_id_less(iox2_waitset_attachment_id_h_ref lhs, iox2_
 ```
 """
 function iox2_waitset_attachment_id_less(lhs, rhs)
-    @ccall libiceoryx2.iox2_waitset_attachment_id_less(lhs::iox2_waitset_attachment_id_h_ref, rhs::iox2_waitset_attachment_id_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_waitset_attachment_id_less(lhs::iox2_waitset_attachment_id_h_ref, rhs::iox2_waitset_attachment_id_h_ref)::Bool
 end
 
 """
@@ -15943,7 +15943,7 @@ bool iox2_waitset_attachment_id_has_event_from(iox2_waitset_attachment_id_h_ref 
 ```
 """
 function iox2_waitset_attachment_id_has_event_from(handle, guard)
-    @ccall libiceoryx2.iox2_waitset_attachment_id_has_event_from(handle::iox2_waitset_attachment_id_h_ref, guard::iox2_waitset_guard_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_waitset_attachment_id_has_event_from(handle::iox2_waitset_attachment_id_h_ref, guard::iox2_waitset_guard_h_ref)::Bool
 end
 
 """
@@ -15959,7 +15959,7 @@ bool iox2_waitset_attachment_id_has_missed_deadline(iox2_waitset_attachment_id_h
 ```
 """
 function iox2_waitset_attachment_id_has_missed_deadline(handle, guard)
-    @ccall libiceoryx2.iox2_waitset_attachment_id_has_missed_deadline(handle::iox2_waitset_attachment_id_h_ref, guard::iox2_waitset_guard_h_ref)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_waitset_attachment_id_has_missed_deadline(handle::iox2_waitset_attachment_id_h_ref, guard::iox2_waitset_guard_h_ref)::Bool
 end
 
 """
@@ -15975,7 +15975,7 @@ void iox2_waitset_attachment_id_from_guard(iox2_waitset_guard_h_ref guard, struc
 ```
 """
 function iox2_waitset_attachment_id_from_guard(guard, attachment_id_struct_ptr, attachment_id_handle_ptr)
-    @ccall libiceoryx2.iox2_waitset_attachment_id_from_guard(guard::iox2_waitset_guard_h_ref, attachment_id_struct_ptr::Ptr{iox2_waitset_attachment_id_t}, attachment_id_handle_ptr::Ptr{iox2_waitset_attachment_id_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_waitset_attachment_id_from_guard(guard::iox2_waitset_guard_h_ref, attachment_id_struct_ptr::Ptr{iox2_waitset_attachment_id_t}, attachment_id_handle_ptr::Ptr{iox2_waitset_attachment_id_h})::Cvoid
 end
 
 """
@@ -15991,7 +15991,7 @@ bool iox2_waitset_attachment_id_debug(iox2_waitset_attachment_id_h_ref handle, c
 ```
 """
 function iox2_waitset_attachment_id_debug(handle, debug_output, debug_len)
-    @ccall libiceoryx2.iox2_waitset_attachment_id_debug(handle::iox2_waitset_attachment_id_h_ref, debug_output::Cstring, debug_len::c_size_t)::Bool
+    @ccall libiceoryx2_ffi_c.iox2_waitset_attachment_id_debug(handle::iox2_waitset_attachment_id_h_ref, debug_output::Cstring, debug_len::c_size_t)::Bool
 end
 
 """
@@ -16007,7 +16007,7 @@ c_size_t iox2_waitset_attachment_id_debug_len(iox2_waitset_attachment_id_h_ref h
 ```
 """
 function iox2_waitset_attachment_id_debug_len(handle)
-    @ccall libiceoryx2.iox2_waitset_attachment_id_debug_len(handle::iox2_waitset_attachment_id_h_ref)::c_size_t
+    @ccall libiceoryx2_ffi_c.iox2_waitset_attachment_id_debug_len(handle::iox2_waitset_attachment_id_h_ref)::c_size_t
 end
 
 """
@@ -16025,7 +16025,7 @@ void iox2_waitset_builder_new(struct iox2_waitset_builder_t *struct_ptr, iox2_wa
 ```
 """
 function iox2_waitset_builder_new(struct_ptr, handle_ptr)
-    @ccall libiceoryx2.iox2_waitset_builder_new(struct_ptr::Ptr{iox2_waitset_builder_t}, handle_ptr::Ptr{iox2_waitset_builder_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_waitset_builder_new(struct_ptr::Ptr{iox2_waitset_builder_t}, handle_ptr::Ptr{iox2_waitset_builder_h})::Cvoid
 end
 
 """
@@ -16043,7 +16043,7 @@ void iox2_waitset_builder_drop(iox2_waitset_builder_h handle);
 ```
 """
 function iox2_waitset_builder_drop(handle)
-    @ccall libiceoryx2.iox2_waitset_builder_drop(handle::iox2_waitset_builder_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_waitset_builder_drop(handle::iox2_waitset_builder_h)::Cvoid
 end
 
 """
@@ -16065,7 +16065,7 @@ int iox2_waitset_builder_create(iox2_waitset_builder_h handle, enum iox2_service
 ```
 """
 function iox2_waitset_builder_create(handle, service_type, struct_ptr, handle_ptr)
-    @ccall libiceoryx2.iox2_waitset_builder_create(handle::iox2_waitset_builder_h, service_type::iox2_service_type_e, struct_ptr::Ptr{iox2_waitset_t}, handle_ptr::Ptr{iox2_waitset_h})::Cint
+    @ccall libiceoryx2_ffi_c.iox2_waitset_builder_create(handle::iox2_waitset_builder_h, service_type::iox2_service_type_e, struct_ptr::Ptr{iox2_waitset_t}, handle_ptr::Ptr{iox2_waitset_h})::Cint
 end
 
 """
@@ -16087,7 +16087,7 @@ void iox2_waitset_builder_set_signal_handling_mode(iox2_waitset_builder_h_ref wa
 ```
 """
 function iox2_waitset_builder_set_signal_handling_mode(waitset_builder_handle, signal_handling_mode)
-    @ccall libiceoryx2.iox2_waitset_builder_set_signal_handling_mode(waitset_builder_handle::iox2_waitset_builder_h_ref, signal_handling_mode::iox2_signal_handling_mode_e)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_waitset_builder_set_signal_handling_mode(waitset_builder_handle::iox2_waitset_builder_h_ref, signal_handling_mode::iox2_signal_handling_mode_e)::Cvoid
 end
 
 """
@@ -16105,7 +16105,7 @@ void iox2_waitset_guard_drop(iox2_waitset_guard_h handle);
 ```
 """
 function iox2_waitset_guard_drop(handle)
-    @ccall libiceoryx2.iox2_waitset_guard_drop(handle::iox2_waitset_guard_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_waitset_guard_drop(handle::iox2_waitset_guard_h)::Cvoid
 end
 
 """
@@ -16131,7 +16131,7 @@ const char *iox2_entry_handle_mut_error_string(enum iox2_entry_handle_mut_error_
 ```
 """
 function iox2_entry_handle_mut_error_string(error)
-    @ccall libiceoryx2.iox2_entry_handle_mut_error_string(error::iox2_entry_handle_mut_error_e)::Cstring
+    @ccall libiceoryx2_ffi_c.iox2_entry_handle_mut_error_string(error::iox2_entry_handle_mut_error_e)::Cstring
 end
 
 """
@@ -16153,7 +16153,7 @@ void iox2_writer_id(iox2_writer_h_ref writer_handle, struct iox2_unique_writer_i
 ```
 """
 function iox2_writer_id(writer_handle, id_struct_ptr, id_handle_ptr)
-    @ccall libiceoryx2.iox2_writer_id(writer_handle::iox2_writer_h_ref, id_struct_ptr::Ptr{iox2_unique_writer_id_t}, id_handle_ptr::Ptr{iox2_unique_writer_id_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_writer_id(writer_handle::iox2_writer_h_ref, id_struct_ptr::Ptr{iox2_unique_writer_id_t}, id_handle_ptr::Ptr{iox2_unique_writer_id_h})::Cvoid
 end
 
 """
@@ -16175,7 +16175,7 @@ int iox2_writer_entry(iox2_writer_h_ref writer_handle, struct iox2_entry_handle_
 ```
 """
 function iox2_writer_entry(writer_handle, entry_handle_mut_struct_ptr, entry_handle_mut_handle_ptr, key, value_type_name_str, value_type_name_len, value_size, value_alignment)
-    @ccall libiceoryx2.iox2_writer_entry(writer_handle::iox2_writer_h_ref, entry_handle_mut_struct_ptr::Ptr{iox2_entry_handle_mut_t}, entry_handle_mut_handle_ptr::Ptr{iox2_entry_handle_mut_h}, key::Ptr{Cvoid}, value_type_name_str::Cstring, value_type_name_len::c_size_t, value_size::c_size_t, value_alignment::c_size_t)::Cint
+    @ccall libiceoryx2_ffi_c.iox2_writer_entry(writer_handle::iox2_writer_h_ref, entry_handle_mut_struct_ptr::Ptr{iox2_entry_handle_mut_t}, entry_handle_mut_handle_ptr::Ptr{iox2_entry_handle_mut_h}, key::Ptr{Cvoid}, value_type_name_str::Cstring, value_type_name_len::c_size_t, value_size::c_size_t, value_alignment::c_size_t)::Cint
 end
 
 """
@@ -16197,7 +16197,7 @@ void iox2_writer_drop(iox2_writer_h writer_handle);
 ```
 """
 function iox2_writer_drop(writer_handle)
-    @ccall libiceoryx2.iox2_writer_drop(writer_handle::iox2_writer_h)::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_writer_drop(writer_handle::iox2_writer_h)::Cvoid
 end
 
 """
@@ -16215,7 +16215,7 @@ void iox2_writer_details_writer_id(iox2_writer_details_ptr handle, struct iox2_u
 ```
 """
 function iox2_writer_details_writer_id(handle, id_struct_ptr, id_handle_ptr)
-    @ccall libiceoryx2.iox2_writer_details_writer_id(handle::iox2_writer_details_ptr, id_struct_ptr::Ptr{iox2_unique_writer_id_t}, id_handle_ptr::Ptr{iox2_unique_writer_id_h})::Cvoid
+    @ccall libiceoryx2_ffi_c.iox2_writer_details_writer_id(handle::iox2_writer_details_ptr, id_struct_ptr::Ptr{iox2_unique_writer_id_t}, id_handle_ptr::Ptr{iox2_unique_writer_id_h})::Cvoid
 end
 
 """
@@ -16233,7 +16233,7 @@ iox2_node_id_ptr iox2_writer_details_node_id(iox2_writer_details_ptr handle);
 ```
 """
 function iox2_writer_details_node_id(handle)
-    @ccall libiceoryx2.iox2_writer_details_node_id(handle::iox2_writer_details_ptr)::iox2_node_id_ptr
+    @ccall libiceoryx2_ffi_c.iox2_writer_details_node_id(handle::iox2_writer_details_ptr)::iox2_node_id_ptr
 end
 
 const IOX2_OK = 0

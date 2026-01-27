@@ -1,5 +1,5 @@
 [general]
-library_name = "libiceoryx2"
+library_name = "libiceoryx2_ffi_c"
 output_file_path = "../src/Iceoryx2FFI.jl"
 module_name = "Iceoryx2FFI"
 jll_pkg_name = "Iceoryx2_jll"
