@@ -8,5 +8,6 @@ include("errors.jl")
 include("strings.jl")
 include("builders.jl")
 include("messaging.jl")
+include("callbacks.jl")
 
 end # module Iceoryx2
