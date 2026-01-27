@@ -114,3 +114,65 @@ end
 
     close(node)
 end
+
+@testset "ListNodes" begin
+    builder = Iceoryx2.NodeBuilder()
+    Iceoryx2.name!(builder, "iceoryx2_julia_test_node_list")
+    node = Iceoryx2.create(builder; service_type=:ipc)
+
+    count = Ref(0)
+    Iceoryx2.list_nodes(service_type=:ipc) do _state, _node_id, _node_id_str, _node_name, _config
+        count[] += 1
+        return :stop
+    end
+    @test count[] >= 1
+
+    close(node)
+end
+
+@testset "ServiceListing" begin
+    builder = Iceoryx2.NodeBuilder()
+    Iceoryx2.name!(builder, "iceoryx2_julia_test_node_service_list")
+    node = Iceoryx2.create(builder; service_type=:ipc)
+
+    service_name = "iceoryx2_julia_test_service_list"
+    svc_builder = Iceoryx2.service_builder(node, service_name)
+    pubsub_builder = Iceoryx2.pub_sub(svc_builder)
+    Iceoryx2.payload_type!(pubsub_builder, UInt64)
+    factory = Iceoryx2.open_or_create(pubsub_builder)
+
+    names = String[]
+    Iceoryx2.list_services(service_type=:ipc) do cfg
+        push!(names, Iceoryx2.name(cfg))
+        return :continue
+    end
+    @test any(==(service_name), names)
+
+    @test Iceoryx2.service_does_exist(service_name; service_type=:ipc, messaging_pattern=:publish_subscribe)
+    exists, details = Iceoryx2.service_details(service_name; service_type=:ipc, messaging_pattern=:publish_subscribe)
+    @test exists
+    @test Iceoryx2.name(details) == service_name
+
+    close(node)
+    close(factory)
+end
+
+@testset "WaitsetInterval" begin
+    builder = Iceoryx2.WaitsetBuilder()
+    waitset = Iceoryx2.create(builder; service_type=:ipc)
+    guard = Iceoryx2.attach_interval(waitset, 0, 10_000_000)
+
+    called = Ref(false)
+    result = Iceoryx2.wait_and_process_once(waitset, 0, 100_000_000) do attachment
+        called[] = true
+        close(attachment)
+        return :stop
+    end
+
+    @test called[]
+    @test result == Iceoryx2.Iceoryx2FFI.iox2_waitset_run_result_e_STOP_REQUEST ||
+          result == Iceoryx2.Iceoryx2FFI.iox2_waitset_run_result_e_ALL_EVENTS_HANDLED
+
+    close(guard)
+    close(waitset)
+end

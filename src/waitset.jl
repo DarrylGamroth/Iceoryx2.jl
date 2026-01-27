@@ -1,7 +1,5 @@
 # WaitSet wrappers.
 
-using FunctionWrappers: FunctionWrapper
-
 @inline function _signal_handling_mode(value)
     if value isa Iceoryx2FFI.iox2_signal_handling_mode_e
         return value
@@ -102,78 +100,98 @@ function attach_interval(waitset::Waitset, seconds::Integer, nanoseconds::Intege
     return WaitsetGuard(guard_ref[])
 end
 
-struct _WaitsetCallbackCtx
-    fn::FunctionWrapper{Iceoryx2FFI.iox2_callback_progression_e, Tuple{WaitsetAttachmentId}}
+abstract type AbstractWaitsetHandler end
+
+mutable struct WaitsetHandler{T} <: AbstractWaitsetHandler
+    on_event::T
 end
 
-function _waitset_trampoline(attachment::Iceoryx2FFI.iox2_waitset_attachment_id_h, ctx::Ptr{Cvoid})::Iceoryx2FFI.iox2_callback_progression_e
-    ctx_ref = unsafe_pointer_to_objref(ctx)::_WaitsetCallbackCtx
-    return ctx_ref.fn(WaitsetAttachmentId(attachment))
+on_waitset_event(h::WaitsetHandler) = h.on_event
+
+function _waitset_wrapper(attachment::Iceoryx2FFI.iox2_waitset_attachment_id_h, handler::AbstractWaitsetHandler)
+    return _callback_progression(on_waitset_event(handler)(WaitsetAttachmentId(attachment)))
 end
 
-const _WAITSET_CB = @cfunction(
-    _waitset_trampoline,
-    Iceoryx2FFI.iox2_callback_progression_e,
-    (Iceoryx2FFI.iox2_waitset_attachment_id_h, Ptr{Cvoid}),
-)
+function _waitset_cfunction(::T) where {T<:AbstractWaitsetHandler}
+    @cfunction(
+        _waitset_wrapper,
+        Iceoryx2FFI.iox2_callback_progression_e,
+        (Iceoryx2FFI.iox2_waitset_attachment_id_h, Ref{T}),
+    )
+end
 
-function wait_and_process_once(waitset::Waitset, f::Function)
+function wait_and_process_once(waitset::Waitset, handler::AbstractWaitsetHandler)
     _require_valid(unsafe_handle(waitset), "waitset")
     result = Ref{Iceoryx2FFI.iox2_waitset_run_result_e}()
-    let user_f = f
-        ctx = _WaitsetCallbackCtx(FunctionWrapper{Iceoryx2FFI.iox2_callback_progression_e, Tuple{WaitsetAttachmentId}}(attachment -> _callback_progression(user_f(attachment))))
-        ctx_ref = Ref(ctx)
-        GC.@preserve ctx_ref begin
-            ret = Iceoryx2FFI.iox2_waitset_wait_and_process_once(
-                Ref{Iceoryx2FFI.iox2_waitset_h}(unsafe_handle(waitset)),
-                _WAITSET_CB,
-                Base.unsafe_convert(Ptr{Cvoid}, ctx_ref),
-                result,
-            )
-            check_ok(ret, Iceoryx2FFI.iox2_waitset_run_error_e)
-        end
+    handler_ref = Ref(handler)
+    GC.@preserve handler_ref begin
+        ret = Iceoryx2FFI.iox2_waitset_wait_and_process_once(
+            Ref{Iceoryx2FFI.iox2_waitset_h}(unsafe_handle(waitset)),
+            _waitset_cfunction(handler_ref[]),
+            handler_ref,
+            result,
+        )
+        check_ok(ret, Iceoryx2FFI.iox2_waitset_run_error_e)
+    end
+    return result[]
+end
+
+function wait_and_process_once(waitset::Waitset, f::Function)
+    return wait_and_process_once(waitset, WaitsetHandler(f))
+end
+
+function wait_and_process_once(f::Function, waitset::Waitset)
+    return wait_and_process_once(waitset, f)
+end
+
+function wait_and_process_once(waitset::Waitset, seconds::Integer, nanoseconds::Integer, handler::AbstractWaitsetHandler)
+    _require_valid(unsafe_handle(waitset), "waitset")
+    result = Ref{Iceoryx2FFI.iox2_waitset_run_result_e}()
+    handler_ref = Ref(handler)
+    GC.@preserve handler_ref begin
+        ret = Iceoryx2FFI.iox2_waitset_wait_and_process_once_with_timeout(
+            Ref{Iceoryx2FFI.iox2_waitset_h}(unsafe_handle(waitset)),
+            _waitset_cfunction(handler_ref[]),
+            handler_ref,
+            UInt64(seconds),
+            UInt32(nanoseconds),
+            result,
+        )
+        check_ok(ret, Iceoryx2FFI.iox2_waitset_run_error_e)
     end
     return result[]
 end
 
 function wait_and_process_once(waitset::Waitset, seconds::Integer, nanoseconds::Integer, f::Function)
+    return wait_and_process_once(waitset, seconds, nanoseconds, WaitsetHandler(f))
+end
+
+function wait_and_process_once(f::Function, waitset::Waitset, seconds::Integer, nanoseconds::Integer)
+    return wait_and_process_once(waitset, seconds, nanoseconds, f)
+end
+
+function wait_and_process(waitset::Waitset, handler::AbstractWaitsetHandler)
     _require_valid(unsafe_handle(waitset), "waitset")
     result = Ref{Iceoryx2FFI.iox2_waitset_run_result_e}()
-    let user_f = f
-        ctx = _WaitsetCallbackCtx(FunctionWrapper{Iceoryx2FFI.iox2_callback_progression_e, Tuple{WaitsetAttachmentId}}(attachment -> _callback_progression(user_f(attachment))))
-        ctx_ref = Ref(ctx)
-        GC.@preserve ctx_ref begin
-            ret = Iceoryx2FFI.iox2_waitset_wait_and_process_once_with_timeout(
-                Ref{Iceoryx2FFI.iox2_waitset_h}(unsafe_handle(waitset)),
-                _WAITSET_CB,
-                Base.unsafe_convert(Ptr{Cvoid}, ctx_ref),
-                UInt64(seconds),
-                UInt32(nanoseconds),
-                result,
-            )
-            check_ok(ret, Iceoryx2FFI.iox2_waitset_run_error_e)
-        end
+    handler_ref = Ref(handler)
+    GC.@preserve handler_ref begin
+        ret = Iceoryx2FFI.iox2_waitset_wait_and_process(
+            Ref{Iceoryx2FFI.iox2_waitset_h}(unsafe_handle(waitset)),
+            _waitset_cfunction(handler_ref[]),
+            handler_ref,
+            result,
+        )
+        check_ok(ret, Iceoryx2FFI.iox2_waitset_run_error_e)
     end
     return result[]
 end
 
 function wait_and_process(waitset::Waitset, f::Function)
-    _require_valid(unsafe_handle(waitset), "waitset")
-    result = Ref{Iceoryx2FFI.iox2_waitset_run_result_e}()
-    let user_f = f
-        ctx = _WaitsetCallbackCtx(FunctionWrapper{Iceoryx2FFI.iox2_callback_progression_e, Tuple{WaitsetAttachmentId}}(attachment -> _callback_progression(user_f(attachment))))
-        ctx_ref = Ref(ctx)
-        GC.@preserve ctx_ref begin
-            ret = Iceoryx2FFI.iox2_waitset_wait_and_process(
-                Ref{Iceoryx2FFI.iox2_waitset_h}(unsafe_handle(waitset)),
-                _WAITSET_CB,
-                Base.unsafe_convert(Ptr{Cvoid}, ctx_ref),
-                result,
-            )
-            check_ok(ret, Iceoryx2FFI.iox2_waitset_run_error_e)
-        end
-    end
-    return result[]
+    return wait_and_process(waitset, WaitsetHandler(f))
+end
+
+function wait_and_process(f::Function, waitset::Waitset)
+    return wait_and_process(waitset, f)
 end
 
 function attachment_id(guard::WaitsetGuard)

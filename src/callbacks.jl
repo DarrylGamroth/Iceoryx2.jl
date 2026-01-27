@@ -1,7 +1,5 @@
 # Callback and iteration helpers.
 
-using FunctionWrappers: FunctionWrapper
-
 @inline function _callback_progression(value)
     if value isa Iceoryx2FFI.iox2_callback_progression_e
         return value
@@ -26,66 +24,83 @@ end
     return Iceoryx2FFI.iox2_config_global_config()
 end
 
-struct _NodeListCallbackCtx
-    fn::FunctionWrapper{Iceoryx2FFI.iox2_callback_progression_e, Tuple{Iceoryx2FFI.iox2_node_state_e, NodeIdView, Cstring, NodeNameView, ConfigView}}
+abstract type AbstractNodeListHandler end
+
+mutable struct NodeListHandler{T} <: AbstractNodeListHandler
+    on_list::T
 end
 
-function _node_list_trampoline(state::Iceoryx2FFI.iox2_node_state_e,
+on_node_list(h::NodeListHandler) = h.on_list
+
+function _node_list_wrapper(
+    state::Iceoryx2FFI.iox2_node_state_e,
     node_id_ptr::Iceoryx2FFI.iox2_node_id_ptr,
     node_id_str::Cstring,
     node_name_ptr::Iceoryx2FFI.iox2_node_name_ptr,
     config_ptr::Iceoryx2FFI.iox2_config_ptr,
-    ctx::Ptr{Cvoid},
-)::Iceoryx2FFI.iox2_callback_progression_e
-    ctx_ref = unsafe_pointer_to_objref(ctx)::_NodeListCallbackCtx
-    return ctx_ref.fn(state, NodeIdView(node_id_ptr), node_id_str, NodeNameView(node_name_ptr), ConfigView(config_ptr))
+    handler::AbstractNodeListHandler,
+)
+    return _callback_progression(
+        on_node_list(handler)(state, NodeIdView(node_id_ptr), node_id_str, NodeNameView(node_name_ptr), ConfigView(config_ptr)),
+    )
 end
 
-const _NODE_LIST_CB = @cfunction(
-    _node_list_trampoline,
-    Iceoryx2FFI.iox2_callback_progression_e,
-    (
-        Iceoryx2FFI.iox2_node_state_e,
-        Iceoryx2FFI.iox2_node_id_ptr,
-        Cstring,
-        Iceoryx2FFI.iox2_node_name_ptr,
-        Iceoryx2FFI.iox2_config_ptr,
-        Ptr{Cvoid},
-    ),
+function _node_list_cfunction(::T) where {T<:AbstractNodeListHandler}
+    @cfunction(
+        _node_list_wrapper,
+        Iceoryx2FFI.iox2_callback_progression_e,
+        (
+            Iceoryx2FFI.iox2_node_state_e,
+            Iceoryx2FFI.iox2_node_id_ptr,
+            Cstring,
+            Iceoryx2FFI.iox2_node_name_ptr,
+            Iceoryx2FFI.iox2_config_ptr,
+            Ref{T},
+        ),
+    )
+end
+
+function list_nodes(
+    handler::AbstractNodeListHandler;
+    service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e} = :ipc,
+    config::Union{Config, ConfigView, Nothing} = nothing,
 )
+    handler_ref = Ref(handler)
+    GC.@preserve handler_ref begin
+        ret = Iceoryx2FFI.iox2_node_list(
+            _service_type(service_type),
+            _config_ptr_from_arg(config),
+            _node_list_cfunction(handler_ref[]),
+            handler_ref,
+        )
+        check_ok(ret, Iceoryx2FFI.iox2_node_list_failure_e)
+    end
+    return nothing
+end
 
 function list_nodes(
     f::Function;
     service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e} = :ipc,
     config::Union{Config, ConfigView, Nothing} = nothing,
 )
-    let user_f = f
-        ctx = _NodeListCallbackCtx(FunctionWrapper{Iceoryx2FFI.iox2_callback_progression_e, Tuple{Iceoryx2FFI.iox2_node_state_e, NodeIdView, Cstring, NodeNameView, ConfigView}}(
-            (state, node_id, node_id_str, node_name, cfg) -> _callback_progression(user_f(state, node_id, node_id_str, node_name, cfg)),
-        ))
-        ctx_ref = Ref(ctx)
-        GC.@preserve ctx_ref begin
-            ret = Iceoryx2FFI.iox2_node_list(_service_type(service_type), _config_ptr_from_arg(config), _NODE_LIST_CB, Base.unsafe_convert(Ptr{Cvoid}, ctx_ref))
-            check_ok(ret, Iceoryx2FFI.iox2_node_list_failure_e)
-        end
-    end
-    return nothing
+    return list_nodes(NodeListHandler(f); service_type, config)
 end
 
-struct _AttributeValueCallbackCtx
-    fn::FunctionWrapper{Iceoryx2FFI.iox2_callback_progression_e, Tuple{Cstring}}
+abstract type AbstractAttributeValueHandler end
+
+mutable struct AttributeValueHandler{T} <: AbstractAttributeValueHandler
+    on_value::T
 end
 
-function _attribute_value_trampoline(value::Cstring, ctx::Ptr{Cvoid})::Iceoryx2FFI.iox2_callback_progression_e
-    ctx_ref = unsafe_pointer_to_objref(ctx)::_AttributeValueCallbackCtx
-    return ctx_ref.fn(value)
+on_attribute_value(h::AttributeValueHandler) = h.on_value
+
+function _attribute_value_wrapper(value::Cstring, handler::AbstractAttributeValueHandler)
+    return _callback_progression(on_attribute_value(handler)(value))
 end
 
-const _ATTRIBUTE_VALUE_CB = @cfunction(
-    _attribute_value_trampoline,
-    Iceoryx2FFI.iox2_callback_progression_e,
-    (Cstring, Ptr{Cvoid}),
-)
+function _attribute_value_cfunction(::T) where {T<:AbstractAttributeValueHandler}
+    @cfunction(_attribute_value_wrapper, Iceoryx2FFI.iox2_callback_progression_e, (Cstring, Ref{T}))
+end
 
 @inline function _attribute_set_ptr(attrs::AttributeSet)
     _require_valid(unsafe_handle(attrs), "attribute set")
@@ -96,18 +111,26 @@ end
     return unsafe_handle(attrs)
 end
 
-function each_attribute_value(attrs::Union{AttributeSet, AttributeSetView}, key::AbstractString, f::Function)
-    let user_f = f
-        ctx = _AttributeValueCallbackCtx(FunctionWrapper{Iceoryx2FFI.iox2_callback_progression_e, Tuple{Cstring}}(
-            value -> _callback_progression(user_f(value)),
-        ))
-        ctx_ref = Ref(ctx)
-        key_str = String(key)
-        GC.@preserve ctx_ref key_str begin
-            Iceoryx2FFI.iox2_attribute_set_iter_key_values(_attribute_set_ptr(attrs), Base.unsafe_convert(Cstring, key_str), _ATTRIBUTE_VALUE_CB, Base.unsafe_convert(Ptr{Cvoid}, ctx_ref))
-        end
+function each_attribute_value(
+    attrs::Union{AttributeSet, AttributeSetView},
+    key::AbstractString,
+    handler::AbstractAttributeValueHandler,
+)
+    key_str = String(key)
+    handler_ref = Ref(handler)
+    GC.@preserve handler_ref key_str begin
+        Iceoryx2FFI.iox2_attribute_set_iter_key_values(
+            _attribute_set_ptr(attrs),
+            Base.unsafe_convert(Cstring, key_str),
+            _attribute_value_cfunction(handler_ref[]),
+            handler_ref,
+        )
     end
     return nothing
+end
+
+function each_attribute_value(attrs::Union{AttributeSet, AttributeSetView}, key::AbstractString, f::Function)
+    return each_attribute_value(attrs, key, AttributeValueHandler(f))
 end
 
 function attribute_values(attrs::Union{AttributeSet, AttributeSetView}, key::AbstractString)

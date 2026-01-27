@@ -1,7 +1,5 @@
 # Config, static config, and dynamic config helpers.
 
-using FunctionWrappers: FunctionWrapper
-
 @inline function _messaging_pattern(value)
     if value isa Iceoryx2FFI.iox2_messaging_pattern_e
         return value
@@ -18,9 +16,14 @@ using FunctionWrappers: FunctionWrapper
 end
 
 @inline function _cstring_from_ntuple(nt::NTuple{N, Cchar}) where {N}
-    r = Ref(nt)
-    ptr = Base.unsafe_convert(Ptr{Cchar}, r)
-    return unsafe_string(ptr)
+    idx = findfirst(==(0), nt)
+    len = idx === nothing ? N : idx - 1
+    len == 0 && return ""
+    data = Vector{UInt8}(undef, len)
+    @inbounds for i in 1:len
+        data[i] = UInt8(nt[i])
+    end
+    return String(data)
 end
 
 function default_config()
@@ -134,156 +137,211 @@ function service_details(
     return exists[], StaticConfig(details_ref[])
 end
 
-struct _ServiceListCallbackCtx
-    fn::FunctionWrapper{Iceoryx2FFI.iox2_callback_progression_e, Tuple{StaticConfig}}
+abstract type AbstractServiceListHandler end
+
+mutable struct ServiceListHandler{T} <: AbstractServiceListHandler
+    on_service::T
 end
 
-function _service_list_trampoline(config_ptr::Ptr{Iceoryx2FFI.iox2_static_config_t}, ctx::Ptr{Cvoid})::Iceoryx2FFI.iox2_callback_progression_e
-    ctx_ref = unsafe_pointer_to_objref(ctx)::_ServiceListCallbackCtx
-    return ctx_ref.fn(StaticConfig(unsafe_load(config_ptr)))
+on_service_list(h::ServiceListHandler) = h.on_service
+
+function _service_list_wrapper(config_ptr::Ptr{Iceoryx2FFI.iox2_static_config_t}, handler::AbstractServiceListHandler)
+    return _callback_progression(on_service_list(handler)(StaticConfig(unsafe_load(config_ptr))))
 end
 
-const _SERVICE_LIST_CB = @cfunction(
-    _service_list_trampoline,
-    Iceoryx2FFI.iox2_callback_progression_e,
-    (Ptr{Iceoryx2FFI.iox2_static_config_t}, Ptr{Cvoid}),
+function _service_list_cfunction(::T) where {T<:AbstractServiceListHandler}
+    @cfunction(
+        _service_list_wrapper,
+        Iceoryx2FFI.iox2_callback_progression_e,
+        (Ptr{Iceoryx2FFI.iox2_static_config_t}, Ref{T}),
+    )
+end
+
+function list_services(
+    handler::AbstractServiceListHandler;
+    service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e} = :ipc,
+    config::Union{Config, ConfigView, Nothing} = nothing,
 )
+    handler_ref = Ref(handler)
+    GC.@preserve handler_ref begin
+        ret = Iceoryx2FFI.iox2_service_list(
+            _service_type(service_type),
+            _config_ptr_from_arg(config),
+            _service_list_cfunction(handler_ref[]),
+            handler_ref,
+        )
+        check_ok(ret, Iceoryx2FFI.iox2_service_list_error_e)
+    end
+    return nothing
+end
 
 function list_services(
     f::Function;
     service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e} = :ipc,
     config::Union{Config, ConfigView, Nothing} = nothing,
 )
-    let user_f = f
-        ctx = _ServiceListCallbackCtx(FunctionWrapper{Iceoryx2FFI.iox2_callback_progression_e, Tuple{StaticConfig}}(cfg -> _callback_progression(user_f(cfg))))
-        ctx_ref = Ref(ctx)
-        GC.@preserve ctx_ref begin
-            ret = Iceoryx2FFI.iox2_service_list(_service_type(service_type), _config_ptr_from_arg(config), _SERVICE_LIST_CB, Base.unsafe_convert(Ptr{Cvoid}, ctx_ref))
-            check_ok(ret, Iceoryx2FFI.iox2_service_list_error_e)
-        end
-    end
-    return nothing
+    return list_services(ServiceListHandler(f); service_type, config)
 end
 
-struct _PublisherDetailsCallbackCtx
-    fn::FunctionWrapper{Iceoryx2FFI.iox2_callback_progression_e, Tuple{PublisherDetailsView}}
+abstract type AbstractPublisherDetailsHandler end
+
+mutable struct PublisherDetailsHandler{T} <: AbstractPublisherDetailsHandler
+    on_details::T
 end
 
-function _publisher_details_trampoline(ctx::Ptr{Cvoid}, details_ptr::Iceoryx2FFI.iox2_publisher_details_ptr)::Iceoryx2FFI.iox2_callback_progression_e
-    ctx_ref = unsafe_pointer_to_objref(ctx)::_PublisherDetailsCallbackCtx
-    return ctx_ref.fn(PublisherDetailsView(details_ptr))
+on_publisher_details(h::PublisherDetailsHandler) = h.on_details
+
+function _publisher_details_wrapper(handler::AbstractPublisherDetailsHandler, details_ptr::Iceoryx2FFI.iox2_publisher_details_ptr)
+    return _callback_progression(on_publisher_details(handler)(PublisherDetailsView(details_ptr)))
 end
 
-const _PUBLISHER_DETAILS_CB = @cfunction(
-    _publisher_details_trampoline,
-    Iceoryx2FFI.iox2_callback_progression_e,
-    (Ptr{Cvoid}, Iceoryx2FFI.iox2_publisher_details_ptr),
-)
-
-struct _SubscriberDetailsCallbackCtx
-    fn::FunctionWrapper{Iceoryx2FFI.iox2_callback_progression_e, Tuple{SubscriberDetailsView}}
+function _publisher_details_cfunction(::T) where {T<:AbstractPublisherDetailsHandler}
+    @cfunction(
+        _publisher_details_wrapper,
+        Iceoryx2FFI.iox2_callback_progression_e,
+        (Ref{T}, Iceoryx2FFI.iox2_publisher_details_ptr),
+    )
 end
 
-function _subscriber_details_trampoline(ctx::Ptr{Cvoid}, details_ptr::Iceoryx2FFI.iox2_subscriber_details_ptr)::Iceoryx2FFI.iox2_callback_progression_e
-    ctx_ref = unsafe_pointer_to_objref(ctx)::_SubscriberDetailsCallbackCtx
-    return ctx_ref.fn(SubscriberDetailsView(details_ptr))
+abstract type AbstractSubscriberDetailsHandler end
+
+mutable struct SubscriberDetailsHandler{T} <: AbstractSubscriberDetailsHandler
+    on_details::T
 end
 
-const _SUBSCRIBER_DETAILS_CB = @cfunction(
-    _subscriber_details_trampoline,
-    Iceoryx2FFI.iox2_callback_progression_e,
-    (Ptr{Cvoid}, Iceoryx2FFI.iox2_subscriber_details_ptr),
-)
+on_subscriber_details(h::SubscriberDetailsHandler) = h.on_details
 
-struct _ListenerDetailsCallbackCtx
-    fn::FunctionWrapper{Iceoryx2FFI.iox2_callback_progression_e, Tuple{ListenerDetailsView}}
+function _subscriber_details_wrapper(handler::AbstractSubscriberDetailsHandler, details_ptr::Iceoryx2FFI.iox2_subscriber_details_ptr)
+    return _callback_progression(on_subscriber_details(handler)(SubscriberDetailsView(details_ptr)))
 end
 
-function _listener_details_trampoline(ctx::Ptr{Cvoid}, details_ptr::Iceoryx2FFI.iox2_listener_details_ptr)::Iceoryx2FFI.iox2_callback_progression_e
-    ctx_ref = unsafe_pointer_to_objref(ctx)::_ListenerDetailsCallbackCtx
-    return ctx_ref.fn(ListenerDetailsView(details_ptr))
+function _subscriber_details_cfunction(::T) where {T<:AbstractSubscriberDetailsHandler}
+    @cfunction(
+        _subscriber_details_wrapper,
+        Iceoryx2FFI.iox2_callback_progression_e,
+        (Ref{T}, Iceoryx2FFI.iox2_subscriber_details_ptr),
+    )
 end
 
-const _LISTENER_DETAILS_CB = @cfunction(
-    _listener_details_trampoline,
-    Iceoryx2FFI.iox2_callback_progression_e,
-    (Ptr{Cvoid}, Iceoryx2FFI.iox2_listener_details_ptr),
-)
+abstract type AbstractListenerDetailsHandler end
 
-struct _NotifierDetailsCallbackCtx
-    fn::FunctionWrapper{Iceoryx2FFI.iox2_callback_progression_e, Tuple{NotifierDetailsView}}
+mutable struct ListenerDetailsHandler{T} <: AbstractListenerDetailsHandler
+    on_details::T
 end
 
-function _notifier_details_trampoline(ctx::Ptr{Cvoid}, details_ptr::Iceoryx2FFI.iox2_notifier_details_ptr)::Iceoryx2FFI.iox2_callback_progression_e
-    ctx_ref = unsafe_pointer_to_objref(ctx)::_NotifierDetailsCallbackCtx
-    return ctx_ref.fn(NotifierDetailsView(details_ptr))
+on_listener_details(h::ListenerDetailsHandler) = h.on_details
+
+function _listener_details_wrapper(handler::AbstractListenerDetailsHandler, details_ptr::Iceoryx2FFI.iox2_listener_details_ptr)
+    return _callback_progression(on_listener_details(handler)(ListenerDetailsView(details_ptr)))
 end
 
-const _NOTIFIER_DETAILS_CB = @cfunction(
-    _notifier_details_trampoline,
-    Iceoryx2FFI.iox2_callback_progression_e,
-    (Ptr{Cvoid}, Iceoryx2FFI.iox2_notifier_details_ptr),
-)
-
-struct _ReaderDetailsCallbackCtx
-    fn::FunctionWrapper{Iceoryx2FFI.iox2_callback_progression_e, Tuple{ReaderDetailsView}}
+function _listener_details_cfunction(::T) where {T<:AbstractListenerDetailsHandler}
+    @cfunction(
+        _listener_details_wrapper,
+        Iceoryx2FFI.iox2_callback_progression_e,
+        (Ref{T}, Iceoryx2FFI.iox2_listener_details_ptr),
+    )
 end
 
-function _reader_details_trampoline(ctx::Ptr{Cvoid}, details_ptr::Iceoryx2FFI.iox2_reader_details_ptr)::Iceoryx2FFI.iox2_callback_progression_e
-    ctx_ref = unsafe_pointer_to_objref(ctx)::_ReaderDetailsCallbackCtx
-    return ctx_ref.fn(ReaderDetailsView(details_ptr))
+abstract type AbstractNotifierDetailsHandler end
+
+mutable struct NotifierDetailsHandler{T} <: AbstractNotifierDetailsHandler
+    on_details::T
 end
 
-const _READER_DETAILS_CB = @cfunction(
-    _reader_details_trampoline,
-    Iceoryx2FFI.iox2_callback_progression_e,
-    (Ptr{Cvoid}, Iceoryx2FFI.iox2_reader_details_ptr),
-)
+on_notifier_details(h::NotifierDetailsHandler) = h.on_details
 
-struct _WriterDetailsCallbackCtx
-    fn::FunctionWrapper{Iceoryx2FFI.iox2_callback_progression_e, Tuple{WriterDetailsView}}
+function _notifier_details_wrapper(handler::AbstractNotifierDetailsHandler, details_ptr::Iceoryx2FFI.iox2_notifier_details_ptr)
+    return _callback_progression(on_notifier_details(handler)(NotifierDetailsView(details_ptr)))
 end
 
-function _writer_details_trampoline(ctx::Ptr{Cvoid}, details_ptr::Iceoryx2FFI.iox2_writer_details_ptr)::Iceoryx2FFI.iox2_callback_progression_e
-    ctx_ref = unsafe_pointer_to_objref(ctx)::_WriterDetailsCallbackCtx
-    return ctx_ref.fn(WriterDetailsView(details_ptr))
+function _notifier_details_cfunction(::T) where {T<:AbstractNotifierDetailsHandler}
+    @cfunction(
+        _notifier_details_wrapper,
+        Iceoryx2FFI.iox2_callback_progression_e,
+        (Ref{T}, Iceoryx2FFI.iox2_notifier_details_ptr),
+    )
 end
 
-const _WRITER_DETAILS_CB = @cfunction(
-    _writer_details_trampoline,
-    Iceoryx2FFI.iox2_callback_progression_e,
-    (Ptr{Cvoid}, Iceoryx2FFI.iox2_writer_details_ptr),
-)
+abstract type AbstractReaderDetailsHandler end
 
-struct _ClientDetailsCallbackCtx
-    fn::FunctionWrapper{Iceoryx2FFI.iox2_callback_progression_e, Tuple{ClientDetailsView}}
+mutable struct ReaderDetailsHandler{T} <: AbstractReaderDetailsHandler
+    on_details::T
 end
 
-function _client_details_trampoline(ctx::Ptr{Cvoid}, details_ptr::Iceoryx2FFI.iox2_client_details_ptr)::Iceoryx2FFI.iox2_callback_progression_e
-    ctx_ref = unsafe_pointer_to_objref(ctx)::_ClientDetailsCallbackCtx
-    return ctx_ref.fn(ClientDetailsView(details_ptr))
+on_reader_details(h::ReaderDetailsHandler) = h.on_details
+
+function _reader_details_wrapper(handler::AbstractReaderDetailsHandler, details_ptr::Iceoryx2FFI.iox2_reader_details_ptr)
+    return _callback_progression(on_reader_details(handler)(ReaderDetailsView(details_ptr)))
 end
 
-const _CLIENT_DETAILS_CB = @cfunction(
-    _client_details_trampoline,
-    Iceoryx2FFI.iox2_callback_progression_e,
-    (Ptr{Cvoid}, Iceoryx2FFI.iox2_client_details_ptr),
-)
-
-struct _ServerDetailsCallbackCtx
-    fn::FunctionWrapper{Iceoryx2FFI.iox2_callback_progression_e, Tuple{ServerDetailsView}}
+function _reader_details_cfunction(::T) where {T<:AbstractReaderDetailsHandler}
+    @cfunction(
+        _reader_details_wrapper,
+        Iceoryx2FFI.iox2_callback_progression_e,
+        (Ref{T}, Iceoryx2FFI.iox2_reader_details_ptr),
+    )
 end
 
-function _server_details_trampoline(ctx::Ptr{Cvoid}, details_ptr::Iceoryx2FFI.iox2_server_details_ptr)::Iceoryx2FFI.iox2_callback_progression_e
-    ctx_ref = unsafe_pointer_to_objref(ctx)::_ServerDetailsCallbackCtx
-    return ctx_ref.fn(ServerDetailsView(details_ptr))
+abstract type AbstractWriterDetailsHandler end
+
+mutable struct WriterDetailsHandler{T} <: AbstractWriterDetailsHandler
+    on_details::T
 end
 
-const _SERVER_DETAILS_CB = @cfunction(
-    _server_details_trampoline,
-    Iceoryx2FFI.iox2_callback_progression_e,
-    (Ptr{Cvoid}, Iceoryx2FFI.iox2_server_details_ptr),
-)
+on_writer_details(h::WriterDetailsHandler) = h.on_details
+
+function _writer_details_wrapper(handler::AbstractWriterDetailsHandler, details_ptr::Iceoryx2FFI.iox2_writer_details_ptr)
+    return _callback_progression(on_writer_details(handler)(WriterDetailsView(details_ptr)))
+end
+
+function _writer_details_cfunction(::T) where {T<:AbstractWriterDetailsHandler}
+    @cfunction(
+        _writer_details_wrapper,
+        Iceoryx2FFI.iox2_callback_progression_e,
+        (Ref{T}, Iceoryx2FFI.iox2_writer_details_ptr),
+    )
+end
+
+abstract type AbstractClientDetailsHandler end
+
+mutable struct ClientDetailsHandler{T} <: AbstractClientDetailsHandler
+    on_details::T
+end
+
+on_client_details(h::ClientDetailsHandler) = h.on_details
+
+function _client_details_wrapper(handler::AbstractClientDetailsHandler, details_ptr::Iceoryx2FFI.iox2_client_details_ptr)
+    return _callback_progression(on_client_details(handler)(ClientDetailsView(details_ptr)))
+end
+
+function _client_details_cfunction(::T) where {T<:AbstractClientDetailsHandler}
+    @cfunction(
+        _client_details_wrapper,
+        Iceoryx2FFI.iox2_callback_progression_e,
+        (Ref{T}, Iceoryx2FFI.iox2_client_details_ptr),
+    )
+end
+
+abstract type AbstractServerDetailsHandler end
+
+mutable struct ServerDetailsHandler{T} <: AbstractServerDetailsHandler
+    on_details::T
+end
+
+on_server_details(h::ServerDetailsHandler) = h.on_details
+
+function _server_details_wrapper(handler::AbstractServerDetailsHandler, details_ptr::Iceoryx2FFI.iox2_server_details_ptr)
+    return _callback_progression(on_server_details(handler)(ServerDetailsView(details_ptr)))
+end
+
+function _server_details_cfunction(::T) where {T<:AbstractServerDetailsHandler}
+    @cfunction(
+        _server_details_wrapper,
+        Iceoryx2FFI.iox2_callback_progression_e,
+        (Ref{T}, Iceoryx2FFI.iox2_server_details_ptr),
+    )
+end
 
 @inline function number_of_publishers(factory::PortFactoryPubSub)
     return Int(Iceoryx2FFI.iox2_port_factory_pub_sub_dynamic_config_number_of_publishers(Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle)))
@@ -293,26 +351,36 @@ end
     return Int(Iceoryx2FFI.iox2_port_factory_pub_sub_dynamic_config_number_of_subscribers(Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle)))
 end
 
+function list_publishers(factory::PortFactoryPubSub, handler::AbstractPublisherDetailsHandler)
+    handler_ref = Ref(handler)
+    GC.@preserve handler_ref begin
+        Iceoryx2FFI.iox2_port_factory_pub_sub_dynamic_config_list_publishers(
+            Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle),
+            _publisher_details_cfunction(handler_ref[]),
+            handler_ref,
+        )
+    end
+    return nothing
+end
+
 function list_publishers(factory::PortFactoryPubSub, f::Function)
-    let user_f = f
-        ctx = _PublisherDetailsCallbackCtx(FunctionWrapper{Iceoryx2FFI.iox2_callback_progression_e, Tuple{PublisherDetailsView}}(details -> _callback_progression(user_f(details))))
-        ctx_ref = Ref(ctx)
-        GC.@preserve ctx_ref begin
-            Iceoryx2FFI.iox2_port_factory_pub_sub_dynamic_config_list_publishers(Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle), _PUBLISHER_DETAILS_CB, Base.unsafe_convert(Ptr{Cvoid}, ctx_ref))
-        end
+    return list_publishers(factory, PublisherDetailsHandler(f))
+end
+
+function list_subscribers(factory::PortFactoryPubSub, handler::AbstractSubscriberDetailsHandler)
+    handler_ref = Ref(handler)
+    GC.@preserve handler_ref begin
+        Iceoryx2FFI.iox2_port_factory_pub_sub_dynamic_config_list_subscribers(
+            Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle),
+            _subscriber_details_cfunction(handler_ref[]),
+            handler_ref,
+        )
     end
     return nothing
 end
 
 function list_subscribers(factory::PortFactoryPubSub, f::Function)
-    let user_f = f
-        ctx = _SubscriberDetailsCallbackCtx(FunctionWrapper{Iceoryx2FFI.iox2_callback_progression_e, Tuple{SubscriberDetailsView}}(details -> _callback_progression(user_f(details))))
-        ctx_ref = Ref(ctx)
-        GC.@preserve ctx_ref begin
-            Iceoryx2FFI.iox2_port_factory_pub_sub_dynamic_config_list_subscribers(Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle), _SUBSCRIBER_DETAILS_CB, Base.unsafe_convert(Ptr{Cvoid}, ctx_ref))
-        end
-    end
-    return nothing
+    return list_subscribers(factory, SubscriberDetailsHandler(f))
 end
 
 @inline function number_of_listeners(factory::PortFactoryEvent)
@@ -323,26 +391,36 @@ end
     return Int(Iceoryx2FFI.iox2_port_factory_event_dynamic_config_number_of_notifiers(Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle)))
 end
 
+function list_listeners(factory::PortFactoryEvent, handler::AbstractListenerDetailsHandler)
+    handler_ref = Ref(handler)
+    GC.@preserve handler_ref begin
+        Iceoryx2FFI.iox2_port_factory_event_dynamic_config_list_listeners(
+            Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle),
+            _listener_details_cfunction(handler_ref[]),
+            handler_ref,
+        )
+    end
+    return nothing
+end
+
 function list_listeners(factory::PortFactoryEvent, f::Function)
-    let user_f = f
-        ctx = _ListenerDetailsCallbackCtx(FunctionWrapper{Iceoryx2FFI.iox2_callback_progression_e, Tuple{ListenerDetailsView}}(details -> _callback_progression(user_f(details))))
-        ctx_ref = Ref(ctx)
-        GC.@preserve ctx_ref begin
-            Iceoryx2FFI.iox2_port_factory_event_dynamic_config_list_listeners(Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle), _LISTENER_DETAILS_CB, Base.unsafe_convert(Ptr{Cvoid}, ctx_ref))
-        end
+    return list_listeners(factory, ListenerDetailsHandler(f))
+end
+
+function list_notifiers(factory::PortFactoryEvent, handler::AbstractNotifierDetailsHandler)
+    handler_ref = Ref(handler)
+    GC.@preserve handler_ref begin
+        Iceoryx2FFI.iox2_port_factory_event_dynamic_config_list_notifiers(
+            Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle),
+            _notifier_details_cfunction(handler_ref[]),
+            handler_ref,
+        )
     end
     return nothing
 end
 
 function list_notifiers(factory::PortFactoryEvent, f::Function)
-    let user_f = f
-        ctx = _NotifierDetailsCallbackCtx(FunctionWrapper{Iceoryx2FFI.iox2_callback_progression_e, Tuple{NotifierDetailsView}}(details -> _callback_progression(user_f(details))))
-        ctx_ref = Ref(ctx)
-        GC.@preserve ctx_ref begin
-            Iceoryx2FFI.iox2_port_factory_event_dynamic_config_list_notifiers(Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle), _NOTIFIER_DETAILS_CB, Base.unsafe_convert(Ptr{Cvoid}, ctx_ref))
-        end
-    end
-    return nothing
+    return list_notifiers(factory, NotifierDetailsHandler(f))
 end
 
 @inline function number_of_clients(factory::PortFactoryRequestResponse)
@@ -353,26 +431,36 @@ end
     return Int(Iceoryx2FFI.iox2_port_factory_request_response_dynamic_config_number_of_servers(Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle)))
 end
 
+function list_clients(factory::PortFactoryRequestResponse, handler::AbstractClientDetailsHandler)
+    handler_ref = Ref(handler)
+    GC.@preserve handler_ref begin
+        Iceoryx2FFI.iox2_port_factory_request_response_dynamic_config_list_clients(
+            Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle),
+            _client_details_cfunction(handler_ref[]),
+            handler_ref,
+        )
+    end
+    return nothing
+end
+
 function list_clients(factory::PortFactoryRequestResponse, f::Function)
-    let user_f = f
-        ctx = _ClientDetailsCallbackCtx(FunctionWrapper{Iceoryx2FFI.iox2_callback_progression_e, Tuple{ClientDetailsView}}(details -> _callback_progression(user_f(details))))
-        ctx_ref = Ref(ctx)
-        GC.@preserve ctx_ref begin
-            Iceoryx2FFI.iox2_port_factory_request_response_dynamic_config_list_clients(Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle), _CLIENT_DETAILS_CB, Base.unsafe_convert(Ptr{Cvoid}, ctx_ref))
-        end
+    return list_clients(factory, ClientDetailsHandler(f))
+end
+
+function list_servers(factory::PortFactoryRequestResponse, handler::AbstractServerDetailsHandler)
+    handler_ref = Ref(handler)
+    GC.@preserve handler_ref begin
+        Iceoryx2FFI.iox2_port_factory_request_response_dynamic_config_list_servers(
+            Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle),
+            _server_details_cfunction(handler_ref[]),
+            handler_ref,
+        )
     end
     return nothing
 end
 
 function list_servers(factory::PortFactoryRequestResponse, f::Function)
-    let user_f = f
-        ctx = _ServerDetailsCallbackCtx(FunctionWrapper{Iceoryx2FFI.iox2_callback_progression_e, Tuple{ServerDetailsView}}(details -> _callback_progression(user_f(details))))
-        ctx_ref = Ref(ctx)
-        GC.@preserve ctx_ref begin
-            Iceoryx2FFI.iox2_port_factory_request_response_dynamic_config_list_servers(Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle), _SERVER_DETAILS_CB, Base.unsafe_convert(Ptr{Cvoid}, ctx_ref))
-        end
-    end
-    return nothing
+    return list_servers(factory, ServerDetailsHandler(f))
 end
 
 @inline function number_of_readers(factory::PortFactoryBlackboard)
@@ -383,24 +471,34 @@ end
     return Int(Iceoryx2FFI.iox2_port_factory_blackboard_dynamic_config_number_of_writers(Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle)))
 end
 
+function list_readers(factory::PortFactoryBlackboard, handler::AbstractReaderDetailsHandler)
+    handler_ref = Ref(handler)
+    GC.@preserve handler_ref begin
+        Iceoryx2FFI.iox2_port_factory_blackboard_dynamic_config_list_readers(
+            Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle),
+            _reader_details_cfunction(handler_ref[]),
+            handler_ref,
+        )
+    end
+    return nothing
+end
+
 function list_readers(factory::PortFactoryBlackboard, f::Function)
-    let user_f = f
-        ctx = _ReaderDetailsCallbackCtx(FunctionWrapper{Iceoryx2FFI.iox2_callback_progression_e, Tuple{ReaderDetailsView}}(details -> _callback_progression(user_f(details))))
-        ctx_ref = Ref(ctx)
-        GC.@preserve ctx_ref begin
-            Iceoryx2FFI.iox2_port_factory_blackboard_dynamic_config_list_readers(Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle), _READER_DETAILS_CB, Base.unsafe_convert(Ptr{Cvoid}, ctx_ref))
-        end
+    return list_readers(factory, ReaderDetailsHandler(f))
+end
+
+function list_writers(factory::PortFactoryBlackboard, handler::AbstractWriterDetailsHandler)
+    handler_ref = Ref(handler)
+    GC.@preserve handler_ref begin
+        Iceoryx2FFI.iox2_port_factory_blackboard_dynamic_config_list_writers(
+            Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle),
+            _writer_details_cfunction(handler_ref[]),
+            handler_ref,
+        )
     end
     return nothing
 end
 
 function list_writers(factory::PortFactoryBlackboard, f::Function)
-    let user_f = f
-        ctx = _WriterDetailsCallbackCtx(FunctionWrapper{Iceoryx2FFI.iox2_callback_progression_e, Tuple{WriterDetailsView}}(details -> _callback_progression(user_f(details))))
-        ctx_ref = Ref(ctx)
-        GC.@preserve ctx_ref begin
-            Iceoryx2FFI.iox2_port_factory_blackboard_dynamic_config_list_writers(Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle), _WRITER_DETAILS_CB, Base.unsafe_convert(Ptr{Cvoid}, ctx_ref))
-        end
-    end
-    return nothing
+    return list_writers(factory, WriterDetailsHandler(f))
 end
