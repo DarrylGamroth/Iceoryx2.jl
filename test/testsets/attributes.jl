@@ -8,6 +8,10 @@
     scratch = Iceoryx2.AttributeScratch()
     @test String(Iceoryx2.key_view!(scratch, attrs[1])) == "some_key"
     @test String(Iceoryx2.value_view!(scratch, attrs[1])) == "some_value"
+    Iceoryx2.with_attribute_scratch() do local_scratch
+        @test String(Iceoryx2.key_view!(local_scratch, attrs[1])) == "some_key"
+        @test String(Iceoryx2.value_view!(local_scratch, attrs[1])) == "some_value"
+    end
 
     verifier_keys = Iceoryx2.AttributeVerifier()
     Iceoryx2.require_key!(verifier_keys, "key_1")

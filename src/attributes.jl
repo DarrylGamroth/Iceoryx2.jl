@@ -18,6 +18,11 @@ function AttributeScratch()
     )
 end
 
+function with_attribute_scratch(f::Function)
+    scratch = AttributeScratch()
+    return f(scratch)
+end
+
 @inline function _ensure_valid_attribute(handle, what::AbstractString)
     handle != _IOX2_NULL || throw(ArgumentError("invalid $what"))
     return nothing
