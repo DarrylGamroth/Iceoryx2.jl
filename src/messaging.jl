@@ -26,32 +26,62 @@ struct TypeDetails
 end
 
 const _TYPE_DETAILS = IdDict{DataType, TypeDetails}()
+const _TYPE_DETAILS_LOCK = Base.Threads.SpinLock()
 
 @inline function _type_details(::Type{T}) where {T}
-    details = Base.get!(_TYPE_DETAILS, T) do
-        name = string(T)
-        TypeDetails(
-            name,
-            Iceoryx2FFI.c_size_t(ncodeunits(name)),
-            Iceoryx2FFI.c_size_t(sizeof(T)),
-            Iceoryx2FFI.c_size_t(Base.datatype_alignment(T)),
-        )
-    end::TypeDetails
+    if Base.Threads.nthreads() == 1
+        details = Base.get!(_TYPE_DETAILS, T) do
+            name = string(T)
+            TypeDetails(
+                name,
+                Iceoryx2FFI.c_size_t(ncodeunits(name)),
+                Iceoryx2FFI.c_size_t(sizeof(T)),
+                Iceoryx2FFI.c_size_t(Base.datatype_alignment(T)),
+            )
+        end::TypeDetails
+        return details.name, details.name_len, details.size, details.alignment
+    end
+    lock(_TYPE_DETAILS_LOCK)
+    try
+        details = Base.get!(_TYPE_DETAILS, T) do
+            name = string(T)
+            TypeDetails(
+                name,
+                Iceoryx2FFI.c_size_t(ncodeunits(name)),
+                Iceoryx2FFI.c_size_t(sizeof(T)),
+                Iceoryx2FFI.c_size_t(Base.datatype_alignment(T)),
+            )
+        end::TypeDetails
+    finally
+        unlock(_TYPE_DETAILS_LOCK)
+    end
     return details.name, details.name_len, details.size, details.alignment
 end
 
 const _StorageRef{T} = Union{Nothing, Base.RefValue{T}}
 
-struct Slice{T}
+struct Slice{T,O}
     ptr::Ptr{T}
     len::Int
+    owner::O
 end
 
+Slice{T}(ptr::Ptr{T}, len::Integer) where {T} = Slice{T,Nothing}(ptr, Int(len), nothing)
+Slice{T}(ptr::Ptr{T}, len::Integer, owner) where {T} = Slice{T,typeof(owner)}(ptr, Int(len), owner)
+
 Base.length(slice::Slice) = slice.len
+Base.size(slice::Slice) = (slice.len,)
+Base.eltype(::Type{Slice{T}}) where {T} = T
+Base.IndexStyle(::Type{<:Slice}) = IndexLinear()
 
 @inline function Base.getindex(slice::Slice{T}, i::Int) where {T}
     @boundscheck (i >= 1 && i <= slice.len) || throw(BoundsError(slice, i))
     return unsafe_load(slice.ptr, i)
+end
+
+@inline function Base.iterate(slice::Slice{T}, state::Int = 1) where {T}
+    state > slice.len && return nothing
+    return unsafe_load(slice.ptr, state), state + 1
 end
 
 struct EventId
@@ -313,7 +343,7 @@ end
     ptr_ref = Ref{Ptr{Cvoid}}()
     len_ref = Ref{Iceoryx2FFI.c_size_t}()
     Iceoryx2FFI.iox2_sample_payload(Ref{Iceoryx2FFI.iox2_sample_h}(sample.handle), ptr_ref, len_ref)
-    return Slice{T}(Ptr{T}(ptr_ref[]), Int(len_ref[]))
+    return Slice{T}(Ptr{T}(ptr_ref[]), Int(len_ref[]), sample)
 end
 
 mutable struct SampleMut{T}
@@ -334,7 +364,7 @@ end
     ptr_ref = Ref{Ptr{Cvoid}}()
     len_ref = Ref{Iceoryx2FFI.c_size_t}()
     Iceoryx2FFI.iox2_sample_mut_payload_mut(Ref{Iceoryx2FFI.iox2_sample_mut_h}(sample.handle), ptr_ref, len_ref)
-    return Slice{T}(Ptr{T}(ptr_ref[]), Int(len_ref[]))
+    return Slice{T}(Ptr{T}(ptr_ref[]), Int(len_ref[]), sample)
 end
 
 function loan_slice(publisher::Publisher{T}, n::Integer) where {T}
@@ -688,7 +718,7 @@ end
     ptr_ref = Ref{Ptr{Cvoid}}()
     len_ref = Ref{Iceoryx2FFI.c_size_t}()
     Iceoryx2FFI.iox2_request_mut_payload_mut(Ref{Iceoryx2FFI.iox2_request_mut_h}(request.handle), ptr_ref, len_ref)
-    return Slice{Req}(Ptr{Req}(ptr_ref[]), Int(len_ref[]))
+    return Slice{Req}(Ptr{Req}(ptr_ref[]), Int(len_ref[]), request)
 end
 
 mutable struct PendingResponse{Resp}
@@ -776,7 +806,7 @@ end
     ptr_ref = Ref{Ptr{Cvoid}}()
     len_ref = Ref{Iceoryx2FFI.c_size_t}()
     Iceoryx2FFI.iox2_response_payload(Ref{Iceoryx2FFI.iox2_response_h}(resp.handle), ptr_ref, len_ref)
-    return Slice{RespT}(Ptr{RespT}(ptr_ref[]), Int(len_ref[]))
+    return Slice{RespT}(Ptr{RespT}(ptr_ref[]), Int(len_ref[]), resp)
 end
 
 function receive(pending::PendingResponse{Resp}) where {Resp}
@@ -811,7 +841,7 @@ end
     ptr_ref = Ref{Ptr{Cvoid}}()
     len_ref = Ref{Iceoryx2FFI.c_size_t}()
     Iceoryx2FFI.iox2_active_request_payload(Ref{Iceoryx2FFI.iox2_active_request_h}(req.handle), ptr_ref, len_ref)
-    return Slice{ReqT}(Ptr{ReqT}(ptr_ref[]), Int(len_ref[]))
+    return Slice{ReqT}(Ptr{ReqT}(ptr_ref[]), Int(len_ref[]), req)
 end
 
 mutable struct ResponseMut{Resp}
@@ -832,7 +862,7 @@ end
     ptr_ref = Ref{Ptr{Cvoid}}()
     len_ref = Ref{Iceoryx2FFI.c_size_t}()
     Iceoryx2FFI.iox2_response_mut_payload_mut(Ref{Iceoryx2FFI.iox2_response_mut_h}(resp.handle), ptr_ref, len_ref)
-    return Slice{RespT}(Ptr{RespT}(ptr_ref[]), Int(len_ref[]))
+    return Slice{RespT}(Ptr{RespT}(ptr_ref[]), Int(len_ref[]), resp)
 end
 
 function receive(server::Server{Req,Resp}) where {Req,Resp}
@@ -1391,12 +1421,23 @@ const _BLACKBOARD_KEY_EQ_CMP_64 = @cfunction(_blackboard_key_eq_cmp_64, Bool, (P
     throw(ArgumentError("unsupported blackboard key size: $size bytes"))
 end
 
+"""
+    key_eq_comparison!(builder::BlackboardCreatorBuilder, ::Type{K})
+
+Configures a byte-wise key equality comparator for `K`. Keys should avoid padding and
+uninitialized bytes to ensure deterministic equality.
+"""
 function key_eq_comparison!(builder::BlackboardCreatorBuilder, ::Type{K}) where {K}
     _require_valid(builder.handle, "blackboard creator")
     _require_isbits(K)
+    return key_eq_comparison!(builder, _blackboard_key_eq_cmp_ptr(K))
+end
+
+function key_eq_comparison!(builder::BlackboardCreatorBuilder, cmp::Ptr{Cvoid})
+    _require_valid(builder.handle, "blackboard creator")
     Iceoryx2FFI.iox2_service_builder_blackboard_creator_set_key_eq_comparison_function(
         Ref{Iceoryx2FFI.iox2_service_builder_blackboard_creator_h}(builder.handle),
-        _blackboard_key_eq_cmp_ptr(K),
+        cmp,
     )
     return builder
 end
@@ -1607,6 +1648,79 @@ function _finalize_entry_handle_mut(entry::EntryHandleMut)
     end
     entry.storage = nothing
     return nothing
+end
+
+mutable struct EntryValueUninit{K,V}
+    handle::Iceoryx2FFI.iox2_entry_value_uninit_h
+    storage::_StorageRef{Iceoryx2FFI.iox2_entry_value_uninit_t}
+    keepalive::Writer
+end
+
+function _finalize_entry_value_uninit(value::EntryValueUninit)
+    if value.handle != _IOX2_NULL
+        Iceoryx2FFI.iox2_entry_value_uninit_drop(value.handle)
+        value.handle = _IOX2_NULL
+    end
+    value.storage = nothing
+    return nothing
+end
+
+function loan_uninit(entry::EntryHandleMut{K,V}) where {K,V}
+    _require_valid(entry.handle, "entry handle mut")
+    storage = Ref{Iceoryx2FFI.iox2_entry_value_uninit_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_entry_value_uninit_h}(_IOX2_NULL)
+    size = Iceoryx2FFI.c_size_t(sizeof(V))
+    alignment = Iceoryx2FFI.c_size_t(Base.datatype_alignment(V))
+    Iceoryx2FFI.iox2_entry_handle_mut_loan_uninit(entry.handle, storage, handle_ref, size, alignment)
+    entry.handle = _IOX2_NULL
+    entry.storage = nothing
+    value = EntryValueUninit{K,V}(handle_ref[], storage, entry.keepalive)
+    finalizer(_finalize_entry_value_uninit, value)
+    return value
+end
+
+function loan_uninit(f::Function, entry::EntryHandleMut{K,V}) where {K,V}
+    value = loan_uninit(entry)
+    try
+        return f(value)
+    finally
+        isvalid(value) && close(value)
+    end
+end
+
+function loan_uninit(entry::EntryHandleMut{K,V}, f::Function) where {K,V}
+    return loan_uninit(f, entry)
+end
+
+@inline function value_mut(value::EntryValueUninit{K,V}) where {K,V}
+    ptr_ref = Ref{Ptr{Cvoid}}()
+    Iceoryx2FFI.iox2_entry_value_uninit_value_mut(
+        Ref{Iceoryx2FFI.iox2_entry_value_uninit_h}(value.handle),
+        ptr_ref,
+    )
+    return Ptr{V}(ptr_ref[])
+end
+
+function update!(value::EntryValueUninit{K,V}) where {K,V}
+    storage = Ref{Iceoryx2FFI.iox2_entry_handle_mut_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_entry_handle_mut_h}(_IOX2_NULL)
+    Iceoryx2FFI.iox2_entry_value_uninit_update(value.handle, storage, handle_ref)
+    value.handle = _IOX2_NULL
+    value.storage = nothing
+    entry = EntryHandleMut{K,V}(handle_ref[], storage, value.keepalive)
+    finalizer(_finalize_entry_handle_mut, entry)
+    return entry
+end
+
+function discard!(value::EntryValueUninit{K,V}) where {K,V}
+    storage = Ref{Iceoryx2FFI.iox2_entry_handle_mut_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_entry_handle_mut_h}(_IOX2_NULL)
+    Iceoryx2FFI.iox2_entry_value_uninit_discard(value.handle, storage, handle_ref)
+    value.handle = _IOX2_NULL
+    value.storage = nothing
+    entry = EntryHandleMut{K,V}(handle_ref[], storage, value.keepalive)
+    finalizer(_finalize_entry_handle_mut, entry)
+    return entry
 end
 
 function reader_entry(reader::Reader, key::K, ::Type{V}) where {K,V}
@@ -1863,6 +1977,7 @@ end
 @inline Base.isvalid(obj::Reader) = obj.handle != _IOX2_NULL
 @inline Base.isvalid(obj::EntryHandle) = obj.handle != _IOX2_NULL
 @inline Base.isvalid(obj::EntryHandleMut) = obj.handle != _IOX2_NULL
+@inline Base.isvalid(obj::EntryValueUninit) = obj.handle != _IOX2_NULL
 
 function Base.close(obj::PortFactoryPubSub)
     _finalize_port_factory_pub_sub(obj)
@@ -1966,5 +2081,10 @@ end
 
 function Base.close(obj::EntryHandleMut)
     _finalize_entry_handle_mut(obj)
+    return nothing
+end
+
+function Base.close(obj::EntryValueUninit)
+    _finalize_entry_value_uninit(obj)
     return nothing
 end

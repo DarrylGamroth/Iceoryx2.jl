@@ -30,6 +30,18 @@
     @test value[] == UInt64(42)
     @test generation[] isa UInt64
 
+    entry_mut = Iceoryx2.writer_entry(writer, UInt64(1), UInt64)
+    uninit = Iceoryx2.loan_uninit(entry_mut)
+    ptr = Iceoryx2.value_mut(uninit)
+    unsafe_store!(ptr, UInt64(77))
+    entry_mut = Iceoryx2.update!(uninit)
+    close(entry_mut)
+
+    Iceoryx2.reader_entry(reader, UInt64(1), UInt64) do entry
+        value[], generation[] = Iceoryx2.get(entry)
+    end
+    @test value[] == UInt64(77)
+
     close(reader)
     close(writer)
     close(factory)

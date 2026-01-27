@@ -26,6 +26,8 @@ The service builder checks `isbits` and throws if the payload type is not eligib
 
 `payload(::Sample)` and `payload_mut(::SampleMut)` return a `Slice{T}` view into shared memory.
 It is **allocation-free** and valid only while the owning sample/request/response is alive.
+The slice keeps the owner alive to avoid GC collection, but calling `close` on the owner
+still invalidates the view.
 
 Reading:
 
