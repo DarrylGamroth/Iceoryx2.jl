@@ -83,6 +83,12 @@ Base.lastindex(slice::Slice) = slice.len
     return unsafe_load(slice.ptr, i)
 end
 
+@inline function Base.setindex!(slice::Slice{T}, value::T, i::Int) where {T}
+    @boundscheck (i >= 1 && i <= slice.len) || throw(BoundsError(slice, i))
+    unsafe_store!(slice.ptr, value, i)
+    return value
+end
+
 @inline function Base.iterate(slice::Slice{T}, state::Int = 1) where {T}
     state > slice.len && return nothing
     return unsafe_load(slice.ptr, state), state + 1

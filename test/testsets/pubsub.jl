@@ -72,3 +72,53 @@ end
     close(factory)
     close(node)
 end
+
+@testset "PubSubDynamicSliceStructSetindex" begin
+    struct TestHeader
+        a::UInt32
+        b::Float64
+    end
+
+    builder = Iceoryx2.NodeBuilder()
+    Iceoryx2.name!(builder, "iceoryx2_julia_test_node_pubsub_struct_slice")
+    node = Iceoryx2.create(builder; service_type=:ipc)
+
+    svc_builder = Iceoryx2.service_builder(node, unique_service_name())
+    pubsub_builder = Iceoryx2.pub_sub(svc_builder)
+    Iceoryx2.payload_type!(pubsub_builder, TestHeader; variant = :dynamic)
+    factory = Iceoryx2.open_or_create(pubsub_builder)
+
+    payload_len = 2
+    pub_builder = Iceoryx2.publisher_builder(factory, TestHeader)
+    Iceoryx2.initial_max_slice_len!(pub_builder, payload_len)
+    pub = Iceoryx2.create(pub_builder)
+    sub = Iceoryx2.create(Iceoryx2.subscriber_builder(factory, TestHeader))
+
+    loaned = Iceoryx2.loan_slice(pub, payload_len)
+    slice = Iceoryx2.payload_mut(loaned)
+    slice[1] = TestHeader(UInt32(1), 2.0)
+    slice[2] = TestHeader(UInt32(3), 4.0)
+    Iceoryx2.send!(loaned)
+
+    sample = nothing
+    for _ in 1:50
+        sample = Iceoryx2.receive(sub)
+        sample !== nothing && break
+        sleep(0.01)
+    end
+    @test sample !== nothing
+    if sample !== nothing
+        recv = Iceoryx2.payload(sample)
+        @test length(recv) == payload_len
+        @test recv[1].a == UInt32(1)
+        @test recv[1].b == 2.0
+        @test recv[2].a == UInt32(3)
+        @test recv[2].b == 4.0
+        close(sample)
+    end
+
+    close(sub)
+    close(pub)
+    close(factory)
+    close(node)
+end
