@@ -58,6 +58,9 @@ ignore_owning = Set([
     "listener",
     "reader",
     "writer",
+    "entry_handle",
+    "entry_handle_mut",
+    "entry_value_uninit",
 ])
 
 ffi_text = read(ffi_path, String)
