@@ -20,6 +20,7 @@ Usage:
 
 Options:
   -n, --iterations N         Number of ping-pong iterations (default: $DEFAULT_ITERATIONS)
+  -w, --warmup N             Warmup iterations (default: iterations ÷ 10, capped at 10_000)
   -s, --payload-size BYTES   Payload size in bytes (default: $DEFAULT_PAYLOAD_SIZE)
       --send-copy            Use send_copy instead of loaned samples
       --bench-ipc            Run IPC service benchmark
@@ -60,7 +61,7 @@ function send_sample(pub::Iceoryx2.Publisher{UInt8}, payload_size::Int, payload:
     return nothing
 end
 
-function run_benchmark(iterations::Int, payload_size::Int, service_type::Symbol; send_copy::Bool)
+function run_benchmark(iterations::Int, warmup::Int, payload_size::Int, service_type::Symbol; send_copy::Bool)
     suffix = unique_suffix()
     node_builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(node_builder, "iox2_julia_bench_pubsub_" * suffix)
@@ -70,6 +71,7 @@ function run_benchmark(iterations::Int, payload_size::Int, service_type::Symbol;
     factory_b2a = build_pubsub_factory(node, "b2a_" * suffix)
 
     startup = SpinBarrier(3)
+    warmup_barrier = SpinBarrier(3)
     start_benchmark = SpinBarrier(3)
 
     t1 = Threads.@spawn begin
@@ -78,6 +80,13 @@ function run_benchmark(iterations::Int, payload_size::Int, service_type::Symbol;
         payload = send_copy ? fill(UInt8(0), payload_size) : nothing
 
         wait_barrier(startup)
+        wait_barrier(warmup_barrier)
+
+        for _ in 1:warmup
+            send_sample(pub_a2b, payload_size, payload)
+            wait_for_sample(sub_b2a)
+        end
+
         wait_barrier(start_benchmark)
 
         for _ in 1:iterations
@@ -96,6 +105,13 @@ function run_benchmark(iterations::Int, payload_size::Int, service_type::Symbol;
         payload = send_copy ? fill(UInt8(0), payload_size) : nothing
 
         wait_barrier(startup)
+        wait_barrier(warmup_barrier)
+
+        for _ in 1:warmup
+            wait_for_sample(sub_a2b)
+            send_sample(pub_b2a, payload_size, payload)
+        end
+
         wait_barrier(start_benchmark)
 
         for _ in 1:iterations
@@ -109,8 +125,9 @@ function run_benchmark(iterations::Int, payload_size::Int, service_type::Symbol;
     end
 
     wait_barrier(startup)
-    start_time = time_ns()
+    wait_barrier(warmup_barrier)
     wait_barrier(start_benchmark)
+    start_time = time_ns()
 
     fetch(t1)
     fetch(t2)
@@ -119,7 +136,7 @@ function run_benchmark(iterations::Int, payload_size::Int, service_type::Symbol;
     latency_ns = elapsed_ns / (iterations * 2)
 
     println(
-        "publish_subscribe::$(service_type) iterations=$(iterations) " *
+        "publish_subscribe::$(service_type) iterations=$(iterations) warmup=$(warmup) " *
         "payload_bytes=$(payload_size) send_copy=$(send_copy) " *
         "elapsed_s=$(elapsed_ns / 1.0e9) latency_ns=$(latency_ns)",
     )
@@ -137,11 +154,13 @@ function main(args::Vector{String})
     end
 
     iterations = parse_int(args, ["-n", "--iterations"], DEFAULT_ITERATIONS)
+    warmup = parse_int(args, ["-w", "--warmup"], default_warmup(iterations))
     payload_size = parse_int(args, ["-s", "--payload-size"], DEFAULT_PAYLOAD_SIZE)
     send_copy = has_flag(args, ["--send-copy"])
     debug = has_flag(args, ["-d", "--debug"])
 
     iterations > 0 || error("iterations must be positive")
+    warmup >= 0 || error("warmup must be non-negative")
     payload_size > 0 || error("payload size must be positive")
 
     Threads.nthreads() >= 2 || error("set JULIA_NUM_THREADS>=2 for this benchmark")
@@ -159,7 +178,7 @@ function main(args::Vector{String})
     end
 
     for service_type in service_types
-        run_benchmark(iterations, payload_size, service_type; send_copy)
+        run_benchmark(iterations, warmup, payload_size, service_type; send_copy)
     end
 
     return nothing

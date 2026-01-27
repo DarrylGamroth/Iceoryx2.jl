@@ -4,7 +4,7 @@ module BenchUtils
 
 using Base.Threads
 
-export SpinBarrier, wait_barrier, has_flag, parse_int, parse_string, parse_service_types
+export SpinBarrier, wait_barrier, has_flag, parse_int, parse_string, parse_service_types, default_warmup
 
 mutable struct SpinBarrier
     total::Int
@@ -77,6 +77,11 @@ function parse_service_types(args::Vector{String}; default_ipc::Bool = true)
     end
 
     return types
+end
+
+function default_warmup(iterations::Integer; max_warmup::Integer = 10_000)
+    iterations <= 0 && return 0
+    return min(Int(max_warmup), max(0, Int(iterations ÷ 10)))
 end
 
 end

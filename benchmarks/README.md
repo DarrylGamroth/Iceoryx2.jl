@@ -20,6 +20,7 @@ julia --project benchmarks/publish_subscribe.jl --bench-all
 Common options:
 
 - `--iterations N`
+- `--warmup N`
 - `--payload-size BYTES`
 - `--send-copy`
 - `--bench-ipc`, `--bench-local`, `--bench-all`
@@ -35,6 +36,7 @@ julia --project benchmarks/request_response.jl --bench-all
 Common options:
 
 - `--iterations N`
+- `--warmup N`
 - `--bench-ipc`, `--bench-local`, `--bench-all`
 
 ## Event
@@ -48,6 +50,7 @@ julia --project benchmarks/event.jl --bench-all
 Common options:
 
 - `--iterations N`
+- `--warmup N`
 - `--bench-ipc`, `--bench-local`, `--bench-all`
 
 ## Notes

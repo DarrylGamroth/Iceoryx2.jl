@@ -19,6 +19,7 @@ Usage:
 
 Options:
   -n, --iterations N   Number of ping-pong iterations (default: $DEFAULT_ITERATIONS)
+  -w, --warmup N       Warmup iterations (default: iterations ÷ 10, capped at 10_000)
       --bench-ipc      Run IPC service benchmark
       --bench-local    Run local service benchmark
       --bench-all      Run both IPC and local benchmarks
@@ -47,7 +48,7 @@ function wait_for_event(waitset::Iceoryx2.Waitset, guard::Iceoryx2.WaitsetGuard)
     return nothing
 end
 
-function run_benchmark(iterations::Int, service_type::Symbol)
+function run_benchmark(iterations::Int, warmup::Int, service_type::Symbol)
     suffix = unique_suffix()
     node_builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(node_builder, "iox2_julia_bench_event_" * suffix)
@@ -57,6 +58,7 @@ function run_benchmark(iterations::Int, service_type::Symbol)
     factory_b2a = build_event_factory(node, "b2a_" * suffix)
 
     startup = SpinBarrier(3)
+    warmup_barrier = SpinBarrier(3)
     start_benchmark = SpinBarrier(3)
 
     t1 = Threads.@spawn begin
@@ -66,6 +68,16 @@ function run_benchmark(iterations::Int, service_type::Symbol)
         guard = Iceoryx2.attach_notification(waitset, Iceoryx2.file_descriptor(listener_b2a))
 
         wait_barrier(startup)
+        wait_barrier(warmup_barrier)
+
+        if warmup > 0
+            Iceoryx2.notify!(notifier_a2b)
+            for _ in 1:warmup
+                wait_for_event(waitset, guard)
+                Iceoryx2.notify!(notifier_a2b)
+            end
+        end
+
         wait_barrier(start_benchmark)
 
         Iceoryx2.notify!(notifier_a2b)
@@ -89,6 +101,13 @@ function run_benchmark(iterations::Int, service_type::Symbol)
         guard = Iceoryx2.attach_notification(waitset, Iceoryx2.file_descriptor(listener_a2b))
 
         wait_barrier(startup)
+        wait_barrier(warmup_barrier)
+
+        for _ in 1:warmup
+            wait_for_event(waitset, guard)
+            Iceoryx2.notify!(notifier_b2a)
+        end
+
         wait_barrier(start_benchmark)
 
         for _ in 1:iterations
@@ -104,8 +123,9 @@ function run_benchmark(iterations::Int, service_type::Symbol)
     end
 
     wait_barrier(startup)
-    start_time = time_ns()
+    wait_barrier(warmup_barrier)
     wait_barrier(start_benchmark)
+    start_time = time_ns()
 
     fetch(t1)
     fetch(t2)
@@ -114,7 +134,7 @@ function run_benchmark(iterations::Int, service_type::Symbol)
     latency_ns = elapsed_ns / (iterations * 2)
 
     println(
-        "event::$(service_type) iterations=$(iterations) " *
+        "event::$(service_type) iterations=$(iterations) warmup=$(warmup) " *
         "elapsed_s=$(elapsed_ns / 1.0e9) latency_ns=$(latency_ns)",
     )
 
@@ -131,9 +151,11 @@ function main(args::Vector{String})
     end
 
     iterations = parse_int(args, ["-n", "--iterations"], DEFAULT_ITERATIONS)
+    warmup = parse_int(args, ["-w", "--warmup"], default_warmup(iterations))
     debug = has_flag(args, ["-d", "--debug"])
 
     iterations > 0 || error("iterations must be positive")
+    warmup >= 0 || error("warmup must be non-negative")
 
     Threads.nthreads() >= 2 || error("set JULIA_NUM_THREADS>=2 for this benchmark")
 
@@ -150,7 +172,7 @@ function main(args::Vector{String})
     end
 
     for service_type in service_types
-        run_benchmark(iterations, service_type)
+        run_benchmark(iterations, warmup, service_type)
     end
 
     return nothing
