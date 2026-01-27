@@ -1,5 +1,7 @@
 # Messaging patterns: pub/sub, request/response, event, blackboard.
 
+import UnsafeArrays: UnsafeArray
+
 @inline function _require_isbits(::Type{T}) where {T}
     isbitstype(T) || throw(ArgumentError("payload type must be isbits"))
     return nothing
@@ -109,6 +111,30 @@ function payload_type!(builder::PubSubServiceBuilder, ::Type{T}; variant::Union{
     v = _type_variant(variant)
     GC.@preserve name begin
         ret = Iceoryx2FFI.iox2_service_builder_pub_sub_set_payload_type_details(Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle), v, Base.unsafe_convert(Cstring, name), name_len, size, alignment)
+        check_ok(ret, Iceoryx2FFI.iox2_type_detail_error_e)
+    end
+    return builder
+end
+
+function user_header_type!(builder::PubSubServiceBuilder, ::Type{T}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T}
+    _require_valid(builder.handle, "pub_sub service builder")
+    _require_isbits(T)
+    if builder.user_header_type === nothing
+        builder.user_header_type = T
+    elseif builder.user_header_type !== T
+        throw(ArgumentError("pub_sub user header type already set to $(builder.user_header_type)"))
+    end
+    name, name_len, size, alignment = _type_details(T)
+    v = _type_variant(variant)
+    GC.@preserve name begin
+        ret = Iceoryx2FFI.iox2_service_builder_pub_sub_set_user_header_type_details(
+            Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle),
+            v,
+            Base.unsafe_convert(Cstring, name),
+            name_len,
+            size,
+            alignment,
+        )
         check_ok(ret, Iceoryx2FFI.iox2_type_detail_error_e)
     end
     return builder
@@ -368,6 +394,17 @@ end
     return payload(sample).ptr
 end
 
+@inline function unsafe_user_header_ptr(sample::Sample, ::Type{T}) where {T}
+    _require_isbits(T)
+    ptr_ref = Ref{Ptr{Cvoid}}()
+    Iceoryx2FFI.iox2_sample_user_header(Ref{Iceoryx2FFI.iox2_sample_h}(sample.handle), ptr_ref)
+    return Ptr{T}(ptr_ref[])
+end
+
+@inline function user_header_view(sample::Sample, ::Type{T}) where {T}
+    return UnsafeArray(unsafe_user_header_ptr(sample, T), (1,))
+end
+
 mutable struct SampleMut{T}
     handle::Iceoryx2FFI.iox2_sample_mut_h
     storage::_StorageRef{Iceoryx2FFI.iox2_sample_mut_t}
@@ -391,6 +428,17 @@ end
 
 @inline function unsafe_payload_mut_ptr(sample::SampleMut{T}) where {T}
     return payload_mut(sample).ptr
+end
+
+@inline function unsafe_user_header_mut_ptr(sample::SampleMut, ::Type{T}) where {T}
+    _require_isbits(T)
+    ptr_ref = Ref{Ptr{Cvoid}}()
+    Iceoryx2FFI.iox2_sample_mut_user_header_mut(Ref{Iceoryx2FFI.iox2_sample_mut_h}(sample.handle), ptr_ref)
+    return Ptr{T}(ptr_ref[])
+end
+
+@inline function user_header_mut_view(sample::SampleMut, ::Type{T}) where {T}
+    return UnsafeArray(unsafe_user_header_mut_ptr(sample, T), (1,))
 end
 
 function loan_slice(publisher::Publisher{T}, n::Integer) where {T}
@@ -503,6 +551,54 @@ function response_payload_type!(builder::RequestResponseServiceBuilder, ::Type{T
     v = _type_variant(variant)
     GC.@preserve name begin
         ret = Iceoryx2FFI.iox2_service_builder_request_response_set_response_payload_type_details(Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle), v, Base.unsafe_convert(Cstring, name), name_len, size, alignment)
+        check_ok(ret, Iceoryx2FFI.iox2_type_detail_error_e)
+    end
+    return builder
+end
+
+function request_user_header_type!(builder::RequestResponseServiceBuilder, ::Type{T}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T}
+    _require_valid(builder.handle, "request/response service builder")
+    _require_isbits(T)
+    if builder.request_header_type === nothing
+        builder.request_header_type = T
+    elseif builder.request_header_type !== T
+        throw(ArgumentError("request user header type already set to $(builder.request_header_type)"))
+    end
+    name, name_len, size, alignment = _type_details(T)
+    v = _type_variant(variant)
+    GC.@preserve name begin
+        ret = Iceoryx2FFI.iox2_service_builder_request_response_set_request_header_type_details(
+            Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle),
+            v,
+            Base.unsafe_convert(Cstring, name),
+            name_len,
+            size,
+            alignment,
+        )
+        check_ok(ret, Iceoryx2FFI.iox2_type_detail_error_e)
+    end
+    return builder
+end
+
+function response_user_header_type!(builder::RequestResponseServiceBuilder, ::Type{T}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T}
+    _require_valid(builder.handle, "request/response service builder")
+    _require_isbits(T)
+    if builder.response_header_type === nothing
+        builder.response_header_type = T
+    elseif builder.response_header_type !== T
+        throw(ArgumentError("response user header type already set to $(builder.response_header_type)"))
+    end
+    name, name_len, size, alignment = _type_details(T)
+    v = _type_variant(variant)
+    GC.@preserve name begin
+        ret = Iceoryx2FFI.iox2_service_builder_request_response_set_response_header_type_details(
+            Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle),
+            v,
+            Base.unsafe_convert(Cstring, name),
+            name_len,
+            size,
+            alignment,
+        )
         check_ok(ret, Iceoryx2FFI.iox2_type_detail_error_e)
     end
     return builder
@@ -781,6 +877,17 @@ end
     return request
 end
 
+@inline function unsafe_user_header_mut_ptr(request::RequestMut, ::Type{T}) where {T}
+    _require_isbits(T)
+    ptr_ref = Ref{Ptr{Cvoid}}()
+    Iceoryx2FFI.iox2_request_mut_user_header_mut(Ref{Iceoryx2FFI.iox2_request_mut_h}(request.handle), ptr_ref)
+    return Ptr{T}(ptr_ref[])
+end
+
+@inline function user_header_mut_view(request::RequestMut, ::Type{T}) where {T}
+    return UnsafeArray(unsafe_user_header_mut_ptr(request, T), (1,))
+end
+
 mutable struct PendingResponse{Resp}
     handle::Iceoryx2FFI.iox2_pending_response_h
     storage::_StorageRef{Iceoryx2FFI.iox2_pending_response_t}
@@ -793,6 +900,17 @@ function _finalize_pending_response(pending::PendingResponse)
     end
     pending.storage = nothing
     return nothing
+end
+
+@inline function unsafe_user_header_ptr(pending::PendingResponse, ::Type{T}) where {T}
+    _require_isbits(T)
+    ptr_ref = Ref{Ptr{Cvoid}}()
+    Iceoryx2FFI.iox2_pending_response_user_header(Ref{Iceoryx2FFI.iox2_pending_response_h}(pending.handle), ptr_ref)
+    return Ptr{T}(ptr_ref[])
+end
+
+@inline function user_header_view(pending::PendingResponse, ::Type{T}) where {T}
+    return UnsafeArray(unsafe_user_header_ptr(pending, T), (1,))
 end
 
 function loan_request(client::Client{Req,Resp}, n::Integer) where {Req,Resp}
@@ -877,6 +995,17 @@ end
     return payload(resp).ptr
 end
 
+@inline function unsafe_user_header_ptr(resp::Response, ::Type{T}) where {T}
+    _require_isbits(T)
+    ptr_ref = Ref{Ptr{Cvoid}}()
+    Iceoryx2FFI.iox2_response_user_header(Ref{Iceoryx2FFI.iox2_response_h}(resp.handle), ptr_ref)
+    return Ptr{T}(ptr_ref[])
+end
+
+@inline function user_header_view(resp::Response, ::Type{T}) where {T}
+    return UnsafeArray(unsafe_user_header_ptr(resp, T), (1,))
+end
+
 function receive(pending::PendingResponse{Resp}) where {Resp}
     storage = Ref{Iceoryx2FFI.iox2_response_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_response_h}(_IOX2_NULL)
@@ -916,6 +1045,17 @@ end
     return payload(req).ptr
 end
 
+@inline function unsafe_user_header_ptr(req::ActiveRequest, ::Type{T}) where {T}
+    _require_isbits(T)
+    ptr_ref = Ref{Ptr{Cvoid}}()
+    Iceoryx2FFI.iox2_active_request_user_header(Ref{Iceoryx2FFI.iox2_active_request_h}(req.handle), ptr_ref)
+    return Ptr{T}(ptr_ref[])
+end
+
+@inline function user_header_view(req::ActiveRequest, ::Type{T}) where {T}
+    return UnsafeArray(unsafe_user_header_ptr(req, T), (1,))
+end
+
 mutable struct ResponseMut{Resp}
     handle::Iceoryx2FFI.iox2_response_mut_h
     storage::_StorageRef{Iceoryx2FFI.iox2_response_mut_t}
@@ -945,6 +1085,17 @@ end
     slice = payload_mut(resp)
     unsafe_store!(slice.ptr, value, 1)
     return resp
+end
+
+@inline function unsafe_user_header_mut_ptr(resp::ResponseMut, ::Type{T}) where {T}
+    _require_isbits(T)
+    ptr_ref = Ref{Ptr{Cvoid}}()
+    Iceoryx2FFI.iox2_response_mut_user_header_mut(Ref{Iceoryx2FFI.iox2_response_mut_h}(resp.handle), ptr_ref)
+    return Ptr{T}(ptr_ref[])
+end
+
+@inline function user_header_mut_view(resp::ResponseMut, ::Type{T}) where {T}
+    return UnsafeArray(unsafe_user_header_mut_ptr(resp, T), (1,))
 end
 
 function receive(server::Server{Req,Resp}) where {Req,Resp}

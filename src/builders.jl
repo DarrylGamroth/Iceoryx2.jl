@@ -157,6 +157,7 @@ mutable struct PubSubServiceBuilder
     storage::Base.RefValue{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node
     payload_type::Union{Nothing, DataType}
+    user_header_type::Union{Nothing, DataType}
 end
 
 mutable struct RequestResponseServiceBuilder
@@ -165,6 +166,8 @@ mutable struct RequestResponseServiceBuilder
     keepalive::Node
     request_type::Union{Nothing, DataType}
     response_type::Union{Nothing, DataType}
+    request_header_type::Union{Nothing, DataType}
+    response_header_type::Union{Nothing, DataType}
 end
 
 mutable struct BlackboardCreatorBuilder
@@ -203,6 +206,7 @@ end
 function _finalize_service_builder_variant(builder::PubSubServiceBuilder)
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
     builder.payload_type = nothing
+    builder.user_header_type = nothing
     return nothing
 end
 
@@ -210,6 +214,8 @@ function _finalize_service_builder_variant(builder::RequestResponseServiceBuilde
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
     builder.request_type = nothing
     builder.response_type = nothing
+    builder.request_header_type = nothing
+    builder.response_header_type = nothing
     return nothing
 end
 
@@ -230,7 +236,7 @@ function pub_sub(builder::ServiceBuilder)
     builder.handle = _IOX2_NULL
     storage = builder.storage
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
-    variant = PubSubServiceBuilder(handle, storage, builder.keepalive, nothing)
+    variant = PubSubServiceBuilder(handle, storage, builder.keepalive, nothing, nothing)
     finalizer(_finalize_service_builder_variant, variant)
     return variant
 end
@@ -241,7 +247,7 @@ function request_response(builder::ServiceBuilder)
     builder.handle = _IOX2_NULL
     storage = builder.storage
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
-    variant = RequestResponseServiceBuilder(handle, storage, builder.keepalive, nothing, nothing)
+    variant = RequestResponseServiceBuilder(handle, storage, builder.keepalive, nothing, nothing, nothing, nothing)
     finalizer(_finalize_service_builder_variant, variant)
     return variant
 end
