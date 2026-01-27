@@ -1318,12 +1318,6 @@ function key_type!(builder::BlackboardOpenerBuilder, ::Type{K}) where {K}
     return builder
 end
 
-function _blackboard_release_callback(::Ptr{Cvoid})
-    return nothing
-end
-
-const _BLACKBOARD_RELEASE_CB = @cfunction(_blackboard_release_callback, Cvoid, (Ptr{Cvoid},))
-
 function add_with_default!(builder::BlackboardCreatorBuilder, key::K, value::V) where {K,V}
     _require_valid(builder.handle, "blackboard creator")
     _require_isbits(K)
@@ -1340,7 +1334,7 @@ function add_with_default!(builder::BlackboardCreatorBuilder, key::K, value::V) 
             Ref{Iceoryx2FFI.iox2_service_builder_blackboard_creator_h}(builder.handle),
             Base.unsafe_convert(Ptr{Cvoid}, key_ref),
             Base.unsafe_convert(Ptr{Cvoid}, value_ref),
-            _BLACKBOARD_RELEASE_CB,
+            C_NULL,
             Base.unsafe_convert(Cstring, name),
             name_len,
             size,
@@ -1466,6 +1460,215 @@ function create(f::Function, builder::ReaderBuilder)
     end
 end
 
+mutable struct EntryHandle{K,V}
+    handle::Iceoryx2FFI.iox2_entry_handle_h
+    storage::_StorageRef{Iceoryx2FFI.iox2_entry_handle_t}
+    keepalive::Reader
+end
+
+function _finalize_entry_handle(entry::EntryHandle)
+    if entry.handle != _IOX2_NULL
+        Iceoryx2FFI.iox2_entry_handle_drop(entry.handle)
+        entry.handle = _IOX2_NULL
+    end
+    entry.storage = nothing
+    return nothing
+end
+
+mutable struct EntryHandleMut{K,V}
+    handle::Iceoryx2FFI.iox2_entry_handle_mut_h
+    storage::_StorageRef{Iceoryx2FFI.iox2_entry_handle_mut_t}
+    keepalive::Writer
+end
+
+function _finalize_entry_handle_mut(entry::EntryHandleMut)
+    if entry.handle != _IOX2_NULL
+        Iceoryx2FFI.iox2_entry_handle_mut_drop(entry.handle)
+        entry.handle = _IOX2_NULL
+    end
+    entry.storage = nothing
+    return nothing
+end
+
+function reader_entry(reader::Reader, key::K, ::Type{V}) where {K,V}
+    _require_valid(reader.handle, "reader")
+    _require_isbits(K)
+    _require_isbits(V)
+    key_ref = Ref{K}(key)
+    storage = Ref{Iceoryx2FFI.iox2_entry_handle_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_entry_handle_h}(_IOX2_NULL)
+    name, name_len, size, alignment = _type_details(V)
+    GC.@preserve key_ref name begin
+        ret = Iceoryx2FFI.iox2_reader_entry(
+            Ref{Iceoryx2FFI.iox2_reader_h}(reader.handle),
+            storage,
+            handle_ref,
+            Base.unsafe_convert(Ptr{Cvoid}, key_ref),
+            Base.unsafe_convert(Cstring, name),
+            name_len,
+            size,
+            alignment,
+        )
+        check_ok(ret, Iceoryx2FFI.iox2_entry_handle_error_e)
+    end
+    entry = EntryHandle{K,V}(handle_ref[], storage, reader)
+    finalizer(_finalize_entry_handle, entry)
+    return entry
+end
+
+function try_reader_entry(reader::Reader, key::K, ::Type{V}) where {K,V}
+    _require_valid(reader.handle, "reader")
+    _require_isbits(K)
+    _require_isbits(V)
+    key_ref = Ref{K}(key)
+    storage = Ref{Iceoryx2FFI.iox2_entry_handle_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_entry_handle_h}(_IOX2_NULL)
+    name, name_len, size, alignment = _type_details(V)
+    GC.@preserve key_ref name begin
+        ret = Iceoryx2FFI.iox2_reader_entry(
+            Ref{Iceoryx2FFI.iox2_reader_h}(reader.handle),
+            storage,
+            handle_ref,
+            Base.unsafe_convert(Ptr{Cvoid}, key_ref),
+            Base.unsafe_convert(Cstring, name),
+            name_len,
+            size,
+            alignment,
+        )
+        err = Iceoryx2FFI.iox2_entry_handle_error_e(ret)
+        if err == Iceoryx2FFI.iox2_entry_handle_error_e_ENTRY_DOES_NOT_EXIST
+            return nothing
+        end
+        check_ok(ret, Iceoryx2FFI.iox2_entry_handle_error_e)
+    end
+    entry = EntryHandle{K,V}(handle_ref[], storage, reader)
+    finalizer(_finalize_entry_handle, entry)
+    return entry
+end
+
+function writer_entry(writer::Writer, key::K, ::Type{V}) where {K,V}
+    _require_valid(writer.handle, "writer")
+    _require_isbits(K)
+    _require_isbits(V)
+    key_ref = Ref{K}(key)
+    storage = Ref{Iceoryx2FFI.iox2_entry_handle_mut_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_entry_handle_mut_h}(_IOX2_NULL)
+    name, name_len, size, alignment = _type_details(V)
+    GC.@preserve key_ref name begin
+        ret = Iceoryx2FFI.iox2_writer_entry(
+            Ref{Iceoryx2FFI.iox2_writer_h}(writer.handle),
+            storage,
+            handle_ref,
+            Base.unsafe_convert(Ptr{Cvoid}, key_ref),
+            Base.unsafe_convert(Cstring, name),
+            name_len,
+            size,
+            alignment,
+        )
+        check_ok(ret, Iceoryx2FFI.iox2_entry_handle_mut_error_e)
+    end
+    entry = EntryHandleMut{K,V}(handle_ref[], storage, writer)
+    finalizer(_finalize_entry_handle_mut, entry)
+    return entry
+end
+
+function try_writer_entry(writer::Writer, key::K, ::Type{V}) where {K,V}
+    _require_valid(writer.handle, "writer")
+    _require_isbits(K)
+    _require_isbits(V)
+    key_ref = Ref{K}(key)
+    storage = Ref{Iceoryx2FFI.iox2_entry_handle_mut_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_entry_handle_mut_h}(_IOX2_NULL)
+    name, name_len, size, alignment = _type_details(V)
+    GC.@preserve key_ref name begin
+        ret = Iceoryx2FFI.iox2_writer_entry(
+            Ref{Iceoryx2FFI.iox2_writer_h}(writer.handle),
+            storage,
+            handle_ref,
+            Base.unsafe_convert(Ptr{Cvoid}, key_ref),
+            Base.unsafe_convert(Cstring, name),
+            name_len,
+            size,
+            alignment,
+        )
+        err = Iceoryx2FFI.iox2_entry_handle_mut_error_e(ret)
+        if err == Iceoryx2FFI.iox2_entry_handle_mut_error_e_ENTRY_DOES_NOT_EXIST
+            return nothing
+        end
+        check_ok(ret, Iceoryx2FFI.iox2_entry_handle_mut_error_e)
+    end
+    entry = EntryHandleMut{K,V}(handle_ref[], storage, writer)
+    finalizer(_finalize_entry_handle_mut, entry)
+    return entry
+end
+
+@inline function entry_id(entry::EntryHandle)
+    id_ref = Ref{Iceoryx2FFI.iox2_event_id_t}()
+    Iceoryx2FFI.iox2_entry_handle_entry_id(Ref{Iceoryx2FFI.iox2_entry_handle_h}(entry.handle), id_ref)
+    return EventId(id_ref[])
+end
+
+@inline function entry_id(entry::EntryHandleMut)
+    id_ref = Ref{Iceoryx2FFI.iox2_event_id_t}()
+    Iceoryx2FFI.iox2_entry_handle_mut_entry_id(Ref{Iceoryx2FFI.iox2_entry_handle_mut_h}(entry.handle), id_ref)
+    return EventId(id_ref[])
+end
+
+function get!(entry::EntryHandle{K,V}, value_ref::Base.RefValue{V}, generation_ref::Base.RefValue{UInt64}) where {K,V}
+    size = Iceoryx2FFI.c_size_t(sizeof(V))
+    alignment = Iceoryx2FFI.c_size_t(Base.datatype_alignment(V))
+    GC.@preserve value_ref generation_ref begin
+        Iceoryx2FFI.iox2_entry_handle_get(
+            Ref{Iceoryx2FFI.iox2_entry_handle_h}(entry.handle),
+            Base.unsafe_convert(Ptr{Cvoid}, value_ref),
+            size,
+            alignment,
+            Base.unsafe_convert(Ptr{Cvoid}, generation_ref),
+        )
+    end
+    return nothing
+end
+
+function get!(entry::EntryHandle{K,V}, value_ref::Base.RefValue{V}) where {K,V}
+    generation_ref = Ref{UInt64}(0)
+    get!(entry, value_ref, generation_ref)
+    return generation_ref[]
+end
+
+function get(entry::EntryHandle{K,V}) where {K,V}
+    value_ref = Ref{V}()
+    generation_ref = Ref{UInt64}(0)
+    get!(entry, value_ref, generation_ref)
+    return value_ref[], generation_ref[]
+end
+
+@inline function is_up_to_date(entry::EntryHandle, generation_counter::UInt64)
+    return Iceoryx2FFI.iox2_entry_handle_is_up_to_date(
+        Ref{Iceoryx2FFI.iox2_entry_handle_h}(entry.handle),
+        generation_counter,
+    )
+end
+
+function update!(entry::EntryHandleMut{K,V}, value_ref::Base.RefValue{V}) where {K,V}
+    size = Iceoryx2FFI.c_size_t(sizeof(V))
+    alignment = Iceoryx2FFI.c_size_t(Base.datatype_alignment(V))
+    GC.@preserve value_ref begin
+        Iceoryx2FFI.iox2_entry_handle_mut_update_with_copy(
+            Ref{Iceoryx2FFI.iox2_entry_handle_mut_h}(entry.handle),
+            Base.unsafe_convert(Ptr{Cvoid}, value_ref),
+            size,
+            alignment,
+        )
+    end
+    return nothing
+end
+
+function update!(entry::EntryHandleMut{K,V}, value::V) where {K,V}
+    value_ref = Ref{V}(value)
+    update!(entry, value_ref)
+    return nothing
+end
+
 @inline Base.isvalid(obj::PortFactoryPubSub) = obj.handle != _IOX2_NULL
 @inline Base.isvalid(obj::Publisher) = obj.handle != _IOX2_NULL
 @inline Base.isvalid(obj::Subscriber) = obj.handle != _IOX2_NULL
@@ -1485,6 +1688,8 @@ end
 @inline Base.isvalid(obj::PortFactoryBlackboard) = obj.handle != _IOX2_NULL
 @inline Base.isvalid(obj::Writer) = obj.handle != _IOX2_NULL
 @inline Base.isvalid(obj::Reader) = obj.handle != _IOX2_NULL
+@inline Base.isvalid(obj::EntryHandle) = obj.handle != _IOX2_NULL
+@inline Base.isvalid(obj::EntryHandleMut) = obj.handle != _IOX2_NULL
 
 function Base.close(obj::PortFactoryPubSub)
     _finalize_port_factory_pub_sub(obj)
@@ -1578,5 +1783,15 @@ end
 
 function Base.close(obj::Reader)
     _finalize_reader(obj)
+    return nothing
+end
+
+function Base.close(obj::EntryHandle)
+    _finalize_entry_handle(obj)
+    return nothing
+end
+
+function Base.close(obj::EntryHandleMut)
+    _finalize_entry_handle_mut(obj)
     return nothing
 end

@@ -21,7 +21,10 @@ function main()
                         request === nothing && yield()
                     end
 
-                    Iceoryx2.send_copy(request, UInt64[0x2a])
+                    response_data = UInt64[0x2a]
+                    GC.@preserve response_data begin
+                        Iceoryx2.send_copy(request, pointer(response_data), length(response_data))
+                    end
                     close(request)
                 end
 

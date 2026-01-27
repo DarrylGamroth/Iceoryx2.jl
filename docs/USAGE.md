@@ -59,6 +59,20 @@ Iceoryx2.blocking_wait_all(listener) do event_id
 end
 ```
 
+## Blackboard entries
+
+Use reader/writer entries to update and read key/value pairs:
+
+```julia
+entry_mut = Iceoryx2.writer_entry(writer, UInt64(1), UInt64)
+Iceoryx2.update!(entry_mut, UInt64(42))
+close(entry_mut)
+
+entry = Iceoryx2.reader_entry(reader, UInt64(1), UInt64)
+value, generation = Iceoryx2.get(entry)
+close(entry)
+```
+
 ## Callback safety
 
 Callbacks are wrapped via `@cfunction` trampolines with `GC.@preserve`. To keep hot paths

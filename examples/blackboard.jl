@@ -12,9 +12,16 @@ function main()
         Iceoryx2.add_with_default!(bb_builder, UInt64(1), UInt64(0))
 
         Iceoryx2.create(bb_builder) do factory
-            Iceoryx2.create(Iceoryx2.writer_builder(factory)) do _writer
-                Iceoryx2.create(Iceoryx2.reader_builder(factory)) do _reader
-                    println("blackboard created with writer/reader handles")
+            Iceoryx2.create(Iceoryx2.writer_builder(factory)) do writer
+                Iceoryx2.create(Iceoryx2.reader_builder(factory)) do reader
+                    entry_mut = Iceoryx2.writer_entry(writer, UInt64(1), UInt64)
+                    Iceoryx2.update!(entry_mut, UInt64(42))
+                    close(entry_mut)
+
+                    entry = Iceoryx2.reader_entry(reader, UInt64(1), UInt64)
+                    value, _generation = Iceoryx2.get(entry)
+                    println("blackboard value: ", value)
+                    close(entry)
                 end
             end
         end
