@@ -63,7 +63,7 @@ Hot path refers to any API that is called per message/event or inside tight loop
 - Add a thin `ccall` wrapper layer for every function with consistent naming.
 - Place raw bindings under a strict unsafe namespace/module; keep safe wrappers in `Iceoryx2`.
 - Generator notes:
-  - `gen/gen-bindings.jl` also regenerates `src/handles.jl` and `src/errors.jl` from `src/Iceoryx2FFI.jl`.
+  - `gen/gen-bindings.jl` also regenerates `src/generated/handles.jl` and `src/generated/errors.jl` from `src/generated/Iceoryx2FFI.jl`.
   - It uses an ignorelist to skip low-level handle wrappers that would collide with high-level messaging types.
 - Status: Completed (2026-01-26)
 
@@ -79,7 +79,7 @@ Hot path refers to any API that is called per message/event or inside tight loop
 - If references are stored only to keep other objects alive, store them in concrete fields (e.g., `keepalive::K` or `keepalive::NamedTuple`), and keep those fields off hot paths.
 - Provide `do`-block helpers (e.g., `create(f, builder; ...)`) for deterministic cleanup on owning resources.
 - Outputs:
-  - Handle and view wrappers: `src/handles.jl`
+  - Handle and view wrappers: `src/generated/handles.jl`
 - Status: Completed (2026-01-26)
 
 ## Phase 4: Error Mapping
@@ -88,7 +88,7 @@ Hot path refers to any API that is called per message/event or inside tight loop
 - Use the C `*_error_string` functions for human-readable messages.
 - Mark error formatting and message construction functions `@noinline` to isolate allocations.
 - Outputs:
-  - Error types and `check_ok`: `src/errors.jl`
+  - Error types and `check_ok`: `src/generated/errors.jl`
 - Status: Completed (2026-01-26)
 
 ## Phase 5: Strings & Semantic Strings
@@ -125,6 +125,7 @@ Hot path refers to any API that is called per message/event or inside tight loop
 - Outputs:
   - Messaging wrappers: `src/messaging.jl`
 - Status: Completed (2026-01-27)
+  - Update (2026-01-28): moved generated bindings/handles/errors into `src/generated/` and updated scripts/docs accordingly.
   - Update (2026-01-27): added blackboard creator helpers `key_type!` and `add_with_default!` to supply required entries.
 
 ## Phase 8: Callbacks & Iteration

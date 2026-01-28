@@ -34,9 +34,9 @@ ctx = create_context(headers, args, options)
 # run generator
 build!(ctx)
 
-ffi_path = joinpath(@__DIR__, "..", "src", "Iceoryx2FFI.jl")
-handles_path = joinpath(@__DIR__, "..", "src", "handles.jl")
-errors_path = joinpath(@__DIR__, "..", "src", "errors.jl")
+ffi_path = joinpath(@__DIR__, "..", "src", "generated", "Iceoryx2FFI.jl")
+handles_path = joinpath(@__DIR__, "..", "src", "generated", "handles.jl")
+errors_path = joinpath(@__DIR__, "..", "src", "generated", "errors.jl")
 wrappers_path = joinpath(@__DIR__, "..", "src", "generated", "wrappers.jl")
 wrapper_spec = joinpath(@__DIR__, "wrapper-spec.toml")
 

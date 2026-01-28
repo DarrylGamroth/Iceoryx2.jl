@@ -49,7 +49,7 @@ if !isfile(header_path)
     found = find_header(include_dir, "iceoryx2.h")
     header_path = found === nothing ? header_path : found
 end
-ffi_path = joinpath(@__DIR__, "..", "src", "Iceoryx2FFI.jl")
+ffi_path = joinpath(@__DIR__, "..", "src", "generated", "Iceoryx2FFI.jl")
 
 isfile(header_path) || error("header not found: $(header_path). Set IOX2_HEADER to a generated iceoryx2.h.")
 isfile(ffi_path) || error("FFI file not found: $(ffi_path)")

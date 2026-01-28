@@ -1,7 +1,7 @@
 # Iceoryx2 C ABI Inventory (Julia FFI)
 
 Source of truth:
-- Generated bindings: `src/Iceoryx2FFI.jl`
+- Generated bindings: `src/generated/Iceoryx2FFI.jl`
 - Header (Iceoryx2_jll artifact): `/home/dgamroth/.julia/artifacts/ae8536d69904e8b6097a85aca98a1ee273da8072/include/iceoryx2/v0.8.999/iox2/iceoryx2.h`
 
 Counts:
