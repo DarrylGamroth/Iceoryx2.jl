@@ -451,10 +451,6 @@ function list_publishers(f::Function, factory::PortFactoryPubSub{T}) where {T}
     return list_publishers(factory, PublisherDetailsHandler(f))
 end
 
-function list_publishers(factory::PortFactoryPubSub{T}, f::Function) where {T}
-    return list_publishers(f, factory)
-end
-
 function list_subscribers(factory::PortFactoryPubSub{T}, handler::AbstractSubscriberDetailsHandler) where {T}
     handler_ref = Ref(handler)
     GC.@preserve handler_ref begin
@@ -469,10 +465,6 @@ end
 
 function list_subscribers(f::Function, factory::PortFactoryPubSub{T}) where {T}
     return list_subscribers(factory, SubscriberDetailsHandler(f))
-end
-
-function list_subscribers(factory::PortFactoryPubSub{T}, f::Function) where {T}
-    return list_subscribers(f, factory)
 end
 
 
@@ -492,10 +484,6 @@ function list_listeners(f::Function, factory::PortFactoryEvent)
     return list_listeners(factory, ListenerDetailsHandler(f))
 end
 
-function list_listeners(factory::PortFactoryEvent, f::Function)
-    return list_listeners(f, factory)
-end
-
 function list_notifiers(factory::PortFactoryEvent, handler::AbstractNotifierDetailsHandler)
     handler_ref = Ref(handler)
     GC.@preserve handler_ref begin
@@ -510,10 +498,6 @@ end
 
 function list_notifiers(f::Function, factory::PortFactoryEvent)
     return list_notifiers(factory, NotifierDetailsHandler(f))
-end
-
-function list_notifiers(factory::PortFactoryEvent, f::Function)
-    return list_notifiers(f, factory)
 end
 
 
@@ -533,10 +517,6 @@ function list_clients(f::Function, factory::PortFactoryRequestResponse{Req,Resp}
     return list_clients(factory, ClientDetailsHandler(f))
 end
 
-function list_clients(factory::PortFactoryRequestResponse{Req,Resp}, f::Function) where {Req,Resp}
-    return list_clients(f, factory)
-end
-
 function list_servers(factory::PortFactoryRequestResponse{Req,Resp}, handler::AbstractServerDetailsHandler) where {Req,Resp}
     handler_ref = Ref(handler)
     GC.@preserve handler_ref begin
@@ -551,10 +531,6 @@ end
 
 function list_servers(f::Function, factory::PortFactoryRequestResponse{Req,Resp}) where {Req,Resp}
     return list_servers(factory, ServerDetailsHandler(f))
-end
-
-function list_servers(factory::PortFactoryRequestResponse{Req,Resp}, f::Function) where {Req,Resp}
-    return list_servers(f, factory)
 end
 
 abstract type AbstractBlackboardKeyHandler{K} end
@@ -593,10 +569,6 @@ function list_keys(f::Function, factory::PortFactoryBlackboard{K}, ::Type{K}) wh
     return list_keys(factory, K, BlackboardKeyHandler{K}(f))
 end
 
-function list_keys(factory::PortFactoryBlackboard{K}, ::Type{K}, f::Function) where {K}
-    return list_keys(f, factory, K)
-end
-
 
 function list_readers(factory::PortFactoryBlackboard{K}, handler::AbstractReaderDetailsHandler) where {K}
     handler_ref = Ref(handler)
@@ -614,10 +586,6 @@ function list_readers(f::Function, factory::PortFactoryBlackboard{K}) where {K}
     return list_readers(factory, ReaderDetailsHandler(f))
 end
 
-function list_readers(factory::PortFactoryBlackboard{K}, f::Function) where {K}
-    return list_readers(f, factory)
-end
-
 function list_writers(factory::PortFactoryBlackboard{K}, handler::AbstractWriterDetailsHandler) where {K}
     handler_ref = Ref(handler)
     GC.@preserve handler_ref begin
@@ -632,10 +600,6 @@ end
 
 function list_writers(f::Function, factory::PortFactoryBlackboard{K}) where {K}
     return list_writers(factory, WriterDetailsHandler(f))
-end
-
-function list_writers(factory::PortFactoryBlackboard{K}, f::Function) where {K}
-    return list_writers(f, factory)
 end
 
 # === Details accessors ===

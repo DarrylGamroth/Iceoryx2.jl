@@ -158,12 +158,8 @@ function wait_and_process_once(waitset::Waitset, handler::AbstractWaitsetHandler
     return result[]
 end
 
-function wait_and_process_once(waitset::Waitset, f::Function)
-    return wait_and_process_once(waitset, WaitsetHandler(f))
-end
-
 function wait_and_process_once(f::Function, waitset::Waitset)
-    return wait_and_process_once(waitset, f)
+    return wait_and_process_once(waitset, WaitsetHandler(f))
 end
 
 function wait_and_process_once(waitset::Waitset, seconds::Integer, nanoseconds::Integer, handler::AbstractWaitsetHandler)
@@ -184,12 +180,8 @@ function wait_and_process_once(waitset::Waitset, seconds::Integer, nanoseconds::
     return result[]
 end
 
-function wait_and_process_once(waitset::Waitset, seconds::Integer, nanoseconds::Integer, f::Function)
-    return wait_and_process_once(waitset, seconds, nanoseconds, WaitsetHandler(f))
-end
-
 function wait_and_process_once(f::Function, waitset::Waitset, seconds::Integer, nanoseconds::Integer)
-    return wait_and_process_once(waitset, seconds, nanoseconds, f)
+    return wait_and_process_once(waitset, seconds, nanoseconds, WaitsetHandler(f))
 end
 
 function wait_and_process(waitset::Waitset, handler::AbstractWaitsetHandler)
@@ -208,12 +200,8 @@ function wait_and_process(waitset::Waitset, handler::AbstractWaitsetHandler)
     return result[]
 end
 
-function wait_and_process(waitset::Waitset, f::Function)
-    return wait_and_process(waitset, WaitsetHandler(f))
-end
-
 function wait_and_process(f::Function, waitset::Waitset)
-    return wait_and_process(waitset, f)
+    return wait_and_process(waitset, WaitsetHandler(f))
 end
 
 function attachment_id(guard::WaitsetGuard)

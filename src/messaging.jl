@@ -438,10 +438,6 @@ function loan_slice(f::Function, publisher::Publisher{T}, n::Integer) where {T}
     end
 end
 
-function loan_slice(publisher::Publisher{T}, n::Integer, f::Function) where {T}
-    return loan_slice(f, publisher, n)
-end
-
 @inline function write_payload!(sample::SampleMut{T}, value::T) where {T}
     slice = payload_mut(sample)
     unsafe_store!(slice.ptr, value, 1)
@@ -879,10 +875,6 @@ function loan_request(f::Function, client::Client{Req,Resp}, n::Integer) where {
     end
 end
 
-function loan_request(client::Client{Req,Resp}, n::Integer, f::Function) where {Req,Resp}
-    return loan_request(f, client, n)
-end
-
 function send!(request::RequestMut{Req,Resp}) where {Req,Resp}
     pending_storage = Ref{Iceoryx2FFI.iox2_pending_response_t}()
     pending_ref = Ref{Iceoryx2FFI.iox2_pending_response_h}(_IOX2_NULL)
@@ -1116,10 +1108,6 @@ function loan_response(f::Function, req::ActiveRequest{Req,Resp}, n::Integer) wh
     finally
         close(response)
     end
-end
-
-function loan_response(req::ActiveRequest{Req,Resp}, n::Integer, f::Function) where {Req,Resp}
-    return loan_response(f, req, n)
 end
 
 function send_copy(req::ActiveRequest{Req,Resp}, data::Ptr{Resp}, n::Integer) where {Req,Resp}
@@ -1507,10 +1495,6 @@ function try_wait_all(f::Function, listener::Listener)
     return try_wait_all(listener, ListenerWaitHandler(f))
 end
 
-function try_wait_all(listener::Listener, f::Function)
-    return try_wait_all(f, listener)
-end
-
 function timed_wait_all(listener::Listener, seconds::Integer, nanoseconds::Integer, handler::AbstractListenerWaitHandler)
     _require_valid(listener.handle, "listener")
     handler_ref = Ref(handler)
@@ -1531,10 +1515,6 @@ function timed_wait_all(f::Function, listener::Listener, seconds::Integer, nanos
     return timed_wait_all(listener, seconds, nanoseconds, ListenerWaitHandler(f))
 end
 
-function timed_wait_all(listener::Listener, seconds::Integer, nanoseconds::Integer, f::Function)
-    return timed_wait_all(f, listener, seconds, nanoseconds)
-end
-
 function blocking_wait_all(listener::Listener, handler::AbstractListenerWaitHandler)
     _require_valid(listener.handle, "listener")
     handler_ref = Ref(handler)
@@ -1551,10 +1531,6 @@ end
 
 function blocking_wait_all(f::Function, listener::Listener)
     return blocking_wait_all(listener, ListenerWaitHandler(f))
-end
-
-function blocking_wait_all(listener::Listener, f::Function)
-    return blocking_wait_all(f, listener)
 end
 
 function try_wait_one(listener::Listener)
@@ -2001,10 +1977,6 @@ function loan_uninit(f::Function, entry::EntryHandleMut{K,V}) where {K,V}
     end
 end
 
-function loan_uninit(entry::EntryHandleMut{K,V}, f::Function) where {K,V}
-    return loan_uninit(f, entry)
-end
-
 @inline function value_mut(value::EntryValueUninit{K,V}) where {K,V}
     ptr_ref = Ref{Ptr{Cvoid}}()
     Iceoryx2FFI.iox2_entry_value_uninit_value_mut(
@@ -2071,10 +2043,6 @@ function reader_entry(f::Function, reader::Reader{K}, key::K, ::Type{V}) where {
     end
 end
 
-function reader_entry(reader::Reader{K}, key::K, ::Type{V}, f::Function) where {K,V}
-    return reader_entry(f, reader, key, V)
-end
-
 function try_reader_entry(reader::Reader{K}, key::K, ::Type{V}) where {K,V}
     _require_valid(reader.handle, "reader")
     _require_isbits(K)
@@ -2115,10 +2083,6 @@ function try_reader_entry(f::Function, reader::Reader{K}, key::K, ::Type{V}) whe
     end
 end
 
-function try_reader_entry(reader::Reader{K}, key::K, ::Type{V}, f::Function) where {K,V}
-    return try_reader_entry(f, reader, key, V)
-end
-
 function writer_entry(writer::Writer{K}, key::K, ::Type{V}) where {K,V}
     _require_valid(writer.handle, "writer")
     _require_isbits(K)
@@ -2152,10 +2116,6 @@ function writer_entry(f::Function, writer::Writer{K}, key::K, ::Type{V}) where {
     finally
         close(entry)
     end
-end
-
-function writer_entry(writer::Writer{K}, key::K, ::Type{V}, f::Function) where {K,V}
-    return writer_entry(f, writer, key, V)
 end
 
 function try_writer_entry(writer::Writer{K}, key::K, ::Type{V}) where {K,V}
@@ -2196,10 +2156,6 @@ function try_writer_entry(f::Function, writer::Writer{K}, key::K, ::Type{V}) whe
     finally
         close(entry)
     end
-end
-
-function try_writer_entry(writer::Writer{K}, key::K, ::Type{V}, f::Function) where {K,V}
-    return try_writer_entry(f, writer, key, V)
 end
 
 @inline function entry_id(entry::EntryHandle)

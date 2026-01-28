@@ -107,12 +107,8 @@ function list_nodes(factory::PortFactoryEvent, handler::AbstractNodeListHandler)
     return nothing
 end
 
-function list_nodes(factory::PortFactoryEvent, f::Function)
-    return list_nodes(factory, NodeListHandler(f))
-end
-
 function list_nodes(f::Function, factory::PortFactoryEvent)
-    return list_nodes(factory, f)
+    return list_nodes(factory, NodeListHandler(f))
 end
 
 abstract type AbstractAttributeValueHandler end
@@ -175,7 +171,7 @@ function each_attribute_value(
 end
 
 function each_attribute_value(f::Function, attrs::Union{AttributeSet, AttributeSetView}, key::AbstractString)
-    return each_attribute_value(attrs, key, f)
+    return each_attribute_value(attrs, key, AttributeValueHandler(f))
 end
 
 function each_attribute_value_ptr(
@@ -198,10 +194,6 @@ end
 
 function each_attribute_value_ptr(f::Function, attrs::Union{AttributeSet, AttributeSetView}, key::AbstractString)
     return each_attribute_value_ptr(attrs, key, AttributeValuePtrHandler(f))
-end
-
-function each_attribute_value(attrs::Union{AttributeSet, AttributeSetView}, key::AbstractString, f::Function)
-    return each_attribute_value(attrs, key, AttributeValueHandler(f))
 end
 
 function attribute_values(attrs::Union{AttributeSet, AttributeSetView}, key::AbstractString)
