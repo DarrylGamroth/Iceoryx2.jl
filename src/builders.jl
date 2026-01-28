@@ -152,37 +152,29 @@ mutable struct EventServiceBuilder
     keepalive::Node
 end
 
-mutable struct PubSubServiceBuilder
+mutable struct PubSubServiceBuilder{T,UH}
     handle::Iceoryx2FFI.iox2_service_builder_pub_sub_h
     storage::Base.RefValue{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node
-    payload_type::Union{Nothing, DataType}
-    user_header_type::Union{Nothing, DataType}
 end
 
-mutable struct RequestResponseServiceBuilder
+mutable struct RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_service_builder_request_response_h
     storage::Base.RefValue{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node
-    request_type::Union{Nothing, DataType}
-    response_type::Union{Nothing, DataType}
-    request_header_type::Union{Nothing, DataType}
-    response_header_type::Union{Nothing, DataType}
 end
 
-mutable struct BlackboardCreatorBuilder
+mutable struct BlackboardCreatorBuilder{K}
     handle::Iceoryx2FFI.iox2_service_builder_blackboard_creator_h
     storage::Base.RefValue{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node
     values::Vector{Any}
-    key_type::Union{Nothing, DataType}
 end
 
-mutable struct BlackboardOpenerBuilder
+mutable struct BlackboardOpenerBuilder{K}
     handle::Iceoryx2FFI.iox2_service_builder_blackboard_opener_h
     storage::Base.RefValue{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node
-    key_type::Union{Nothing, DataType}
 end
 
 function _finalize_service_builder_variant(builder)
@@ -193,29 +185,21 @@ end
 function _finalize_service_builder_variant(builder::BlackboardCreatorBuilder)
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
     empty!(builder.values)
-    builder.key_type = nothing
     return nothing
 end
 
 function _finalize_service_builder_variant(builder::BlackboardOpenerBuilder)
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
-    builder.key_type = nothing
     return nothing
 end
 
 function _finalize_service_builder_variant(builder::PubSubServiceBuilder)
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
-    builder.payload_type = nothing
-    builder.user_header_type = nothing
     return nothing
 end
 
 function _finalize_service_builder_variant(builder::RequestResponseServiceBuilder)
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
-    builder.request_type = nothing
-    builder.response_type = nothing
-    builder.request_header_type = nothing
-    builder.response_header_type = nothing
     return nothing
 end
 
@@ -240,7 +224,7 @@ function publish_subscribe(
     builder.handle = _IOX2_NULL
     storage = builder.storage
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
-    pub_builder = PubSubServiceBuilder(handle, storage, builder.keepalive, nothing, nothing)
+    pub_builder = PubSubServiceBuilder{T,Nothing}(handle, storage, builder.keepalive)
     finalizer(_finalize_service_builder_variant, pub_builder)
     _set_payload_type!(pub_builder, T; variant)
     return pub_builder
@@ -258,7 +242,7 @@ function request_response(
     builder.handle = _IOX2_NULL
     storage = builder.storage
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
-    rr_builder = RequestResponseServiceBuilder(handle, storage, builder.keepalive, nothing, nothing, nothing, nothing)
+    rr_builder = RequestResponseServiceBuilder{Req,Resp,Nothing,Nothing}(handle, storage, builder.keepalive)
     finalizer(_finalize_service_builder_variant, rr_builder)
     _set_request_payload_type!(rr_builder, Req; variant = request_variant)
     _set_response_payload_type!(rr_builder, Resp; variant = response_variant)
@@ -271,7 +255,7 @@ function blackboard_creator(builder::ServiceBuilder, ::Type{K}) where {K}
     builder.handle = _IOX2_NULL
     storage = builder.storage
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
-    bb_builder = BlackboardCreatorBuilder(handle, storage, builder.keepalive, Any[], nothing)
+    bb_builder = BlackboardCreatorBuilder{K}(handle, storage, builder.keepalive, Any[])
     finalizer(_finalize_service_builder_variant, bb_builder)
     _set_key_type!(bb_builder, K)
     return bb_builder
@@ -283,7 +267,7 @@ function blackboard_opener(builder::ServiceBuilder, ::Type{K}) where {K}
     builder.handle = _IOX2_NULL
     storage = builder.storage
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
-    bb_builder = BlackboardOpenerBuilder(handle, storage, builder.keepalive, nothing)
+    bb_builder = BlackboardOpenerBuilder{K}(handle, storage, builder.keepalive)
     finalizer(_finalize_service_builder_variant, bb_builder)
     _set_key_type!(bb_builder, K)
     return bb_builder
