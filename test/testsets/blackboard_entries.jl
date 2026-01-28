@@ -5,7 +5,7 @@
 
     service_builder = Iceoryx2.service_builder(node, unique_service_name())
     bb_builder = Iceoryx2.blackboard_creator(service_builder, UInt64)
-    Iceoryx2.add_with_default!(bb_builder, UInt64(1), UInt64(0))
+    Iceoryx2.add!(bb_builder, UInt64(1), UInt64(0))
 
     factory = Iceoryx2.create(bb_builder)
     writer = Iceoryx2.create(Iceoryx2.writer_builder(factory))

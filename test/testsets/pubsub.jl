@@ -17,6 +17,11 @@
     pub = Iceoryx2.create(Iceoryx2.publisher_builder(factory))
     sub = Iceoryx2.create(Iceoryx2.subscriber_builder(factory))
 
+    init_sample = Iceoryx2.loan(pub)
+    init_payload = Iceoryx2.payload_mut(init_sample)
+    @test init_payload[1] == zero(UInt64)
+    close(init_sample)
+
     data = UInt64[0x1234_5678_9abc_def0]
     sample = nothing
     for _ in 1:50
@@ -56,8 +61,11 @@ end
     pub = Iceoryx2.create(pub_builder)
     sub = Iceoryx2.create(Iceoryx2.subscriber_builder(factory))
 
-    loaned = Iceoryx2.loan_slice(pub, payload_len)
+    loaned = Iceoryx2.loan_slice_uninit(pub, payload_len)
     slice = Iceoryx2.payload_mut(loaned)
+    for idx in 1:payload_len
+        @test slice[idx] == 0x00
+    end
     for idx in 1:payload_len
         unsafe_store!(slice.ptr, UInt8(idx), idx)
     end
@@ -104,7 +112,7 @@ end
     pub = Iceoryx2.create(pub_builder)
     sub = Iceoryx2.create(Iceoryx2.subscriber_builder(factory))
 
-    loaned = Iceoryx2.loan_slice(pub, payload_len)
+    loaned = Iceoryx2.loan_slice_uninit(pub, payload_len)
     slice = Iceoryx2.payload_mut(loaned)
     slice[1] = TestHeader(UInt32(1), 2.0)
     slice[2] = TestHeader(UInt32(3), 4.0)

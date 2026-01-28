@@ -19,6 +19,11 @@
     client = Iceoryx2.create(Iceoryx2.client_builder(factory))
     server = Iceoryx2.create(Iceoryx2.server_builder(factory))
 
+    init_request = Iceoryx2.loan(client)
+    init_payload = Iceoryx2.payload_mut(init_request)
+    @test init_payload[1] == zero(UInt64)
+    close(init_request)
+
     client_seen = Ref(false)
     Iceoryx2.list_clients(factory) do client_details
         client_seen[] = true

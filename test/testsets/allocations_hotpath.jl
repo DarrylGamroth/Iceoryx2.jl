@@ -127,7 +127,7 @@
     close(event_factory)
 
     bb_builder = Iceoryx2.blackboard_creator(Iceoryx2.service_builder(node, unique_service_name()), UInt64)
-    Iceoryx2.add_with_default!(bb_builder, UInt64(1), UInt64(0))
+    Iceoryx2.add!(bb_builder, UInt64(1), UInt64(0))
     bb_factory = Iceoryx2.create(bb_builder)
     bb_writer = Iceoryx2.create(Iceoryx2.writer_builder(bb_factory))
     bb_reader = Iceoryx2.create(Iceoryx2.reader_builder(bb_factory))

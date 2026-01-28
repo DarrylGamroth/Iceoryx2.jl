@@ -92,6 +92,13 @@ end
     return unsafe_load(slice.ptr, state), state + 1
 end
 
+@inline function _fill_slice!(slice::Slice{T}, value::T) where {T}
+    @inbounds for idx in 1:slice.len
+        unsafe_store!(slice.ptr, value, idx)
+    end
+    return slice
+end
+
 struct EventId
     raw::Iceoryx2FFI.iox2_event_id_t
 end
@@ -194,6 +201,94 @@ function open_or_create(builder::PubSubServiceBuilder{T}) where {T}
     return factory
 end
 
+function open_or_create(builder::PubSubServiceBuilder{T}, verifier::AttributeVerifier) where {T}
+    _require_valid(builder.handle, "publish_subscribe service builder")
+    _require_isbits(T)
+    _require_valid(unsafe_handle(verifier), "attribute verifier")
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(_IOX2_NULL)
+    ret = Iceoryx2FFI.iox2_service_builder_pub_sub_open_or_create_with_attributes(
+        builder.handle,
+        Ref{Iceoryx2FFI.iox2_attribute_verifier_h}(unsafe_handle(verifier)),
+        storage,
+        handle_ref,
+    )
+    check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
+    builder.handle = _IOX2_NULL
+    _finalize_service_builder_variant(builder)
+    factory = PortFactoryPubSub{T}(handle_ref[], storage, builder.keepalive)
+    finalizer(_finalize_port_factory_pub_sub, factory)
+    return factory
+end
+
+function open(builder::PubSubServiceBuilder{T}) where {T}
+    _require_valid(builder.handle, "publish_subscribe service builder")
+    _require_isbits(T)
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(_IOX2_NULL)
+    ret = Iceoryx2FFI.iox2_service_builder_pub_sub_open(builder.handle, storage, handle_ref)
+    check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
+    builder.handle = _IOX2_NULL
+    _finalize_service_builder_variant(builder)
+    factory = PortFactoryPubSub{T}(handle_ref[], storage, builder.keepalive)
+    finalizer(_finalize_port_factory_pub_sub, factory)
+    return factory
+end
+
+function open(builder::PubSubServiceBuilder{T}, verifier::AttributeVerifier) where {T}
+    _require_valid(builder.handle, "publish_subscribe service builder")
+    _require_isbits(T)
+    _require_valid(unsafe_handle(verifier), "attribute verifier")
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(_IOX2_NULL)
+    ret = Iceoryx2FFI.iox2_service_builder_pub_sub_open_with_attributes(
+        builder.handle,
+        Ref{Iceoryx2FFI.iox2_attribute_verifier_h}(unsafe_handle(verifier)),
+        storage,
+        handle_ref,
+    )
+    check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
+    builder.handle = _IOX2_NULL
+    _finalize_service_builder_variant(builder)
+    factory = PortFactoryPubSub{T}(handle_ref[], storage, builder.keepalive)
+    finalizer(_finalize_port_factory_pub_sub, factory)
+    return factory
+end
+
+function create(builder::PubSubServiceBuilder{T}) where {T}
+    _require_valid(builder.handle, "publish_subscribe service builder")
+    _require_isbits(T)
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(_IOX2_NULL)
+    ret = Iceoryx2FFI.iox2_service_builder_pub_sub_create(builder.handle, storage, handle_ref)
+    check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
+    builder.handle = _IOX2_NULL
+    _finalize_service_builder_variant(builder)
+    factory = PortFactoryPubSub{T}(handle_ref[], storage, builder.keepalive)
+    finalizer(_finalize_port_factory_pub_sub, factory)
+    return factory
+end
+
+function create(builder::PubSubServiceBuilder{T}, specifier::AttributeSpecifier) where {T}
+    _require_valid(builder.handle, "publish_subscribe service builder")
+    _require_isbits(T)
+    _require_valid(unsafe_handle(specifier), "attribute specifier")
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(_IOX2_NULL)
+    ret = Iceoryx2FFI.iox2_service_builder_pub_sub_create_with_attributes(
+        builder.handle,
+        Ref{Iceoryx2FFI.iox2_attribute_specifier_h}(unsafe_handle(specifier)),
+        storage,
+        handle_ref,
+    )
+    check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
+    builder.handle = _IOX2_NULL
+    _finalize_service_builder_variant(builder)
+    factory = PortFactoryPubSub{T}(handle_ref[], storage, builder.keepalive)
+    finalizer(_finalize_port_factory_pub_sub, factory)
+    return factory
+end
+
 function open_or_create(f::Function, builder::PubSubServiceBuilder)
     factory = open_or_create(builder)
     try
@@ -202,6 +297,58 @@ function open_or_create(f::Function, builder::PubSubServiceBuilder)
         close(factory)
     end
 end
+
+function open_or_create(f::Function, builder::PubSubServiceBuilder, verifier::AttributeVerifier)
+    factory = open_or_create(builder, verifier)
+    try
+        return f(factory)
+    finally
+        close(factory)
+    end
+end
+
+function open(f::Function, builder::PubSubServiceBuilder)
+    factory = open(builder)
+    try
+        return f(factory)
+    finally
+        close(factory)
+    end
+end
+
+function open(f::Function, builder::PubSubServiceBuilder, verifier::AttributeVerifier)
+    factory = open(builder, verifier)
+    try
+        return f(factory)
+    finally
+        close(factory)
+    end
+end
+
+function create(f::Function, builder::PubSubServiceBuilder)
+    factory = create(builder)
+    try
+        return f(factory)
+    finally
+        close(factory)
+    end
+end
+
+function create(f::Function, builder::PubSubServiceBuilder, specifier::AttributeSpecifier)
+    factory = create(builder, specifier)
+    try
+        return f(factory)
+    finally
+        close(factory)
+    end
+end
+
+open_or_create_with_attributes(builder::PubSubServiceBuilder, verifier::AttributeVerifier) = open_or_create(builder, verifier)
+open_or_create_with_attributes(f::Function, builder::PubSubServiceBuilder, verifier::AttributeVerifier) = open_or_create(f, builder, verifier)
+open_with_attributes(builder::PubSubServiceBuilder, verifier::AttributeVerifier) = open(builder, verifier)
+open_with_attributes(f::Function, builder::PubSubServiceBuilder, verifier::AttributeVerifier) = open(f, builder, verifier)
+create_with_attributes(builder::PubSubServiceBuilder, specifier::AttributeSpecifier) = create(builder, specifier)
+create_with_attributes(f::Function, builder::PubSubServiceBuilder, specifier::AttributeSpecifier) = create(f, builder, specifier)
 
 mutable struct PublisherBuilder{T}
     handle::Iceoryx2FFI.iox2_port_factory_publisher_builder_h
@@ -363,6 +510,11 @@ end
     return Ptr{T}(ptr_ref[])
 end
 
+@inline function user_header(sample::Sample{T}, ::Type{UH}) where {T,UH}
+    ptr = unsafe_user_header_ptr(sample, UH)
+    return Slice{UH}(ptr, 1, sample)
+end
+
 
 mutable struct SampleMut{T}
     handle::Iceoryx2FFI.iox2_sample_mut_h
@@ -404,6 +556,16 @@ end
     return Ptr{T}(ptr_ref[])
 end
 
+@inline function user_header(sample::SampleMut{T}, ::Type{UH}) where {T,UH}
+    ptr = unsafe_user_header_mut_ptr(sample, UH)
+    return Slice{UH}(ptr, 1, sample)
+end
+
+@inline function user_header_mut(sample::SampleMut{T}, ::Type{UH}) where {T,UH}
+    ptr = unsafe_user_header_mut_ptr(sample, UH)
+    return Slice{UH}(ptr, 1, sample)
+end
+
 @inline function publisher_id(header::PublishSubscribeHeader)
     handle_ref = Ref{Iceoryx2FFI.iox2_unique_publisher_id_h}(_IOX2_NULL)
     Iceoryx2FFI.iox2_publish_subscribe_header_publisher_id(
@@ -423,7 +585,7 @@ end
 end
 
 
-function loan_slice(publisher::Publisher{T}, n::Integer) where {T}
+function loan_slice_uninit(publisher::Publisher{T}, n::Integer) where {T}
     _require_valid(publisher.handle, "publisher")
     storage = Ref{Iceoryx2FFI.iox2_sample_mut_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_sample_mut_h}(_IOX2_NULL)
@@ -435,11 +597,32 @@ function loan_slice(publisher::Publisher{T}, n::Integer) where {T}
 end
 
 @inline function loan_uninit(publisher::Publisher{T}) where {T}
-    return loan_slice(publisher, 1)
+    return loan_slice_uninit(publisher, 1)
+end
+
+function loan(publisher::Publisher{T}) where {T}
+    sample = loan_slice_uninit(publisher, 1)
+    _fill_slice!(payload_mut(sample), zero(T))
+    return sample
+end
+
+function loan_slice(publisher::Publisher{T}, n::Integer) where {T}
+    sample = loan_slice_uninit(publisher, n)
+    _fill_slice!(payload_mut(sample), zero(T))
+    return sample
 end
 
 function loan_slice(f::Function, publisher::Publisher{T}, n::Integer) where {T}
     sample = loan_slice(publisher, n)
+    try
+        return f(sample)
+    finally
+        close(sample)
+    end
+end
+
+function loan_slice_uninit(f::Function, publisher::Publisher{T}, n::Integer) where {T}
+    sample = loan_slice_uninit(publisher, n)
     try
         return f(sample)
     finally
@@ -652,6 +835,99 @@ function open_or_create(builder::RequestResponseServiceBuilder{Req,Resp}) where 
     return factory
 end
 
+function open_or_create(builder::RequestResponseServiceBuilder{Req,Resp}, verifier::AttributeVerifier) where {Req,Resp}
+    _require_valid(builder.handle, "request_response service builder")
+    _require_isbits(Req)
+    _require_isbits(Resp)
+    _require_valid(unsafe_handle(verifier), "attribute verifier")
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_request_response_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(_IOX2_NULL)
+    ret = Iceoryx2FFI.iox2_service_builder_request_response_open_or_create_with_attributes(
+        builder.handle,
+        Ref{Iceoryx2FFI.iox2_attribute_verifier_h}(unsafe_handle(verifier)),
+        storage,
+        handle_ref,
+    )
+    check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
+    builder.handle = _IOX2_NULL
+    _finalize_service_builder_variant(builder)
+    factory = PortFactoryRequestResponse{Req,Resp}(handle_ref[], storage, builder.keepalive)
+    finalizer(_finalize_port_factory_request_response, factory)
+    return factory
+end
+
+function open(builder::RequestResponseServiceBuilder{Req,Resp}) where {Req,Resp}
+    _require_valid(builder.handle, "request_response service builder")
+    _require_isbits(Req)
+    _require_isbits(Resp)
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_request_response_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(_IOX2_NULL)
+    ret = Iceoryx2FFI.iox2_service_builder_request_response_open(builder.handle, storage, handle_ref)
+    check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
+    builder.handle = _IOX2_NULL
+    _finalize_service_builder_variant(builder)
+    factory = PortFactoryRequestResponse{Req,Resp}(handle_ref[], storage, builder.keepalive)
+    finalizer(_finalize_port_factory_request_response, factory)
+    return factory
+end
+
+function open(builder::RequestResponseServiceBuilder{Req,Resp}, verifier::AttributeVerifier) where {Req,Resp}
+    _require_valid(builder.handle, "request_response service builder")
+    _require_isbits(Req)
+    _require_isbits(Resp)
+    _require_valid(unsafe_handle(verifier), "attribute verifier")
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_request_response_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(_IOX2_NULL)
+    ret = Iceoryx2FFI.iox2_service_builder_request_response_open_with_attributes(
+        builder.handle,
+        Ref{Iceoryx2FFI.iox2_attribute_verifier_h}(unsafe_handle(verifier)),
+        storage,
+        handle_ref,
+    )
+    check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
+    builder.handle = _IOX2_NULL
+    _finalize_service_builder_variant(builder)
+    factory = PortFactoryRequestResponse{Req,Resp}(handle_ref[], storage, builder.keepalive)
+    finalizer(_finalize_port_factory_request_response, factory)
+    return factory
+end
+
+function create(builder::RequestResponseServiceBuilder{Req,Resp}) where {Req,Resp}
+    _require_valid(builder.handle, "request_response service builder")
+    _require_isbits(Req)
+    _require_isbits(Resp)
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_request_response_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(_IOX2_NULL)
+    ret = Iceoryx2FFI.iox2_service_builder_request_response_create(builder.handle, storage, handle_ref)
+    check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
+    builder.handle = _IOX2_NULL
+    _finalize_service_builder_variant(builder)
+    factory = PortFactoryRequestResponse{Req,Resp}(handle_ref[], storage, builder.keepalive)
+    finalizer(_finalize_port_factory_request_response, factory)
+    return factory
+end
+
+function create(builder::RequestResponseServiceBuilder{Req,Resp}, specifier::AttributeSpecifier) where {Req,Resp}
+    _require_valid(builder.handle, "request_response service builder")
+    _require_isbits(Req)
+    _require_isbits(Resp)
+    _require_valid(unsafe_handle(specifier), "attribute specifier")
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_request_response_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(_IOX2_NULL)
+    ret = Iceoryx2FFI.iox2_service_builder_request_response_create_with_attributes(
+        builder.handle,
+        Ref{Iceoryx2FFI.iox2_attribute_specifier_h}(unsafe_handle(specifier)),
+        storage,
+        handle_ref,
+    )
+    check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
+    builder.handle = _IOX2_NULL
+    _finalize_service_builder_variant(builder)
+    factory = PortFactoryRequestResponse{Req,Resp}(handle_ref[], storage, builder.keepalive)
+    finalizer(_finalize_port_factory_request_response, factory)
+    return factory
+end
+
 function open_or_create(f::Function, builder::RequestResponseServiceBuilder)
     factory = open_or_create(builder)
     try
@@ -660,6 +936,58 @@ function open_or_create(f::Function, builder::RequestResponseServiceBuilder)
         close(factory)
     end
 end
+
+function open_or_create(f::Function, builder::RequestResponseServiceBuilder, verifier::AttributeVerifier)
+    factory = open_or_create(builder, verifier)
+    try
+        return f(factory)
+    finally
+        close(factory)
+    end
+end
+
+function open(f::Function, builder::RequestResponseServiceBuilder)
+    factory = open(builder)
+    try
+        return f(factory)
+    finally
+        close(factory)
+    end
+end
+
+function open(f::Function, builder::RequestResponseServiceBuilder, verifier::AttributeVerifier)
+    factory = open(builder, verifier)
+    try
+        return f(factory)
+    finally
+        close(factory)
+    end
+end
+
+function create(f::Function, builder::RequestResponseServiceBuilder)
+    factory = create(builder)
+    try
+        return f(factory)
+    finally
+        close(factory)
+    end
+end
+
+function create(f::Function, builder::RequestResponseServiceBuilder, specifier::AttributeSpecifier)
+    factory = create(builder, specifier)
+    try
+        return f(factory)
+    finally
+        close(factory)
+    end
+end
+
+open_or_create_with_attributes(builder::RequestResponseServiceBuilder, verifier::AttributeVerifier) = open_or_create(builder, verifier)
+open_or_create_with_attributes(f::Function, builder::RequestResponseServiceBuilder, verifier::AttributeVerifier) = open_or_create(f, builder, verifier)
+open_with_attributes(builder::RequestResponseServiceBuilder, verifier::AttributeVerifier) = open(builder, verifier)
+open_with_attributes(f::Function, builder::RequestResponseServiceBuilder, verifier::AttributeVerifier) = open(f, builder, verifier)
+create_with_attributes(builder::RequestResponseServiceBuilder, specifier::AttributeSpecifier) = create(builder, specifier)
+create_with_attributes(f::Function, builder::RequestResponseServiceBuilder, specifier::AttributeSpecifier) = create(f, builder, specifier)
 
 mutable struct ClientBuilder{Req,Resp}
     handle::Iceoryx2FFI.iox2_port_factory_client_builder_h
@@ -829,6 +1157,16 @@ end
     return Ptr{T}(ptr_ref[])
 end
 
+@inline function user_header(request::RequestMut{Req,Resp}, ::Type{UH}) where {Req,Resp,UH}
+    ptr = unsafe_user_header_mut_ptr(request, UH)
+    return Slice{UH}(ptr, 1, request)
+end
+
+@inline function user_header_mut(request::RequestMut{Req,Resp}, ::Type{UH}) where {Req,Resp,UH}
+    ptr = unsafe_user_header_mut_ptr(request, UH)
+    return Slice{UH}(ptr, 1, request)
+end
+
 @inline function client_id(header::RequestHeader)
     handle_ref = Ref{Iceoryx2FFI.iox2_unique_client_id_h}(_IOX2_NULL)
     Iceoryx2FFI.iox2_request_header_client_id(
@@ -877,8 +1215,13 @@ end
     return Ptr{T}(ptr_ref[])
 end
 
+@inline function user_header(pending::PendingResponse{Resp}, ::Type{UH}) where {Resp,UH}
+    ptr = unsafe_user_header_ptr(pending, UH)
+    return Slice{UH}(ptr, 1, pending)
+end
 
-function loan_request(client::Client{Req,Resp}, n::Integer) where {Req,Resp}
+
+function loan_slice_uninit(client::Client{Req,Resp}, n::Integer) where {Req,Resp}
     _require_valid(client.handle, "client")
     storage = Ref{Iceoryx2FFI.iox2_request_mut_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_request_mut_h}(_IOX2_NULL)
@@ -890,16 +1233,45 @@ function loan_request(client::Client{Req,Resp}, n::Integer) where {Req,Resp}
 end
 
 @inline function loan_uninit(client::Client{Req,Resp}) where {Req,Resp}
-    return loan_request(client, 1)
+    return loan_slice_uninit(client, 1)
 end
 
-function loan_request(f::Function, client::Client{Req,Resp}, n::Integer) where {Req,Resp}
-    request = loan_request(client, n)
+@inline function loan(client::Client{Req,Resp}) where {Req,Resp}
+    request = loan_slice_uninit(client, 1)
+    _fill_slice!(payload_mut(request), zero(Req))
+    return request
+end
+
+function loan_slice(client::Client{Req,Resp}, n::Integer) where {Req,Resp}
+    request = loan_slice_uninit(client, n)
+    _fill_slice!(payload_mut(request), zero(Req))
+    return request
+end
+
+function loan_slice(f::Function, client::Client{Req,Resp}, n::Integer) where {Req,Resp}
+    request = loan_slice(client, n)
     try
         return f(request)
     finally
         close(request)
     end
+end
+
+function loan_slice_uninit(f::Function, client::Client{Req,Resp}, n::Integer) where {Req,Resp}
+    request = loan_slice_uninit(client, n)
+    try
+        return f(request)
+    finally
+        close(request)
+    end
+end
+
+function loan_request(client::Client{Req,Resp}, n::Integer) where {Req,Resp}
+    return loan_slice_uninit(client, n)
+end
+
+function loan_request(f::Function, client::Client{Req,Resp}, n::Integer) where {Req,Resp}
+    return loan_slice_uninit(f, client, n)
 end
 
 function send!(request::RequestMut{Req,Resp}) where {Req,Resp}
@@ -969,6 +1341,11 @@ end
     ptr_ref = Ref{Ptr{Cvoid}}()
     Iceoryx2FFI.iox2_response_user_header(Ref{Iceoryx2FFI.iox2_response_h}(resp.handle), ptr_ref)
     return Ptr{T}(ptr_ref[])
+end
+
+@inline function user_header(resp::Response{RespT}, ::Type{UH}) where {RespT,UH}
+    ptr = unsafe_user_header_ptr(resp, UH)
+    return Slice{UH}(ptr, 1, resp)
 end
 
 @inline function server_id(header::ResponseHeader)
@@ -1044,6 +1421,11 @@ end
     return Ptr{T}(ptr_ref[])
 end
 
+@inline function user_header(req::ActiveRequest{ReqT,RespT}, ::Type{UH}) where {ReqT,RespT,UH}
+    ptr = unsafe_user_header_ptr(req, UH)
+    return Slice{UH}(ptr, 1, req)
+end
+
 
 mutable struct ResponseMut{Resp}
     handle::Iceoryx2FFI.iox2_response_mut_h
@@ -1091,6 +1473,16 @@ end
     return Ptr{T}(ptr_ref[])
 end
 
+@inline function user_header(resp::ResponseMut{RespT}, ::Type{UH}) where {RespT,UH}
+    ptr = unsafe_user_header_mut_ptr(resp, UH)
+    return Slice{UH}(ptr, 1, resp)
+end
+
+@inline function user_header_mut(resp::ResponseMut{RespT}, ::Type{UH}) where {RespT,UH}
+    ptr = unsafe_user_header_mut_ptr(resp, UH)
+    return Slice{UH}(ptr, 1, resp)
+end
+
 
 function receive(server::Server{Req,Resp}) where {Req,Resp}
     _require_valid(server.handle, "server")
@@ -1114,7 +1506,7 @@ function has_requests(server::Server)
     return result[]
 end
 
-function loan_response(req::ActiveRequest{Req,Resp}, n::Integer) where {Req,Resp}
+function loan_slice_uninit(req::ActiveRequest{Req,Resp}, n::Integer) where {Req,Resp}
     storage = Ref{Iceoryx2FFI.iox2_response_mut_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_response_mut_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_active_request_loan_slice_uninit(Ref{Iceoryx2FFI.iox2_active_request_h}(req.handle), storage, handle_ref, Iceoryx2FFI.c_size_t(n))
@@ -1125,16 +1517,45 @@ function loan_response(req::ActiveRequest{Req,Resp}, n::Integer) where {Req,Resp
 end
 
 @inline function loan_uninit(req::ActiveRequest{Req,Resp}) where {Req,Resp}
-    return loan_response(req, 1)
+    return loan_slice_uninit(req, 1)
 end
 
-function loan_response(f::Function, req::ActiveRequest{Req,Resp}, n::Integer) where {Req,Resp}
-    response = loan_response(req, n)
+@inline function loan(req::ActiveRequest{Req,Resp}) where {Req,Resp}
+    response = loan_slice_uninit(req, 1)
+    _fill_slice!(payload_mut(response), zero(Resp))
+    return response
+end
+
+function loan_slice(req::ActiveRequest{Req,Resp}, n::Integer) where {Req,Resp}
+    response = loan_slice_uninit(req, n)
+    _fill_slice!(payload_mut(response), zero(Resp))
+    return response
+end
+
+function loan_slice(f::Function, req::ActiveRequest{Req,Resp}, n::Integer) where {Req,Resp}
+    response = loan_slice(req, n)
     try
         return f(response)
     finally
         close(response)
     end
+end
+
+function loan_slice_uninit(f::Function, req::ActiveRequest{Req,Resp}, n::Integer) where {Req,Resp}
+    response = loan_slice_uninit(req, n)
+    try
+        return f(response)
+    finally
+        close(response)
+    end
+end
+
+function loan_response(req::ActiveRequest{Req,Resp}, n::Integer) where {Req,Resp}
+    return loan_slice_uninit(req, n)
+end
+
+function loan_response(f::Function, req::ActiveRequest{Req,Resp}, n::Integer) where {Req,Resp}
+    return loan_slice_uninit(f, req, n)
 end
 
 function send_copy(req::ActiveRequest{Req,Resp}, data::Ptr{Resp}, n::Integer) where {Req,Resp}
@@ -1337,6 +1758,13 @@ function create(f::Function, builder::EventServiceBuilder, specifier::AttributeS
         close(factory)
     end
 end
+
+open_or_create_with_attributes(builder::EventServiceBuilder, verifier::AttributeVerifier) = open_or_create(builder, verifier)
+open_or_create_with_attributes(f::Function, builder::EventServiceBuilder, verifier::AttributeVerifier) = open_or_create(f, builder, verifier)
+open_with_attributes(builder::EventServiceBuilder, verifier::AttributeVerifier) = open(builder, verifier)
+open_with_attributes(f::Function, builder::EventServiceBuilder, verifier::AttributeVerifier) = open(f, builder, verifier)
+create_with_attributes(builder::EventServiceBuilder, specifier::AttributeSpecifier) = create(builder, specifier)
+create_with_attributes(f::Function, builder::EventServiceBuilder, specifier::AttributeSpecifier) = create(f, builder, specifier)
 
 mutable struct NotifierBuilder
     handle::Iceoryx2FFI.iox2_port_factory_notifier_builder_h
@@ -1790,7 +2218,7 @@ end
 
 ### builder tuning setters generated in src/generated/wrappers.jl
 
-function add_with_default!(builder::BlackboardCreatorBuilder{K}, key::K, value::V) where {K,V}
+function add!(builder::BlackboardCreatorBuilder{K}, key::K, value::V) where {K,V}
     _require_valid(builder.handle, "blackboard creator")
     _require_isbits(K)
     _require_isbits(V)
@@ -1813,6 +2241,10 @@ function add_with_default!(builder::BlackboardCreatorBuilder{K}, key::K, value::
         )
     end
     return builder
+end
+
+function add_with_default!(builder::BlackboardCreatorBuilder{K}, key::K, ::Type{V}) where {K,V}
+    return add!(builder, key, zero(V))
 end
 
 mutable struct WriterBuilder{K}
