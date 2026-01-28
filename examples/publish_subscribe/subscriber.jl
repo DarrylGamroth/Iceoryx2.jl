@@ -18,7 +18,11 @@ function main()
         Iceoryx2.wait(node, CYCLE_SECONDS, 0)
         sample = receive(subscriber)
         while sample !== nothing
-            println("received: ", payload(sample)[1])
+            try
+                println("received: ", payload(sample)[1])
+            finally
+                close(sample)
+            end
             sample = receive(subscriber)
         end
     end
