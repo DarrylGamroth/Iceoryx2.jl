@@ -1,0 +1,25 @@
+include(joinpath(@__DIR__, "..", "common", "imports.jl"))
+
+const CYCLE_SECONDS = 1
+
+function main()
+    set_log_level_from_env_or(:info)
+    node = create(NodeBuilder(); service_type = :ipc)
+
+    service = open_or_create(event(service_builder(node, "MyEventName")))
+    max_event_id = Int(static_config(service).raw.event_id_max_value)
+    max_event_id = max_event_id > 0 ? max_event_id : 1
+
+    notifier = create(notifier_builder(service))
+
+    counter = UInt64(0)
+    while true
+        Iceoryx2.wait(node, CYCLE_SECONDS, 0)
+        counter += 1
+        event_id = EventId(counter % UInt64(max_event_id))
+        notify!(notifier, event_id)
+        println("Trigger event with id $(Int(event_id))...")
+    end
+end
+
+main()

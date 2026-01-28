@@ -1,6 +1,6 @@
 #!/usr/bin/env julia
 
-using Iceoryx2
+include(joinpath(@__DIR__, "..", "common", "imports.jl"))
 
 function main()
     node_builder = Iceoryx2.NodeBuilder()
