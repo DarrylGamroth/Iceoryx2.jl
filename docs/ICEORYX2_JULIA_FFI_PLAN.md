@@ -226,23 +226,23 @@ Hot path refers to any API that is called per message/event or inside tight loop
 - Ensure type-detail cache is thread-safe under multi-threaded access.
 
 ## Missing Wrappers Checklist
-- [ ] Publish/subscribe header accessors (`publisher_id`, `number_of_elements`).
-- [ ] Request/response header accessors (`client_id`, `server_id`, `number_of_elements`).
-- [ ] `node_wait` wrapper.
-- [ ] Event port-factory accessors: `attributes`, `nodes`, `service_name`, `service_id`, `static_config`.
-- [ ] Event service-builder attribute-based open/create and notifier/deadline toggles.
-- [ ] Notifier `deadline` accessor.
-- [ ] Config helpers: `config_from_file`, `config_clone`, `config_from_ptr`.
-- [ ] Config defaults/global setters (publish/subscribe, event, request/response, blackboard, global prefixes/paths).
-- [ ] Details view accessors (client/server/publisher/subscriber/listener/notifier/reader/writer).
-- [ ] Message type details wrapper (`iox2_message_type_details_t` / `iox2_type_detail_t`).
-- [ ] FileDescriptor helpers: `file_descriptor_new`, `native_handle`.
-- [ ] `dead_node_remove_stale_resources` wrapper.
-- Ensure payload views keep owning handles alive and provide basic iteration interfaces.
-- Provide blackboard entry uninitialized update path (`loan_uninit`, `value_mut`, `update!`, `discard!`).
-- Clarify key comparator semantics and allow custom comparator pointer injection.
-- Make attribute iteration return owned strings by default and provide a pointer-based variant for zero-alloc use.
-- Harden attribute error/value string extraction against missing null terminators.
+- [x] Publish/subscribe header accessors (`publisher_id`, `number_of_elements`). (`src/messaging.jl:398`, `src/messaging.jl:408`)
+- [x] Request/response header accessors (`client_id`, `server_id`, `number_of_elements`). (`src/messaging.jl:805`, `src/messaging.jl:815`, `src/messaging.jl:947`, `src/messaging.jl:957`)
+- [x] `node_wait` wrapper. (`src/nodes.jl:14`)
+- [x] Event port-factory accessors: `attributes`, `nodes`, `service_name`, `service_id`, `static_config`. (`src/generated/wrappers.jl:997`, `src/callbacks.jl:96`, `src/generated/wrappers.jl:1021`, `src/messaging.jl:1148`, `src/generated/wrappers.jl:115`)
+- [x] Event service-builder attribute-based open/create and notifier/deadline toggles. (`src/messaging.jl:1177`, `src/messaging.jl:1277`, `src/generated/wrappers.jl:778`)
+- [x] Notifier `deadline` accessor. (`src/generated/wrappers.jl:808`)
+- [x] Config helpers: `config_from_file`, `config_clone`, `config_from_ptr`. (`src/config.jl:61`, `src/config.jl:77`, `src/config.jl:71`)
+- [x] Config defaults/global setters (publish/subscribe, event, request/response, blackboard, global prefixes/paths). (`src/generated/wrappers.jl:740`, `src/generated/wrappers.jl:815`, `src/generated/wrappers.jl:962`)
+- [x] Details view accessors (client/server/publisher/subscriber/listener/notifier/reader/writer). (`src/generated/wrappers.jl:143`)
+- [x] Message type details wrapper (`iox2_message_type_details_t` / `iox2_type_detail_t`). (`src/config.jl:119`, `src/config.jl:123`)
+- [x] FileDescriptor helpers: `file_descriptor_new`, `native_handle`. (`src/waitset.jl:71`, `src/waitset.jl:78`)
+- [x] `dead_node_remove_stale_resources` wrapper. (`src/nodes.jl:62`)
+- [x] Ensure payload views keep owning handles alive and provide basic iteration interfaces. (`src/messaging.jl:63`, `src/messaging.jl:90`)
+- [x] Provide blackboard entry uninitialized update path (`loan_uninit`, `value_mut`, `update!`, `discard!`). (`src/messaging.jl:1957`, `src/messaging.jl:1980`, `src/messaging.jl:1989`, `src/messaging.jl:2000`)
+- [x] Clarify key comparator semantics and allow custom comparator pointer injection. (`src/messaging.jl:1747`, `src/messaging.jl:1759`)
+- [x] Make attribute iteration return owned strings by default and provide a pointer-based variant for zero-alloc use. (`src/callbacks.jl:173`, `src/callbacks.jl:195`, `src/callbacks.jl:199`)
+- [x] Harden attribute error/value string extraction against missing null terminators. (`src/attributes.jl:245`)
 - Status: Completed (2026-01-27)
 
 ## Design Decisions to Mirror iceoryx2-cxx Idioms
