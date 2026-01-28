@@ -99,6 +99,11 @@ end
     return slice
 end
 
+@inline function _default_value(::Type{T}) where {T}
+    Base.hasmethod(zero, Tuple{Type{T}}) || throw(ArgumentError("loan/loan_slice requires zero(::Type{$T})"))
+    return zero(T)
+end
+
 struct EventId
     raw::Iceoryx2FFI.iox2_event_id_t
 end
@@ -172,7 +177,7 @@ end
 
 ### builder tuning setters generated in src/generated/wrappers.jl
 
-mutable struct PortFactoryPubSub{T}
+mutable struct PortFactoryPubSub{T,UH}
     handle::Iceoryx2FFI.iox2_port_factory_pub_sub_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_pub_sub_t}
     keepalive::Node
@@ -187,7 +192,7 @@ function _finalize_port_factory_pub_sub(factory::PortFactoryPubSub)
     return nothing
 end
 
-function open_or_create(builder::PubSubServiceBuilder{T}) where {T}
+function open_or_create(builder::PubSubServiceBuilder{T,UH}) where {T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
     _require_isbits(T)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_t}()
@@ -196,12 +201,12 @@ function open_or_create(builder::PubSubServiceBuilder{T}) where {T}
     check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryPubSub{T}(handle_ref[], storage, builder.keepalive)
+    factory = PortFactoryPubSub{T,UH}(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_port_factory_pub_sub, factory)
     return factory
 end
 
-function open_or_create(builder::PubSubServiceBuilder{T}, verifier::AttributeVerifier) where {T}
+function open_or_create(builder::PubSubServiceBuilder{T,UH}, verifier::AttributeVerifier) where {T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
     _require_isbits(T)
     _require_valid(unsafe_handle(verifier), "attribute verifier")
@@ -216,12 +221,12 @@ function open_or_create(builder::PubSubServiceBuilder{T}, verifier::AttributeVer
     check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryPubSub{T}(handle_ref[], storage, builder.keepalive)
+    factory = PortFactoryPubSub{T,UH}(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_port_factory_pub_sub, factory)
     return factory
 end
 
-function open(builder::PubSubServiceBuilder{T}) where {T}
+function open(builder::PubSubServiceBuilder{T,UH}) where {T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
     _require_isbits(T)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_t}()
@@ -230,12 +235,12 @@ function open(builder::PubSubServiceBuilder{T}) where {T}
     check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryPubSub{T}(handle_ref[], storage, builder.keepalive)
+    factory = PortFactoryPubSub{T,UH}(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_port_factory_pub_sub, factory)
     return factory
 end
 
-function open(builder::PubSubServiceBuilder{T}, verifier::AttributeVerifier) where {T}
+function open(builder::PubSubServiceBuilder{T,UH}, verifier::AttributeVerifier) where {T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
     _require_isbits(T)
     _require_valid(unsafe_handle(verifier), "attribute verifier")
@@ -250,12 +255,12 @@ function open(builder::PubSubServiceBuilder{T}, verifier::AttributeVerifier) whe
     check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryPubSub{T}(handle_ref[], storage, builder.keepalive)
+    factory = PortFactoryPubSub{T,UH}(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_port_factory_pub_sub, factory)
     return factory
 end
 
-function create(builder::PubSubServiceBuilder{T}) where {T}
+function create(builder::PubSubServiceBuilder{T,UH}) where {T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
     _require_isbits(T)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_t}()
@@ -264,12 +269,12 @@ function create(builder::PubSubServiceBuilder{T}) where {T}
     check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryPubSub{T}(handle_ref[], storage, builder.keepalive)
+    factory = PortFactoryPubSub{T,UH}(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_port_factory_pub_sub, factory)
     return factory
 end
 
-function create(builder::PubSubServiceBuilder{T}, specifier::AttributeSpecifier) where {T}
+function create(builder::PubSubServiceBuilder{T,UH}, specifier::AttributeSpecifier) where {T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
     _require_isbits(T)
     _require_valid(unsafe_handle(specifier), "attribute specifier")
@@ -284,7 +289,7 @@ function create(builder::PubSubServiceBuilder{T}, specifier::AttributeSpecifier)
     check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryPubSub{T}(handle_ref[], storage, builder.keepalive)
+    factory = PortFactoryPubSub{T,UH}(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_port_factory_pub_sub, factory)
     return factory
 end
@@ -350,10 +355,10 @@ open_with_attributes(f::Function, builder::PubSubServiceBuilder, verifier::Attri
 create_with_attributes(builder::PubSubServiceBuilder, specifier::AttributeSpecifier) = create(builder, specifier)
 create_with_attributes(f::Function, builder::PubSubServiceBuilder, specifier::AttributeSpecifier) = create(f, builder, specifier)
 
-mutable struct PublisherBuilder{T}
+mutable struct PublisherBuilder{T,UH}
     handle::Iceoryx2FFI.iox2_port_factory_publisher_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_publisher_builder_t}
-    keepalive::PortFactoryPubSub{T}
+    keepalive::PortFactoryPubSub{T,UH}
 end
 
 function _finalize_publisher_builder(builder::PublisherBuilder)
@@ -362,22 +367,22 @@ function _finalize_publisher_builder(builder::PublisherBuilder)
     return nothing
 end
 
-function publisher_builder(factory::PortFactoryPubSub{T}) where {T}
+function publisher_builder(factory::PortFactoryPubSub{T,UH}) where {T,UH}
     _require_valid(factory.handle, "publish_subscribe port factory")
     _require_isbits(T)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_publisher_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_pub_sub_publisher_builder(Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle), storage)
-    builder = PublisherBuilder{T}(handle, storage, factory)
+    builder = PublisherBuilder{T,UH}(handle, storage, factory)
     finalizer(_finalize_publisher_builder, builder)
     return builder
 end
 
 ### builder tuning setters generated in src/generated/wrappers.jl
 
-mutable struct SubscriberBuilder{T}
+mutable struct SubscriberBuilder{T,UH}
     handle::Iceoryx2FFI.iox2_port_factory_subscriber_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_subscriber_builder_t}
-    keepalive::PortFactoryPubSub{T}
+    keepalive::PortFactoryPubSub{T,UH}
 end
 
 function _finalize_subscriber_builder(builder::SubscriberBuilder)
@@ -386,20 +391,20 @@ function _finalize_subscriber_builder(builder::SubscriberBuilder)
     return nothing
 end
 
-function subscriber_builder(factory::PortFactoryPubSub{T}) where {T}
+function subscriber_builder(factory::PortFactoryPubSub{T,UH}) where {T,UH}
     _require_valid(factory.handle, "publish_subscribe port factory")
     _require_isbits(T)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_subscriber_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_pub_sub_subscriber_builder(Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle), storage)
-    builder = SubscriberBuilder{T}(handle, storage, factory)
+    builder = SubscriberBuilder{T,UH}(handle, storage, factory)
     finalizer(_finalize_subscriber_builder, builder)
     return builder
 end
 
-mutable struct Publisher{T}
+mutable struct Publisher{T,UH}
     handle::Iceoryx2FFI.iox2_publisher_h
     storage::_StorageRef{Iceoryx2FFI.iox2_publisher_t}
-    keepalive::PortFactoryPubSub{T}
+    keepalive::PortFactoryPubSub{T,UH}
 end
 
 function _finalize_publisher(pub::Publisher)
@@ -411,7 +416,7 @@ function _finalize_publisher(pub::Publisher)
     return nothing
 end
 
-function create(builder::PublisherBuilder{T}) where {T}
+function create(builder::PublisherBuilder{T,UH}) where {T,UH}
     _require_valid(builder.handle, "publisher builder")
     storage = Ref{Iceoryx2FFI.iox2_publisher_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_publisher_h}(_IOX2_NULL)
@@ -419,12 +424,12 @@ function create(builder::PublisherBuilder{T}) where {T}
     check_ok(ret, Iceoryx2FFI.iox2_publisher_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_publisher_builder(builder)
-    pub = Publisher{T}(handle_ref[], storage, builder.keepalive)
+    pub = Publisher{T,UH}(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_publisher, pub)
     return pub
 end
 
-function create(f::Function, builder::PublisherBuilder{T}) where {T}
+function create(f::Function, builder::PublisherBuilder{T,UH}) where {T,UH}
     pub = create(builder)
     try
         return f(pub)
@@ -433,10 +438,10 @@ function create(f::Function, builder::PublisherBuilder{T}) where {T}
     end
 end
 
-mutable struct Subscriber{T}
+mutable struct Subscriber{T,UH}
     handle::Iceoryx2FFI.iox2_subscriber_h
     storage::_StorageRef{Iceoryx2FFI.iox2_subscriber_t}
-    keepalive::PortFactoryPubSub{T}
+    keepalive::PortFactoryPubSub{T,UH}
 end
 
 function _finalize_subscriber(sub::Subscriber)
@@ -448,7 +453,7 @@ function _finalize_subscriber(sub::Subscriber)
     return nothing
 end
 
-function create(builder::SubscriberBuilder{T}) where {T}
+function create(builder::SubscriberBuilder{T,UH}) where {T,UH}
     _require_valid(builder.handle, "subscriber builder")
     storage = Ref{Iceoryx2FFI.iox2_subscriber_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_subscriber_h}(_IOX2_NULL)
@@ -456,12 +461,12 @@ function create(builder::SubscriberBuilder{T}) where {T}
     check_ok(ret, Iceoryx2FFI.iox2_subscriber_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_subscriber_builder(builder)
-    sub = Subscriber{T}(handle_ref[], storage, builder.keepalive)
+    sub = Subscriber{T,UH}(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_subscriber, sub)
     return sub
 end
 
-function create(f::Function, builder::SubscriberBuilder{T}) where {T}
+function create(f::Function, builder::SubscriberBuilder{T,UH}) where {T,UH}
     sub = create(builder)
     try
         return f(sub)
@@ -470,7 +475,7 @@ function create(f::Function, builder::SubscriberBuilder{T}) where {T}
     end
 end
 
-mutable struct Sample{T}
+mutable struct Sample{T,UH}
     handle::Iceoryx2FFI.iox2_sample_h
     storage::_StorageRef{Iceoryx2FFI.iox2_sample_t}
 end
@@ -484,14 +489,14 @@ function _finalize_sample(sample::Sample)
     return nothing
 end
 
-@inline function payload(sample::Sample{T}) where {T}
+@inline function payload(sample::Sample{T,UH}) where {T,UH}
     ptr_ref = Ref{Ptr{Cvoid}}()
     len_ref = Ref{Iceoryx2FFI.c_size_t}()
     Iceoryx2FFI.iox2_sample_payload(Ref{Iceoryx2FFI.iox2_sample_h}(sample.handle), ptr_ref, len_ref)
     return Slice{T}(Ptr{T}(ptr_ref[]), Int(len_ref[]), sample)
 end
 
-@inline function unsafe_payload_ptr(sample::Sample{T}) where {T}
+@inline function unsafe_payload_ptr(sample::Sample{T,UH}) where {T,UH}
     return payload(sample).ptr
 end
 
@@ -510,13 +515,22 @@ end
     return Ptr{T}(ptr_ref[])
 end
 
-@inline function user_header(sample::Sample{T}, ::Type{UH}) where {T,UH}
+@inline function user_header(sample::Sample{T,Nothing}) where {T}
+    throw(ArgumentError("sample has no user header type; call user_header(sample, ::Type) instead"))
+end
+
+@inline function user_header(sample::Sample{T,UH}) where {T,UH}
+    ptr = unsafe_user_header_ptr(sample, UH)
+    return Slice{UH}(ptr, 1, sample)
+end
+
+@inline function user_header(sample::Sample{T,UH}, ::Type{UH}) where {T,UH}
     ptr = unsafe_user_header_ptr(sample, UH)
     return Slice{UH}(ptr, 1, sample)
 end
 
 
-mutable struct SampleMut{T}
+mutable struct SampleMut{T,UH}
     handle::Iceoryx2FFI.iox2_sample_mut_h
     storage::_StorageRef{Iceoryx2FFI.iox2_sample_mut_t}
 end
@@ -530,14 +544,14 @@ function _finalize_sample_mut(sample::SampleMut)
     return nothing
 end
 
-@inline function payload_mut(sample::SampleMut{T}) where {T}
+@inline function payload_mut(sample::SampleMut{T,UH}) where {T,UH}
     ptr_ref = Ref{Ptr{Cvoid}}()
     len_ref = Ref{Iceoryx2FFI.c_size_t}()
     Iceoryx2FFI.iox2_sample_mut_payload_mut(Ref{Iceoryx2FFI.iox2_sample_mut_h}(sample.handle), ptr_ref, len_ref)
     return Slice{T}(Ptr{T}(ptr_ref[]), Int(len_ref[]), sample)
 end
 
-@inline function unsafe_payload_mut_ptr(sample::SampleMut{T}) where {T}
+@inline function unsafe_payload_mut_ptr(sample::SampleMut{T,UH}) where {T,UH}
     return payload_mut(sample).ptr
 end
 
@@ -556,12 +570,26 @@ end
     return Ptr{T}(ptr_ref[])
 end
 
-@inline function user_header(sample::SampleMut{T}, ::Type{UH}) where {T,UH}
+@inline function user_header(sample::SampleMut{T,Nothing}) where {T}
+    throw(ArgumentError("sample has no user header type; call user_header(sample, ::Type) instead"))
+end
+
+@inline function user_header(sample::SampleMut{T,UH}) where {T,UH}
     ptr = unsafe_user_header_mut_ptr(sample, UH)
     return Slice{UH}(ptr, 1, sample)
 end
 
-@inline function user_header_mut(sample::SampleMut{T}, ::Type{UH}) where {T,UH}
+@inline function user_header(sample::SampleMut{T,UH}, ::Type{UH}) where {T,UH}
+    ptr = unsafe_user_header_mut_ptr(sample, UH)
+    return Slice{UH}(ptr, 1, sample)
+end
+
+@inline function user_header_mut(sample::SampleMut{T,UH}) where {T,UH}
+    ptr = unsafe_user_header_mut_ptr(sample, UH)
+    return Slice{UH}(ptr, 1, sample)
+end
+
+@inline function user_header_mut(sample::SampleMut{T,UH}, ::Type{UH}) where {T,UH}
     ptr = unsafe_user_header_mut_ptr(sample, UH)
     return Slice{UH}(ptr, 1, sample)
 end
@@ -585,34 +613,34 @@ end
 end
 
 
-function loan_slice_uninit(publisher::Publisher{T}, n::Integer) where {T}
+function loan_slice_uninit(publisher::Publisher{T,UH}, n::Integer) where {T,UH}
     _require_valid(publisher.handle, "publisher")
     storage = Ref{Iceoryx2FFI.iox2_sample_mut_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_sample_mut_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_publisher_loan_slice_uninit(Ref{Iceoryx2FFI.iox2_publisher_h}(publisher.handle), storage, handle_ref, Iceoryx2FFI.c_size_t(n))
     check_ok(ret, Iceoryx2FFI.iox2_loan_error_e)
-    sample = SampleMut{T}(handle_ref[], storage)
+    sample = SampleMut{T,UH}(handle_ref[], storage)
     finalizer(_finalize_sample_mut, sample)
     return sample
 end
 
-@inline function loan_uninit(publisher::Publisher{T}) where {T}
+@inline function loan_uninit(publisher::Publisher{T,UH}) where {T,UH}
     return loan_slice_uninit(publisher, 1)
 end
 
-function loan(publisher::Publisher{T}) where {T}
+function loan(publisher::Publisher{T,UH}) where {T,UH}
     sample = loan_slice_uninit(publisher, 1)
-    _fill_slice!(payload_mut(sample), zero(T))
+    _fill_slice!(payload_mut(sample), _default_value(T))
     return sample
 end
 
-function loan_slice(publisher::Publisher{T}, n::Integer) where {T}
+function loan_slice(publisher::Publisher{T,UH}, n::Integer) where {T,UH}
     sample = loan_slice_uninit(publisher, n)
-    _fill_slice!(payload_mut(sample), zero(T))
+    _fill_slice!(payload_mut(sample), _default_value(T))
     return sample
 end
 
-function loan_slice(f::Function, publisher::Publisher{T}, n::Integer) where {T}
+function loan_slice(f::Function, publisher::Publisher{T,UH}, n::Integer) where {T,UH}
     sample = loan_slice(publisher, n)
     try
         return f(sample)
@@ -621,7 +649,7 @@ function loan_slice(f::Function, publisher::Publisher{T}, n::Integer) where {T}
     end
 end
 
-function loan_slice_uninit(f::Function, publisher::Publisher{T}, n::Integer) where {T}
+function loan_slice_uninit(f::Function, publisher::Publisher{T,UH}, n::Integer) where {T,UH}
     sample = loan_slice_uninit(publisher, n)
     try
         return f(sample)
@@ -630,7 +658,7 @@ function loan_slice_uninit(f::Function, publisher::Publisher{T}, n::Integer) whe
     end
 end
 
-@inline function write_payload!(sample::SampleMut{T}, value::T) where {T}
+@inline function write_payload!(sample::SampleMut{T,UH}, value::T) where {T,UH}
     slice = payload_mut(sample)
     unsafe_store!(slice.ptr, value, 1)
     return sample
@@ -644,7 +672,7 @@ end
     return nothing
 end
 
-function send_copy(publisher::Publisher{T}, data::Ptr{T}, n::Integer) where {T}
+function send_copy(publisher::Publisher{T,UH}, data::Ptr{T}, n::Integer) where {T,UH}
     _require_valid(publisher.handle, "publisher")
     recipients = Ref{Iceoryx2FFI.c_size_t}()
     ret = Iceoryx2FFI.iox2_publisher_send_slice_copy(Ref{Iceoryx2FFI.iox2_publisher_h}(publisher.handle), data, Iceoryx2FFI.c_size_t(sizeof(T)), Iceoryx2FFI.c_size_t(n), recipients)
@@ -652,14 +680,14 @@ function send_copy(publisher::Publisher{T}, data::Ptr{T}, n::Integer) where {T}
     return Int(recipients[])
 end
 
-function send_copy(publisher::Publisher{T}, data::AbstractVector{T}) where {T}
+function send_copy(publisher::Publisher{T,UH}, data::AbstractVector{T}) where {T,UH}
     _require_isbits(T)
     GC.@preserve data begin
         return send_copy(publisher, pointer(data), length(data))
     end
 end
 
-function receive(subscriber::Subscriber{T}) where {T}
+function receive(subscriber::Subscriber{T,UH}) where {T,UH}
     _require_valid(subscriber.handle, "subscriber")
     storage = Ref{Iceoryx2FFI.iox2_sample_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_sample_h}(_IOX2_NULL)
@@ -669,7 +697,7 @@ function receive(subscriber::Subscriber{T}) where {T}
         storage = nothing
         return nothing
     end
-    sample = Sample{T}(handle_ref[], storage)
+    sample = Sample{T,UH}(handle_ref[], storage)
     finalizer(_finalize_sample, sample)
     return sample
 end
@@ -805,7 +833,7 @@ end
 
 ### builder tuning setters generated in src/generated/wrappers.jl
 
-mutable struct PortFactoryRequestResponse{Req,Resp}
+mutable struct PortFactoryRequestResponse{Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_port_factory_request_response_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_request_response_t}
     keepalive::Node
@@ -820,7 +848,7 @@ function _finalize_port_factory_request_response(factory::PortFactoryRequestResp
     return nothing
 end
 
-function open_or_create(builder::RequestResponseServiceBuilder{Req,Resp}) where {Req,Resp}
+function open_or_create(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request_response service builder")
     _require_isbits(Req)
     _require_isbits(Resp)
@@ -830,12 +858,12 @@ function open_or_create(builder::RequestResponseServiceBuilder{Req,Resp}) where 
     check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryRequestResponse{Req,Resp}(handle_ref[], storage, builder.keepalive)
+    factory = PortFactoryRequestResponse{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_port_factory_request_response, factory)
     return factory
 end
 
-function open_or_create(builder::RequestResponseServiceBuilder{Req,Resp}, verifier::AttributeVerifier) where {Req,Resp}
+function open_or_create(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, verifier::AttributeVerifier) where {Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request_response service builder")
     _require_isbits(Req)
     _require_isbits(Resp)
@@ -851,12 +879,12 @@ function open_or_create(builder::RequestResponseServiceBuilder{Req,Resp}, verifi
     check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryRequestResponse{Req,Resp}(handle_ref[], storage, builder.keepalive)
+    factory = PortFactoryRequestResponse{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_port_factory_request_response, factory)
     return factory
 end
 
-function open(builder::RequestResponseServiceBuilder{Req,Resp}) where {Req,Resp}
+function open(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request_response service builder")
     _require_isbits(Req)
     _require_isbits(Resp)
@@ -866,12 +894,12 @@ function open(builder::RequestResponseServiceBuilder{Req,Resp}) where {Req,Resp}
     check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryRequestResponse{Req,Resp}(handle_ref[], storage, builder.keepalive)
+    factory = PortFactoryRequestResponse{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_port_factory_request_response, factory)
     return factory
 end
 
-function open(builder::RequestResponseServiceBuilder{Req,Resp}, verifier::AttributeVerifier) where {Req,Resp}
+function open(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, verifier::AttributeVerifier) where {Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request_response service builder")
     _require_isbits(Req)
     _require_isbits(Resp)
@@ -887,12 +915,12 @@ function open(builder::RequestResponseServiceBuilder{Req,Resp}, verifier::Attrib
     check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryRequestResponse{Req,Resp}(handle_ref[], storage, builder.keepalive)
+    factory = PortFactoryRequestResponse{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_port_factory_request_response, factory)
     return factory
 end
 
-function create(builder::RequestResponseServiceBuilder{Req,Resp}) where {Req,Resp}
+function create(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request_response service builder")
     _require_isbits(Req)
     _require_isbits(Resp)
@@ -902,12 +930,12 @@ function create(builder::RequestResponseServiceBuilder{Req,Resp}) where {Req,Res
     check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryRequestResponse{Req,Resp}(handle_ref[], storage, builder.keepalive)
+    factory = PortFactoryRequestResponse{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_port_factory_request_response, factory)
     return factory
 end
 
-function create(builder::RequestResponseServiceBuilder{Req,Resp}, specifier::AttributeSpecifier) where {Req,Resp}
+function create(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, specifier::AttributeSpecifier) where {Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request_response service builder")
     _require_isbits(Req)
     _require_isbits(Resp)
@@ -923,7 +951,7 @@ function create(builder::RequestResponseServiceBuilder{Req,Resp}, specifier::Att
     check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryRequestResponse{Req,Resp}(handle_ref[], storage, builder.keepalive)
+    factory = PortFactoryRequestResponse{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_port_factory_request_response, factory)
     return factory
 end
@@ -989,10 +1017,10 @@ open_with_attributes(f::Function, builder::RequestResponseServiceBuilder, verifi
 create_with_attributes(builder::RequestResponseServiceBuilder, specifier::AttributeSpecifier) = create(builder, specifier)
 create_with_attributes(f::Function, builder::RequestResponseServiceBuilder, specifier::AttributeSpecifier) = create(f, builder, specifier)
 
-mutable struct ClientBuilder{Req,Resp}
+mutable struct ClientBuilder{Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_port_factory_client_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_client_builder_t}
-    keepalive::PortFactoryRequestResponse{Req,Resp}
+    keepalive::PortFactoryRequestResponse{Req,Resp,ReqH,RespH}
 end
 
 function _finalize_client_builder(builder::ClientBuilder)
@@ -1001,21 +1029,21 @@ function _finalize_client_builder(builder::ClientBuilder)
     return nothing
 end
 
-function client_builder(factory::PortFactoryRequestResponse{Req,Resp}) where {Req,Resp}
+function client_builder(factory::PortFactoryRequestResponse{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
     _require_valid(factory.handle, "request_response port factory")
     _require_isbits(Req)
     _require_isbits(Resp)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_client_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_request_response_client_builder(Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle), storage)
-    builder = ClientBuilder{Req,Resp}(handle, storage, factory)
+    builder = ClientBuilder{Req,Resp,ReqH,RespH}(handle, storage, factory)
     finalizer(_finalize_client_builder, builder)
     return builder
 end
 
-mutable struct ServerBuilder{Req,Resp}
+mutable struct ServerBuilder{Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_port_factory_server_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_server_builder_t}
-    keepalive::PortFactoryRequestResponse{Req,Resp}
+    keepalive::PortFactoryRequestResponse{Req,Resp,ReqH,RespH}
 end
 
 function _finalize_server_builder(builder::ServerBuilder)
@@ -1024,23 +1052,23 @@ function _finalize_server_builder(builder::ServerBuilder)
     return nothing
 end
 
-function server_builder(factory::PortFactoryRequestResponse{Req,Resp}) where {Req,Resp}
+function server_builder(factory::PortFactoryRequestResponse{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
     _require_valid(factory.handle, "request_response port factory")
     _require_isbits(Req)
     _require_isbits(Resp)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_server_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_request_response_server_builder(Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle), storage)
-    builder = ServerBuilder{Req,Resp}(handle, storage, factory)
+    builder = ServerBuilder{Req,Resp,ReqH,RespH}(handle, storage, factory)
     finalizer(_finalize_server_builder, builder)
     return builder
 end
 
 ### builder tuning setters generated in src/generated/wrappers.jl
 
-mutable struct Client{Req,Resp}
+mutable struct Client{Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_client_h
     storage::_StorageRef{Iceoryx2FFI.iox2_client_t}
-    keepalive::PortFactoryRequestResponse{Req,Resp}
+    keepalive::PortFactoryRequestResponse{Req,Resp,ReqH,RespH}
 end
 
 function _finalize_client(client::Client)
@@ -1052,7 +1080,7 @@ function _finalize_client(client::Client)
     return nothing
 end
 
-function create(builder::ClientBuilder{Req,Resp}) where {Req,Resp}
+function create(builder::ClientBuilder{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "client builder")
     storage = Ref{Iceoryx2FFI.iox2_client_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_client_h}(_IOX2_NULL)
@@ -1060,12 +1088,12 @@ function create(builder::ClientBuilder{Req,Resp}) where {Req,Resp}
     check_ok(ret, Iceoryx2FFI.iox2_client_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_client_builder(builder)
-    client = Client{Req,Resp}(handle_ref[], storage, builder.keepalive)
+    client = Client{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_client, client)
     return client
 end
 
-function create(f::Function, builder::ClientBuilder{Req,Resp}) where {Req,Resp}
+function create(f::Function, builder::ClientBuilder{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
     client = create(builder)
     try
         return f(client)
@@ -1074,10 +1102,10 @@ function create(f::Function, builder::ClientBuilder{Req,Resp}) where {Req,Resp}
     end
 end
 
-mutable struct Server{Req,Resp}
+mutable struct Server{Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_server_h
     storage::_StorageRef{Iceoryx2FFI.iox2_server_t}
-    keepalive::PortFactoryRequestResponse{Req,Resp}
+    keepalive::PortFactoryRequestResponse{Req,Resp,ReqH,RespH}
 end
 
 function _finalize_server(server::Server)
@@ -1089,7 +1117,7 @@ function _finalize_server(server::Server)
     return nothing
 end
 
-function create(builder::ServerBuilder{Req,Resp}) where {Req,Resp}
+function create(builder::ServerBuilder{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "server builder")
     storage = Ref{Iceoryx2FFI.iox2_server_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_server_h}(_IOX2_NULL)
@@ -1097,12 +1125,12 @@ function create(builder::ServerBuilder{Req,Resp}) where {Req,Resp}
     check_ok(ret, Iceoryx2FFI.iox2_server_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_server_builder(builder)
-    server = Server{Req,Resp}(handle_ref[], storage, builder.keepalive)
+    server = Server{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
     finalizer(_finalize_server, server)
     return server
 end
 
-function create(f::Function, builder::ServerBuilder{Req,Resp}) where {Req,Resp}
+function create(f::Function, builder::ServerBuilder{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
     server = create(builder)
     try
         return f(server)
@@ -1111,7 +1139,7 @@ function create(f::Function, builder::ServerBuilder{Req,Resp}) where {Req,Resp}
     end
 end
 
-mutable struct RequestMut{Req,Resp}
+mutable struct RequestMut{Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_request_mut_h
     storage::_StorageRef{Iceoryx2FFI.iox2_request_mut_t}
 end
@@ -1125,14 +1153,14 @@ function _finalize_request_mut(request::RequestMut)
     return nothing
 end
 
-@inline function payload_mut(request::RequestMut{Req,Resp}) where {Req,Resp}
+@inline function payload_mut(request::RequestMut{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
     ptr_ref = Ref{Ptr{Cvoid}}()
     len_ref = Ref{Iceoryx2FFI.c_size_t}()
     Iceoryx2FFI.iox2_request_mut_payload_mut(Ref{Iceoryx2FFI.iox2_request_mut_h}(request.handle), ptr_ref, len_ref)
     return Slice{Req}(Ptr{Req}(ptr_ref[]), Int(len_ref[]), request)
 end
 
-@inline function unsafe_payload_mut_ptr(request::RequestMut{Req,Resp}) where {Req,Resp}
+@inline function unsafe_payload_mut_ptr(request::RequestMut{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
     return payload_mut(request).ptr
 end
 
@@ -1144,7 +1172,7 @@ end
     return RequestHeader(handle_ref[])
 end
 
-@inline function write_payload!(request::RequestMut{Req,Resp}, value::Req) where {Req,Resp}
+@inline function write_payload!(request::RequestMut{Req,Resp,ReqH,RespH}, value::Req) where {Req,Resp,ReqH,RespH}
     slice = payload_mut(request)
     unsafe_store!(slice.ptr, value, 1)
     return request
@@ -1157,14 +1185,28 @@ end
     return Ptr{T}(ptr_ref[])
 end
 
-@inline function user_header(request::RequestMut{Req,Resp}, ::Type{UH}) where {Req,Resp,UH}
-    ptr = unsafe_user_header_mut_ptr(request, UH)
-    return Slice{UH}(ptr, 1, request)
+@inline function user_header(request::RequestMut{Req,Resp,Nothing,RespH}) where {Req,Resp,RespH}
+    throw(ArgumentError("request has no user header type; call user_header(request, ::Type) instead"))
 end
 
-@inline function user_header_mut(request::RequestMut{Req,Resp}, ::Type{UH}) where {Req,Resp,UH}
-    ptr = unsafe_user_header_mut_ptr(request, UH)
-    return Slice{UH}(ptr, 1, request)
+@inline function user_header(request::RequestMut{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
+    ptr = unsafe_user_header_mut_ptr(request, ReqH)
+    return Slice{ReqH}(ptr, 1, request)
+end
+
+@inline function user_header(request::RequestMut{Req,Resp,ReqH,RespH}, ::Type{ReqH}) where {Req,Resp,ReqH,RespH}
+    ptr = unsafe_user_header_mut_ptr(request, ReqH)
+    return Slice{ReqH}(ptr, 1, request)
+end
+
+@inline function user_header_mut(request::RequestMut{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
+    ptr = unsafe_user_header_mut_ptr(request, ReqH)
+    return Slice{ReqH}(ptr, 1, request)
+end
+
+@inline function user_header_mut(request::RequestMut{Req,Resp,ReqH,RespH}, ::Type{ReqH}) where {Req,Resp,ReqH,RespH}
+    ptr = unsafe_user_header_mut_ptr(request, ReqH)
+    return Slice{ReqH}(ptr, 1, request)
 end
 
 @inline function client_id(header::RequestHeader)
@@ -1186,7 +1228,7 @@ end
 end
 
 
-mutable struct PendingResponse{Resp}
+mutable struct PendingResponse{Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_pending_response_h
     storage::_StorageRef{Iceoryx2FFI.iox2_pending_response_t}
 end
@@ -1215,40 +1257,49 @@ end
     return Ptr{T}(ptr_ref[])
 end
 
-@inline function user_header(pending::PendingResponse{Resp}, ::Type{UH}) where {Resp,UH}
-    ptr = unsafe_user_header_ptr(pending, UH)
-    return Slice{UH}(ptr, 1, pending)
+@inline function user_header(pending::PendingResponse{Resp,Nothing,RespH}) where {Resp,RespH}
+    throw(ArgumentError("pending response has no user header type; call user_header(pending, ::Type) instead"))
+end
+
+@inline function user_header(pending::PendingResponse{Resp,ReqH,RespH}) where {Resp,ReqH,RespH}
+    ptr = unsafe_user_header_ptr(pending, ReqH)
+    return Slice{ReqH}(ptr, 1, pending)
+end
+
+@inline function user_header(pending::PendingResponse{Resp,ReqH,RespH}, ::Type{ReqH}) where {Resp,ReqH,RespH}
+    ptr = unsafe_user_header_ptr(pending, ReqH)
+    return Slice{ReqH}(ptr, 1, pending)
 end
 
 
-function loan_slice_uninit(client::Client{Req,Resp}, n::Integer) where {Req,Resp}
+function loan_slice_uninit(client::Client{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
     _require_valid(client.handle, "client")
     storage = Ref{Iceoryx2FFI.iox2_request_mut_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_request_mut_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_client_loan_slice_uninit(Ref{Iceoryx2FFI.iox2_client_h}(client.handle), storage, handle_ref, Iceoryx2FFI.c_size_t(n))
     check_ok(ret, Iceoryx2FFI.iox2_loan_error_e)
-    request = RequestMut{Req,Resp}(handle_ref[], storage)
+    request = RequestMut{Req,Resp,ReqH,RespH}(handle_ref[], storage)
     finalizer(_finalize_request_mut, request)
     return request
 end
 
-@inline function loan_uninit(client::Client{Req,Resp}) where {Req,Resp}
+@inline function loan_uninit(client::Client{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
     return loan_slice_uninit(client, 1)
 end
 
-@inline function loan(client::Client{Req,Resp}) where {Req,Resp}
+@inline function loan(client::Client{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
     request = loan_slice_uninit(client, 1)
-    _fill_slice!(payload_mut(request), zero(Req))
+    _fill_slice!(payload_mut(request), _default_value(Req))
     return request
 end
 
-function loan_slice(client::Client{Req,Resp}, n::Integer) where {Req,Resp}
+function loan_slice(client::Client{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
     request = loan_slice_uninit(client, n)
-    _fill_slice!(payload_mut(request), zero(Req))
+    _fill_slice!(payload_mut(request), _default_value(Req))
     return request
 end
 
-function loan_slice(f::Function, client::Client{Req,Resp}, n::Integer) where {Req,Resp}
+function loan_slice(f::Function, client::Client{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
     request = loan_slice(client, n)
     try
         return f(request)
@@ -1257,7 +1308,7 @@ function loan_slice(f::Function, client::Client{Req,Resp}, n::Integer) where {Re
     end
 end
 
-function loan_slice_uninit(f::Function, client::Client{Req,Resp}, n::Integer) where {Req,Resp}
+function loan_slice_uninit(f::Function, client::Client{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
     request = loan_slice_uninit(client, n)
     try
         return f(request)
@@ -1266,44 +1317,44 @@ function loan_slice_uninit(f::Function, client::Client{Req,Resp}, n::Integer) wh
     end
 end
 
-function loan_request(client::Client{Req,Resp}, n::Integer) where {Req,Resp}
+function loan_request(client::Client{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
     return loan_slice_uninit(client, n)
 end
 
-function loan_request(f::Function, client::Client{Req,Resp}, n::Integer) where {Req,Resp}
+function loan_request(f::Function, client::Client{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
     return loan_slice_uninit(f, client, n)
 end
 
-function send!(request::RequestMut{Req,Resp}) where {Req,Resp}
+function send!(request::RequestMut{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
     pending_storage = Ref{Iceoryx2FFI.iox2_pending_response_t}()
     pending_ref = Ref{Iceoryx2FFI.iox2_pending_response_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_request_mut_send(request.handle, pending_storage, pending_ref)
     check_ok(ret, Iceoryx2FFI.iox2_send_error_e)
     request.handle = _IOX2_NULL
     request.storage = nothing
-    pending = PendingResponse{Resp}(pending_ref[], pending_storage)
+    pending = PendingResponse{Resp,ReqH,RespH}(pending_ref[], pending_storage)
     finalizer(_finalize_pending_response, pending)
     return pending
 end
 
-function send_copy(client::Client{Req,Resp}, data::Ptr{Req}, n::Integer) where {Req,Resp}
+function send_copy(client::Client{Req,Resp,ReqH,RespH}, data::Ptr{Req}, n::Integer) where {Req,Resp,ReqH,RespH}
     pending_storage = Ref{Iceoryx2FFI.iox2_pending_response_t}()
     pending_ref = Ref{Iceoryx2FFI.iox2_pending_response_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_client_send_copy(Ref{Iceoryx2FFI.iox2_client_h}(client.handle), data, Iceoryx2FFI.c_size_t(sizeof(Req)), Iceoryx2FFI.c_size_t(n), pending_storage, pending_ref)
     check_ok(ret, Iceoryx2FFI.iox2_send_error_e)
-    pending = PendingResponse{Resp}(pending_ref[], pending_storage)
+    pending = PendingResponse{Resp,ReqH,RespH}(pending_ref[], pending_storage)
     finalizer(_finalize_pending_response, pending)
     return pending
 end
 
-function send_copy(client::Client{Req,Resp}, data::AbstractVector{Req}) where {Req,Resp}
+function send_copy(client::Client{Req,Resp,ReqH,RespH}, data::AbstractVector{Req}) where {Req,Resp,ReqH,RespH}
     _require_isbits(Req)
     GC.@preserve data begin
         return send_copy(client, pointer(data), length(data))
     end
 end
 
-mutable struct Response{Resp}
+mutable struct Response{Resp,RespH}
     handle::Iceoryx2FFI.iox2_response_h
     storage::_StorageRef{Iceoryx2FFI.iox2_response_t}
 end
@@ -1317,14 +1368,14 @@ function _finalize_response(resp::Response)
     return nothing
 end
 
-@inline function payload(resp::Response{RespT}) where {RespT}
+@inline function payload(resp::Response{RespT,RespH}) where {RespT,RespH}
     ptr_ref = Ref{Ptr{Cvoid}}()
     len_ref = Ref{Iceoryx2FFI.c_size_t}()
     Iceoryx2FFI.iox2_response_payload(Ref{Iceoryx2FFI.iox2_response_h}(resp.handle), ptr_ref, len_ref)
     return Slice{RespT}(Ptr{RespT}(ptr_ref[]), Int(len_ref[]), resp)
 end
 
-@inline function unsafe_payload_ptr(resp::Response{RespT}) where {RespT}
+@inline function unsafe_payload_ptr(resp::Response{RespT,RespH}) where {RespT,RespH}
     return payload(resp).ptr
 end
 
@@ -1343,9 +1394,18 @@ end
     return Ptr{T}(ptr_ref[])
 end
 
-@inline function user_header(resp::Response{RespT}, ::Type{UH}) where {RespT,UH}
-    ptr = unsafe_user_header_ptr(resp, UH)
-    return Slice{UH}(ptr, 1, resp)
+@inline function user_header(resp::Response{RespT,Nothing}) where {RespT}
+    throw(ArgumentError("response has no user header type; call user_header(response, ::Type) instead"))
+end
+
+@inline function user_header(resp::Response{RespT,RespH}) where {RespT,RespH}
+    ptr = unsafe_user_header_ptr(resp, RespH)
+    return Slice{RespH}(ptr, 1, resp)
+end
+
+@inline function user_header(resp::Response{RespT,RespH}, ::Type{RespH}) where {RespT,RespH}
+    ptr = unsafe_user_header_ptr(resp, RespH)
+    return Slice{RespH}(ptr, 1, resp)
 end
 
 @inline function server_id(header::ResponseHeader)
@@ -1367,7 +1427,7 @@ end
 end
 
 
-function receive(pending::PendingResponse{Resp}) where {Resp}
+function receive(pending::PendingResponse{Resp,ReqH,RespH}) where {Resp,ReqH,RespH}
     storage = Ref{Iceoryx2FFI.iox2_response_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_response_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_pending_response_receive(Ref{Iceoryx2FFI.iox2_pending_response_h}(pending.handle), storage, handle_ref)
@@ -1376,12 +1436,12 @@ function receive(pending::PendingResponse{Resp}) where {Resp}
         storage = nothing
         return nothing
     end
-    resp = Response{Resp}(handle_ref[], storage)
+    resp = Response{Resp,RespH}(handle_ref[], storage)
     finalizer(_finalize_response, resp)
     return resp
 end
 
-mutable struct ActiveRequest{Req,Resp}
+mutable struct ActiveRequest{Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_active_request_h
     storage::_StorageRef{Iceoryx2FFI.iox2_active_request_t}
 end
@@ -1395,14 +1455,14 @@ function _finalize_active_request(req::ActiveRequest)
     return nothing
 end
 
-@inline function payload(req::ActiveRequest{ReqT,RespT}) where {ReqT,RespT}
+@inline function payload(req::ActiveRequest{ReqT,RespT,ReqH,RespH}) where {ReqT,RespT,ReqH,RespH}
     ptr_ref = Ref{Ptr{Cvoid}}()
     len_ref = Ref{Iceoryx2FFI.c_size_t}()
     Iceoryx2FFI.iox2_active_request_payload(Ref{Iceoryx2FFI.iox2_active_request_h}(req.handle), ptr_ref, len_ref)
     return Slice{ReqT}(Ptr{ReqT}(ptr_ref[]), Int(len_ref[]), req)
 end
 
-@inline function unsafe_payload_ptr(req::ActiveRequest{ReqT,RespT}) where {ReqT,RespT}
+@inline function unsafe_payload_ptr(req::ActiveRequest{ReqT,RespT,ReqH,RespH}) where {ReqT,RespT,ReqH,RespH}
     return payload(req).ptr
 end
 
@@ -1421,13 +1481,22 @@ end
     return Ptr{T}(ptr_ref[])
 end
 
-@inline function user_header(req::ActiveRequest{ReqT,RespT}, ::Type{UH}) where {ReqT,RespT,UH}
-    ptr = unsafe_user_header_ptr(req, UH)
-    return Slice{UH}(ptr, 1, req)
+@inline function user_header(req::ActiveRequest{ReqT,RespT,Nothing,RespH}) where {ReqT,RespT,RespH}
+    throw(ArgumentError("active request has no user header type; call user_header(request, ::Type) instead"))
+end
+
+@inline function user_header(req::ActiveRequest{ReqT,RespT,ReqH,RespH}) where {ReqT,RespT,ReqH,RespH}
+    ptr = unsafe_user_header_ptr(req, ReqH)
+    return Slice{ReqH}(ptr, 1, req)
+end
+
+@inline function user_header(req::ActiveRequest{ReqT,RespT,ReqH,RespH}, ::Type{ReqH}) where {ReqT,RespT,ReqH,RespH}
+    ptr = unsafe_user_header_ptr(req, ReqH)
+    return Slice{ReqH}(ptr, 1, req)
 end
 
 
-mutable struct ResponseMut{Resp}
+mutable struct ResponseMut{Resp,RespH}
     handle::Iceoryx2FFI.iox2_response_mut_h
     storage::_StorageRef{Iceoryx2FFI.iox2_response_mut_t}
 end
@@ -1441,14 +1510,14 @@ function _finalize_response_mut(resp::ResponseMut)
     return nothing
 end
 
-@inline function payload_mut(resp::ResponseMut{RespT}) where {RespT}
+@inline function payload_mut(resp::ResponseMut{RespT,RespH}) where {RespT,RespH}
     ptr_ref = Ref{Ptr{Cvoid}}()
     len_ref = Ref{Iceoryx2FFI.c_size_t}()
     Iceoryx2FFI.iox2_response_mut_payload_mut(Ref{Iceoryx2FFI.iox2_response_mut_h}(resp.handle), ptr_ref, len_ref)
     return Slice{RespT}(Ptr{RespT}(ptr_ref[]), Int(len_ref[]), resp)
 end
 
-@inline function unsafe_payload_mut_ptr(resp::ResponseMut{RespT}) where {RespT}
+@inline function unsafe_payload_mut_ptr(resp::ResponseMut{RespT,RespH}) where {RespT,RespH}
     return payload_mut(resp).ptr
 end
 
@@ -1460,7 +1529,7 @@ end
     return ResponseHeader(handle_ref[])
 end
 
-@inline function write_payload!(resp::ResponseMut{RespT}, value::RespT) where {RespT}
+@inline function write_payload!(resp::ResponseMut{RespT,RespH}, value::RespT) where {RespT,RespH}
     slice = payload_mut(resp)
     unsafe_store!(slice.ptr, value, 1)
     return resp
@@ -1473,18 +1542,32 @@ end
     return Ptr{T}(ptr_ref[])
 end
 
-@inline function user_header(resp::ResponseMut{RespT}, ::Type{UH}) where {RespT,UH}
-    ptr = unsafe_user_header_mut_ptr(resp, UH)
-    return Slice{UH}(ptr, 1, resp)
+@inline function user_header(resp::ResponseMut{RespT,Nothing}) where {RespT}
+    throw(ArgumentError("response has no user header type; call user_header(response, ::Type) instead"))
 end
 
-@inline function user_header_mut(resp::ResponseMut{RespT}, ::Type{UH}) where {RespT,UH}
-    ptr = unsafe_user_header_mut_ptr(resp, UH)
-    return Slice{UH}(ptr, 1, resp)
+@inline function user_header(resp::ResponseMut{RespT,RespH}) where {RespT,RespH}
+    ptr = unsafe_user_header_mut_ptr(resp, RespH)
+    return Slice{RespH}(ptr, 1, resp)
+end
+
+@inline function user_header(resp::ResponseMut{RespT,RespH}, ::Type{RespH}) where {RespT,RespH}
+    ptr = unsafe_user_header_mut_ptr(resp, RespH)
+    return Slice{RespH}(ptr, 1, resp)
+end
+
+@inline function user_header_mut(resp::ResponseMut{RespT,RespH}) where {RespT,RespH}
+    ptr = unsafe_user_header_mut_ptr(resp, RespH)
+    return Slice{RespH}(ptr, 1, resp)
+end
+
+@inline function user_header_mut(resp::ResponseMut{RespT,RespH}, ::Type{RespH}) where {RespT,RespH}
+    ptr = unsafe_user_header_mut_ptr(resp, RespH)
+    return Slice{RespH}(ptr, 1, resp)
 end
 
 
-function receive(server::Server{Req,Resp}) where {Req,Resp}
+function receive(server::Server{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
     _require_valid(server.handle, "server")
     storage = Ref{Iceoryx2FFI.iox2_active_request_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_active_request_h}(_IOX2_NULL)
@@ -1494,7 +1577,7 @@ function receive(server::Server{Req,Resp}) where {Req,Resp}
         storage = nothing
         return nothing
     end
-    req = ActiveRequest{Req,Resp}(handle_ref[], storage)
+    req = ActiveRequest{Req,Resp,ReqH,RespH}(handle_ref[], storage)
     finalizer(_finalize_active_request, req)
     return req
 end
@@ -1506,33 +1589,33 @@ function has_requests(server::Server)
     return result[]
 end
 
-function loan_slice_uninit(req::ActiveRequest{Req,Resp}, n::Integer) where {Req,Resp}
+function loan_slice_uninit(req::ActiveRequest{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
     storage = Ref{Iceoryx2FFI.iox2_response_mut_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_response_mut_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_active_request_loan_slice_uninit(Ref{Iceoryx2FFI.iox2_active_request_h}(req.handle), storage, handle_ref, Iceoryx2FFI.c_size_t(n))
     check_ok(ret, Iceoryx2FFI.iox2_loan_error_e)
-    resp = ResponseMut{Resp}(handle_ref[], storage)
+    resp = ResponseMut{Resp,RespH}(handle_ref[], storage)
     finalizer(_finalize_response_mut, resp)
     return resp
 end
 
-@inline function loan_uninit(req::ActiveRequest{Req,Resp}) where {Req,Resp}
+@inline function loan_uninit(req::ActiveRequest{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
     return loan_slice_uninit(req, 1)
 end
 
-@inline function loan(req::ActiveRequest{Req,Resp}) where {Req,Resp}
+@inline function loan(req::ActiveRequest{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
     response = loan_slice_uninit(req, 1)
-    _fill_slice!(payload_mut(response), zero(Resp))
+    _fill_slice!(payload_mut(response), _default_value(Resp))
     return response
 end
 
-function loan_slice(req::ActiveRequest{Req,Resp}, n::Integer) where {Req,Resp}
+function loan_slice(req::ActiveRequest{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
     response = loan_slice_uninit(req, n)
-    _fill_slice!(payload_mut(response), zero(Resp))
+    _fill_slice!(payload_mut(response), _default_value(Resp))
     return response
 end
 
-function loan_slice(f::Function, req::ActiveRequest{Req,Resp}, n::Integer) where {Req,Resp}
+function loan_slice(f::Function, req::ActiveRequest{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
     response = loan_slice(req, n)
     try
         return f(response)
@@ -1541,7 +1624,7 @@ function loan_slice(f::Function, req::ActiveRequest{Req,Resp}, n::Integer) where
     end
 end
 
-function loan_slice_uninit(f::Function, req::ActiveRequest{Req,Resp}, n::Integer) where {Req,Resp}
+function loan_slice_uninit(f::Function, req::ActiveRequest{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
     response = loan_slice_uninit(req, n)
     try
         return f(response)
@@ -1550,15 +1633,15 @@ function loan_slice_uninit(f::Function, req::ActiveRequest{Req,Resp}, n::Integer
     end
 end
 
-function loan_response(req::ActiveRequest{Req,Resp}, n::Integer) where {Req,Resp}
+function loan_response(req::ActiveRequest{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
     return loan_slice_uninit(req, n)
 end
 
-function loan_response(f::Function, req::ActiveRequest{Req,Resp}, n::Integer) where {Req,Resp}
+function loan_response(f::Function, req::ActiveRequest{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
     return loan_slice_uninit(f, req, n)
 end
 
-function send_copy(req::ActiveRequest{Req,Resp}, data::Ptr{Resp}, n::Integer) where {Req,Resp}
+function send_copy(req::ActiveRequest{Req,Resp,ReqH,RespH}, data::Ptr{Resp}, n::Integer) where {Req,Resp,ReqH,RespH}
     ret = Iceoryx2FFI.iox2_active_request_send_copy(Ref{Iceoryx2FFI.iox2_active_request_h}(req.handle), data, Iceoryx2FFI.c_size_t(sizeof(Resp)), Iceoryx2FFI.c_size_t(n))
     check_ok(ret, Iceoryx2FFI.iox2_send_error_e)
     return nothing

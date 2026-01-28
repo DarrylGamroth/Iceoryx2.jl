@@ -46,6 +46,44 @@
     close(node)
 end
 
+@testset "PubSubUserHeader" begin
+    builder = Iceoryx2.NodeBuilder()
+    Iceoryx2.name!(builder, "iceoryx2_julia_test_node_pubsub_user_header")
+    node = Iceoryx2.create(builder; service_type=:ipc)
+
+    svc_builder = Iceoryx2.service_builder(node, unique_service_name())
+    pubsub_builder = Iceoryx2.publish_subscribe(svc_builder, UInt64)
+    pubsub_builder = Iceoryx2.user_header(pubsub_builder, UInt16)
+    factory = Iceoryx2.open_or_create(pubsub_builder)
+
+    pub = Iceoryx2.create(Iceoryx2.publisher_builder(factory))
+    sub = Iceoryx2.create(Iceoryx2.subscriber_builder(factory))
+
+    sample = Iceoryx2.loan_uninit(pub)
+    Iceoryx2.write_payload!(sample, UInt64(9))
+    hdr = Iceoryx2.user_header_mut(sample)
+    hdr[1] = UInt16(42)
+    Iceoryx2.send!(sample)
+
+    received = nothing
+    for _ in 1:50
+        received = Iceoryx2.receive(sub)
+        received !== nothing && break
+        sleep(0.01)
+    end
+    @test received !== nothing
+    if received !== nothing
+        hdr_recv = Iceoryx2.user_header(received)
+        @test hdr_recv[1] == UInt16(42)
+        close(received)
+    end
+
+    close(sub)
+    close(pub)
+    close(factory)
+    close(node)
+end
+
 @testset "PubSubDynamicSlice" begin
     builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(builder, "iceoryx2_julia_test_node_pubsub_dynamic")
