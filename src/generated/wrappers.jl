@@ -805,13 +805,6 @@ function deadline!(builder::EventServiceBuilder, seconds::Integer, nanoseconds::
     return builder
 end
 
-function deadline(notifier::Notifier)
-    seconds = Ref{UInt64}()
-    nanoseconds = Ref{UInt32}()
-    has = Iceoryx2FFI.iox2_notifier_deadline(Ref{Iceoryx2FFI.iox2_notifier_h}(notifier.handle), seconds, nanoseconds)
-    return has ? (seconds[], nanoseconds[]) : nothing
-end
-
 @inline function global_prefix(config::Union{Config, ConfigRef})
     return unsafe_string(Iceoryx2FFI.iox2_config_global_prefix(_config_h_ref(config)))
 end

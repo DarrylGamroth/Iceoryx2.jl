@@ -280,14 +280,6 @@ name = "defaults_event_notifier_dropped_event"
 get = "iox2_config_defaults_event_notifier_dropped_event"
 set = "iox2_config_defaults_event_set_notifier_dropped_event"
 
-[optional_duration_get.defaults]
-receiver_sig = "notifier::Notifier"
-handle_expr = "Ref{Iceoryx2FFI.iox2_notifier_h}(notifier.handle)"
-
-[[optional_duration_get.items]]
-name = "deadline"
-get = "iox2_notifier_deadline"
-
 [detail_id.defaults]
 handle_expr = "unsafe_handle(details)"
 
