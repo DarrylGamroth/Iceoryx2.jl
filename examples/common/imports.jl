@@ -1,6 +1,6 @@
 import Iceoryx2
 using Iceoryx2: AttributeSpecifier, AttributeVerifier, EventId, Listener, Node, NodeBuilder, Notifier,
-    Publisher, Server, Subscriber, WaitsetBuilder, add!, attach_deadline, attach_interval, attach_notification,
+    Publisher, Server, Subscriber, WaitsetBuilder, add!, allocation_strategy!, attach_deadline, attach_interval, attach_notification,
     attributes, blackboard_creator, blackboard_opener, client_builder, config!, config_from_ptr, create,
     create_with_attributes, deadline!, default_event_id!, define!, enable_safe_overflow!, event,
     file_descriptor, global_config, global_prefix!, has_event_from, has_missed_deadline, history_size!,
@@ -10,5 +10,5 @@ using Iceoryx2: AttributeSpecifier, AttributeVerifier, EventId, Listener, Node, 
     payload_mut, publish_subscribe, reader_builder, reader_entry, receive, remove_stale_resources,
     request_response, require!, require_key!, send!, send_copy, server_builder, service_builder,
     set_log_level_from_env_or, static_config, subscriber_builder, subscriber_max_buffer_size!, timed_wait_one,
-    to_owned, try_wait_all, try_wait_one, user_header, user_header_mut, wait_and_process, writer_builder,
+    to_owned, try_wait_all, try_wait_one, update_connections!, user_header, user_header_mut, wait_and_process, writer_builder,
     writer_entry, write_payload!, update!

@@ -18,6 +18,21 @@ end
 
 @inline _type_variant(value) = throw(ArgumentError("unsupported type variant: $value"))
 
+@inline _allocation_strategy(value::Iceoryx2FFI.iox2_allocation_strategy_e) = value
+
+@inline function _allocation_strategy(value::Symbol)
+    if value === :best_fit
+        return Iceoryx2FFI.iox2_allocation_strategy_e_BEST_FIT
+    elseif value === :power_of_two
+        return Iceoryx2FFI.iox2_allocation_strategy_e_POWER_OF_TWO
+    elseif value === :static
+        return Iceoryx2FFI.iox2_allocation_strategy_e_STATIC
+    end
+    throw(ArgumentError("unsupported allocation_strategy: $value"))
+end
+
+@inline _allocation_strategy(value) = throw(ArgumentError("unsupported allocation_strategy: $value"))
+
 struct TypeDetails
     name::String
     name_len::Iceoryx2FFI.c_size_t
@@ -379,6 +394,15 @@ end
 
 ### builder tuning setters generated in src/generated/wrappers.jl
 
+function allocation_strategy!(builder::PublisherBuilder, value::Union{Symbol,Iceoryx2FFI.iox2_allocation_strategy_e})
+    _require_valid(builder.handle, "publisher builder")
+    Iceoryx2FFI.iox2_port_factory_publisher_builder_set_allocation_strategy(
+        Ref{Iceoryx2FFI.iox2_port_factory_publisher_builder_h}(builder.handle),
+        _allocation_strategy(value),
+    )
+    return builder
+end
+
 mutable struct SubscriberBuilder{T,UH}
     handle::Iceoryx2FFI.iox2_port_factory_subscriber_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_subscriber_builder_t}
@@ -685,6 +709,13 @@ function send_copy(publisher::Publisher{T,UH}, data::AbstractVector{T}) where {T
     GC.@preserve data begin
         return send_copy(publisher, pointer(data), length(data))
     end
+end
+
+function update_connections!(publisher::Publisher)
+    _require_valid(publisher.handle, "publisher")
+    ret = Iceoryx2FFI.iox2_publisher_update_connections(Ref{Iceoryx2FFI.iox2_publisher_h}(publisher.handle))
+    check_ok(ret, Iceoryx2FFI.iox2_connection_failure_e)
+    return nothing
 end
 
 function receive(subscriber::Subscriber{T,UH}) where {T,UH}
@@ -1064,6 +1095,42 @@ function server_builder(factory::PortFactoryRequestResponse{Req,Resp,ReqH,RespH}
 end
 
 ### builder tuning setters generated in src/generated/wrappers.jl
+
+function allocation_strategy!(builder::ClientBuilder, value::Union{Symbol,Iceoryx2FFI.iox2_allocation_strategy_e})
+    _require_valid(builder.handle, "client builder")
+    Iceoryx2FFI.iox2_port_factory_client_builder_set_allocation_strategy(
+        Ref{Iceoryx2FFI.iox2_port_factory_client_builder_h}(builder.handle),
+        _allocation_strategy(value),
+    )
+    return builder
+end
+
+function allocation_strategy!(builder::ServerBuilder, value::Union{Symbol,Iceoryx2FFI.iox2_allocation_strategy_e})
+    _require_valid(builder.handle, "server builder")
+    Iceoryx2FFI.iox2_port_factory_server_builder_set_allocation_strategy(
+        Ref{Iceoryx2FFI.iox2_port_factory_server_builder_h}(builder.handle),
+        _allocation_strategy(value),
+    )
+    return builder
+end
+
+function initial_max_slice_len!(builder::ClientBuilder, value::Integer)
+    _require_valid(builder.handle, "client builder")
+    Iceoryx2FFI.iox2_port_factory_client_builder_set_initial_max_slice_len(
+        Ref{Iceoryx2FFI.iox2_port_factory_client_builder_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return builder
+end
+
+function initial_max_slice_len!(builder::ServerBuilder, value::Integer)
+    _require_valid(builder.handle, "server builder")
+    Iceoryx2FFI.iox2_port_factory_server_builder_set_initial_max_slice_len(
+        Ref{Iceoryx2FFI.iox2_port_factory_server_builder_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return builder
+end
 
 mutable struct Client{Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_client_h
