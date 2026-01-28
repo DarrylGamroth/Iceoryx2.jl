@@ -3,6 +3,15 @@
     Iceoryx2.name!(builder, "iceoryx2_julia_test_node_rr")
     node = Iceoryx2.create(builder; service_type=:ipc)
 
+    svc_builder_hdr = Iceoryx2.service_builder(node, "iceoryx2_julia_test_service_rr_hdr")
+    rr_hdr_builder = Iceoryx2.request_response(svc_builder_hdr, UInt64, UInt64)
+    rr_hdr_builder = Iceoryx2.request_user_header(rr_hdr_builder, UInt16)
+    @test_throws ArgumentError Iceoryx2.request_user_header(rr_hdr_builder, UInt32)
+    rr_hdr_builder = Iceoryx2.response_user_header(rr_hdr_builder, UInt8)
+    @test_throws ArgumentError Iceoryx2.response_user_header(rr_hdr_builder, UInt16)
+    factory_hdr = Iceoryx2.open_or_create(rr_hdr_builder)
+    close(factory_hdr)
+
     svc_builder = Iceoryx2.service_builder(node, "iceoryx2_julia_test_service_rr")
     rr_builder = Iceoryx2.request_response(svc_builder, UInt64, UInt64)
     factory = Iceoryx2.open_or_create(rr_builder)

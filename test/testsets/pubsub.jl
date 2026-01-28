@@ -3,6 +3,13 @@
     Iceoryx2.name!(builder, "iceoryx2_julia_test_node_pubsub")
     node = Iceoryx2.create(builder; service_type=:ipc)
 
+    hdr_builder = Iceoryx2.service_builder(node, "iceoryx2_julia_test_service_pubsub_hdr")
+    pubsub_hdr_builder = Iceoryx2.publish_subscribe(hdr_builder, UInt64)
+    pubsub_hdr_builder = Iceoryx2.user_header(pubsub_hdr_builder, UInt16)
+    @test_throws ArgumentError Iceoryx2.user_header(pubsub_hdr_builder, UInt32)
+    hdr_factory = Iceoryx2.open_or_create(pubsub_hdr_builder)
+    close(hdr_factory)
+
     svc_builder = Iceoryx2.service_builder(node, "iceoryx2_julia_test_service_pubsub")
     pubsub_builder = Iceoryx2.publish_subscribe(svc_builder, UInt64)
     factory = Iceoryx2.open_or_create(pubsub_builder)
