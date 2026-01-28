@@ -52,6 +52,14 @@ The service builder checks `isbits` and throws if the payload type is not eligib
 Pub/sub and request/response factories are typed; you must call `payload_type!` or
 `request_payload_type!`/`response_payload_type!` before `open_or_create`.
 
+If you need to override the computed alignment, use the alignment setters on the builder:
+
+```julia
+pubsub_builder = Iceoryx2.pub_sub(Iceoryx2.service_builder(node, "svc"))
+Iceoryx2.payload_type!(pubsub_builder, UInt64)
+Iceoryx2.payload_alignment!(pubsub_builder, Base.datatype_alignment(UInt64))
+```
+
 ## Slice and payload access
 
 `payload(::Sample)` and `payload_mut(::SampleMut)` return a `Slice{T}` view into shared memory.

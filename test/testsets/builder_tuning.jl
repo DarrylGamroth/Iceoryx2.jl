@@ -5,6 +5,7 @@
 
     pubsub_builder = Iceoryx2.pub_sub(Iceoryx2.service_builder(node, unique_service_name()))
     Iceoryx2.payload_type!(pubsub_builder, UInt64)
+    Iceoryx2.payload_alignment!(pubsub_builder, Base.datatype_alignment(UInt64))
     Iceoryx2.max_publishers!(pubsub_builder, 1)
     Iceoryx2.max_subscribers!(pubsub_builder, 1)
     Iceoryx2.history_size!(pubsub_builder, 0)
@@ -23,6 +24,8 @@
     rr_builder = Iceoryx2.request_response(Iceoryx2.service_builder(node, unique_service_name()))
     Iceoryx2.request_payload_type!(rr_builder, UInt64)
     Iceoryx2.response_payload_type!(rr_builder, UInt64)
+    Iceoryx2.request_payload_alignment!(rr_builder, Base.datatype_alignment(UInt64))
+    Iceoryx2.response_payload_alignment!(rr_builder, Base.datatype_alignment(UInt64))
     Iceoryx2.max_clients!(rr_builder, 1)
     Iceoryx2.max_servers!(rr_builder, 1)
     Iceoryx2.max_loaned_requests!(rr_builder, 1)

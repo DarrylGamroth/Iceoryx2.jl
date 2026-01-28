@@ -120,6 +120,15 @@ function payload_type!(builder::PubSubServiceBuilder, ::Type{T}; variant::Union{
     return builder
 end
 
+function payload_alignment!(builder::PubSubServiceBuilder, alignment::Integer)
+    alignment > 0 || throw(ArgumentError("payload alignment must be positive, got $alignment"))
+    Iceoryx2FFI.iox2_service_builder_pub_sub_set_payload_alignment(
+        Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(alignment),
+    )
+    return builder
+end
+
 function user_header_type!(builder::PubSubServiceBuilder, ::Type{T}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T}
     _require_valid(builder.handle, "pub_sub service builder")
     _require_isbits(T)
@@ -571,6 +580,15 @@ function request_payload_type!(builder::RequestResponseServiceBuilder, ::Type{T}
     return builder
 end
 
+function request_payload_alignment!(builder::RequestResponseServiceBuilder, alignment::Integer)
+    alignment > 0 || throw(ArgumentError("request payload alignment must be positive, got $alignment"))
+    Iceoryx2FFI.iox2_service_builder_request_response_request_payload_alignment(
+        Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(alignment),
+    )
+    return builder
+end
+
 function response_payload_type!(builder::RequestResponseServiceBuilder, ::Type{T}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T}
     _require_valid(builder.handle, "request_response service builder")
     _require_isbits(T)
@@ -585,6 +603,15 @@ function response_payload_type!(builder::RequestResponseServiceBuilder, ::Type{T
         ret = Iceoryx2FFI.iox2_service_builder_request_response_set_response_payload_type_details(Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle), v, Base.unsafe_convert(Cstring, name), name_len, size, alignment)
         check_ok(ret, Iceoryx2FFI.iox2_type_detail_error_e)
     end
+    return builder
+end
+
+function response_payload_alignment!(builder::RequestResponseServiceBuilder, alignment::Integer)
+    alignment > 0 || throw(ArgumentError("response payload alignment must be positive, got $alignment"))
+    Iceoryx2FFI.iox2_service_builder_request_response_response_payload_alignment(
+        Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(alignment),
+    )
     return builder
 end
 
