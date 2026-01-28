@@ -158,6 +158,11 @@ function user_header(builder::PubSubServiceBuilder{T,UH}, ::Type{UH}; variant::U
     return builder
 end
 
+function user_header(builder::PubSubServiceBuilder{T,UH}, ::Type{Other}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T,UH,Other}
+    _require_valid(builder.handle, "publish_subscribe service builder")
+    throw(ArgumentError("publish_subscribe user header type already set to $UH"))
+end
+
 ### builder tuning setters generated in src/generated/wrappers.jl
 
 mutable struct PortFactoryPubSub{T}
@@ -575,6 +580,11 @@ function request_user_header(builder::RequestResponseServiceBuilder{Req,Resp,Req
     return builder
 end
 
+function request_user_header(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, ::Type{Other}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {Req,Resp,ReqH,RespH,Other}
+    _require_valid(builder.handle, "request/response service builder")
+    throw(ArgumentError("request user header type already set to $ReqH"))
+end
+
 function response_user_header(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,Nothing}, ::Type{H}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {Req,Resp,ReqH,H}
     _require_valid(builder.handle, "request/response service builder")
     _require_isbits(H)
@@ -603,6 +613,11 @@ end
 function response_user_header(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, ::Type{RespH}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request/response service builder")
     return builder
+end
+
+function response_user_header(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, ::Type{Other}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {Req,Resp,ReqH,RespH,Other}
+    _require_valid(builder.handle, "request/response service builder")
+    throw(ArgumentError("response user header type already set to $RespH"))
 end
 
 ### builder tuning setters generated in src/generated/wrappers.jl
