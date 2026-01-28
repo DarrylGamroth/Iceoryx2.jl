@@ -49,14 +49,12 @@ isbitstype(MyPayload) # true
 ```
 
 The service builder checks `isbits` and throws if the payload type is not eligible for zero-copy.
-Pub/sub and request/response factories are typed; you must call `payload_type!` or
-`request_payload_type!`/`response_payload_type!` before `open_or_create`.
+Pub/sub and request/response factories are typed when you create the builder.
 
 If you need to override the computed alignment, use the alignment setters on the builder:
 
 ```julia
-pubsub_builder = Iceoryx2.pub_sub(Iceoryx2.service_builder(node, "svc"))
-Iceoryx2.payload_type!(pubsub_builder, UInt64)
+pubsub_builder = Iceoryx2.publish_subscribe(Iceoryx2.service_builder(node, "svc"), UInt64)
 Iceoryx2.payload_alignment!(pubsub_builder, Base.datatype_alignment(UInt64))
 ```
 
@@ -134,7 +132,7 @@ Iceoryx2.reader_entry(reader, UInt64(1), UInt64) do entry
 end
 ```
 
-Blackboard factories are typed on the key type; call `key_type!` before `create`/`open`.
+Blackboard factories are typed on the key type when the builder is created.
 
 ## Callback safety
 

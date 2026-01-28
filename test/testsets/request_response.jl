@@ -4,13 +4,11 @@
     node = Iceoryx2.create(builder; service_type=:ipc)
 
     svc_builder = Iceoryx2.service_builder(node, "iceoryx2_julia_test_service_rr")
-    rr_builder = Iceoryx2.request_response(svc_builder)
-    Iceoryx2.request_payload_type!(rr_builder, UInt64)
-    Iceoryx2.response_payload_type!(rr_builder, UInt64)
+    rr_builder = Iceoryx2.request_response(svc_builder, UInt64, UInt64)
     factory = Iceoryx2.open_or_create(rr_builder)
 
-    client = Iceoryx2.create(Iceoryx2.client_builder(factory, UInt64, UInt64))
-    server = Iceoryx2.create(Iceoryx2.server_builder(factory, UInt64, UInt64))
+    client = Iceoryx2.create(Iceoryx2.client_builder(factory))
+    server = Iceoryx2.create(Iceoryx2.server_builder(factory))
 
     client_seen = Ref(false)
     Iceoryx2.list_clients(factory) do client_details

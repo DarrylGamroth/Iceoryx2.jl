@@ -5,8 +5,7 @@
 
     service_name = "iceoryx2_julia_test_service_list"
     svc_builder = Iceoryx2.service_builder(node, service_name)
-    pubsub_builder = Iceoryx2.pub_sub(svc_builder)
-    Iceoryx2.payload_type!(pubsub_builder, UInt64)
+    pubsub_builder = Iceoryx2.publish_subscribe(svc_builder, UInt64)
     factory = Iceoryx2.open_or_create(pubsub_builder)
 
     names = String[]

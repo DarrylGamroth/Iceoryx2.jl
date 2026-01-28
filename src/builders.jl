@@ -230,46 +230,61 @@ function event(builder::ServiceBuilder)
     return variant
 end
 
-function pub_sub(builder::ServiceBuilder)
+function publish_subscribe(
+    builder::ServiceBuilder,
+    ::Type{T};
+    variant::Union{Symbol, Iceoryx2FFI.iox2_type_variant_e} = :fixed,
+) where {T}
     _require_valid(builder.handle, "service builder")
     handle = Iceoryx2FFI.iox2_service_builder_pub_sub(builder.handle)
     builder.handle = _IOX2_NULL
     storage = builder.storage
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
-    variant = PubSubServiceBuilder(handle, storage, builder.keepalive, nothing, nothing)
-    finalizer(_finalize_service_builder_variant, variant)
-    return variant
+    pub_builder = PubSubServiceBuilder(handle, storage, builder.keepalive, nothing, nothing)
+    finalizer(_finalize_service_builder_variant, pub_builder)
+    _set_payload_type!(pub_builder, T; variant)
+    return pub_builder
 end
 
-function request_response(builder::ServiceBuilder)
+function request_response(
+    builder::ServiceBuilder,
+    ::Type{Req},
+    ::Type{Resp};
+    request_variant::Union{Symbol, Iceoryx2FFI.iox2_type_variant_e} = :fixed,
+    response_variant::Union{Symbol, Iceoryx2FFI.iox2_type_variant_e} = :fixed,
+) where {Req,Resp}
     _require_valid(builder.handle, "service builder")
     handle = Iceoryx2FFI.iox2_service_builder_request_response(builder.handle)
     builder.handle = _IOX2_NULL
     storage = builder.storage
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
-    variant = RequestResponseServiceBuilder(handle, storage, builder.keepalive, nothing, nothing, nothing, nothing)
-    finalizer(_finalize_service_builder_variant, variant)
-    return variant
+    rr_builder = RequestResponseServiceBuilder(handle, storage, builder.keepalive, nothing, nothing, nothing, nothing)
+    finalizer(_finalize_service_builder_variant, rr_builder)
+    _set_request_payload_type!(rr_builder, Req; variant = request_variant)
+    _set_response_payload_type!(rr_builder, Resp; variant = response_variant)
+    return rr_builder
 end
 
-function blackboard_creator(builder::ServiceBuilder)
+function blackboard_creator(builder::ServiceBuilder, ::Type{K}) where {K}
     _require_valid(builder.handle, "service builder")
     handle = Iceoryx2FFI.iox2_service_builder_blackboard_creator(builder.handle)
     builder.handle = _IOX2_NULL
     storage = builder.storage
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
-    variant = BlackboardCreatorBuilder(handle, storage, builder.keepalive, Any[], nothing)
-    finalizer(_finalize_service_builder_variant, variant)
-    return variant
+    bb_builder = BlackboardCreatorBuilder(handle, storage, builder.keepalive, Any[], nothing)
+    finalizer(_finalize_service_builder_variant, bb_builder)
+    _set_key_type!(bb_builder, K)
+    return bb_builder
 end
 
-function blackboard_opener(builder::ServiceBuilder)
+function blackboard_opener(builder::ServiceBuilder, ::Type{K}) where {K}
     _require_valid(builder.handle, "service builder")
     handle = Iceoryx2FFI.iox2_service_builder_blackboard_opener(builder.handle)
     builder.handle = _IOX2_NULL
     storage = builder.storage
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
-    variant = BlackboardOpenerBuilder(handle, storage, builder.keepalive, nothing)
-    finalizer(_finalize_service_builder_variant, variant)
-    return variant
+    bb_builder = BlackboardOpenerBuilder(handle, storage, builder.keepalive, nothing)
+    finalizer(_finalize_service_builder_variant, bb_builder)
+    _set_key_type!(bb_builder, K)
+    return bb_builder
 end

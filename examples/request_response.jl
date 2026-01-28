@@ -8,12 +8,10 @@ function main()
 
     Iceoryx2.create(node_builder; service_type = :ipc) do node
         service_builder = Iceoryx2.service_builder(node, "iox2_julia_request_response_service")
-        rr_builder = Iceoryx2.request_response(service_builder)
-        Iceoryx2.request_payload_type!(rr_builder, UInt64)
-        Iceoryx2.response_payload_type!(rr_builder, UInt64)
+        rr_builder = Iceoryx2.request_response(service_builder, UInt64, UInt64)
 
         Iceoryx2.open_or_create(rr_builder) do factory
-            Iceoryx2.create(Iceoryx2.server_builder(factory, UInt64, UInt64)) do server
+            Iceoryx2.create(Iceoryx2.server_builder(factory)) do server
                 server_task = @async begin
                     request = nothing
                     while request === nothing
@@ -28,7 +26,7 @@ function main()
                     close(request)
                 end
 
-                Iceoryx2.create(Iceoryx2.client_builder(factory, UInt64, UInt64)) do client
+                Iceoryx2.create(Iceoryx2.client_builder(factory)) do client
                     pending = Iceoryx2.send_copy(client, UInt64[0x01])
 
                     response = nothing

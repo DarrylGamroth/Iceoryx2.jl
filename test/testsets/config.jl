@@ -43,11 +43,10 @@
 
     service_name = unique_service_name()
     svc_builder = Iceoryx2.service_builder(node, service_name)
-    pubsub_builder = Iceoryx2.pub_sub(svc_builder)
-    Iceoryx2.payload_type!(pubsub_builder, UInt64)
+    pubsub_builder = Iceoryx2.publish_subscribe(svc_builder, UInt64)
     factory = Iceoryx2.open_or_create(pubsub_builder)
-    pub = Iceoryx2.create(Iceoryx2.publisher_builder(factory, UInt64))
-    sub = Iceoryx2.create(Iceoryx2.subscriber_builder(factory, UInt64))
+    pub = Iceoryx2.create(Iceoryx2.publisher_builder(factory))
+    sub = Iceoryx2.create(Iceoryx2.subscriber_builder(factory))
 
     exists, details = Iceoryx2.service_details(service_name; service_type=:ipc, messaging_pattern=:publish_subscribe)
     @test exists

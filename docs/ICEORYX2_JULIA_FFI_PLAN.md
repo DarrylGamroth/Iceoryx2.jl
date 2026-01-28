@@ -126,7 +126,8 @@ Hot path refers to any API that is called per message/event or inside tight loop
   - Messaging wrappers: `src/messaging.jl`
 - Status: Completed (2026-01-27)
   - Update (2026-01-28): moved generated bindings/handles/errors into `src/generated/` and updated scripts/docs accordingly.
-  - Update (2026-01-27): added blackboard creator helpers `key_type!` and `add_with_default!` to supply required entries.
+  - Update (2026-01-28): aligned builder API with C++/Rust (`publish_subscribe`/typed `request_response`/typed blackboard builders) and removed the `payload_type!`/`key_type!` setup step from user code.
+  - Update (2026-01-27): added typed blackboard creator helpers (`blackboard_creator(builder, ::Type)`) and `add_with_default!` to supply required entries.
 
 ## Phase 8: Callbacks & Iteration
 - For callbacks (node listing, waitset, attribute iteration):

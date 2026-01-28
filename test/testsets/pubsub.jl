@@ -4,12 +4,11 @@
     node = Iceoryx2.create(builder; service_type=:ipc)
 
     svc_builder = Iceoryx2.service_builder(node, "iceoryx2_julia_test_service_pubsub")
-    pubsub_builder = Iceoryx2.pub_sub(svc_builder)
-    Iceoryx2.payload_type!(pubsub_builder, UInt64)
+    pubsub_builder = Iceoryx2.publish_subscribe(svc_builder, UInt64)
     factory = Iceoryx2.open_or_create(pubsub_builder)
 
-    pub = Iceoryx2.create(Iceoryx2.publisher_builder(factory, UInt64))
-    sub = Iceoryx2.create(Iceoryx2.subscriber_builder(factory, UInt64))
+    pub = Iceoryx2.create(Iceoryx2.publisher_builder(factory))
+    sub = Iceoryx2.create(Iceoryx2.subscriber_builder(factory))
 
     data = UInt64[0x1234_5678_9abc_def0]
     sample = nothing
@@ -41,15 +40,14 @@ end
     node = Iceoryx2.create(builder; service_type=:ipc)
 
     svc_builder = Iceoryx2.service_builder(node, unique_service_name())
-    pubsub_builder = Iceoryx2.pub_sub(svc_builder)
-    Iceoryx2.payload_type!(pubsub_builder, UInt8; variant = :dynamic)
+    pubsub_builder = Iceoryx2.publish_subscribe(svc_builder, UInt8; variant = :dynamic)
     factory = Iceoryx2.open_or_create(pubsub_builder)
 
     payload_len = 8
-    pub_builder = Iceoryx2.publisher_builder(factory, UInt8)
+    pub_builder = Iceoryx2.publisher_builder(factory)
     Iceoryx2.initial_max_slice_len!(pub_builder, payload_len)
     pub = Iceoryx2.create(pub_builder)
-    sub = Iceoryx2.create(Iceoryx2.subscriber_builder(factory, UInt8))
+    sub = Iceoryx2.create(Iceoryx2.subscriber_builder(factory))
 
     loaned = Iceoryx2.loan_slice(pub, payload_len)
     slice = Iceoryx2.payload_mut(loaned)
@@ -90,15 +88,14 @@ end
     node = Iceoryx2.create(builder; service_type=:ipc)
 
     svc_builder = Iceoryx2.service_builder(node, unique_service_name())
-    pubsub_builder = Iceoryx2.pub_sub(svc_builder)
-    Iceoryx2.payload_type!(pubsub_builder, TestHeader; variant = :dynamic)
+    pubsub_builder = Iceoryx2.publish_subscribe(svc_builder, TestHeader; variant = :dynamic)
     factory = Iceoryx2.open_or_create(pubsub_builder)
 
     payload_len = 2
-    pub_builder = Iceoryx2.publisher_builder(factory, TestHeader)
+    pub_builder = Iceoryx2.publisher_builder(factory)
     Iceoryx2.initial_max_slice_len!(pub_builder, payload_len)
     pub = Iceoryx2.create(pub_builder)
-    sub = Iceoryx2.create(Iceoryx2.subscriber_builder(factory, TestHeader))
+    sub = Iceoryx2.create(Iceoryx2.subscriber_builder(factory))
 
     loaned = Iceoryx2.loan_slice(pub, payload_len)
     slice = Iceoryx2.payload_mut(loaned)

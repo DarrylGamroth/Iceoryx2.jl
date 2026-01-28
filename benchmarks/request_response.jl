@@ -30,9 +30,7 @@ Options:
 end
 
 function build_rr_factory(node::Iceoryx2.Node, name::AbstractString, additional_servers::Int, additional_clients::Int)
-    builder = Iceoryx2.request_response(Iceoryx2.service_builder(node, name))
-    Iceoryx2.request_payload_type!(builder, UInt64)
-    Iceoryx2.response_payload_type!(builder, UInt64)
+    builder = Iceoryx2.request_response(Iceoryx2.service_builder(node, name), UInt64, UInt64)
     Iceoryx2.max_servers!(builder, 1 + additional_servers)
     Iceoryx2.max_clients!(builder, 1 + additional_clients)
     Iceoryx2.max_response_buffer_size!(builder, 1)
@@ -63,21 +61,21 @@ function perform_request_benchmark(
     extra_servers = Iceoryx2.Server{UInt64, UInt64}[]
 
     for _ in 1:additional_clients
-        push!(extra_clients, Iceoryx2.create(Iceoryx2.client_builder(factory_a2b, UInt64, UInt64)))
-        push!(extra_clients, Iceoryx2.create(Iceoryx2.client_builder(factory_b2a, UInt64, UInt64)))
+        push!(extra_clients, Iceoryx2.create(Iceoryx2.client_builder(factory_a2b)))
+        push!(extra_clients, Iceoryx2.create(Iceoryx2.client_builder(factory_b2a)))
     end
 
     for _ in 1:additional_servers
-        push!(extra_servers, Iceoryx2.create(Iceoryx2.server_builder(factory_a2b, UInt64, UInt64)))
-        push!(extra_servers, Iceoryx2.create(Iceoryx2.server_builder(factory_b2a, UInt64, UInt64)))
+        push!(extra_servers, Iceoryx2.create(Iceoryx2.server_builder(factory_a2b)))
+        push!(extra_servers, Iceoryx2.create(Iceoryx2.server_builder(factory_b2a)))
     end
 
     startup = SpinBarrier(3)
     start_benchmark = SpinBarrier(3)
 
     t1 = Threads.@spawn begin
-        client_a2b = Iceoryx2.create(Iceoryx2.client_builder(factory_a2b, UInt64, UInt64))
-        server_b2a = Iceoryx2.create(Iceoryx2.server_builder(factory_b2a, UInt64, UInt64))
+        client_a2b = Iceoryx2.create(Iceoryx2.client_builder(factory_a2b))
+        server_b2a = Iceoryx2.create(Iceoryx2.server_builder(factory_b2a))
 
         wait_barrier(startup)
         wait_barrier(start_benchmark)
@@ -99,8 +97,8 @@ function perform_request_benchmark(
     end
 
     t2 = Threads.@spawn begin
-        client_b2a = Iceoryx2.create(Iceoryx2.client_builder(factory_b2a, UInt64, UInt64))
-        server_a2b = Iceoryx2.create(Iceoryx2.server_builder(factory_a2b, UInt64, UInt64))
+        client_b2a = Iceoryx2.create(Iceoryx2.client_builder(factory_b2a))
+        server_a2b = Iceoryx2.create(Iceoryx2.server_builder(factory_a2b))
 
         wait_barrier(startup)
         wait_barrier(start_benchmark)
@@ -155,21 +153,21 @@ function perform_response_stream_benchmark(
     extra_servers = Iceoryx2.Server{UInt64, UInt64}[]
 
     for _ in 1:additional_clients
-        push!(extra_clients, Iceoryx2.create(Iceoryx2.client_builder(factory_a2b, UInt64, UInt64)))
-        push!(extra_clients, Iceoryx2.create(Iceoryx2.client_builder(factory_b2a, UInt64, UInt64)))
+        push!(extra_clients, Iceoryx2.create(Iceoryx2.client_builder(factory_a2b)))
+        push!(extra_clients, Iceoryx2.create(Iceoryx2.client_builder(factory_b2a)))
     end
 
     for _ in 1:additional_servers
-        push!(extra_servers, Iceoryx2.create(Iceoryx2.server_builder(factory_a2b, UInt64, UInt64)))
-        push!(extra_servers, Iceoryx2.create(Iceoryx2.server_builder(factory_b2a, UInt64, UInt64)))
+        push!(extra_servers, Iceoryx2.create(Iceoryx2.server_builder(factory_a2b)))
+        push!(extra_servers, Iceoryx2.create(Iceoryx2.server_builder(factory_b2a)))
     end
 
     startup = SpinBarrier(3)
     start_benchmark = SpinBarrier(3)
 
     t1 = Threads.@spawn begin
-        client_a2b = Iceoryx2.create(Iceoryx2.client_builder(factory_a2b, UInt64, UInt64))
-        server_b2a = Iceoryx2.create(Iceoryx2.server_builder(factory_b2a, UInt64, UInt64))
+        client_a2b = Iceoryx2.create(Iceoryx2.client_builder(factory_a2b))
+        server_b2a = Iceoryx2.create(Iceoryx2.server_builder(factory_b2a))
 
         wait_barrier(startup)
         pending = Iceoryx2.send_copy(client_a2b, UInt64[0])
@@ -197,8 +195,8 @@ function perform_response_stream_benchmark(
     end
 
     t2 = Threads.@spawn begin
-        client_b2a = Iceoryx2.create(Iceoryx2.client_builder(factory_b2a, UInt64, UInt64))
-        server_a2b = Iceoryx2.create(Iceoryx2.server_builder(factory_a2b, UInt64, UInt64))
+        client_b2a = Iceoryx2.create(Iceoryx2.client_builder(factory_b2a))
+        server_a2b = Iceoryx2.create(Iceoryx2.server_builder(factory_a2b))
 
         wait_barrier(startup)
         pending = Iceoryx2.send_copy(client_b2a, UInt64[0])

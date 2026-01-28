@@ -103,13 +103,13 @@ EventId(value::Integer) = EventId(Iceoryx2FFI.iox2_event_id_t(Iceoryx2FFI.c_size
 
 # === Publish/Subscribe ===
 
-function payload_type!(builder::PubSubServiceBuilder, ::Type{T}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T}
-    _require_valid(builder.handle, "pub_sub service builder")
+function _set_payload_type!(builder::PubSubServiceBuilder, ::Type{T}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T}
+    _require_valid(builder.handle, "publish_subscribe service builder")
     _require_isbits(T)
     if builder.payload_type === nothing
         builder.payload_type = T
     elseif builder.payload_type !== T
-        throw(ArgumentError("pub_sub payload type already set to $(builder.payload_type)"))
+        throw(ArgumentError("publish_subscribe payload type already set to $(builder.payload_type)"))
     end
     name, name_len, size, alignment = _type_details(T)
     v = _type_variant(variant)
@@ -129,13 +129,13 @@ function payload_alignment!(builder::PubSubServiceBuilder, alignment::Integer)
     return builder
 end
 
-function user_header_type!(builder::PubSubServiceBuilder, ::Type{T}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T}
-    _require_valid(builder.handle, "pub_sub service builder")
+function user_header(builder::PubSubServiceBuilder, ::Type{T}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T}
+    _require_valid(builder.handle, "publish_subscribe service builder")
     _require_isbits(T)
     if builder.user_header_type === nothing
         builder.user_header_type = T
     elseif builder.user_header_type !== T
-        throw(ArgumentError("pub_sub user header type already set to $(builder.user_header_type)"))
+        throw(ArgumentError("publish_subscribe user header type already set to $(builder.user_header_type)"))
     end
     name, name_len, size, alignment = _type_details(T)
     v = _type_variant(variant)
@@ -171,9 +171,9 @@ function _finalize_port_factory_pub_sub(factory::PortFactoryPubSub)
 end
 
 function open_or_create(builder::PubSubServiceBuilder)
-    _require_valid(builder.handle, "pub_sub service builder")
+    _require_valid(builder.handle, "publish_subscribe service builder")
     payload_type = builder.payload_type
-    payload_type === nothing && throw(ArgumentError("payload type must be set with payload_type!"))
+    payload_type === nothing && throw(ArgumentError("payload type must be set with publish_subscribe(::Type)"))
     storage = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_pub_sub_open_or_create(builder.handle, storage, handle_ref)
@@ -206,8 +206,8 @@ function _finalize_publisher_builder(builder::PublisherBuilder)
     return nothing
 end
 
-function publisher_builder(factory::PortFactoryPubSub{T}, ::Type{T}) where {T}
-    _require_valid(factory.handle, "pub_sub port factory")
+function publisher_builder(factory::PortFactoryPubSub{T}) where {T}
+    _require_valid(factory.handle, "publish_subscribe port factory")
     _require_isbits(T)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_publisher_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_pub_sub_publisher_builder(Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle), storage)
@@ -230,8 +230,8 @@ function _finalize_subscriber_builder(builder::SubscriberBuilder)
     return nothing
 end
 
-function subscriber_builder(factory::PortFactoryPubSub{T}, ::Type{T}) where {T}
-    _require_valid(factory.handle, "pub_sub port factory")
+function subscriber_builder(factory::PortFactoryPubSub{T}) where {T}
+    _require_valid(factory.handle, "publish_subscribe port factory")
     _require_isbits(T)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_subscriber_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_pub_sub_subscriber_builder(Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle), storage)
@@ -491,7 +491,7 @@ end
 
 # === Request/Response ===
 
-function request_payload_type!(builder::RequestResponseServiceBuilder, ::Type{T}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T}
+function _set_request_payload_type!(builder::RequestResponseServiceBuilder, ::Type{T}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T}
     _require_valid(builder.handle, "request_response service builder")
     _require_isbits(T)
     if builder.request_type === nothing
@@ -517,7 +517,7 @@ function request_payload_alignment!(builder::RequestResponseServiceBuilder, alig
     return builder
 end
 
-function response_payload_type!(builder::RequestResponseServiceBuilder, ::Type{T}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T}
+function _set_response_payload_type!(builder::RequestResponseServiceBuilder, ::Type{T}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T}
     _require_valid(builder.handle, "request_response service builder")
     _require_isbits(T)
     if builder.response_type === nothing
@@ -543,13 +543,13 @@ function response_payload_alignment!(builder::RequestResponseServiceBuilder, ali
     return builder
 end
 
-function request_user_header_type!(builder::RequestResponseServiceBuilder, ::Type{T}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T}
+function request_header(builder::RequestResponseServiceBuilder, ::Type{T}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T}
     _require_valid(builder.handle, "request/response service builder")
     _require_isbits(T)
     if builder.request_header_type === nothing
         builder.request_header_type = T
     elseif builder.request_header_type !== T
-        throw(ArgumentError("request user header type already set to $(builder.request_header_type)"))
+        throw(ArgumentError("request header type already set to $(builder.request_header_type)"))
     end
     name, name_len, size, alignment = _type_details(T)
     v = _type_variant(variant)
@@ -567,13 +567,13 @@ function request_user_header_type!(builder::RequestResponseServiceBuilder, ::Typ
     return builder
 end
 
-function response_user_header_type!(builder::RequestResponseServiceBuilder, ::Type{T}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T}
+function response_header(builder::RequestResponseServiceBuilder, ::Type{T}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T}
     _require_valid(builder.handle, "request/response service builder")
     _require_isbits(T)
     if builder.response_header_type === nothing
         builder.response_header_type = T
     elseif builder.response_header_type !== T
-        throw(ArgumentError("response user header type already set to $(builder.response_header_type)"))
+        throw(ArgumentError("response header type already set to $(builder.response_header_type)"))
     end
     name, name_len, size, alignment = _type_details(T)
     v = _type_variant(variant)
@@ -612,8 +612,8 @@ function open_or_create(builder::RequestResponseServiceBuilder)
     _require_valid(builder.handle, "request_response service builder")
     request_type = builder.request_type
     response_type = builder.response_type
-    request_type === nothing && throw(ArgumentError("request payload type must be set with request_payload_type!"))
-    response_type === nothing && throw(ArgumentError("response payload type must be set with response_payload_type!"))
+    request_type === nothing && throw(ArgumentError("request payload type must be set with request_response(::Type, ::Type)"))
+    response_type === nothing && throw(ArgumentError("response payload type must be set with request_response(::Type, ::Type)"))
     storage = Ref{Iceoryx2FFI.iox2_port_factory_request_response_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_request_response_open_or_create(builder.handle, storage, handle_ref)
@@ -646,7 +646,7 @@ function _finalize_client_builder(builder::ClientBuilder)
     return nothing
 end
 
-function client_builder(factory::PortFactoryRequestResponse{Req,Resp}, ::Type{Req}, ::Type{Resp}) where {Req,Resp}
+function client_builder(factory::PortFactoryRequestResponse{Req,Resp}) where {Req,Resp}
     _require_valid(factory.handle, "request_response port factory")
     _require_isbits(Req)
     _require_isbits(Resp)
@@ -669,7 +669,7 @@ function _finalize_server_builder(builder::ServerBuilder)
     return nothing
 end
 
-function server_builder(factory::PortFactoryRequestResponse{Req,Resp}, ::Type{Req}, ::Type{Resp}) where {Req,Resp}
+function server_builder(factory::PortFactoryRequestResponse{Req,Resp}) where {Req,Resp}
     _require_valid(factory.handle, "request_response port factory")
     _require_isbits(Req)
     _require_isbits(Resp)
@@ -1596,7 +1596,7 @@ end
 function create(builder::BlackboardCreatorBuilder)
     _require_valid(builder.handle, "blackboard creator")
     key_type = builder.key_type
-    key_type === nothing && throw(ArgumentError("blackboard key type must be set with key_type!"))
+    key_type === nothing && throw(ArgumentError("blackboard key type must be set with blackboard_creator(::Type)"))
     storage = Ref{Iceoryx2FFI.iox2_port_factory_blackboard_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_blackboard_create(builder.handle, storage, handle_ref)
@@ -1622,7 +1622,7 @@ end
 function open(builder::BlackboardOpenerBuilder)
     _require_valid(builder.handle, "blackboard opener")
     key_type = builder.key_type
-    key_type === nothing && throw(ArgumentError("blackboard key type must be set with key_type!"))
+    key_type === nothing && throw(ArgumentError("blackboard key type must be set with blackboard_opener(::Type)"))
     storage = Ref{Iceoryx2FFI.iox2_port_factory_blackboard_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_blackboard_open(builder.handle, storage, handle_ref)
@@ -1643,7 +1643,7 @@ function open(f::Function, builder::BlackboardOpenerBuilder)
     end
 end
 
-function key_type!(builder::BlackboardCreatorBuilder, ::Type{K}) where {K}
+function _set_key_type!(builder::BlackboardCreatorBuilder, ::Type{K}) where {K}
     _require_valid(builder.handle, "blackboard creator")
     _require_isbits(K)
     if builder.key_type === nothing
@@ -1666,7 +1666,7 @@ function key_type!(builder::BlackboardCreatorBuilder, ::Type{K}) where {K}
     return builder
 end
 
-function key_type!(builder::BlackboardOpenerBuilder, ::Type{K}) where {K}
+function _set_key_type!(builder::BlackboardOpenerBuilder, ::Type{K}) where {K}
     _require_valid(builder.handle, "blackboard opener")
     _require_isbits(K)
     if builder.key_type === nothing
@@ -1745,15 +1745,17 @@ const _BLACKBOARD_KEY_EQ_CMP_64 = @cfunction(_blackboard_key_eq_cmp_64, Bool, (P
 end
 
 """
-    key_eq_comparison!(builder::BlackboardCreatorBuilder, ::Type{K})
+    key_eq_comparison!(builder::BlackboardCreatorBuilder)
 
-Configures a byte-wise key equality comparator for `K`. Keys should avoid padding and
-uninitialized bytes to ensure deterministic equality.
+Configures a byte-wise key equality comparator for the builder key type. Keys should avoid
+padding and uninitialized bytes to ensure deterministic equality.
 """
-function key_eq_comparison!(builder::BlackboardCreatorBuilder, ::Type{K}) where {K}
+function key_eq_comparison!(builder::BlackboardCreatorBuilder)
     _require_valid(builder.handle, "blackboard creator")
-    _require_isbits(K)
-    return key_eq_comparison!(builder, _blackboard_key_eq_cmp_ptr(K))
+    key_type = builder.key_type
+    key_type === nothing && throw(ArgumentError("blackboard key type must be set with blackboard_creator(::Type)"))
+    _require_isbits(key_type)
+    return key_eq_comparison!(builder, _blackboard_key_eq_cmp_ptr(key_type))
 end
 
 function key_eq_comparison!(builder::BlackboardCreatorBuilder, cmp::Ptr{Cvoid})
@@ -1771,7 +1773,12 @@ function add_with_default!(builder::BlackboardCreatorBuilder, key::K, value::V) 
     _require_valid(builder.handle, "blackboard creator")
     _require_isbits(K)
     _require_isbits(V)
-    key_type!(builder, K)
+    key_type = builder.key_type
+    if key_type === nothing
+        throw(ArgumentError("blackboard key type must be set with blackboard_creator(::Type)"))
+    elseif key_type !== K
+        throw(ArgumentError("blackboard key type already set to $(key_type)"))
+    end
     key_ref = Ref{K}(key)
     value_ref = Ref{V}(value)
     push!(builder.values, key_ref)

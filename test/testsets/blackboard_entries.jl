@@ -4,7 +4,7 @@
     node = Iceoryx2.create(node_builder; service_type=:ipc)
 
     service_builder = Iceoryx2.service_builder(node, unique_service_name())
-    bb_builder = Iceoryx2.blackboard_creator(service_builder)
+    bb_builder = Iceoryx2.blackboard_creator(service_builder, UInt64)
     Iceoryx2.add_with_default!(bb_builder, UInt64(1), UInt64(0))
 
     factory = Iceoryx2.create(bb_builder)

@@ -8,8 +8,7 @@
     event_factory = Iceoryx2.open_or_create(event_builder)
 
     pubsub_name = unique_service_name()
-    pubsub_builder = Iceoryx2.pub_sub(Iceoryx2.service_builder(node, pubsub_name))
-    Iceoryx2.payload_type!(pubsub_builder, UInt64)
+    pubsub_builder = Iceoryx2.publish_subscribe(Iceoryx2.service_builder(node, pubsub_name), UInt64)
     pubsub_factory = Iceoryx2.open_or_create(pubsub_builder)
 
     listener1 = Iceoryx2.create(Iceoryx2.listener_builder(event_factory))
@@ -17,10 +16,10 @@
     notifier1 = Iceoryx2.create(Iceoryx2.notifier_builder(event_factory))
     notifier2 = Iceoryx2.create(Iceoryx2.notifier_builder(event_factory))
 
-    publisher1 = Iceoryx2.create(Iceoryx2.publisher_builder(pubsub_factory, UInt64))
-    publisher2 = Iceoryx2.create(Iceoryx2.publisher_builder(pubsub_factory, UInt64))
-    subscriber1 = Iceoryx2.create(Iceoryx2.subscriber_builder(pubsub_factory, UInt64))
-    subscriber2 = Iceoryx2.create(Iceoryx2.subscriber_builder(pubsub_factory, UInt64))
+    publisher1 = Iceoryx2.create(Iceoryx2.publisher_builder(pubsub_factory))
+    publisher2 = Iceoryx2.create(Iceoryx2.publisher_builder(pubsub_factory))
+    subscriber1 = Iceoryx2.create(Iceoryx2.subscriber_builder(pubsub_factory))
+    subscriber2 = Iceoryx2.create(Iceoryx2.subscriber_builder(pubsub_factory))
 
     ids = Any[
         Iceoryx2.id(publisher1),

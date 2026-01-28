@@ -28,12 +28,11 @@
     node = Iceoryx2.create(builder; service_type=:ipc)
 
     svc_builder = Iceoryx2.service_builder(node, "iceoryx2_julia_alloc_pubsub")
-    pubsub_builder = Iceoryx2.pub_sub(svc_builder)
-    Iceoryx2.payload_type!(pubsub_builder, UInt64)
+    pubsub_builder = Iceoryx2.publish_subscribe(svc_builder, UInt64)
     factory = Iceoryx2.open_or_create(pubsub_builder)
 
-    pub = Iceoryx2.create(Iceoryx2.publisher_builder(factory, UInt64))
-    sub = Iceoryx2.create(Iceoryx2.subscriber_builder(factory, UInt64))
+    pub = Iceoryx2.create(Iceoryx2.publisher_builder(factory))
+    sub = Iceoryx2.create(Iceoryx2.subscriber_builder(factory))
 
     data = UInt64[1]
     sample = nothing
@@ -62,13 +61,11 @@
     @test write_payload_alloc(loaned, UInt64(7)) == 0
     close(loaned)
 
-    rr_builder = Iceoryx2.request_response(Iceoryx2.service_builder(node, "iceoryx2_julia_alloc_rr"))
-    Iceoryx2.request_payload_type!(rr_builder, UInt64)
-    Iceoryx2.response_payload_type!(rr_builder, UInt64)
+    rr_builder = Iceoryx2.request_response(Iceoryx2.service_builder(node, "iceoryx2_julia_alloc_rr"), UInt64, UInt64)
     rr_factory = Iceoryx2.open_or_create(rr_builder)
 
-    client = Iceoryx2.create(Iceoryx2.client_builder(rr_factory, UInt64, UInt64))
-    server = Iceoryx2.create(Iceoryx2.server_builder(rr_factory, UInt64, UInt64))
+    client = Iceoryx2.create(Iceoryx2.client_builder(rr_factory))
+    server = Iceoryx2.create(Iceoryx2.server_builder(rr_factory))
 
     req = Iceoryx2.loan_request(client, 1)
     Iceoryx2.payload_mut(req)
@@ -129,7 +126,7 @@
     close(listener)
     close(event_factory)
 
-    bb_builder = Iceoryx2.blackboard_creator(Iceoryx2.service_builder(node, unique_service_name()))
+    bb_builder = Iceoryx2.blackboard_creator(Iceoryx2.service_builder(node, unique_service_name()), UInt64)
     Iceoryx2.add_with_default!(bb_builder, UInt64(1), UInt64(0))
     bb_factory = Iceoryx2.create(bb_builder)
     bb_writer = Iceoryx2.create(Iceoryx2.writer_builder(bb_factory))

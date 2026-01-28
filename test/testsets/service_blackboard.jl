@@ -7,8 +7,10 @@
     node = Iceoryx2.create(node_builder; service_type=:ipc)
 
     svc_builder = Iceoryx2.service_builder(node, service_name)
-    bb_builder = Iceoryx2.blackboard_creator(svc_builder)
-    @test_throws ArgumentError Iceoryx2.create(bb_builder)
-    @test !Iceoryx2.service_does_exist(service_name; service_type=:ipc, messaging_pattern=:blackboard)
+    bb_builder = Iceoryx2.blackboard_creator(svc_builder, UInt64)
+    Iceoryx2.add_with_default!(bb_builder, UInt64(1), UInt64(0))
+    factory = Iceoryx2.create(bb_builder)
+    @test Iceoryx2.service_does_exist(service_name; service_type=:ipc, messaging_pattern=:blackboard)
+    close(factory)
     close(node)
 end

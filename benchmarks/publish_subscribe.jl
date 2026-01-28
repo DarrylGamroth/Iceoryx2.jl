@@ -36,8 +36,7 @@ Options:
 end
 
 function build_pubsub_factory(node::Iceoryx2.Node, name::AbstractString, additional_publishers::Int, additional_subscribers::Int)
-    builder = Iceoryx2.pub_sub(Iceoryx2.service_builder(node, name))
-    Iceoryx2.payload_type!(builder, UInt8; variant = :dynamic)
+    builder = Iceoryx2.publish_subscribe(Iceoryx2.service_builder(node, name), UInt8; variant = :dynamic)
     Iceoryx2.max_publishers!(builder, 1 + additional_publishers)
     Iceoryx2.max_subscribers!(builder, 1 + additional_subscribers)
     Iceoryx2.history_size!(builder, 0)
@@ -81,23 +80,23 @@ function perform_benchmark(
     extra_subscribers = Iceoryx2.Subscriber{UInt8}[]
 
     for _ in 1:additional_publishers
-        push!(extra_publishers, Iceoryx2.create(Iceoryx2.publisher_builder(factory_a2b, UInt8)))
-        push!(extra_publishers, Iceoryx2.create(Iceoryx2.publisher_builder(factory_b2a, UInt8)))
+        push!(extra_publishers, Iceoryx2.create(Iceoryx2.publisher_builder(factory_a2b)))
+        push!(extra_publishers, Iceoryx2.create(Iceoryx2.publisher_builder(factory_b2a)))
     end
 
     for _ in 1:additional_subscribers
-        push!(extra_subscribers, Iceoryx2.create(Iceoryx2.subscriber_builder(factory_a2b, UInt8)))
-        push!(extra_subscribers, Iceoryx2.create(Iceoryx2.subscriber_builder(factory_b2a, UInt8)))
+        push!(extra_subscribers, Iceoryx2.create(Iceoryx2.subscriber_builder(factory_a2b)))
+        push!(extra_subscribers, Iceoryx2.create(Iceoryx2.subscriber_builder(factory_b2a)))
     end
 
     startup = SpinBarrier(3)
     start_benchmark = SpinBarrier(3)
 
     t1 = Threads.@spawn begin
-        pub_builder_a2b = Iceoryx2.publisher_builder(factory_a2b, UInt8)
+        pub_builder_a2b = Iceoryx2.publisher_builder(factory_a2b)
         Iceoryx2.initial_max_slice_len!(pub_builder_a2b, payload_size)
         sender_a2b = Iceoryx2.create(pub_builder_a2b)
-        receiver_b2a = Iceoryx2.create(Iceoryx2.subscriber_builder(factory_b2a, UInt8))
+        receiver_b2a = Iceoryx2.create(Iceoryx2.subscriber_builder(factory_b2a))
 
         wait_barrier(startup)
         wait_barrier(start_benchmark)
@@ -118,10 +117,10 @@ function perform_benchmark(
     end
 
     t2 = Threads.@spawn begin
-        pub_builder_b2a = Iceoryx2.publisher_builder(factory_b2a, UInt8)
+        pub_builder_b2a = Iceoryx2.publisher_builder(factory_b2a)
         Iceoryx2.initial_max_slice_len!(pub_builder_b2a, payload_size)
         sender_b2a = Iceoryx2.create(pub_builder_b2a)
-        receiver_a2b = Iceoryx2.create(Iceoryx2.subscriber_builder(factory_a2b, UInt8))
+        receiver_a2b = Iceoryx2.create(Iceoryx2.subscriber_builder(factory_a2b))
 
         wait_barrier(startup)
         wait_barrier(start_benchmark)
