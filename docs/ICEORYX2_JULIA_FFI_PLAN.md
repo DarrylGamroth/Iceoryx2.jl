@@ -158,6 +158,7 @@ Hot path refers to any API that is called per message/event or inside tight loop
   - Update (2026-01-28): added a TOML-driven wrapper generator for repetitive config defaults/global accessors (`gen/wrapper-spec.toml` → `src/generated/wrappers.jl`).
   - Update (2026-01-28): extended the generator to cover detail accessors, enum/optional config defaults, and notifier deadlines.
   - Update (2026-01-28): extended the generator to cover builder tuning setters (pub/sub, request/response, event, blackboard, publisher/server).
+  - Update (2026-01-28): extended the generator to cover Unique*Id helpers (bytes/id/==/isless).
 
 ## Phase 11: Logging Integration
 - Expose `set_log_level`, `set_log_level_from_env` functions.

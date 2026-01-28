@@ -701,3 +701,179 @@ ffi = "iox2_service_builder_event_disable_notifier_dropped_event"
 handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle)"
 valid_expr = "builder.handle"
 valid_message = "event service builder"
+
+[unique_id_bytes.defaults]
+name = "bytes"
+
+[[unique_id_bytes.items]]
+receiver_sig = "id::UniquePublisherId"
+storage_type = "iox2_unique_publisher_id_storage_t"
+value_fn = "iox2_unique_publisher_id_value"
+
+[[unique_id_bytes.items]]
+receiver_sig = "id::UniqueSubscriberId"
+storage_type = "iox2_unique_subscriber_id_storage_t"
+value_fn = "iox2_unique_subscriber_id_value"
+
+[[unique_id_bytes.items]]
+receiver_sig = "id::UniqueNotifierId"
+storage_type = "iox2_unique_notifier_id_storage_t"
+value_fn = "iox2_unique_notifier_id_value"
+
+[[unique_id_bytes.items]]
+receiver_sig = "id::UniqueListenerId"
+storage_type = "iox2_unique_listener_id_storage_t"
+value_fn = "iox2_unique_listener_id_value"
+
+[[unique_id_bytes.items]]
+receiver_sig = "id::UniqueReaderId"
+storage_type = "iox2_unique_reader_id_storage_t"
+value_fn = "iox2_unique_reader_id_value"
+
+[[unique_id_bytes.items]]
+receiver_sig = "id::UniqueWriterId"
+storage_type = "iox2_unique_writer_id_storage_t"
+value_fn = "iox2_unique_writer_id_value"
+
+[[unique_id_bytes.items]]
+receiver_sig = "id::UniqueClientId"
+storage_type = "iox2_unique_client_id_storage_t"
+value_fn = "iox2_unique_client_id_value"
+
+[[unique_id_bytes.items]]
+receiver_sig = "id::UniqueServerId"
+storage_type = "iox2_unique_server_id_storage_t"
+value_fn = "iox2_unique_server_id_value"
+
+[unique_id_from.defaults]
+name = "id"
+
+[[unique_id_from.items]]
+receiver_sig = "publisher::Publisher"
+handle_expr = "publisher.handle"
+valid_expr = "publisher.handle"
+valid_message = "publisher"
+handle_type = "Iceoryx2FFI.iox2_publisher_h"
+ffi = "iox2_publisher_id"
+id_handle_type = "Iceoryx2FFI.iox2_unique_publisher_id_h"
+return_type = "UniquePublisherId"
+
+[[unique_id_from.items]]
+receiver_sig = "subscriber::Subscriber"
+handle_expr = "subscriber.handle"
+valid_expr = "subscriber.handle"
+valid_message = "subscriber"
+handle_type = "Iceoryx2FFI.iox2_subscriber_h"
+ffi = "iox2_subscriber_id"
+id_handle_type = "Iceoryx2FFI.iox2_unique_subscriber_id_h"
+return_type = "UniqueSubscriberId"
+
+[[unique_id_from.items]]
+receiver_sig = "notifier::Notifier"
+handle_expr = "notifier.handle"
+valid_expr = "notifier.handle"
+valid_message = "notifier"
+handle_type = "Iceoryx2FFI.iox2_notifier_h"
+ffi = "iox2_notifier_id"
+id_handle_type = "Iceoryx2FFI.iox2_unique_notifier_id_h"
+return_type = "UniqueNotifierId"
+
+[[unique_id_from.items]]
+receiver_sig = "listener::Listener"
+handle_expr = "listener.handle"
+valid_expr = "listener.handle"
+valid_message = "listener"
+handle_type = "Iceoryx2FFI.iox2_listener_h"
+ffi = "iox2_listener_id"
+id_handle_type = "Iceoryx2FFI.iox2_unique_listener_id_h"
+return_type = "UniqueListenerId"
+
+[[unique_id_from.items]]
+receiver_sig = "reader::Reader"
+handle_expr = "reader.handle"
+valid_expr = "reader.handle"
+valid_message = "reader"
+handle_type = "Iceoryx2FFI.iox2_reader_h"
+ffi = "iox2_reader_id"
+id_handle_type = "Iceoryx2FFI.iox2_unique_reader_id_h"
+return_type = "UniqueReaderId"
+
+[[unique_id_from.items]]
+receiver_sig = "writer::Writer"
+handle_expr = "writer.handle"
+valid_expr = "writer.handle"
+valid_message = "writer"
+handle_type = "Iceoryx2FFI.iox2_writer_h"
+ffi = "iox2_writer_id"
+id_handle_type = "Iceoryx2FFI.iox2_unique_writer_id_h"
+return_type = "UniqueWriterId"
+
+[[unique_id_from.items]]
+receiver_sig = "client::Client"
+handle_expr = "client.handle"
+valid_expr = "client.handle"
+valid_message = "client"
+handle_type = "Iceoryx2FFI.iox2_client_h"
+ffi = "iox2_client_id"
+id_handle_type = "Iceoryx2FFI.iox2_unique_client_id_h"
+return_type = "UniqueClientId"
+
+[[unique_id_from.items]]
+receiver_sig = "server::Server"
+handle_expr = "server.handle"
+valid_expr = "server.handle"
+valid_message = "server"
+handle_type = "Iceoryx2FFI.iox2_server_h"
+ffi = "iox2_server_id"
+id_handle_type = "Iceoryx2FFI.iox2_unique_server_id_h"
+return_type = "UniqueServerId"
+
+[unique_id_eq_less.defaults]
+
+[[unique_id_eq_less.items]]
+id_type = "UniquePublisherId"
+handle_type = "Iceoryx2FFI.iox2_unique_publisher_id_h"
+eq = "iox2_unique_publisher_id_eq"
+less = "iox2_unique_publisher_id_less"
+
+[[unique_id_eq_less.items]]
+id_type = "UniqueSubscriberId"
+handle_type = "Iceoryx2FFI.iox2_unique_subscriber_id_h"
+eq = "iox2_unique_subscriber_id_eq"
+less = "iox2_unique_subscriber_id_less"
+
+[[unique_id_eq_less.items]]
+id_type = "UniqueNotifierId"
+handle_type = "Iceoryx2FFI.iox2_unique_notifier_id_h"
+eq = "iox2_unique_notifier_id_eq"
+less = "iox2_unique_notifier_id_less"
+
+[[unique_id_eq_less.items]]
+id_type = "UniqueListenerId"
+handle_type = "Iceoryx2FFI.iox2_unique_listener_id_h"
+eq = "iox2_unique_listener_id_eq"
+less = "iox2_unique_listener_id_less"
+
+[[unique_id_eq_less.items]]
+id_type = "UniqueReaderId"
+handle_type = "Iceoryx2FFI.iox2_unique_reader_id_h"
+eq = "iox2_unique_reader_id_eq"
+less = "iox2_unique_reader_id_less"
+
+[[unique_id_eq_less.items]]
+id_type = "UniqueWriterId"
+handle_type = "Iceoryx2FFI.iox2_unique_writer_id_h"
+eq = "iox2_unique_writer_id_eq"
+less = "iox2_unique_writer_id_less"
+
+[[unique_id_eq_less.items]]
+id_type = "UniqueClientId"
+handle_type = "Iceoryx2FFI.iox2_unique_client_id_h"
+eq = "iox2_unique_client_id_eq"
+less = "iox2_unique_client_id_less"
+
+[[unique_id_eq_less.items]]
+id_type = "UniqueServerId"
+handle_type = "Iceoryx2FFI.iox2_unique_server_id_h"
+eq = "iox2_unique_server_id_eq"
+less = "iox2_unique_server_id_less"

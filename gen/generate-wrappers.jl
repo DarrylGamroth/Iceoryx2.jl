@@ -201,6 +201,9 @@ function generate_simple_wrappers(spec_path::AbstractString, out_path::AbstractS
         "optional_duration_get" => _emit_optional_duration_get,
         "duration_set" => _emit_duration_set,
         "void_call" => _emit_void_call,
+        "unique_id_bytes" => _emit_unique_id_bytes,
+        "unique_id_from" => _emit_unique_id_from,
+        "unique_id_eq_less" => _emit_unique_id_eq_less,
         "detail_id" => _emit_detail_id,
         "detail_node_id" => _emit_detail_node_id,
         "detail_size_t" => _emit_detail_size_t,
@@ -490,6 +493,65 @@ function _emit_void_call(io::IO, defaults::Dict{String,Any}, item::Dict{String,A
     end
     println(io, "    Iceoryx2FFI.$ffi($handle_expr)")
     println(io, "    return $receiver")
+    println(io, "end")
+    println(io)
+    return nothing
+end
+
+function _emit_unique_id_bytes(io::IO, defaults::Dict{String,Any}, item::Dict{String,Any})
+    name = get(item, "name", get(defaults, "name", "bytes"))
+    receiver_sig = item["receiver_sig"]
+    storage_type = item["storage_type"]
+    value_fn = item["value_fn"]
+    receiver = _receiver_name(receiver_sig)
+
+    println(io, "@inline function $name($receiver_sig)")
+    println(io, "    len = sizeof(Iceoryx2FFI.$storage_type)")
+    println(io, "    return _unique_id_bytes(unsafe_handle($receiver), len, Iceoryx2FFI.$value_fn)")
+    println(io, "end")
+    println(io)
+    return nothing
+end
+
+function _emit_unique_id_from(io::IO, defaults::Dict{String,Any}, item::Dict{String,Any})
+    name = get(item, "name", get(defaults, "name", "id"))
+    receiver_sig = item["receiver_sig"]
+    handle_expr = item["handle_expr"]
+    valid_expr = item["valid_expr"]
+    valid_message = item["valid_message"]
+    handle_type = item["handle_type"]
+    ffi = item["ffi"]
+    id_handle_type = item["id_handle_type"]
+    return_type = item["return_type"]
+
+    println(io, "function $name($receiver_sig)")
+    println(io, "    _require_valid($valid_expr, \"$(valid_message)\")")
+    println(io, "    handle_ref = Ref{$id_handle_type}(_IOX2_NULL)")
+    println(io, "    Iceoryx2FFI.$ffi(Ref{$handle_type}($handle_expr), C_NULL, handle_ref)")
+    println(io, "    return $return_type(handle_ref[])")
+    println(io, "end")
+    println(io)
+    return nothing
+end
+
+function _emit_unique_id_eq_less(io::IO, defaults::Dict{String,Any}, item::Dict{String,Any})
+    id_type = item["id_type"]
+    handle_type = item["handle_type"]
+    eq_fn = item["eq"]
+    less_fn = item["less"]
+
+    println(io, "@inline function Base.:(==)(lhs::$id_type, rhs::$id_type)")
+    println(io, "    return Iceoryx2FFI.$eq_fn(")
+    println(io, "        Ref{$handle_type}(unsafe_handle(lhs)),")
+    println(io, "        Ref{$handle_type}(unsafe_handle(rhs)),")
+    println(io, "    )")
+    println(io, "end")
+    println(io)
+    println(io, "@inline function Base.isless(lhs::$id_type, rhs::$id_type)")
+    println(io, "    return Iceoryx2FFI.$less_fn(")
+    println(io, "        Ref{$handle_type}(unsafe_handle(lhs)),")
+    println(io, "        Ref{$handle_type}(unsafe_handle(rhs)),")
+    println(io, "    )")
     println(io, "end")
     println(io)
     return nothing
