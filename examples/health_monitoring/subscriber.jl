@@ -62,8 +62,14 @@ function main()
 
     waitset = create(WaitsetBuilder(); service_type = :ipc)
 
-    listener_1_guard = attach_deadline(waitset, file_descriptor(listener_1), 0, CYCLE_TIME_1_MILLIS * 1_000_000)
-    listener_2_guard = attach_deadline(waitset, file_descriptor(listener_2), 0, CYCLE_TIME_2_MILLIS * 1_000_000)
+    deadline_1 = deadline(listener_1)
+    deadline_2 = deadline(listener_2)
+
+    seconds_1, nanos_1 = deadline_1 === nothing ? (0, CYCLE_TIME_1_MILLIS * 1_000_000) : deadline_1
+    seconds_2, nanos_2 = deadline_2 === nothing ? (0, CYCLE_TIME_2_MILLIS * 1_000_000) : deadline_2
+
+    listener_1_guard = attach_deadline(waitset, file_descriptor(listener_1), seconds_1, nanos_1)
+    listener_2_guard = attach_deadline(waitset, file_descriptor(listener_2), seconds_2, nanos_2)
 
     on_event = function (attachment_id)
         if has_missed_deadline(attachment_id, listener_1_guard)

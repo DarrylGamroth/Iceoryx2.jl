@@ -129,6 +129,8 @@ end
 @inline messaging_pattern(config::StaticConfig) = config.raw.messaging_pattern
 @inline details(config::StaticConfig) = StaticConfigDetails(config.raw.details)
 
+@inline event_id_max_value(config::StaticConfigEvent) = Int(config.raw.event_id_max_value)
+
 function attributes(config::StaticConfig)
     handle = config.raw.attributes
     handle == _IOX2_NULL && return AttributeSetView(Iceoryx2FFI.iox2_attribute_set_ptr(_IOX2_NULL))

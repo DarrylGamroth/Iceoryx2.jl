@@ -26,7 +26,7 @@ function main()
 
     wait_and_process(waitset) do _attachment_id
         println("$(service_name): Send sample $(counter) ...")
-        send_copy(publisher, [counter])
+        send_copy(publisher, counter)
         notify!(notifier)
         counter += 1
         return :continue

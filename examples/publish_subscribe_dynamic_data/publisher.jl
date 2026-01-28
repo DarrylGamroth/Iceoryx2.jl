@@ -1,7 +1,7 @@
 include(joinpath(@__DIR__, "..", "common", "imports.jl"))
 
 const CYCLE_SECONDS = 1
-const MAX_VALUE = 0xff
+const MAX_VALUE = UInt64(0xff)
 
 function main()
     set_log_level_from_env_or(:info)
@@ -12,6 +12,7 @@ function main()
 
     pub_builder = publisher_builder(service)
     initial_max_slice_len!(pub_builder, 16)
+    allocation_strategy!(pub_builder, :power_of_two)
     publisher = create(pub_builder)
 
     counter = UInt64(0)
@@ -20,9 +21,8 @@ function main()
         Iceoryx2.wait(node, CYCLE_SECONDS, 0)
         required_size = (counter + 1) * (counter + 1)
         sample = loan_slice_uninit(publisher, required_size)
-        slice = payload_mut(sample)
-        @inbounds for idx in 1:length(slice)
-            slice[idx] = UInt8((idx - 1 + counter) % MAX_VALUE)
+        write_from_fn!(sample) do byte_idx
+            return UInt8((UInt64(byte_idx) + counter) % MAX_VALUE)
         end
         send!(sample)
 

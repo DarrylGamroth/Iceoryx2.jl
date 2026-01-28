@@ -43,10 +43,14 @@ end
 const _TYPE_DETAILS = IdDict{DataType, TypeDetails}()
 const _TYPE_DETAILS_LOCK = Base.Threads.SpinLock()
 
+function type_name(::Type{T}) where {T}
+    return string(T)
+end
+
 @inline function _type_details(::Type{T}) where {T}
     if Base.Threads.nthreads() == 1
         details = Base.get!(_TYPE_DETAILS, T) do
-            name = string(T)
+            name = type_name(T)
             TypeDetails(
                 name,
                 Iceoryx2FFI.c_size_t(ncodeunits(name)),
@@ -59,7 +63,7 @@ const _TYPE_DETAILS_LOCK = Base.Threads.SpinLock()
     lock(_TYPE_DETAILS_LOCK)
     try
         details = Base.get!(_TYPE_DETAILS, T) do
-            name = string(T)
+            name = type_name(T)
             TypeDetails(
                 name,
                 Iceoryx2FFI.c_size_t(ncodeunits(name)),
@@ -688,6 +692,18 @@ end
     return sample
 end
 
+@inline function _write_from_fn!(slice::Slice{T}, f::Function) where {T}
+    @inbounds for idx in 1:slice.len
+        unsafe_store!(slice.ptr, f(idx - 1), idx)
+    end
+    return slice
+end
+
+function write_from_fn!(f::Function, sample::SampleMut{T,UH}) where {T,UH}
+    _write_from_fn!(payload_mut(sample), f)
+    return sample
+end
+
 @inline function send!(sample::SampleMut)
     ret = Iceoryx2FFI.iox2_sample_mut_send(sample.handle, C_NULL)
     check_ok(ret, Iceoryx2FFI.iox2_send_error_e)
@@ -708,6 +724,14 @@ function send_copy(publisher::Publisher{T,UH}, data::AbstractVector{T}) where {T
     _require_isbits(T)
     GC.@preserve data begin
         return send_copy(publisher, pointer(data), length(data))
+    end
+end
+
+function send_copy(publisher::Publisher{T,UH}, value::T) where {T,UH}
+    _require_isbits(T)
+    value_ref = Ref{T}(value)
+    GC.@preserve value_ref begin
+        return send_copy(publisher, Base.unsafe_convert(Ptr{T}, value_ref), 1)
     end
 end
 
@@ -1245,6 +1269,11 @@ end
     return request
 end
 
+function write_from_fn!(f::Function, request::RequestMut{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
+    _write_from_fn!(payload_mut(request), f)
+    return request
+end
+
 @inline function unsafe_user_header_mut_ptr(request::RequestMut, ::Type{T}) where {T}
     _require_isbits(T)
     ptr_ref = Ref{Ptr{Cvoid}}()
@@ -1418,6 +1447,14 @@ function send_copy(client::Client{Req,Resp,ReqH,RespH}, data::AbstractVector{Req
     _require_isbits(Req)
     GC.@preserve data begin
         return send_copy(client, pointer(data), length(data))
+    end
+end
+
+function send_copy(client::Client{Req,Resp,ReqH,RespH}, value::Req) where {Req,Resp,ReqH,RespH}
+    _require_isbits(Req)
+    value_ref = Ref{Req}(value)
+    GC.@preserve value_ref begin
+        return send_copy(client, Base.unsafe_convert(Ptr{Req}, value_ref), 1)
     end
 end
 
@@ -1599,6 +1636,11 @@ end
 @inline function write_payload!(resp::ResponseMut{RespT,RespH}, value::RespT) where {RespT,RespH}
     slice = payload_mut(resp)
     unsafe_store!(slice.ptr, value, 1)
+    return resp
+end
+
+function write_from_fn!(f::Function, resp::ResponseMut{RespT,RespH}) where {RespT,RespH}
+    _write_from_fn!(payload_mut(resp), f)
     return resp
 end
 
@@ -2007,6 +2049,18 @@ function create(f::Function, builder::NotifierBuilder)
     end
 end
 
+function deadline(notifier::Notifier)
+    _require_valid(notifier.handle, "notifier")
+    seconds = Ref{UInt64}(0)
+    nanos = Ref{UInt32}(0)
+    has_deadline = Iceoryx2FFI.iox2_notifier_deadline(
+        Ref{Iceoryx2FFI.iox2_notifier_h}(notifier.handle),
+        seconds,
+        nanos,
+    )
+    return has_deadline ? (seconds[], nanos[]) : nothing
+end
+
 mutable struct Listener
     handle::Iceoryx2FFI.iox2_listener_h
     storage::_StorageRef{Iceoryx2FFI.iox2_listener_t}
@@ -2042,6 +2096,18 @@ function create(f::Function, builder::ListenerBuilder)
     finally
         close(listener)
     end
+end
+
+function deadline(listener::Listener)
+    _require_valid(listener.handle, "listener")
+    seconds = Ref{UInt64}(0)
+    nanos = Ref{UInt32}(0)
+    has_deadline = Iceoryx2FFI.iox2_listener_deadline(
+        Ref{Iceoryx2FFI.iox2_listener_h}(listener.handle),
+        seconds,
+        nanos,
+    )
+    return has_deadline ? (seconds[], nanos[]) : nothing
 end
 
 function notify!(notifier::Notifier)

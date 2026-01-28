@@ -44,7 +44,7 @@ function main()
         lock do
             println("send: ", counter)
         end
-        send_copy(publisher, [counter])
+        send_copy(publisher, counter)
         counter += 1
     end
 

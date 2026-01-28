@@ -22,3 +22,5 @@ Base.zero(::Type{ComplexType}) = ComplexType(
     UInt16(0),
     UInt32(0),
 )
+
+Iceoryx2.type_name(::Type{ComplexType}) = "ComplexType"

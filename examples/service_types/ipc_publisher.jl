@@ -14,7 +14,7 @@ function main()
     while true
         Iceoryx2.wait(node, 0, CYCLE_MILLIS * 1_000_000)
         println("send: ", counter)
-        send_copy(publisher, [counter])
+        send_copy(publisher, counter)
         counter += 1
     end
 end

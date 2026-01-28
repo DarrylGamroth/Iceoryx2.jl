@@ -2,13 +2,13 @@ import Iceoryx2
 using Iceoryx2: AttributeSpecifier, AttributeVerifier, EventId, Listener, Node, NodeBuilder, Notifier,
     Publisher, Server, Subscriber, WaitsetBuilder, add!, allocation_strategy!, attach_deadline, attach_interval, attach_notification,
     attributes, blackboard_creator, blackboard_opener, client_builder, config!, config_from_ptr, create,
-    create_with_attributes, deadline!, default_event_id!, define!, enable_safe_overflow!, event,
+    create_with_attributes, deadline, deadline!, default_event_id!, define!, enable_safe_overflow!, event,
     file_descriptor, global_config, global_prefix!, has_event_from, has_missed_deadline, history_size!,
     id, initial_max_slice_len!, key_eq_comparison!, list_nodes, list_services, loan, loan_slice, loan_slice_uninit,
     loan_uninit, max_publishers!, max_subscribers!, messaging_pattern, name, name!, notifier_builder, notifier_created_event!,
-    notifier_dead_event!, notifier_dropped_event!, open_or_create, open_with_attributes, payload,
+    notifier_dead_event!, notifier_dropped_event!, open_or_create, open_with_attributes, payload, event_id_max_value,
     payload_mut, publish_subscribe, reader_builder, reader_entry, receive, remove_stale_resources,
     request_response, require!, require_key!, send!, send_copy, server_builder, service_builder,
     set_log_level_from_env_or, static_config, subscriber_builder, subscriber_max_buffer_size!, timed_wait_one,
     to_owned, try_wait_all, try_wait_one, update_connections!, user_header, user_header_mut, wait_and_process, writer_builder,
-    writer_entry, write_payload!, update!
+    writer_entry, write_from_fn!, write_payload!, update!

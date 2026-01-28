@@ -43,7 +43,7 @@ function handle_event!(custom::CustomPublisher)
         event = pubsub_event_from_id(event_id)
         if event == PubSubEvent.SubscriberConnected
             println("new subscriber connected - delivering history")
-            # update_connections! is not exposed yet; we still emit SentHistory
+            update_connections!(custom.publisher)
             notify!(custom.notifier, EventId(Int(PubSubEvent.SentHistory)))
         elseif event == PubSubEvent.SubscriberDisconnected
             println("subscriber disconnected")

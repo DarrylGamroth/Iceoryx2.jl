@@ -7,7 +7,7 @@ function main()
     node = create(NodeBuilder(); service_type = :ipc)
 
     service = open_or_create(event(service_builder(node, "MyEventName")))
-    max_event_id = Int(static_config(service).raw.event_id_max_value)
+    max_event_id = event_id_max_value(static_config(service))
     max_event_id = max_event_id > 0 ? max_event_id : 1
 
     notifier = create(notifier_builder(service))

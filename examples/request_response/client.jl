@@ -16,7 +16,7 @@ function main()
     response_counter = UInt64(0)
 
     println("send request $(request_counter) ...")
-    pending = send_copy(client, [request_counter])
+    pending = send_copy(client, request_counter)
 
     while true
         Iceoryx2.wait(node, CYCLE_SECONDS, 0)

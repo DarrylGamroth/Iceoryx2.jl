@@ -16,3 +16,6 @@ end
 function Base.show(io::IO, value::CustomHeader)
     print(io, "CustomHeader { version: ", value.version, ", timestamp: ", value.timestamp, " }")
 end
+
+Iceoryx2.type_name(::Type{TransmissionData}) = "TransmissionData"
+Iceoryx2.type_name(::Type{CustomHeader}) = "CustomHeader"
