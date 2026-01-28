@@ -15,5 +15,6 @@ include("nodes.jl")
 include("logging.jl")
 include("waitset.jl")
 include("config.jl")
+include("generated/wrappers.jl")
 
 end # module Iceoryx2

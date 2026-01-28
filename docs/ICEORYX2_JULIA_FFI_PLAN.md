@@ -155,6 +155,7 @@ Hot path refers to any API that is called per message/event or inside tight loop
   - Config helpers: `src/config.jl`
 - Status: Completed (2026-01-27)
   - Update (2026-01-27): added blackboard `list_keys` callback helper.
+  - Update (2026-01-28): added a TOML-driven wrapper generator for repetitive config defaults/global accessors (`gen/wrapper-spec.toml` → `src/generated/wrappers.jl`).
 
 ## Phase 11: Logging Integration
 - Expose `set_log_level`, `set_log_level_from_env` functions.

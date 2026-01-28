@@ -37,6 +37,8 @@ build!(ctx)
 ffi_path = joinpath(@__DIR__, "..", "src", "Iceoryx2FFI.jl")
 handles_path = joinpath(@__DIR__, "..", "src", "handles.jl")
 errors_path = joinpath(@__DIR__, "..", "src", "errors.jl")
+wrappers_path = joinpath(@__DIR__, "..", "src", "generated", "wrappers.jl")
+wrapper_spec = joinpath(@__DIR__, "wrapper-spec.toml")
 
 ignore_owning = Set([
     "port_factory_pub_sub",
@@ -66,3 +68,4 @@ ignore_owning = Set([
 ffi_text = read(ffi_path, String)
 generate_handles(ffi_text, handles_path; ignore_owning)
 generate_errors(ffi_text, errors_path)
+generate_simple_wrappers(wrapper_spec, wrappers_path)
