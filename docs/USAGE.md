@@ -7,6 +7,34 @@
 - Handles are **consumed** by some calls (e.g. `send!(sample)`); the wrapper invalidates the handle after transfer.
 - Finalizers exist as a safety net but are not deterministic. For low-latency use, always call `close`.
 
+## Configuration
+
+Create a mutable config, adjust defaults, then pass it into a builder:
+
+```julia
+config = Iceoryx2.default_config()
+Iceoryx2.defaults_publish_subscribe_max_nodes!(config, 32)
+Iceoryx2.global_prefix!(config, "demo")
+
+builder = Iceoryx2.NodeBuilder()
+Iceoryx2.config!(builder, config)
+node = Iceoryx2.create(builder)
+
+# ... use node ...
+
+close(node)
+close(config)
+```
+
+You can also load from a file or clone an existing config:
+
+```julia
+cfg_from_file = Iceoryx2.config_from_file("iceoryx2.toml")
+cfg_clone = Iceoryx2.config_clone(cfg_from_file)
+close(cfg_clone)
+close(cfg_from_file)
+```
+
 ## Payload types (`isbits` requirement)
 
 Zero-copy payloads require `isbits` element types.
