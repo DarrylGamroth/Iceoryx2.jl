@@ -1155,17 +1155,7 @@ function _finalize_port_factory_event(factory::PortFactoryEvent)
     return nothing
 end
 
-@inline function attributes(factory::PortFactoryEvent)
-    _require_valid(factory.handle, "event port factory")
-    ptr = Iceoryx2FFI.iox2_port_factory_event_attributes(Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle))
-    return AttributeSetView(ptr)
-end
-
-@inline function service_name(factory::PortFactoryEvent)
-    _require_valid(factory.handle, "event port factory")
-    ptr = Iceoryx2FFI.iox2_port_factory_event_service_name(Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle))
-    return ServiceNameView(ptr)
-end
+### port factory view accessors generated in src/generated/wrappers.jl
 
 function service_id(factory::PortFactoryEvent)
     _require_valid(factory.handle, "event port factory")
@@ -1181,15 +1171,7 @@ function service_id(factory::PortFactoryEvent)
     return _string_from_buffer(buffer)
 end
 
-function static_config(factory::PortFactoryEvent)
-    _require_valid(factory.handle, "event port factory")
-    config_ref = Ref{Iceoryx2FFI.iox2_static_config_event_t}()
-    Iceoryx2FFI.iox2_port_factory_event_static_config(
-        Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle),
-        config_ref,
-    )
-    return StaticConfigEvent(config_ref[])
-end
+### port factory view accessors generated in src/generated/wrappers.jl
 
 function open_or_create(builder::EventServiceBuilder)
     _require_valid(builder.handle, "event service builder")

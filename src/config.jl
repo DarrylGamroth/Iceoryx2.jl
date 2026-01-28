@@ -434,13 +434,6 @@ function _server_details_cfunction(::T) where {T<:AbstractServerDetailsHandler}
     )
 end
 
-@inline function number_of_publishers(factory::PortFactoryPubSub{T}) where {T}
-    return Int(Iceoryx2FFI.iox2_port_factory_pub_sub_dynamic_config_number_of_publishers(Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle)))
-end
-
-@inline function number_of_subscribers(factory::PortFactoryPubSub{T}) where {T}
-    return Int(Iceoryx2FFI.iox2_port_factory_pub_sub_dynamic_config_number_of_subscribers(Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle)))
-end
 
 function list_publishers(factory::PortFactoryPubSub{T}, handler::AbstractPublisherDetailsHandler) where {T}
     handler_ref = Ref(handler)
@@ -482,13 +475,6 @@ function list_subscribers(factory::PortFactoryPubSub{T}, f::Function) where {T}
     return list_subscribers(f, factory)
 end
 
-@inline function number_of_listeners(factory::PortFactoryEvent)
-    return Int(Iceoryx2FFI.iox2_port_factory_event_dynamic_config_number_of_listeners(Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle)))
-end
-
-@inline function number_of_notifiers(factory::PortFactoryEvent)
-    return Int(Iceoryx2FFI.iox2_port_factory_event_dynamic_config_number_of_notifiers(Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle)))
-end
 
 function list_listeners(factory::PortFactoryEvent, handler::AbstractListenerDetailsHandler)
     handler_ref = Ref(handler)
@@ -530,13 +516,6 @@ function list_notifiers(factory::PortFactoryEvent, f::Function)
     return list_notifiers(f, factory)
 end
 
-@inline function number_of_clients(factory::PortFactoryRequestResponse{Req,Resp}) where {Req,Resp}
-    return Int(Iceoryx2FFI.iox2_port_factory_request_response_dynamic_config_number_of_clients(Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle)))
-end
-
-@inline function number_of_servers(factory::PortFactoryRequestResponse{Req,Resp}) where {Req,Resp}
-    return Int(Iceoryx2FFI.iox2_port_factory_request_response_dynamic_config_number_of_servers(Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle)))
-end
 
 function list_clients(factory::PortFactoryRequestResponse{Req,Resp}, handler::AbstractClientDetailsHandler) where {Req,Resp}
     handler_ref = Ref(handler)
@@ -618,13 +597,6 @@ function list_keys(factory::PortFactoryBlackboard{K}, ::Type{K}, f::Function) wh
     return list_keys(f, factory, K)
 end
 
-@inline function number_of_readers(factory::PortFactoryBlackboard{K}) where {K}
-    return Int(Iceoryx2FFI.iox2_port_factory_blackboard_dynamic_config_number_of_readers(Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle)))
-end
-
-@inline function number_of_writers(factory::PortFactoryBlackboard{K}) where {K}
-    return Int(Iceoryx2FFI.iox2_port_factory_blackboard_dynamic_config_number_of_writers(Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle)))
-end
 
 function list_readers(factory::PortFactoryBlackboard{K}, handler::AbstractReaderDetailsHandler) where {K}
     handler_ref = Ref(handler)

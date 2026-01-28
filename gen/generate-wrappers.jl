@@ -201,6 +201,8 @@ function generate_simple_wrappers(spec_path::AbstractString, out_path::AbstractS
         "optional_duration_get" => _emit_optional_duration_get,
         "duration_set" => _emit_duration_set,
         "void_call" => _emit_void_call,
+        "view_get" => _emit_view_get,
+        "static_config" => _emit_static_config,
         "unique_id_bytes" => _emit_unique_id_bytes,
         "unique_id_from" => _emit_unique_id_from,
         "unique_id_eq_less" => _emit_unique_id_eq_less,
@@ -552,6 +554,54 @@ function _emit_unique_id_eq_less(io::IO, defaults::Dict{String,Any}, item::Dict{
     println(io, "        Ref{$handle_type}(unsafe_handle(lhs)),")
     println(io, "        Ref{$handle_type}(unsafe_handle(rhs)),")
     println(io, "    )")
+    println(io, "end")
+    println(io)
+    return nothing
+end
+
+function _emit_view_get(io::IO, defaults::Dict{String,Any}, item::Dict{String,Any})
+    name = item["name"]
+    ffi = item["ffi"]
+    view_type = item["view_type"]
+    receiver_sig = get(item, "receiver_sig", get(defaults, "receiver_sig", nothing))
+    handle_expr = get(item, "handle_expr", get(defaults, "handle_expr", nothing))
+    valid_expr = get(item, "valid_expr", get(defaults, "valid_expr", nothing))
+    valid_message = get(item, "valid_message", get(defaults, "valid_message", nothing))
+    receiver_sig === nothing && error("Missing receiver_sig for $name")
+    handle_expr === nothing && error("Missing handle_expr for $name")
+
+    println(io, "@inline function $name($receiver_sig)")
+    if valid_expr !== nothing
+        valid_message === nothing && error("Missing valid_message for $name")
+        println(io, "    _require_valid($valid_expr, \"$(valid_message)\")")
+    end
+    println(io, "    ptr = Iceoryx2FFI.$ffi($handle_expr)")
+    println(io, "    return $view_type(ptr)")
+    println(io, "end")
+    println(io)
+    return nothing
+end
+
+function _emit_static_config(io::IO, defaults::Dict{String,Any}, item::Dict{String,Any})
+    name = item["name"]
+    ffi = item["ffi"]
+    raw_type = item["raw_type"]
+    wrapper_type = item["wrapper_type"]
+    receiver_sig = get(item, "receiver_sig", get(defaults, "receiver_sig", nothing))
+    handle_expr = get(item, "handle_expr", get(defaults, "handle_expr", nothing))
+    valid_expr = get(item, "valid_expr", get(defaults, "valid_expr", nothing))
+    valid_message = get(item, "valid_message", get(defaults, "valid_message", nothing))
+    receiver_sig === nothing && error("Missing receiver_sig for $name")
+    handle_expr === nothing && error("Missing handle_expr for $name")
+
+    println(io, "function $name($receiver_sig)")
+    if valid_expr !== nothing
+        valid_message === nothing && error("Missing valid_message for $name")
+        println(io, "    _require_valid($valid_expr, \"$(valid_message)\")")
+    end
+    println(io, "    config_ref = Ref{$raw_type}()")
+    println(io, "    Iceoryx2FFI.$ffi($handle_expr, config_ref)")
+    println(io, "    return $wrapper_type(config_ref[])")
     println(io, "end")
     println(io)
     return nothing

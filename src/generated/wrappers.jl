@@ -112,6 +112,34 @@ end
     )
 end
 
+function static_config(factory::PortFactoryEvent)
+    _require_valid(factory.handle, "event port factory")
+    config_ref = Ref{Iceoryx2FFI.iox2_static_config_event_t}()
+    Iceoryx2FFI.iox2_port_factory_event_static_config(Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle), config_ref)
+    return StaticConfigEvent(config_ref[])
+end
+
+function static_config(factory::PortFactoryPubSub{T} where {T})
+    _require_valid(factory.handle, "pub_sub port factory")
+    config_ref = Ref{Iceoryx2FFI.iox2_static_config_publish_subscribe_t}()
+    Iceoryx2FFI.iox2_port_factory_pub_sub_static_config(Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle), config_ref)
+    return StaticConfigPublishSubscribe(config_ref[])
+end
+
+function static_config(factory::PortFactoryRequestResponse{Req,Resp} where {Req,Resp})
+    _require_valid(factory.handle, "request_response port factory")
+    config_ref = Ref{Iceoryx2FFI.iox2_static_config_request_response_t}()
+    Iceoryx2FFI.iox2_port_factory_request_response_static_config(Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle), config_ref)
+    return StaticConfigRequestResponse(config_ref[])
+end
+
+function static_config(factory::PortFactoryBlackboard{K} where {K})
+    _require_valid(factory.handle, "blackboard port factory")
+    config_ref = Ref{Iceoryx2FFI.iox2_static_config_blackboard_t}()
+    Iceoryx2FFI.iox2_port_factory_blackboard_static_config(Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle), config_ref)
+    return StaticConfigBlackboard(config_ref[])
+end
+
 @inline function client_id(details::ClientDetailsView)
     handle_ref = Ref{Iceoryx2FFI.iox2_unique_client_id_h}(_IOX2_NULL)
     Iceoryx2FFI.iox2_client_details_client_id(unsafe_handle(details), C_NULL, handle_ref)
@@ -966,6 +994,54 @@ function global_service_blackboard_data_suffix!(config::Union{Config, ConfigRef}
     return config
 end
 
+@inline function attributes(factory::PortFactoryEvent)
+    _require_valid(factory.handle, "event port factory")
+    ptr = Iceoryx2FFI.iox2_port_factory_event_attributes(Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle))
+    return AttributeSetView(ptr)
+end
+
+@inline function attributes(factory::PortFactoryPubSub{T} where {T})
+    _require_valid(factory.handle, "pub_sub port factory")
+    ptr = Iceoryx2FFI.iox2_port_factory_pub_sub_attributes(Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle))
+    return AttributeSetView(ptr)
+end
+
+@inline function attributes(factory::PortFactoryRequestResponse{Req,Resp} where {Req,Resp})
+    _require_valid(factory.handle, "request_response port factory")
+    ptr = Iceoryx2FFI.iox2_port_factory_request_response_attributes(Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle))
+    return AttributeSetView(ptr)
+end
+
+@inline function attributes(factory::PortFactoryBlackboard{K} where {K})
+    _require_valid(factory.handle, "blackboard port factory")
+    ptr = Iceoryx2FFI.iox2_port_factory_blackboard_attributes(Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle))
+    return AttributeSetView(ptr)
+end
+
+@inline function service_name(factory::PortFactoryEvent)
+    _require_valid(factory.handle, "event port factory")
+    ptr = Iceoryx2FFI.iox2_port_factory_event_service_name(Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle))
+    return ServiceNameView(ptr)
+end
+
+@inline function service_name(factory::PortFactoryPubSub{T} where {T})
+    _require_valid(factory.handle, "pub_sub port factory")
+    ptr = Iceoryx2FFI.iox2_port_factory_pub_sub_service_name(Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle))
+    return ServiceNameView(ptr)
+end
+
+@inline function service_name(factory::PortFactoryRequestResponse{Req,Resp} where {Req,Resp})
+    _require_valid(factory.handle, "request_response port factory")
+    ptr = Iceoryx2FFI.iox2_port_factory_request_response_service_name(Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle))
+    return ServiceNameView(ptr)
+end
+
+@inline function service_name(factory::PortFactoryBlackboard{K} where {K})
+    _require_valid(factory.handle, "blackboard port factory")
+    ptr = Iceoryx2FFI.iox2_port_factory_blackboard_service_name(Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle))
+    return ServiceNameView(ptr)
+end
+
 function defaults_event_deadline(config::Union{Config, ConfigRef})
     seconds = Ref{UInt64}()
     nanoseconds = Ref{UInt32}()
@@ -1010,6 +1086,38 @@ end
 
 @inline function node_id(details::WriterDetailsView)
     return NodeIdView(Iceoryx2FFI.iox2_writer_details_node_id(unsafe_handle(details)))
+end
+
+@inline function number_of_publishers(factory::PortFactoryPubSub{T} where {T})
+    return Int(Iceoryx2FFI.iox2_port_factory_pub_sub_dynamic_config_number_of_publishers(Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle)))
+end
+
+@inline function number_of_subscribers(factory::PortFactoryPubSub{T} where {T})
+    return Int(Iceoryx2FFI.iox2_port_factory_pub_sub_dynamic_config_number_of_subscribers(Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle)))
+end
+
+@inline function number_of_listeners(factory::PortFactoryEvent)
+    return Int(Iceoryx2FFI.iox2_port_factory_event_dynamic_config_number_of_listeners(Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle)))
+end
+
+@inline function number_of_notifiers(factory::PortFactoryEvent)
+    return Int(Iceoryx2FFI.iox2_port_factory_event_dynamic_config_number_of_notifiers(Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle)))
+end
+
+@inline function number_of_clients(factory::PortFactoryRequestResponse{Req,Resp} where {Req,Resp})
+    return Int(Iceoryx2FFI.iox2_port_factory_request_response_dynamic_config_number_of_clients(Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle)))
+end
+
+@inline function number_of_servers(factory::PortFactoryRequestResponse{Req,Resp} where {Req,Resp})
+    return Int(Iceoryx2FFI.iox2_port_factory_request_response_dynamic_config_number_of_servers(Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle)))
+end
+
+@inline function number_of_readers(factory::PortFactoryBlackboard{K} where {K})
+    return Int(Iceoryx2FFI.iox2_port_factory_blackboard_dynamic_config_number_of_readers(Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle)))
+end
+
+@inline function number_of_writers(factory::PortFactoryBlackboard{K} where {K})
+    return Int(Iceoryx2FFI.iox2_port_factory_blackboard_dynamic_config_number_of_writers(Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle)))
 end
 
 @inline function bytes(id::UniquePublisherId)
