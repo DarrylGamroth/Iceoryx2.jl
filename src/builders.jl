@@ -20,7 +20,7 @@ end
 
 mutable struct NodeBuilder
     handle::Iceoryx2FFI.iox2_node_builder_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_node_builder_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_node_builder_t}
 end
 
 function _free_node_builder_storage!(builder::NodeBuilder)
@@ -102,7 +102,7 @@ end
 
 mutable struct ServiceBuilder
     handle::Iceoryx2FFI.iox2_service_builder_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_service_builder_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node
 end
 
@@ -148,32 +148,32 @@ end
 
 mutable struct EventServiceBuilder
     handle::Iceoryx2FFI.iox2_service_builder_event_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_service_builder_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node
 end
 
 mutable struct PubSubServiceBuilder{T,UH}
     handle::Iceoryx2FFI.iox2_service_builder_pub_sub_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_service_builder_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node
 end
 
 mutable struct RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_service_builder_request_response_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_service_builder_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node
 end
 
 mutable struct BlackboardCreatorBuilder{K}
     handle::Iceoryx2FFI.iox2_service_builder_blackboard_creator_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_service_builder_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node
     values::Vector{Any}
 end
 
 mutable struct BlackboardOpenerBuilder{K}
     handle::Iceoryx2FFI.iox2_service_builder_blackboard_opener_h
-    storage::Base.RefValue{Iceoryx2FFI.iox2_service_builder_t}
+    storage::_StorageRef{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node
 end
 

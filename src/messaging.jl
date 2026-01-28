@@ -77,8 +77,6 @@ end
     return details.name, details.name_len, details.size, details.alignment
 end
 
-const _StorageRef{T} = Union{Nothing, Base.RefValue{T}}
-
 struct Slice{T,O}
     ptr::Ptr{T}
     len::Int
