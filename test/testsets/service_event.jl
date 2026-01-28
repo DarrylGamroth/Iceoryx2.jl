@@ -85,7 +85,7 @@ end
     verifier = Iceoryx2.AttributeVerifier()
     Iceoryx2.require!(verifier, "role", "primary")
     builder_open = Iceoryx2.event(Iceoryx2.service_builder(node, service_name))
-    factory_open = Iceoryx2.open(builder_open, verifier)
+    factory_open = Iceoryx2.open_or_create(builder_open, verifier)
     close(factory_open)
     close(verifier)
     close(node)

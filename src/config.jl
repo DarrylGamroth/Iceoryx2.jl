@@ -60,26 +60,23 @@ end
 
 function config_from_file(path::AbstractString)
     file = String(path)
-    storage = Ref{Iceoryx2FFI.iox2_config_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_config_h}(_IOX2_NULL)
     GC.@preserve file begin
-        ret = Iceoryx2FFI.iox2_config_from_file(storage, handle_ref, Base.unsafe_convert(Cstring, file))
+        ret = Iceoryx2FFI.iox2_config_from_file(C_NULL, handle_ref, Base.unsafe_convert(Cstring, file))
         check_ok(ret, Iceoryx2FFI.iox2_config_creation_error_e)
     end
     return Config(handle_ref[])
 end
 
 function config_from_ptr(config::ConfigView)
-    storage = Ref{Iceoryx2FFI.iox2_config_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_config_h}(_IOX2_NULL)
-    Iceoryx2FFI.iox2_config_from_ptr(unsafe_handle(config), storage, handle_ref)
+    Iceoryx2FFI.iox2_config_from_ptr(unsafe_handle(config), C_NULL, handle_ref)
     return Config(handle_ref[])
 end
 
 function config_clone(config::Config)
-    storage = Ref{Iceoryx2FFI.iox2_config_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_config_h}(_IOX2_NULL)
-    Iceoryx2FFI.iox2_config_clone(_config_h_ref(config), storage, handle_ref)
+    Iceoryx2FFI.iox2_config_clone(_config_h_ref(config), C_NULL, handle_ref)
     return Config(handle_ref[])
 end
 

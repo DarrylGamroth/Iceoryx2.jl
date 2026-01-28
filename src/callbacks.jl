@@ -111,6 +111,10 @@ function list_nodes(factory::PortFactoryEvent, f::Function)
     return list_nodes(factory, NodeListHandler(f))
 end
 
+function list_nodes(f::Function, factory::PortFactoryEvent)
+    return list_nodes(factory, f)
+end
+
 abstract type AbstractAttributeValueHandler end
 
 mutable struct AttributeValueHandler{T} <: AbstractAttributeValueHandler
