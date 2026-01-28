@@ -191,12 +191,16 @@ function generate_simple_wrappers(spec_path::AbstractString, out_path::AbstractS
     emitters = Dict(
         "size_t_getset" => _emit_size_t_getset,
         "size_t_get" => _emit_size_t_get,
+        "size_t_set" => _emit_size_t_set,
         "bool_getset" => _emit_bool_getset,
+        "bool_set" => _emit_bool_set,
         "string_getset" => _emit_string_getset,
         "enum_getset" => _emit_enum_getset,
         "optional_size_t_getset" => _emit_optional_size_t_getset,
         "optional_duration_getset" => _emit_optional_duration_getset,
         "optional_duration_get" => _emit_optional_duration_get,
+        "duration_set" => _emit_duration_set,
+        "void_call" => _emit_void_call,
         "detail_id" => _emit_detail_id,
         "detail_node_id" => _emit_detail_node_id,
         "detail_size_t" => _emit_detail_size_t,
@@ -237,6 +241,29 @@ function _emit_size_t_getset(io::IO, defaults::Dict{String,Any}, item::Dict{Stri
     return nothing
 end
 
+function _emit_size_t_set(io::IO, defaults::Dict{String,Any}, item::Dict{String,Any})
+    name = item["name"]
+    ffi = item["ffi"]
+    receiver_sig = get(item, "receiver_sig", get(defaults, "receiver_sig", nothing))
+    handle_expr = get(item, "handle_expr", get(defaults, "handle_expr", nothing))
+    valid_expr = get(item, "valid_expr", get(defaults, "valid_expr", nothing))
+    valid_message = get(item, "valid_message", get(defaults, "valid_message", nothing))
+    receiver_sig === nothing && error("Missing receiver_sig for $name")
+    handle_expr === nothing && error("Missing handle_expr for $name")
+    receiver = _receiver_name(receiver_sig)
+
+    println(io, "function $(name)($receiver_sig, value::Integer)")
+    if valid_expr !== nothing
+        valid_message === nothing && error("Missing valid_message for $name")
+        println(io, "    _require_valid($valid_expr, \"$(valid_message)\")")
+    end
+    println(io, "    Iceoryx2FFI.$ffi($handle_expr, Iceoryx2FFI.c_size_t(value))")
+    println(io, "    return $receiver")
+    println(io, "end")
+    println(io)
+    return nothing
+end
+
 function _emit_size_t_get(io::IO, defaults::Dict{String,Any}, item::Dict{String,Any})
     name = item["name"]
     get_fn = item["get"]
@@ -268,6 +295,29 @@ function _emit_bool_getset(io::IO, defaults::Dict{String,Any}, item::Dict{String
     println(io)
     println(io, "function $(name)!($receiver_sig, value::Bool)")
     println(io, "    Iceoryx2FFI.$set_fn($handle_expr, value)")
+    println(io, "    return $receiver")
+    println(io, "end")
+    println(io)
+    return nothing
+end
+
+function _emit_bool_set(io::IO, defaults::Dict{String,Any}, item::Dict{String,Any})
+    name = item["name"]
+    ffi = item["ffi"]
+    receiver_sig = get(item, "receiver_sig", get(defaults, "receiver_sig", nothing))
+    handle_expr = get(item, "handle_expr", get(defaults, "handle_expr", nothing))
+    valid_expr = get(item, "valid_expr", get(defaults, "valid_expr", nothing))
+    valid_message = get(item, "valid_message", get(defaults, "valid_message", nothing))
+    receiver_sig === nothing && error("Missing receiver_sig for $name")
+    handle_expr === nothing && error("Missing handle_expr for $name")
+    receiver = _receiver_name(receiver_sig)
+
+    println(io, "function $(name)($receiver_sig, value::Bool)")
+    if valid_expr !== nothing
+        valid_message === nothing && error("Missing valid_message for $name")
+        println(io, "    _require_valid($valid_expr, \"$(valid_message)\")")
+    end
+    println(io, "    Iceoryx2FFI.$ffi($handle_expr, value)")
     println(io, "    return $receiver")
     println(io, "end")
     println(io)
@@ -394,6 +444,52 @@ function _emit_optional_duration_get(io::IO, defaults::Dict{String,Any}, item::D
     println(io, "    nanoseconds = Ref{UInt32}()")
     println(io, "    has = Iceoryx2FFI.$get_fn($handle_expr, seconds, nanoseconds)")
     println(io, "    return has ? (seconds[], nanoseconds[]) : nothing")
+    println(io, "end")
+    println(io)
+    return nothing
+end
+
+function _emit_duration_set(io::IO, defaults::Dict{String,Any}, item::Dict{String,Any})
+    name = item["name"]
+    ffi = item["ffi"]
+    receiver_sig = get(item, "receiver_sig", get(defaults, "receiver_sig", nothing))
+    handle_expr = get(item, "handle_expr", get(defaults, "handle_expr", nothing))
+    valid_expr = get(item, "valid_expr", get(defaults, "valid_expr", nothing))
+    valid_message = get(item, "valid_message", get(defaults, "valid_message", nothing))
+    receiver_sig === nothing && error("Missing receiver_sig for $name")
+    handle_expr === nothing && error("Missing handle_expr for $name")
+    receiver = _receiver_name(receiver_sig)
+
+    println(io, "function $(name)($receiver_sig, seconds::Integer, nanoseconds::Integer)")
+    if valid_expr !== nothing
+        valid_message === nothing && error("Missing valid_message for $name")
+        println(io, "    _require_valid($valid_expr, \"$(valid_message)\")")
+    end
+    println(io, "    Iceoryx2FFI.$ffi($handle_expr, UInt64(seconds), UInt32(nanoseconds))")
+    println(io, "    return $receiver")
+    println(io, "end")
+    println(io)
+    return nothing
+end
+
+function _emit_void_call(io::IO, defaults::Dict{String,Any}, item::Dict{String,Any})
+    name = item["name"]
+    ffi = item["ffi"]
+    receiver_sig = get(item, "receiver_sig", get(defaults, "receiver_sig", nothing))
+    handle_expr = get(item, "handle_expr", get(defaults, "handle_expr", nothing))
+    valid_expr = get(item, "valid_expr", get(defaults, "valid_expr", nothing))
+    valid_message = get(item, "valid_message", get(defaults, "valid_message", nothing))
+    receiver_sig === nothing && error("Missing receiver_sig for $name")
+    handle_expr === nothing && error("Missing handle_expr for $name")
+    receiver = _receiver_name(receiver_sig)
+
+    println(io, "function $(name)($receiver_sig)")
+    if valid_expr !== nothing
+        valid_message === nothing && error("Missing valid_message for $name")
+        println(io, "    _require_valid($valid_expr, \"$(valid_message)\")")
+    end
+    println(io, "    Iceoryx2FFI.$ffi($handle_expr)")
+    println(io, "    return $receiver")
     println(io, "end")
     println(io)
     return nothing

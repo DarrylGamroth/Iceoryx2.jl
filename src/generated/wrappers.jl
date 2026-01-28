@@ -48,6 +48,150 @@ end
     return UniqueWriterId(handle_ref[])
 end
 
+function max_publishers!(builder::PubSubServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "pub_sub service builder")
+    Iceoryx2FFI.iox2_service_builder_pub_sub_set_max_publishers(Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle), Iceoryx2FFI.c_size_t(value))
+    return builder
+end
+
+function max_subscribers!(builder::PubSubServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "pub_sub service builder")
+    Iceoryx2FFI.iox2_service_builder_pub_sub_set_max_subscribers(Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle), Iceoryx2FFI.c_size_t(value))
+    return builder
+end
+
+function history_size!(builder::PubSubServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "pub_sub service builder")
+    Iceoryx2FFI.iox2_service_builder_pub_sub_set_history_size(Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle), Iceoryx2FFI.c_size_t(value))
+    return builder
+end
+
+function subscriber_max_buffer_size!(builder::PubSubServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "pub_sub service builder")
+    Iceoryx2FFI.iox2_service_builder_pub_sub_set_subscriber_max_buffer_size(Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle), Iceoryx2FFI.c_size_t(value))
+    return builder
+end
+
+function subscriber_max_borrowed_samples!(builder::PubSubServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "pub_sub service builder")
+    Iceoryx2FFI.iox2_service_builder_pub_sub_set_subscriber_max_borrowed_samples(Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle), Iceoryx2FFI.c_size_t(value))
+    return builder
+end
+
+function max_loaned_samples!(builder::PublisherBuilder{T} where {T}, value::Integer)
+    _require_valid(builder.handle, "publisher builder")
+    Iceoryx2FFI.iox2_port_factory_publisher_builder_set_max_loaned_samples(Ref{Iceoryx2FFI.iox2_port_factory_publisher_builder_h}(builder.handle), Iceoryx2FFI.c_size_t(value))
+    return builder
+end
+
+function initial_max_slice_len!(builder::PublisherBuilder{T} where {T}, value::Integer)
+    _require_valid(builder.handle, "publisher builder")
+    Iceoryx2FFI.iox2_port_factory_publisher_builder_set_initial_max_slice_len(Ref{Iceoryx2FFI.iox2_port_factory_publisher_builder_h}(builder.handle), Iceoryx2FFI.c_size_t(value))
+    return builder
+end
+
+function max_clients!(builder::RequestResponseServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "request/response service builder")
+    Iceoryx2FFI.iox2_service_builder_request_response_max_clients(Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle), Iceoryx2FFI.c_size_t(value))
+    return builder
+end
+
+function max_servers!(builder::RequestResponseServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "request/response service builder")
+    Iceoryx2FFI.iox2_service_builder_request_response_max_servers(Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle), Iceoryx2FFI.c_size_t(value))
+    return builder
+end
+
+function max_loaned_requests!(builder::RequestResponseServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "request/response service builder")
+    Iceoryx2FFI.iox2_service_builder_request_response_max_loaned_requests(Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle), Iceoryx2FFI.c_size_t(value))
+    return builder
+end
+
+function max_response_buffer_size!(builder::RequestResponseServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "request/response service builder")
+    Iceoryx2FFI.iox2_service_builder_request_response_max_response_buffer_size(Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle), Iceoryx2FFI.c_size_t(value))
+    return builder
+end
+
+function max_active_requests_per_client!(builder::RequestResponseServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "request/response service builder")
+    Iceoryx2FFI.iox2_service_builder_request_response_max_active_requests_per_client(Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle), Iceoryx2FFI.c_size_t(value))
+    return builder
+end
+
+function max_borrowed_responses_per_pending_response!(builder::RequestResponseServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "request/response service builder")
+    Iceoryx2FFI.iox2_service_builder_request_response_max_borrowed_responses_per_pending_response(Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle), Iceoryx2FFI.c_size_t(value))
+    return builder
+end
+
+function max_loaned_responses_per_request!(builder::ServerBuilder{Req,Resp} where {Req,Resp}, value::Integer)
+    _require_valid(builder.handle, "server builder")
+    Iceoryx2FFI.iox2_port_factory_server_builder_set_max_loaned_responses_per_request(Ref{Iceoryx2FFI.iox2_port_factory_server_builder_h}(builder.handle), Iceoryx2FFI.c_size_t(value))
+    return builder
+end
+
+function max_notifiers!(builder::EventServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "event service builder")
+    Iceoryx2FFI.iox2_service_builder_event_set_max_notifiers(Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle), Iceoryx2FFI.c_size_t(value))
+    return builder
+end
+
+function max_listeners!(builder::EventServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "event service builder")
+    Iceoryx2FFI.iox2_service_builder_event_set_max_listeners(Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle), Iceoryx2FFI.c_size_t(value))
+    return builder
+end
+
+function event_id_max_value!(builder::EventServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "event service builder")
+    Iceoryx2FFI.iox2_service_builder_event_set_event_id_max_value(Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle), Iceoryx2FFI.c_size_t(value))
+    return builder
+end
+
+function notifier_created_event!(builder::EventServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "event service builder")
+    Iceoryx2FFI.iox2_service_builder_event_set_notifier_created_event(Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle), Iceoryx2FFI.c_size_t(value))
+    return builder
+end
+
+function notifier_dead_event!(builder::EventServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "event service builder")
+    Iceoryx2FFI.iox2_service_builder_event_set_notifier_dead_event(Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle), Iceoryx2FFI.c_size_t(value))
+    return builder
+end
+
+function notifier_dropped_event!(builder::EventServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "event service builder")
+    Iceoryx2FFI.iox2_service_builder_event_set_notifier_dropped_event(Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle), Iceoryx2FFI.c_size_t(value))
+    return builder
+end
+
+function max_readers!(builder::BlackboardCreatorBuilder, value::Integer)
+    _require_valid(builder.handle, "blackboard creator builder")
+    Iceoryx2FFI.iox2_service_builder_blackboard_creator_set_max_readers(Ref{Iceoryx2FFI.iox2_service_builder_blackboard_creator_h}(builder.handle), Iceoryx2FFI.c_size_t(value))
+    return builder
+end
+
+function max_readers!(builder::BlackboardOpenerBuilder, value::Integer)
+    _require_valid(builder.handle, "blackboard opener builder")
+    Iceoryx2FFI.iox2_service_builder_blackboard_opener_set_max_readers(Ref{Iceoryx2FFI.iox2_service_builder_blackboard_opener_h}(builder.handle), Iceoryx2FFI.c_size_t(value))
+    return builder
+end
+
+function max_nodes!(builder::BlackboardCreatorBuilder, value::Integer)
+    _require_valid(builder.handle, "blackboard creator builder")
+    Iceoryx2FFI.iox2_service_builder_blackboard_creator_set_max_nodes(Ref{Iceoryx2FFI.iox2_service_builder_blackboard_creator_h}(builder.handle), Iceoryx2FFI.c_size_t(value))
+    return builder
+end
+
+function max_nodes!(builder::BlackboardOpenerBuilder, value::Integer)
+    _require_valid(builder.handle, "blackboard opener builder")
+    Iceoryx2FFI.iox2_service_builder_blackboard_opener_set_max_nodes(Ref{Iceoryx2FFI.iox2_service_builder_blackboard_opener_h}(builder.handle), Iceoryx2FFI.c_size_t(value))
+    return builder
+end
+
 @inline function number_of_requests(details::ClientDetailsView)
     return Int(Iceoryx2FFI.iox2_client_details_number_of_requests(unsafe_handle(details)))
 end
@@ -327,6 +471,24 @@ function defaults_request_response_server_unable_to_deliver_strategy!(config::Un
     return config
 end
 
+function enable_safe_overflow!(builder::PubSubServiceBuilder, value::Bool)
+    _require_valid(builder.handle, "pub_sub service builder")
+    Iceoryx2FFI.iox2_service_builder_pub_sub_set_enable_safe_overflow(Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle), value)
+    return builder
+end
+
+function enable_safe_overflow_for_requests!(builder::RequestResponseServiceBuilder, value::Bool)
+    _require_valid(builder.handle, "request/response service builder")
+    Iceoryx2FFI.iox2_service_builder_request_response_enable_safe_overflow_for_requests(Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle), value)
+    return builder
+end
+
+function enable_safe_overflow_for_responses!(builder::RequestResponseServiceBuilder, value::Bool)
+    _require_valid(builder.handle, "request/response service builder")
+    Iceoryx2FFI.iox2_service_builder_request_response_enable_safe_overflow_for_responses(Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle), value)
+    return builder
+end
+
 function defaults_event_notifier_created_event(config::Union{Config, ConfigRef})
     value = Ref{Iceoryx2FFI.c_size_t}()
     has = Iceoryx2FFI.iox2_config_defaults_event_notifier_created_event(_config_h_ref(config), value)
@@ -415,6 +577,36 @@ end
 function global_node_cleanup_dead_nodes_on_destruction!(config::Union{Config, ConfigRef}, value::Bool)
     Iceoryx2FFI.iox2_config_global_node_set_cleanup_dead_nodes_on_destruction(_config_h_ref(config), value)
     return config
+end
+
+function disable_deadline!(builder::EventServiceBuilder)
+    _require_valid(builder.handle, "event service builder")
+    Iceoryx2FFI.iox2_service_builder_event_disable_deadline(Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle))
+    return builder
+end
+
+function disable_notifier_created_event!(builder::EventServiceBuilder)
+    _require_valid(builder.handle, "event service builder")
+    Iceoryx2FFI.iox2_service_builder_event_disable_notifier_created_event(Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle))
+    return builder
+end
+
+function disable_notifier_dead_event!(builder::EventServiceBuilder)
+    _require_valid(builder.handle, "event service builder")
+    Iceoryx2FFI.iox2_service_builder_event_disable_notifier_dead_event(Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle))
+    return builder
+end
+
+function disable_notifier_dropped_event!(builder::EventServiceBuilder)
+    _require_valid(builder.handle, "event service builder")
+    Iceoryx2FFI.iox2_service_builder_event_disable_notifier_dropped_event(Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle))
+    return builder
+end
+
+function deadline!(builder::EventServiceBuilder, seconds::Integer, nanoseconds::Integer)
+    _require_valid(builder.handle, "event service builder")
+    Iceoryx2FFI.iox2_service_builder_event_set_deadline(Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle), UInt64(seconds), UInt32(nanoseconds))
+    return builder
 end
 
 function deadline(notifier::Notifier)

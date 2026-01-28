@@ -153,59 +153,7 @@ function user_header_type!(builder::PubSubServiceBuilder, ::Type{T}; variant::Un
     return builder
 end
 
-function max_publishers!(builder::PubSubServiceBuilder, value::Integer)
-    _require_valid(builder.handle, "pub_sub service builder")
-    Iceoryx2FFI.iox2_service_builder_pub_sub_set_max_publishers(
-        Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle),
-        Iceoryx2FFI.c_size_t(value),
-    )
-    return builder
-end
-
-function max_subscribers!(builder::PubSubServiceBuilder, value::Integer)
-    _require_valid(builder.handle, "pub_sub service builder")
-    Iceoryx2FFI.iox2_service_builder_pub_sub_set_max_subscribers(
-        Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle),
-        Iceoryx2FFI.c_size_t(value),
-    )
-    return builder
-end
-
-function history_size!(builder::PubSubServiceBuilder, value::Integer)
-    _require_valid(builder.handle, "pub_sub service builder")
-    Iceoryx2FFI.iox2_service_builder_pub_sub_set_history_size(
-        Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle),
-        Iceoryx2FFI.c_size_t(value),
-    )
-    return builder
-end
-
-function subscriber_max_buffer_size!(builder::PubSubServiceBuilder, value::Integer)
-    _require_valid(builder.handle, "pub_sub service builder")
-    Iceoryx2FFI.iox2_service_builder_pub_sub_set_subscriber_max_buffer_size(
-        Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle),
-        Iceoryx2FFI.c_size_t(value),
-    )
-    return builder
-end
-
-function subscriber_max_borrowed_samples!(builder::PubSubServiceBuilder, value::Integer)
-    _require_valid(builder.handle, "pub_sub service builder")
-    Iceoryx2FFI.iox2_service_builder_pub_sub_set_subscriber_max_borrowed_samples(
-        Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle),
-        Iceoryx2FFI.c_size_t(value),
-    )
-    return builder
-end
-
-function enable_safe_overflow!(builder::PubSubServiceBuilder, value::Bool)
-    _require_valid(builder.handle, "pub_sub service builder")
-    Iceoryx2FFI.iox2_service_builder_pub_sub_set_enable_safe_overflow(
-        Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle),
-        value,
-    )
-    return builder
-end
+### builder tuning setters generated in src/generated/wrappers.jl
 
 mutable struct PortFactoryPubSub{T}
     handle::Iceoryx2FFI.iox2_port_factory_pub_sub_h
@@ -268,23 +216,7 @@ function publisher_builder(factory::PortFactoryPubSub{T}, ::Type{T}) where {T}
     return builder
 end
 
-function max_loaned_samples!(builder::PublisherBuilder, value::Integer)
-    _require_valid(builder.handle, "publisher builder")
-    Iceoryx2FFI.iox2_port_factory_publisher_builder_set_max_loaned_samples(
-        Ref{Iceoryx2FFI.iox2_port_factory_publisher_builder_h}(builder.handle),
-        Iceoryx2FFI.c_size_t(value),
-    )
-    return builder
-end
-
-function initial_max_slice_len!(builder::PublisherBuilder, value::Integer)
-    _require_valid(builder.handle, "publisher builder")
-    Iceoryx2FFI.iox2_port_factory_publisher_builder_set_initial_max_slice_len(
-        Ref{Iceoryx2FFI.iox2_port_factory_publisher_builder_h}(builder.handle),
-        Iceoryx2FFI.c_size_t(value),
-    )
-    return builder
-end
+### builder tuning setters generated in src/generated/wrappers.jl
 
 mutable struct SubscriberBuilder{T}
     handle::Iceoryx2FFI.iox2_port_factory_subscriber_builder_h
@@ -663,77 +595,7 @@ function response_user_header_type!(builder::RequestResponseServiceBuilder, ::Ty
     return builder
 end
 
-function max_clients!(builder::RequestResponseServiceBuilder, value::Integer)
-    _require_valid(builder.handle, "request_response service builder")
-    Iceoryx2FFI.iox2_service_builder_request_response_max_clients(
-        Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle),
-        Iceoryx2FFI.c_size_t(value),
-    )
-    return builder
-end
-
-function max_servers!(builder::RequestResponseServiceBuilder, value::Integer)
-    _require_valid(builder.handle, "request_response service builder")
-    Iceoryx2FFI.iox2_service_builder_request_response_max_servers(
-        Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle),
-        Iceoryx2FFI.c_size_t(value),
-    )
-    return builder
-end
-
-function max_loaned_requests!(builder::RequestResponseServiceBuilder, value::Integer)
-    _require_valid(builder.handle, "request_response service builder")
-    Iceoryx2FFI.iox2_service_builder_request_response_max_loaned_requests(
-        Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle),
-        Iceoryx2FFI.c_size_t(value),
-    )
-    return builder
-end
-
-function max_response_buffer_size!(builder::RequestResponseServiceBuilder, value::Integer)
-    _require_valid(builder.handle, "request_response service builder")
-    Iceoryx2FFI.iox2_service_builder_request_response_max_response_buffer_size(
-        Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle),
-        Iceoryx2FFI.c_size_t(value),
-    )
-    return builder
-end
-
-function enable_safe_overflow_for_requests!(builder::RequestResponseServiceBuilder, value::Bool)
-    _require_valid(builder.handle, "request_response service builder")
-    Iceoryx2FFI.iox2_service_builder_request_response_enable_safe_overflow_for_requests(
-        Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle),
-        value,
-    )
-    return builder
-end
-
-function enable_safe_overflow_for_responses!(builder::RequestResponseServiceBuilder, value::Bool)
-    _require_valid(builder.handle, "request_response service builder")
-    Iceoryx2FFI.iox2_service_builder_request_response_enable_safe_overflow_for_responses(
-        Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle),
-        value,
-    )
-    return builder
-end
-
-function max_active_requests_per_client!(builder::RequestResponseServiceBuilder, value::Integer)
-    _require_valid(builder.handle, "request_response service builder")
-    Iceoryx2FFI.iox2_service_builder_request_response_max_active_requests_per_client(
-        Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle),
-        Iceoryx2FFI.c_size_t(value),
-    )
-    return builder
-end
-
-function max_borrowed_responses_per_pending_response!(builder::RequestResponseServiceBuilder, value::Integer)
-    _require_valid(builder.handle, "request_response service builder")
-    Iceoryx2FFI.iox2_service_builder_request_response_max_borrowed_responses_per_pending_response(
-        Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle),
-        Iceoryx2FFI.c_size_t(value),
-    )
-    return builder
-end
+### builder tuning setters generated in src/generated/wrappers.jl
 
 mutable struct PortFactoryRequestResponse{Req,Resp}
     handle::Iceoryx2FFI.iox2_port_factory_request_response_h
@@ -822,14 +684,7 @@ function server_builder(factory::PortFactoryRequestResponse{Req,Resp}, ::Type{Re
     return builder
 end
 
-function max_loaned_responses_per_request!(builder::ServerBuilder, value::Integer)
-    _require_valid(builder.handle, "server builder")
-    Iceoryx2FFI.iox2_port_factory_server_builder_set_max_loaned_responses_per_request(
-        Ref{Iceoryx2FFI.iox2_port_factory_server_builder_h}(builder.handle),
-        Iceoryx2FFI.c_size_t(value),
-    )
-    return builder
-end
+### builder tuning setters generated in src/generated/wrappers.jl
 
 mutable struct Client{Req,Resp}
     handle::Iceoryx2FFI.iox2_client_h
@@ -1283,99 +1138,7 @@ end
 
 # === Event ===
 
-function max_notifiers!(builder::EventServiceBuilder, value::Integer)
-    _require_valid(builder.handle, "event service builder")
-    Iceoryx2FFI.iox2_service_builder_event_set_max_notifiers(
-        Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle),
-        Iceoryx2FFI.c_size_t(value),
-    )
-    return builder
-end
-
-function max_listeners!(builder::EventServiceBuilder, value::Integer)
-    _require_valid(builder.handle, "event service builder")
-    Iceoryx2FFI.iox2_service_builder_event_set_max_listeners(
-        Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle),
-        Iceoryx2FFI.c_size_t(value),
-    )
-    return builder
-end
-
-function event_id_max_value!(builder::EventServiceBuilder, value::Integer)
-    _require_valid(builder.handle, "event service builder")
-    Iceoryx2FFI.iox2_service_builder_event_set_event_id_max_value(
-        Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle),
-        Iceoryx2FFI.c_size_t(value),
-    )
-    return builder
-end
-
-function deadline!(builder::EventServiceBuilder, seconds::Integer, nanoseconds::Integer)
-    _require_valid(builder.handle, "event service builder")
-    Iceoryx2FFI.iox2_service_builder_event_set_deadline(
-        Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle),
-        UInt64(seconds),
-        UInt32(nanoseconds),
-    )
-    return builder
-end
-
-function disable_deadline!(builder::EventServiceBuilder)
-    _require_valid(builder.handle, "event service builder")
-    Iceoryx2FFI.iox2_service_builder_event_disable_deadline(Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle))
-    return builder
-end
-
-function notifier_created_event!(builder::EventServiceBuilder, value::Integer)
-    _require_valid(builder.handle, "event service builder")
-    Iceoryx2FFI.iox2_service_builder_event_set_notifier_created_event(
-        Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle),
-        Iceoryx2FFI.c_size_t(value),
-    )
-    return builder
-end
-
-function disable_notifier_created_event!(builder::EventServiceBuilder)
-    _require_valid(builder.handle, "event service builder")
-    Iceoryx2FFI.iox2_service_builder_event_disable_notifier_created_event(
-        Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle),
-    )
-    return builder
-end
-
-function notifier_dead_event!(builder::EventServiceBuilder, value::Integer)
-    _require_valid(builder.handle, "event service builder")
-    Iceoryx2FFI.iox2_service_builder_event_set_notifier_dead_event(
-        Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle),
-        Iceoryx2FFI.c_size_t(value),
-    )
-    return builder
-end
-
-function disable_notifier_dead_event!(builder::EventServiceBuilder)
-    _require_valid(builder.handle, "event service builder")
-    Iceoryx2FFI.iox2_service_builder_event_disable_notifier_dead_event(
-        Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle),
-    )
-    return builder
-end
-
-function notifier_dropped_event!(builder::EventServiceBuilder, value::Integer)
-    _require_valid(builder.handle, "event service builder")
-    Iceoryx2FFI.iox2_service_builder_event_set_notifier_dropped_event(
-        Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle),
-        Iceoryx2FFI.c_size_t(value),
-    )
-    return builder
-end
-
-function disable_notifier_dropped_event!(builder::EventServiceBuilder)
-    _require_valid(builder.handle, "event service builder")
-    Iceoryx2FFI.iox2_service_builder_event_disable_notifier_dropped_event(
-        Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle),
-    )
-    return builder
-end
+### builder tuning setters generated in src/generated/wrappers.jl
 
 mutable struct PortFactoryEvent
     handle::Iceoryx2FFI.iox2_port_factory_event_h
@@ -2044,41 +1807,7 @@ function key_eq_comparison!(builder::BlackboardCreatorBuilder, cmp::Ptr{Cvoid})
     return builder
 end
 
-function max_readers!(builder::BlackboardCreatorBuilder, value::Integer)
-    _require_valid(builder.handle, "blackboard creator")
-    Iceoryx2FFI.iox2_service_builder_blackboard_creator_set_max_readers(
-        Ref{Iceoryx2FFI.iox2_service_builder_blackboard_creator_h}(builder.handle),
-        Iceoryx2FFI.c_size_t(value),
-    )
-    return builder
-end
-
-function max_readers!(builder::BlackboardOpenerBuilder, value::Integer)
-    _require_valid(builder.handle, "blackboard opener")
-    Iceoryx2FFI.iox2_service_builder_blackboard_opener_set_max_readers(
-        Ref{Iceoryx2FFI.iox2_service_builder_blackboard_opener_h}(builder.handle),
-        Iceoryx2FFI.c_size_t(value),
-    )
-    return builder
-end
-
-function max_nodes!(builder::BlackboardCreatorBuilder, value::Integer)
-    _require_valid(builder.handle, "blackboard creator")
-    Iceoryx2FFI.iox2_service_builder_blackboard_creator_set_max_nodes(
-        Ref{Iceoryx2FFI.iox2_service_builder_blackboard_creator_h}(builder.handle),
-        Iceoryx2FFI.c_size_t(value),
-    )
-    return builder
-end
-
-function max_nodes!(builder::BlackboardOpenerBuilder, value::Integer)
-    _require_valid(builder.handle, "blackboard opener")
-    Iceoryx2FFI.iox2_service_builder_blackboard_opener_set_max_nodes(
-        Ref{Iceoryx2FFI.iox2_service_builder_blackboard_opener_h}(builder.handle),
-        Iceoryx2FFI.c_size_t(value),
-    )
-    return builder
-end
+### builder tuning setters generated in src/generated/wrappers.jl
 
 function add_with_default!(builder::BlackboardCreatorBuilder, key::K, value::V) where {K,V}
     _require_valid(builder.handle, "blackboard creator")

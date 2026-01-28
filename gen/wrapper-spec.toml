@@ -437,3 +437,267 @@ ffi = "iox2_server_details_max_slice_len"
 name = "buffer_size"
 receiver_sig = "details::SubscriberDetailsView"
 ffi = "iox2_subscriber_details_buffer_size"
+
+[size_t_set.defaults]
+
+[[size_t_set.items]]
+name = "max_publishers!"
+receiver_sig = "builder::PubSubServiceBuilder"
+ffi = "iox2_service_builder_pub_sub_set_max_publishers"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "pub_sub service builder"
+
+[[size_t_set.items]]
+name = "max_subscribers!"
+receiver_sig = "builder::PubSubServiceBuilder"
+ffi = "iox2_service_builder_pub_sub_set_max_subscribers"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "pub_sub service builder"
+
+[[size_t_set.items]]
+name = "history_size!"
+receiver_sig = "builder::PubSubServiceBuilder"
+ffi = "iox2_service_builder_pub_sub_set_history_size"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "pub_sub service builder"
+
+[[size_t_set.items]]
+name = "subscriber_max_buffer_size!"
+receiver_sig = "builder::PubSubServiceBuilder"
+ffi = "iox2_service_builder_pub_sub_set_subscriber_max_buffer_size"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "pub_sub service builder"
+
+[[size_t_set.items]]
+name = "subscriber_max_borrowed_samples!"
+receiver_sig = "builder::PubSubServiceBuilder"
+ffi = "iox2_service_builder_pub_sub_set_subscriber_max_borrowed_samples"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "pub_sub service builder"
+
+[[size_t_set.items]]
+name = "max_loaned_samples!"
+receiver_sig = "builder::PublisherBuilder{T} where {T}"
+ffi = "iox2_port_factory_publisher_builder_set_max_loaned_samples"
+handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_publisher_builder_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "publisher builder"
+
+[[size_t_set.items]]
+name = "initial_max_slice_len!"
+receiver_sig = "builder::PublisherBuilder{T} where {T}"
+ffi = "iox2_port_factory_publisher_builder_set_initial_max_slice_len"
+handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_publisher_builder_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "publisher builder"
+
+[[size_t_set.items]]
+name = "max_clients!"
+receiver_sig = "builder::RequestResponseServiceBuilder"
+ffi = "iox2_service_builder_request_response_max_clients"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "request/response service builder"
+
+[[size_t_set.items]]
+name = "max_servers!"
+receiver_sig = "builder::RequestResponseServiceBuilder"
+ffi = "iox2_service_builder_request_response_max_servers"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "request/response service builder"
+
+[[size_t_set.items]]
+name = "max_loaned_requests!"
+receiver_sig = "builder::RequestResponseServiceBuilder"
+ffi = "iox2_service_builder_request_response_max_loaned_requests"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "request/response service builder"
+
+[[size_t_set.items]]
+name = "max_response_buffer_size!"
+receiver_sig = "builder::RequestResponseServiceBuilder"
+ffi = "iox2_service_builder_request_response_max_response_buffer_size"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "request/response service builder"
+
+[[size_t_set.items]]
+name = "max_active_requests_per_client!"
+receiver_sig = "builder::RequestResponseServiceBuilder"
+ffi = "iox2_service_builder_request_response_max_active_requests_per_client"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "request/response service builder"
+
+[[size_t_set.items]]
+name = "max_borrowed_responses_per_pending_response!"
+receiver_sig = "builder::RequestResponseServiceBuilder"
+ffi = "iox2_service_builder_request_response_max_borrowed_responses_per_pending_response"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "request/response service builder"
+
+[[size_t_set.items]]
+name = "max_loaned_responses_per_request!"
+receiver_sig = "builder::ServerBuilder{Req,Resp} where {Req,Resp}"
+ffi = "iox2_port_factory_server_builder_set_max_loaned_responses_per_request"
+handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_server_builder_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "server builder"
+
+[[size_t_set.items]]
+name = "max_notifiers!"
+receiver_sig = "builder::EventServiceBuilder"
+ffi = "iox2_service_builder_event_set_max_notifiers"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "event service builder"
+
+[[size_t_set.items]]
+name = "max_listeners!"
+receiver_sig = "builder::EventServiceBuilder"
+ffi = "iox2_service_builder_event_set_max_listeners"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "event service builder"
+
+[[size_t_set.items]]
+name = "event_id_max_value!"
+receiver_sig = "builder::EventServiceBuilder"
+ffi = "iox2_service_builder_event_set_event_id_max_value"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "event service builder"
+
+[[size_t_set.items]]
+name = "notifier_created_event!"
+receiver_sig = "builder::EventServiceBuilder"
+ffi = "iox2_service_builder_event_set_notifier_created_event"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "event service builder"
+
+[[size_t_set.items]]
+name = "notifier_dead_event!"
+receiver_sig = "builder::EventServiceBuilder"
+ffi = "iox2_service_builder_event_set_notifier_dead_event"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "event service builder"
+
+[[size_t_set.items]]
+name = "notifier_dropped_event!"
+receiver_sig = "builder::EventServiceBuilder"
+ffi = "iox2_service_builder_event_set_notifier_dropped_event"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "event service builder"
+
+[[size_t_set.items]]
+name = "max_readers!"
+receiver_sig = "builder::BlackboardCreatorBuilder"
+ffi = "iox2_service_builder_blackboard_creator_set_max_readers"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_blackboard_creator_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "blackboard creator builder"
+
+[[size_t_set.items]]
+name = "max_readers!"
+receiver_sig = "builder::BlackboardOpenerBuilder"
+ffi = "iox2_service_builder_blackboard_opener_set_max_readers"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_blackboard_opener_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "blackboard opener builder"
+
+[[size_t_set.items]]
+name = "max_nodes!"
+receiver_sig = "builder::BlackboardCreatorBuilder"
+ffi = "iox2_service_builder_blackboard_creator_set_max_nodes"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_blackboard_creator_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "blackboard creator builder"
+
+[[size_t_set.items]]
+name = "max_nodes!"
+receiver_sig = "builder::BlackboardOpenerBuilder"
+ffi = "iox2_service_builder_blackboard_opener_set_max_nodes"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_blackboard_opener_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "blackboard opener builder"
+
+[bool_set.defaults]
+
+[[bool_set.items]]
+name = "enable_safe_overflow!"
+receiver_sig = "builder::PubSubServiceBuilder"
+ffi = "iox2_service_builder_pub_sub_set_enable_safe_overflow"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "pub_sub service builder"
+
+[[bool_set.items]]
+name = "enable_safe_overflow_for_requests!"
+receiver_sig = "builder::RequestResponseServiceBuilder"
+ffi = "iox2_service_builder_request_response_enable_safe_overflow_for_requests"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "request/response service builder"
+
+[[bool_set.items]]
+name = "enable_safe_overflow_for_responses!"
+receiver_sig = "builder::RequestResponseServiceBuilder"
+ffi = "iox2_service_builder_request_response_enable_safe_overflow_for_responses"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "request/response service builder"
+
+[duration_set.defaults]
+
+[[duration_set.items]]
+name = "deadline!"
+receiver_sig = "builder::EventServiceBuilder"
+ffi = "iox2_service_builder_event_set_deadline"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "event service builder"
+
+[void_call.defaults]
+
+[[void_call.items]]
+name = "disable_deadline!"
+receiver_sig = "builder::EventServiceBuilder"
+ffi = "iox2_service_builder_event_disable_deadline"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "event service builder"
+
+[[void_call.items]]
+name = "disable_notifier_created_event!"
+receiver_sig = "builder::EventServiceBuilder"
+ffi = "iox2_service_builder_event_disable_notifier_created_event"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "event service builder"
+
+[[void_call.items]]
+name = "disable_notifier_dead_event!"
+receiver_sig = "builder::EventServiceBuilder"
+ffi = "iox2_service_builder_event_disable_notifier_dead_event"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "event service builder"
+
+[[void_call.items]]
+name = "disable_notifier_dropped_event!"
+receiver_sig = "builder::EventServiceBuilder"
+ffi = "iox2_service_builder_event_disable_notifier_dropped_event"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "event service builder"
