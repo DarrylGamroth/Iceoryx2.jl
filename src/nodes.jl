@@ -11,6 +11,17 @@ end
     return Iceoryx2FFI.iox2_node_signal_handling_mode(Ref{Iceoryx2FFI.iox2_node_h}(unsafe_handle(node)))
 end
 
+function wait(node::Node, seconds::Integer, nanoseconds::Integer)
+    _require_valid(unsafe_handle(node), "node")
+    ret = Iceoryx2FFI.iox2_node_wait(
+        Ref{Iceoryx2FFI.iox2_node_h}(unsafe_handle(node)),
+        UInt64(seconds),
+        UInt32(nanoseconds),
+    )
+    check_ok(ret, Iceoryx2FFI.iox2_node_wait_failure_e)
+    return nothing
+end
+
 function id(node::Node; service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e} = :ipc)
     _require_valid(unsafe_handle(node), "node")
     ptr = Iceoryx2FFI.iox2_node_id(Ref{Iceoryx2FFI.iox2_node_h}(unsafe_handle(node)), _service_type(service_type))
@@ -46,6 +57,31 @@ function creation_time(node_id::NodeId)
         nanos,
     )
     return seconds[], nanos[]
+end
+
+function remove_stale_resources(
+    node_id::NodeId;
+    service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e} = :ipc,
+    config::Union{Config, ConfigRef, Nothing} = nothing,
+)
+    _require_valid(unsafe_handle(node_id), "node id")
+    if config === nothing
+        cfg = default_config()
+        try
+            return remove_stale_resources(node_id; service_type, config = cfg)
+        finally
+            close(cfg)
+        end
+    end
+    success = Ref{Bool}(false)
+    ret = Iceoryx2FFI.iox2_dead_node_remove_stale_resources(
+        _service_type(service_type),
+        Ref{Iceoryx2FFI.iox2_node_id_h}(unsafe_handle(node_id)),
+        _config_h_ref(config),
+        success,
+    )
+    check_ok(ret, Iceoryx2FFI.iox2_node_cleanup_failure_e)
+    return success[]
 end
 
 @inline function Base.:(==)(lhs::NodeId, rhs::NodeId)

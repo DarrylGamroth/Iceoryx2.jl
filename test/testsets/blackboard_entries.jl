@@ -11,6 +11,28 @@
     writer = Iceoryx2.create(Iceoryx2.writer_builder(factory))
     reader = Iceoryx2.create(Iceoryx2.reader_builder(factory))
 
+    writer_seen = Ref(false)
+    Iceoryx2.list_writers(factory) do writer_details
+        writer_seen[] = true
+        wid = Iceoryx2.writer_id(writer_details)
+        @test isvalid(wid)
+        close(wid)
+        @test isvalid(Iceoryx2.node_id(writer_details))
+        return true
+    end
+    @test writer_seen[]
+
+    reader_seen = Ref(false)
+    Iceoryx2.list_readers(factory) do reader_details
+        reader_seen[] = true
+        rid = Iceoryx2.reader_id(reader_details)
+        @test isvalid(rid)
+        close(rid)
+        @test isvalid(Iceoryx2.node_id(reader_details))
+        return true
+    end
+    @test reader_seen[]
+
     keys = UInt64[]
     Iceoryx2.list_keys(factory, UInt64) do key
         push!(keys, key)

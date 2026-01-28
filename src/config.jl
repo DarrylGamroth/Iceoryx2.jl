@@ -17,6 +17,19 @@ end
 
 @inline _messaging_pattern(value) = throw(ArgumentError("unsupported messaging pattern: $value"))
 
+@inline _unable_to_deliver_strategy(value::Iceoryx2FFI.iox2_unable_to_deliver_strategy_e) = value
+
+@inline function _unable_to_deliver_strategy(value::Symbol)
+    if value === :block
+        return Iceoryx2FFI.iox2_unable_to_deliver_strategy_e_BLOCK
+    elseif value === :discard_sample
+        return Iceoryx2FFI.iox2_unable_to_deliver_strategy_e_DISCARD_SAMPLE
+    end
+    throw(ArgumentError("unsupported unable_to_deliver_strategy: $value"))
+end
+
+@inline _unable_to_deliver_strategy(value) = throw(ArgumentError("unsupported unable_to_deliver_strategy: $value"))
+
 @inline function _cstring_from_ntuple(nt::NTuple{N, Cchar}) where {N}
     idx = findfirst(==(0), nt)
     len = idx === nothing ? N : idx - 1
@@ -32,6 +45,41 @@ function default_config()
     handle_ref = Ref{Iceoryx2FFI.iox2_config_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_config_default(C_NULL, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_config_creation_error_e)
+    return Config(handle_ref[])
+end
+
+@inline function _config_h_ref(config::Config)
+    _require_valid(unsafe_handle(config), "config")
+    return Ref{Iceoryx2FFI.iox2_config_h}(unsafe_handle(config))
+end
+
+@inline function _config_h_ref(config::ConfigRef)
+    _require_valid(unsafe_handle(config), "config")
+    return unsafe_handle(config)
+end
+
+function config_from_file(path::AbstractString)
+    file = String(path)
+    storage = Ref{Iceoryx2FFI.iox2_config_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_config_h}(_IOX2_NULL)
+    GC.@preserve file begin
+        ret = Iceoryx2FFI.iox2_config_from_file(storage, handle_ref, Base.unsafe_convert(Cstring, file))
+        check_ok(ret, Iceoryx2FFI.iox2_config_creation_error_e)
+    end
+    return Config(handle_ref[])
+end
+
+function config_from_ptr(config::ConfigView)
+    storage = Ref{Iceoryx2FFI.iox2_config_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_config_h}(_IOX2_NULL)
+    Iceoryx2FFI.iox2_config_from_ptr(unsafe_handle(config), storage, handle_ref)
+    return Config(handle_ref[])
+end
+
+function config_clone(config::Config)
+    storage = Ref{Iceoryx2FFI.iox2_config_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_config_h}(_IOX2_NULL)
+    Iceoryx2FFI.iox2_config_clone(_config_h_ref(config), storage, handle_ref)
     return Config(handle_ref[])
 end
 
@@ -71,6 +119,14 @@ struct StaticConfigBlackboard
     raw::Iceoryx2FFI.iox2_static_config_blackboard_t
 end
 
+struct TypeDetail
+    raw::Iceoryx2FFI.iox2_type_detail_t
+end
+
+struct MessageTypeDetails
+    raw::Iceoryx2FFI.iox2_message_type_details_t
+end
+
 @inline id(config::StaticConfig) = _cstring_from_ntuple(config.raw.id)
 @inline name(config::StaticConfig) = _cstring_from_ntuple(config.raw.name)
 @inline messaging_pattern(config::StaticConfig) = config.raw.messaging_pattern
@@ -86,6 +142,20 @@ end
 @inline publish_subscribe(details::StaticConfigDetails) = StaticConfigPublishSubscribe(details.raw.publish_subscribe)
 @inline request_response(details::StaticConfigDetails) = StaticConfigRequestResponse(details.raw.request_response)
 @inline blackboard(details::StaticConfigDetails) = StaticConfigBlackboard(details.raw.blackboard)
+
+@inline message_type_details(config::StaticConfigPublishSubscribe) = MessageTypeDetails(config.raw.message_type_details)
+@inline request_message_type_details(config::StaticConfigRequestResponse) = MessageTypeDetails(config.raw.request_message_type_details)
+@inline response_message_type_details(config::StaticConfigRequestResponse) = MessageTypeDetails(config.raw.response_message_type_details)
+@inline type_details(config::StaticConfigBlackboard) = TypeDetail(config.raw.type_details)
+
+@inline type_variant(details::TypeDetail) = details.raw.variant
+@inline type_name(details::TypeDetail) = _cstring_from_ntuple(details.raw.type_name)
+@inline type_size(details::TypeDetail) = Int(details.raw.size)
+@inline type_alignment(details::TypeDetail) = Int(details.raw.alignment)
+
+@inline header(details::MessageTypeDetails) = TypeDetail(details.raw.header)
+@inline user_header(details::MessageTypeDetails) = TypeDetail(details.raw.user_header)
+@inline payload(details::MessageTypeDetails) = TypeDetail(details.raw.payload)
 
 @inline function _service_name_ptr(name::ServiceName)
     return _service_name_ptr(unsafe_handle(name))
@@ -597,4 +667,752 @@ end
 
 function list_writers(factory::PortFactoryBlackboard{K}, f::Function) where {K}
     return list_writers(f, factory)
+end
+
+# === Details accessors ===
+
+@inline function client_id(details::ClientDetailsView)
+    handle_ref = Ref{Iceoryx2FFI.iox2_unique_client_id_h}(_IOX2_NULL)
+    Iceoryx2FFI.iox2_client_details_client_id(unsafe_handle(details), C_NULL, handle_ref)
+    return UniqueClientId(handle_ref[])
+end
+
+@inline function node_id(details::ClientDetailsView)
+    return NodeIdView(Iceoryx2FFI.iox2_client_details_node_id(unsafe_handle(details)))
+end
+
+@inline function number_of_requests(details::ClientDetailsView)
+    return Int(Iceoryx2FFI.iox2_client_details_number_of_requests(unsafe_handle(details)))
+end
+
+@inline function response_buffer_size(details::ClientDetailsView)
+    return Int(Iceoryx2FFI.iox2_client_details_response_buffer_size(unsafe_handle(details)))
+end
+
+@inline function max_slice_len(details::ClientDetailsView)
+    return Int(Iceoryx2FFI.iox2_client_details_max_slice_len(unsafe_handle(details)))
+end
+
+@inline function listener_id(details::ListenerDetailsView)
+    handle_ref = Ref{Iceoryx2FFI.iox2_unique_listener_id_h}(_IOX2_NULL)
+    Iceoryx2FFI.iox2_listener_details_listener_id(unsafe_handle(details), C_NULL, handle_ref)
+    return UniqueListenerId(handle_ref[])
+end
+
+@inline function node_id(details::ListenerDetailsView)
+    return NodeIdView(Iceoryx2FFI.iox2_listener_details_node_id(unsafe_handle(details)))
+end
+
+@inline function notifier_id(details::NotifierDetailsView)
+    handle_ref = Ref{Iceoryx2FFI.iox2_unique_notifier_id_h}(_IOX2_NULL)
+    Iceoryx2FFI.iox2_notifier_details_notifier_id(unsafe_handle(details), C_NULL, handle_ref)
+    return UniqueNotifierId(handle_ref[])
+end
+
+@inline function node_id(details::NotifierDetailsView)
+    return NodeIdView(Iceoryx2FFI.iox2_notifier_details_node_id(unsafe_handle(details)))
+end
+
+@inline function publisher_id(details::PublisherDetailsView)
+    handle_ref = Ref{Iceoryx2FFI.iox2_unique_publisher_id_h}(_IOX2_NULL)
+    Iceoryx2FFI.iox2_publisher_details_publisher_id(unsafe_handle(details), C_NULL, handle_ref)
+    return UniquePublisherId(handle_ref[])
+end
+
+@inline function node_id(details::PublisherDetailsView)
+    return NodeIdView(Iceoryx2FFI.iox2_publisher_details_node_id(unsafe_handle(details)))
+end
+
+@inline function number_of_samples(details::PublisherDetailsView)
+    return Int(Iceoryx2FFI.iox2_publisher_details_number_of_samples(unsafe_handle(details)))
+end
+
+@inline function max_slice_len(details::PublisherDetailsView)
+    return Int(Iceoryx2FFI.iox2_publisher_details_max_slice_len(unsafe_handle(details)))
+end
+
+@inline function reader_id(details::ReaderDetailsView)
+    handle_ref = Ref{Iceoryx2FFI.iox2_unique_reader_id_h}(_IOX2_NULL)
+    Iceoryx2FFI.iox2_reader_details_reader_id(unsafe_handle(details), C_NULL, handle_ref)
+    return UniqueReaderId(handle_ref[])
+end
+
+@inline function node_id(details::ReaderDetailsView)
+    return NodeIdView(Iceoryx2FFI.iox2_reader_details_node_id(unsafe_handle(details)))
+end
+
+@inline function server_id(details::ServerDetailsView)
+    handle_ref = Ref{Iceoryx2FFI.iox2_unique_server_id_h}(_IOX2_NULL)
+    Iceoryx2FFI.iox2_server_details_server_id(unsafe_handle(details), C_NULL, handle_ref)
+    return UniqueServerId(handle_ref[])
+end
+
+@inline function node_id(details::ServerDetailsView)
+    return NodeIdView(Iceoryx2FFI.iox2_server_details_node_id(unsafe_handle(details)))
+end
+
+@inline function number_of_responses(details::ServerDetailsView)
+    return Int(Iceoryx2FFI.iox2_server_details_number_of_responses(unsafe_handle(details)))
+end
+
+@inline function request_buffer_size(details::ServerDetailsView)
+    return Int(Iceoryx2FFI.iox2_server_details_request_buffer_size(unsafe_handle(details)))
+end
+
+@inline function max_slice_len(details::ServerDetailsView)
+    return Int(Iceoryx2FFI.iox2_server_details_max_slice_len(unsafe_handle(details)))
+end
+
+@inline function subscriber_id(details::SubscriberDetailsView)
+    handle_ref = Ref{Iceoryx2FFI.iox2_unique_subscriber_id_h}(_IOX2_NULL)
+    Iceoryx2FFI.iox2_subscriber_details_subscriber_id(unsafe_handle(details), C_NULL, handle_ref)
+    return UniqueSubscriberId(handle_ref[])
+end
+
+@inline function node_id(details::SubscriberDetailsView)
+    return NodeIdView(Iceoryx2FFI.iox2_subscriber_details_node_id(unsafe_handle(details)))
+end
+
+@inline function buffer_size(details::SubscriberDetailsView)
+    return Int(Iceoryx2FFI.iox2_subscriber_details_buffer_size(unsafe_handle(details)))
+end
+
+@inline function writer_id(details::WriterDetailsView)
+    handle_ref = Ref{Iceoryx2FFI.iox2_unique_writer_id_h}(_IOX2_NULL)
+    Iceoryx2FFI.iox2_writer_details_writer_id(unsafe_handle(details), C_NULL, handle_ref)
+    return UniqueWriterId(handle_ref[])
+end
+
+@inline function node_id(details::WriterDetailsView)
+    return NodeIdView(Iceoryx2FFI.iox2_writer_details_node_id(unsafe_handle(details)))
+end
+
+# === Config defaults ===
+
+@inline function defaults_publish_subscribe_max_nodes(config::Union{Config, ConfigRef})
+    return Int(Iceoryx2FFI.iox2_config_defaults_publish_subscribe_max_nodes(_config_h_ref(config)))
+end
+
+function defaults_publish_subscribe_max_nodes!(config::Union{Config, ConfigRef}, value::Integer)
+    Iceoryx2FFI.iox2_config_defaults_publish_subscribe_set_max_nodes(_config_h_ref(config), Iceoryx2FFI.c_size_t(value))
+    return config
+end
+
+@inline function defaults_publish_subscribe_max_publishers(config::Union{Config, ConfigRef})
+    return Int(Iceoryx2FFI.iox2_config_defaults_publish_subscribe_max_publishers(_config_h_ref(config)))
+end
+
+function defaults_publish_subscribe_max_publishers!(config::Union{Config, ConfigRef}, value::Integer)
+    Iceoryx2FFI.iox2_config_defaults_publish_subscribe_set_max_publishers(_config_h_ref(config), Iceoryx2FFI.c_size_t(value))
+    return config
+end
+
+@inline function defaults_publish_subscribe_max_subscribers(config::Union{Config, ConfigRef})
+    return Int(Iceoryx2FFI.iox2_config_defaults_publish_subscribe_max_subscribers(_config_h_ref(config)))
+end
+
+function defaults_publish_subscribe_max_subscribers!(config::Union{Config, ConfigRef}, value::Integer)
+    Iceoryx2FFI.iox2_config_defaults_publish_subscribe_set_max_subscribers(_config_h_ref(config), Iceoryx2FFI.c_size_t(value))
+    return config
+end
+
+@inline function defaults_publish_subscribe_history_size(config::Union{Config, ConfigRef})
+    return Int(Iceoryx2FFI.iox2_config_defaults_publish_subscribe_publisher_history_size(_config_h_ref(config)))
+end
+
+function defaults_publish_subscribe_history_size!(config::Union{Config, ConfigRef}, value::Integer)
+    Iceoryx2FFI.iox2_config_defaults_publish_subscribe_set_publisher_history_size(_config_h_ref(config), Iceoryx2FFI.c_size_t(value))
+    return config
+end
+
+@inline function defaults_publish_subscribe_max_loaned_samples(config::Union{Config, ConfigRef})
+    return Int(Iceoryx2FFI.iox2_config_defaults_publish_subscribe_publisher_max_loaned_samples(_config_h_ref(config)))
+end
+
+function defaults_publish_subscribe_max_loaned_samples!(config::Union{Config, ConfigRef}, value::Integer)
+    Iceoryx2FFI.iox2_config_defaults_publish_subscribe_set_publisher_max_loaned_samples(_config_h_ref(config), Iceoryx2FFI.c_size_t(value))
+    return config
+end
+
+@inline function defaults_publish_subscribe_subscriber_max_buffer_size(config::Union{Config, ConfigRef})
+    return Int(Iceoryx2FFI.iox2_config_defaults_publish_subscribe_subscriber_max_buffer_size(_config_h_ref(config)))
+end
+
+function defaults_publish_subscribe_subscriber_max_buffer_size!(config::Union{Config, ConfigRef}, value::Integer)
+    Iceoryx2FFI.iox2_config_defaults_publish_subscribe_set_subscriber_max_buffer_size(
+        _config_h_ref(config),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return config
+end
+
+@inline function defaults_publish_subscribe_subscriber_max_borrowed_samples(config::Union{Config, ConfigRef})
+    return Int(Iceoryx2FFI.iox2_config_defaults_publish_subscribe_subscriber_max_borrowed_samples(_config_h_ref(config)))
+end
+
+function defaults_publish_subscribe_subscriber_max_borrowed_samples!(config::Union{Config, ConfigRef}, value::Integer)
+    Iceoryx2FFI.iox2_config_defaults_publish_subscribe_set_subscriber_max_borrowed_samples(
+        _config_h_ref(config),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return config
+end
+
+@inline function defaults_publish_subscribe_subscriber_expired_connection_buffer(config::Union{Config, ConfigRef})
+    return Int(Iceoryx2FFI.iox2_config_defaults_publish_subscribe_subscriber_expired_connection_buffer(_config_h_ref(config)))
+end
+
+function defaults_publish_subscribe_subscriber_expired_connection_buffer!(config::Union{Config, ConfigRef}, value::Integer)
+    Iceoryx2FFI.iox2_config_defaults_publish_subscribe_set_subscriber_expired_connection_buffer(
+        _config_h_ref(config),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return config
+end
+
+@inline function defaults_publish_subscribe_unable_to_deliver_strategy(config::Union{Config, ConfigRef})
+    return Iceoryx2FFI.iox2_unable_to_deliver_strategy_e(
+        Iceoryx2FFI.iox2_config_defaults_publish_subscribe_unable_to_deliver_strategy(_config_h_ref(config)),
+    )
+end
+
+function defaults_publish_subscribe_unable_to_deliver_strategy!(
+    config::Union{Config, ConfigRef},
+    value::Union{Symbol, Iceoryx2FFI.iox2_unable_to_deliver_strategy_e},
+)
+    Iceoryx2FFI.iox2_config_defaults_publish_subscribe_set_unable_to_deliver_strategy(
+        _config_h_ref(config),
+        _unable_to_deliver_strategy(value),
+    )
+    return config
+end
+
+@inline function defaults_publish_subscribe_enable_safe_overflow(config::Union{Config, ConfigRef})
+    return Iceoryx2FFI.iox2_config_defaults_publish_subscribe_enable_safe_overflow(_config_h_ref(config))
+end
+
+function defaults_publish_subscribe_enable_safe_overflow!(config::Union{Config, ConfigRef}, value::Bool)
+    Iceoryx2FFI.iox2_config_defaults_publish_subscribe_set_enable_safe_overflow(_config_h_ref(config), value)
+    return config
+end
+
+@inline function defaults_request_response_max_nodes(config::Union{Config, ConfigRef})
+    return Int(Iceoryx2FFI.iox2_config_defaults_request_response_max_nodes(_config_h_ref(config)))
+end
+
+function defaults_request_response_max_nodes!(config::Union{Config, ConfigRef}, value::Integer)
+    Iceoryx2FFI.iox2_config_defaults_request_response_set_max_nodes(_config_h_ref(config), Iceoryx2FFI.c_size_t(value))
+    return config
+end
+
+@inline function defaults_request_response_max_clients(config::Union{Config, ConfigRef})
+    return Int(Iceoryx2FFI.iox2_config_defaults_request_response_max_clients(_config_h_ref(config)))
+end
+
+function defaults_request_response_max_clients!(config::Union{Config, ConfigRef}, value::Integer)
+    Iceoryx2FFI.iox2_config_defaults_request_response_set_max_clients(_config_h_ref(config), Iceoryx2FFI.c_size_t(value))
+    return config
+end
+
+@inline function defaults_request_response_max_servers(config::Union{Config, ConfigRef})
+    return Int(Iceoryx2FFI.iox2_config_defaults_request_response_max_servers(_config_h_ref(config)))
+end
+
+function defaults_request_response_max_servers!(config::Union{Config, ConfigRef}, value::Integer)
+    Iceoryx2FFI.iox2_config_defaults_request_response_set_max_servers(_config_h_ref(config), Iceoryx2FFI.c_size_t(value))
+    return config
+end
+
+@inline function defaults_request_response_max_loaned_requests(config::Union{Config, ConfigRef})
+    return Int(Iceoryx2FFI.iox2_config_defaults_request_response_max_loaned_requests(_config_h_ref(config)))
+end
+
+function defaults_request_response_max_loaned_requests!(config::Union{Config, ConfigRef}, value::Integer)
+    Iceoryx2FFI.iox2_config_defaults_request_response_set_max_loaned_requests(
+        _config_h_ref(config),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return config
+end
+
+@inline function defaults_request_response_max_active_requests_per_client(config::Union{Config, ConfigRef})
+    return Int(Iceoryx2FFI.iox2_config_defaults_request_response_max_active_requests_per_client(_config_h_ref(config)))
+end
+
+function defaults_request_response_max_active_requests_per_client!(config::Union{Config, ConfigRef}, value::Integer)
+    Iceoryx2FFI.iox2_config_defaults_request_response_set_max_active_requests_per_client(
+        _config_h_ref(config),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return config
+end
+
+@inline function defaults_request_response_max_response_buffer_size(config::Union{Config, ConfigRef})
+    return Int(Iceoryx2FFI.iox2_config_defaults_request_response_max_response_buffer_size(_config_h_ref(config)))
+end
+
+function defaults_request_response_max_response_buffer_size!(config::Union{Config, ConfigRef}, value::Integer)
+    Iceoryx2FFI.iox2_config_defaults_request_response_set_max_response_buffer_size(
+        _config_h_ref(config),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return config
+end
+
+@inline function defaults_request_response_max_borrowed_responses_per_pending_response(config::Union{Config, ConfigRef})
+    return Int(Iceoryx2FFI.iox2_config_defaults_request_response_max_borrowed_responses_per_pending_response(_config_h_ref(config)))
+end
+
+function defaults_request_response_max_borrowed_responses_per_pending_response!(config::Union{Config, ConfigRef}, value::Integer)
+    Iceoryx2FFI.iox2_config_defaults_request_response_set_max_borrowed_responses_per_pending_response(
+        _config_h_ref(config),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return config
+end
+
+@inline function defaults_request_response_enable_safe_overflow_for_requests(config::Union{Config, ConfigRef})
+    return Iceoryx2FFI.iox2_config_defaults_request_response_enable_safe_overflow_for_requests(_config_h_ref(config))
+end
+
+function defaults_request_response_enable_safe_overflow_for_requests!(config::Union{Config, ConfigRef}, value::Bool)
+    Iceoryx2FFI.iox2_config_defaults_request_response_set_enable_safe_overflow_for_requests(_config_h_ref(config), value)
+    return config
+end
+
+@inline function defaults_request_response_enable_safe_overflow_for_responses(config::Union{Config, ConfigRef})
+    return Iceoryx2FFI.iox2_config_defaults_request_response_enable_safe_overflow_for_responses(_config_h_ref(config))
+end
+
+function defaults_request_response_enable_safe_overflow_for_responses!(config::Union{Config, ConfigRef}, value::Bool)
+    Iceoryx2FFI.iox2_config_defaults_request_response_set_enable_safe_overflow_for_responses(_config_h_ref(config), value)
+    return config
+end
+
+@inline function defaults_request_response_fire_and_forget_requests(config::Union{Config, ConfigRef})
+    return Iceoryx2FFI.iox2_config_defaults_request_response_has_fire_and_forget_requests(_config_h_ref(config))
+end
+
+function defaults_request_response_fire_and_forget_requests!(config::Union{Config, ConfigRef}, value::Bool)
+    Iceoryx2FFI.iox2_config_defaults_request_response_set_fire_and_forget_requests(_config_h_ref(config), value)
+    return config
+end
+
+@inline function defaults_request_response_client_expired_connection_buffer(config::Union{Config, ConfigRef})
+    return Int(Iceoryx2FFI.iox2_config_defaults_request_response_client_expired_connection_buffer(_config_h_ref(config)))
+end
+
+function defaults_request_response_client_expired_connection_buffer!(config::Union{Config, ConfigRef}, value::Integer)
+    Iceoryx2FFI.iox2_config_defaults_request_response_set_client_expired_connection_buffer(
+        _config_h_ref(config),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return config
+end
+
+@inline function defaults_request_response_server_expired_connection_buffer(config::Union{Config, ConfigRef})
+    return Int(Iceoryx2FFI.iox2_config_defaults_request_response_server_expired_connection_buffer(_config_h_ref(config)))
+end
+
+function defaults_request_response_server_expired_connection_buffer!(config::Union{Config, ConfigRef}, value::Integer)
+    Iceoryx2FFI.iox2_config_defaults_request_response_set_server_expired_connection_buffer(
+        _config_h_ref(config),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return config
+end
+
+@inline function defaults_request_response_server_max_loaned_responses_per_request(config::Union{Config, ConfigRef})
+    return Int(Iceoryx2FFI.iox2_config_defaults_request_response_server_max_loaned_responses_per_request(_config_h_ref(config)))
+end
+
+function defaults_request_response_server_max_loaned_responses_per_request!(config::Union{Config, ConfigRef}, value::Integer)
+    Iceoryx2FFI.iox2_config_defaults_request_response_set_server_max_loaned_responses_per_request(
+        _config_h_ref(config),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return config
+end
+
+@inline function defaults_request_response_client_unable_to_deliver_strategy(config::Union{Config, ConfigRef})
+    return Iceoryx2FFI.iox2_unable_to_deliver_strategy_e(
+        Iceoryx2FFI.iox2_config_defaults_request_response_client_unable_to_deliver_strategy(_config_h_ref(config)),
+    )
+end
+
+function defaults_request_response_client_unable_to_deliver_strategy!(
+    config::Union{Config, ConfigRef},
+    value::Union{Symbol, Iceoryx2FFI.iox2_unable_to_deliver_strategy_e},
+)
+    Iceoryx2FFI.iox2_config_defaults_request_response_set_client_unable_to_deliver_strategy(
+        _config_h_ref(config),
+        _unable_to_deliver_strategy(value),
+    )
+    return config
+end
+
+@inline function defaults_request_response_server_unable_to_deliver_strategy(config::Union{Config, ConfigRef})
+    return Iceoryx2FFI.iox2_unable_to_deliver_strategy_e(
+        Iceoryx2FFI.iox2_config_defaults_request_response_server_unable_to_deliver_strategy(_config_h_ref(config)),
+    )
+end
+
+function defaults_request_response_server_unable_to_deliver_strategy!(
+    config::Union{Config, ConfigRef},
+    value::Union{Symbol, Iceoryx2FFI.iox2_unable_to_deliver_strategy_e},
+)
+    Iceoryx2FFI.iox2_config_defaults_request_response_set_server_unable_to_deliver_strategy(
+        _config_h_ref(config),
+        _unable_to_deliver_strategy(value),
+    )
+    return config
+end
+
+@inline function defaults_event_max_nodes(config::Union{Config, ConfigRef})
+    return Int(Iceoryx2FFI.iox2_config_defaults_event_max_nodes(_config_h_ref(config)))
+end
+
+function defaults_event_max_nodes!(config::Union{Config, ConfigRef}, value::Integer)
+    Iceoryx2FFI.iox2_config_defaults_event_set_max_nodes(_config_h_ref(config), Iceoryx2FFI.c_size_t(value))
+    return config
+end
+
+@inline function defaults_event_max_notifiers(config::Union{Config, ConfigRef})
+    return Int(Iceoryx2FFI.iox2_config_defaults_event_max_notifiers(_config_h_ref(config)))
+end
+
+function defaults_event_max_notifiers!(config::Union{Config, ConfigRef}, value::Integer)
+    Iceoryx2FFI.iox2_config_defaults_event_set_max_notifiers(_config_h_ref(config), Iceoryx2FFI.c_size_t(value))
+    return config
+end
+
+@inline function defaults_event_max_listeners(config::Union{Config, ConfigRef})
+    return Int(Iceoryx2FFI.iox2_config_defaults_event_max_listeners(_config_h_ref(config)))
+end
+
+function defaults_event_max_listeners!(config::Union{Config, ConfigRef}, value::Integer)
+    Iceoryx2FFI.iox2_config_defaults_event_set_max_listeners(_config_h_ref(config), Iceoryx2FFI.c_size_t(value))
+    return config
+end
+
+@inline function defaults_event_id_max_value(config::Union{Config, ConfigRef})
+    return Int(Iceoryx2FFI.iox2_config_defaults_event_event_id_max_value(_config_h_ref(config)))
+end
+
+function defaults_event_id_max_value!(config::Union{Config, ConfigRef}, value::Integer)
+    Iceoryx2FFI.iox2_config_defaults_event_set_event_id_max_value(_config_h_ref(config), Iceoryx2FFI.c_size_t(value))
+    return config
+end
+
+function defaults_event_deadline(config::Union{Config, ConfigRef})
+    seconds = Ref{UInt64}()
+    nanoseconds = Ref{UInt32}()
+    has = Iceoryx2FFI.iox2_config_defaults_event_deadline(_config_h_ref(config), seconds, nanoseconds)
+    return has ? (seconds[], nanoseconds[]) : nothing
+end
+
+function defaults_event_deadline!(config::Union{Config, ConfigRef}, seconds::Integer, nanoseconds::Integer)
+    sec_ref = Ref{UInt64}(UInt64(seconds))
+    nsec_ref = Ref{UInt32}(UInt32(nanoseconds))
+    Iceoryx2FFI.iox2_config_defaults_event_set_deadline(_config_h_ref(config), sec_ref, nsec_ref)
+    return config
+end
+
+function defaults_event_notifier_created_event(config::Union{Config, ConfigRef})
+    value = Ref{Iceoryx2FFI.c_size_t}()
+    has = Iceoryx2FFI.iox2_config_defaults_event_notifier_created_event(_config_h_ref(config), value)
+    return has ? Int(value[]) : nothing
+end
+
+function defaults_event_notifier_created_event!(config::Union{Config, ConfigRef}, value::Integer)
+    val_ref = Ref{Iceoryx2FFI.c_size_t}(Iceoryx2FFI.c_size_t(value))
+    Iceoryx2FFI.iox2_config_defaults_event_set_notifier_created_event(_config_h_ref(config), val_ref)
+    return config
+end
+
+function defaults_event_notifier_dead_event(config::Union{Config, ConfigRef})
+    value = Ref{Iceoryx2FFI.c_size_t}()
+    has = Iceoryx2FFI.iox2_config_defaults_event_notifier_dead_event(_config_h_ref(config), value)
+    return has ? Int(value[]) : nothing
+end
+
+function defaults_event_notifier_dead_event!(config::Union{Config, ConfigRef}, value::Integer)
+    val_ref = Ref{Iceoryx2FFI.c_size_t}(Iceoryx2FFI.c_size_t(value))
+    Iceoryx2FFI.iox2_config_defaults_event_set_notifier_dead_event(_config_h_ref(config), val_ref)
+    return config
+end
+
+function defaults_event_notifier_dropped_event(config::Union{Config, ConfigRef})
+    value = Ref{Iceoryx2FFI.c_size_t}()
+    has = Iceoryx2FFI.iox2_config_defaults_event_notifier_dropped_event(_config_h_ref(config), value)
+    return has ? Int(value[]) : nothing
+end
+
+function defaults_event_notifier_dropped_event!(config::Union{Config, ConfigRef}, value::Integer)
+    val_ref = Ref{Iceoryx2FFI.c_size_t}(Iceoryx2FFI.c_size_t(value))
+    Iceoryx2FFI.iox2_config_defaults_event_set_notifier_dropped_event(_config_h_ref(config), val_ref)
+    return config
+end
+
+@inline function defaults_blackboard_max_nodes(config::Union{Config, ConfigRef})
+    return Int(Iceoryx2FFI.iox2_config_defaults_blackboard_max_nodes(_config_h_ref(config)))
+end
+
+function defaults_blackboard_max_nodes!(config::Union{Config, ConfigRef}, value::Integer)
+    Iceoryx2FFI.iox2_config_defaults_blackboard_set_max_nodes(_config_h_ref(config), Iceoryx2FFI.c_size_t(value))
+    return config
+end
+
+@inline function defaults_blackboard_max_readers(config::Union{Config, ConfigRef})
+    return Int(Iceoryx2FFI.iox2_config_defaults_blackboard_max_readers(_config_h_ref(config)))
+end
+
+function defaults_blackboard_max_readers!(config::Union{Config, ConfigRef}, value::Integer)
+    Iceoryx2FFI.iox2_config_defaults_blackboard_set_max_readers(_config_h_ref(config), Iceoryx2FFI.c_size_t(value))
+    return config
+end
+
+# === Global config fields ===
+
+@inline function global_prefix(config::Union{Config, ConfigRef})
+    return unsafe_string(Iceoryx2FFI.iox2_config_global_prefix(_config_h_ref(config)))
+end
+
+function global_prefix!(config::Union{Config, ConfigRef}, value::AbstractString)
+    str = String(value)
+    GC.@preserve str begin
+        ret = Iceoryx2FFI.iox2_config_global_set_prefix(_config_h_ref(config), Base.unsafe_convert(Cstring, str))
+        check_ok(ret, Iceoryx2FFI.iox2_semantic_string_error_e)
+    end
+    return config
+end
+
+@inline function global_root_path(config::Union{Config, ConfigRef})
+    return unsafe_string(Iceoryx2FFI.iox2_config_global_root_path(_config_h_ref(config)))
+end
+
+function global_root_path!(config::Union{Config, ConfigRef}, value::AbstractString)
+    str = String(value)
+    GC.@preserve str begin
+        ret = Iceoryx2FFI.iox2_config_global_set_root_path(_config_h_ref(config), Base.unsafe_convert(Cstring, str))
+        check_ok(ret, Iceoryx2FFI.iox2_semantic_string_error_e)
+    end
+    return config
+end
+
+@inline function global_node_directory(config::Union{Config, ConfigRef})
+    return unsafe_string(Iceoryx2FFI.iox2_config_global_node_directory(_config_h_ref(config)))
+end
+
+function global_node_directory!(config::Union{Config, ConfigRef}, value::AbstractString)
+    str = String(value)
+    GC.@preserve str begin
+        ret = Iceoryx2FFI.iox2_config_global_node_set_directory(_config_h_ref(config), Base.unsafe_convert(Cstring, str))
+        check_ok(ret, Iceoryx2FFI.iox2_semantic_string_error_e)
+    end
+    return config
+end
+
+@inline function global_node_monitor_suffix(config::Union{Config, ConfigRef})
+    return unsafe_string(Iceoryx2FFI.iox2_config_global_node_monitor_suffix(_config_h_ref(config)))
+end
+
+function global_node_monitor_suffix!(config::Union{Config, ConfigRef}, value::AbstractString)
+    str = String(value)
+    GC.@preserve str begin
+        ret = Iceoryx2FFI.iox2_config_global_node_set_monitor_suffix(_config_h_ref(config), Base.unsafe_convert(Cstring, str))
+        check_ok(ret, Iceoryx2FFI.iox2_semantic_string_error_e)
+    end
+    return config
+end
+
+@inline function global_node_static_config_suffix(config::Union{Config, ConfigRef})
+    return unsafe_string(Iceoryx2FFI.iox2_config_global_node_static_config_suffix(_config_h_ref(config)))
+end
+
+function global_node_static_config_suffix!(config::Union{Config, ConfigRef}, value::AbstractString)
+    str = String(value)
+    GC.@preserve str begin
+        ret = Iceoryx2FFI.iox2_config_global_node_set_static_config_suffix(
+            _config_h_ref(config),
+            Base.unsafe_convert(Cstring, str),
+        )
+        check_ok(ret, Iceoryx2FFI.iox2_semantic_string_error_e)
+    end
+    return config
+end
+
+@inline function global_node_service_tag_suffix(config::Union{Config, ConfigRef})
+    return unsafe_string(Iceoryx2FFI.iox2_config_global_node_service_tag_suffix(_config_h_ref(config)))
+end
+
+function global_node_service_tag_suffix!(config::Union{Config, ConfigRef}, value::AbstractString)
+    str = String(value)
+    GC.@preserve str begin
+        ret = Iceoryx2FFI.iox2_config_global_node_set_service_tag_suffix(
+            _config_h_ref(config),
+            Base.unsafe_convert(Cstring, str),
+        )
+        check_ok(ret, Iceoryx2FFI.iox2_semantic_string_error_e)
+    end
+    return config
+end
+
+@inline function global_node_cleanup_dead_nodes_on_creation(config::Union{Config, ConfigRef})
+    return Iceoryx2FFI.iox2_config_global_node_cleanup_dead_nodes_on_creation(_config_h_ref(config))
+end
+
+function global_node_cleanup_dead_nodes_on_creation!(config::Union{Config, ConfigRef}, value::Bool)
+    Iceoryx2FFI.iox2_config_global_node_set_cleanup_dead_nodes_on_creation(_config_h_ref(config), value)
+    return config
+end
+
+@inline function global_node_cleanup_dead_nodes_on_destruction(config::Union{Config, ConfigRef})
+    return Iceoryx2FFI.iox2_config_global_node_cleanup_dead_nodes_on_destruction(_config_h_ref(config))
+end
+
+function global_node_cleanup_dead_nodes_on_destruction!(config::Union{Config, ConfigRef}, value::Bool)
+    Iceoryx2FFI.iox2_config_global_node_set_cleanup_dead_nodes_on_destruction(_config_h_ref(config), value)
+    return config
+end
+
+@inline function global_service_directory(config::Union{Config, ConfigRef})
+    return unsafe_string(Iceoryx2FFI.iox2_config_global_service_directory(_config_h_ref(config)))
+end
+
+function global_service_directory!(config::Union{Config, ConfigRef}, value::AbstractString)
+    str = String(value)
+    GC.@preserve str begin
+        ret = Iceoryx2FFI.iox2_config_global_service_set_directory(_config_h_ref(config), Base.unsafe_convert(Cstring, str))
+        check_ok(ret, Iceoryx2FFI.iox2_semantic_string_error_e)
+    end
+    return config
+end
+
+@inline function global_service_data_segment_suffix(config::Union{Config, ConfigRef})
+    return unsafe_string(Iceoryx2FFI.iox2_config_global_service_data_segment_suffix(_config_h_ref(config)))
+end
+
+function global_service_data_segment_suffix!(config::Union{Config, ConfigRef}, value::AbstractString)
+    str = String(value)
+    GC.@preserve str begin
+        ret = Iceoryx2FFI.iox2_config_global_service_set_data_segment_suffix(
+            _config_h_ref(config),
+            Base.unsafe_convert(Cstring, str),
+        )
+        check_ok(ret, Iceoryx2FFI.iox2_semantic_string_error_e)
+    end
+    return config
+end
+
+@inline function global_service_static_config_storage_suffix(config::Union{Config, ConfigRef})
+    return unsafe_string(Iceoryx2FFI.iox2_config_global_service_static_config_storage_suffix(_config_h_ref(config)))
+end
+
+function global_service_static_config_storage_suffix!(config::Union{Config, ConfigRef}, value::AbstractString)
+    str = String(value)
+    GC.@preserve str begin
+        ret = Iceoryx2FFI.iox2_config_global_service_set_static_config_storage_suffix(
+            _config_h_ref(config),
+            Base.unsafe_convert(Cstring, str),
+        )
+        check_ok(ret, Iceoryx2FFI.iox2_semantic_string_error_e)
+    end
+    return config
+end
+
+@inline function global_service_dynamic_config_storage_suffix(config::Union{Config, ConfigRef})
+    return unsafe_string(Iceoryx2FFI.iox2_config_global_service_dynamic_config_storage_suffix(_config_h_ref(config)))
+end
+
+function global_service_dynamic_config_storage_suffix!(config::Union{Config, ConfigRef}, value::AbstractString)
+    str = String(value)
+    GC.@preserve str begin
+        ret = Iceoryx2FFI.iox2_config_global_service_set_dynamic_config_storage_suffix(
+            _config_h_ref(config),
+            Base.unsafe_convert(Cstring, str),
+        )
+        check_ok(ret, Iceoryx2FFI.iox2_semantic_string_error_e)
+    end
+    return config
+end
+
+function global_service_creation_timeout(config::Union{Config, ConfigRef})
+    secs = Ref{UInt64}()
+    nsecs = Ref{UInt32}()
+    Iceoryx2FFI.iox2_config_global_service_creation_timeout(_config_h_ref(config), secs, nsecs)
+    return secs[], nsecs[]
+end
+
+function global_service_creation_timeout!(config::Union{Config, ConfigRef}, seconds::Integer, nanoseconds::Integer)
+    Iceoryx2FFI.iox2_config_global_service_set_creation_timeout(
+        _config_h_ref(config),
+        UInt64(seconds),
+        UInt32(nanoseconds),
+    )
+    return config
+end
+
+@inline function global_service_connection_suffix(config::Union{Config, ConfigRef})
+    return unsafe_string(Iceoryx2FFI.iox2_config_global_service_connection_suffix(_config_h_ref(config)))
+end
+
+function global_service_connection_suffix!(config::Union{Config, ConfigRef}, value::AbstractString)
+    str = String(value)
+    GC.@preserve str begin
+        ret = Iceoryx2FFI.iox2_config_global_service_set_connection_suffix(
+            _config_h_ref(config),
+            Base.unsafe_convert(Cstring, str),
+        )
+        check_ok(ret, Iceoryx2FFI.iox2_semantic_string_error_e)
+    end
+    return config
+end
+
+@inline function global_service_event_connection_suffix(config::Union{Config, ConfigRef})
+    return unsafe_string(Iceoryx2FFI.iox2_config_global_service_event_connection_suffix(_config_h_ref(config)))
+end
+
+function global_service_event_connection_suffix!(config::Union{Config, ConfigRef}, value::AbstractString)
+    str = String(value)
+    GC.@preserve str begin
+        ret = Iceoryx2FFI.iox2_config_global_service_set_event_connection_suffix(
+            _config_h_ref(config),
+            Base.unsafe_convert(Cstring, str),
+        )
+        check_ok(ret, Iceoryx2FFI.iox2_semantic_string_error_e)
+    end
+    return config
+end
+
+@inline function global_service_blackboard_mgmt_suffix(config::Union{Config, ConfigRef})
+    return unsafe_string(Iceoryx2FFI.iox2_config_global_service_blackboard_mgmt_suffix(_config_h_ref(config)))
+end
+
+function global_service_blackboard_mgmt_suffix!(config::Union{Config, ConfigRef}, value::AbstractString)
+    str = String(value)
+    GC.@preserve str begin
+        ret = Iceoryx2FFI.iox2_config_global_service_set_blackboard_mgmt_suffix(
+            _config_h_ref(config),
+            Base.unsafe_convert(Cstring, str),
+        )
+        check_ok(ret, Iceoryx2FFI.iox2_semantic_string_error_e)
+    end
+    return config
+end
+
+@inline function global_service_blackboard_data_suffix(config::Union{Config, ConfigRef})
+    return unsafe_string(Iceoryx2FFI.iox2_config_global_service_blackboard_data_suffix(_config_h_ref(config)))
+end
+
+function global_service_blackboard_data_suffix!(config::Union{Config, ConfigRef}, value::AbstractString)
+    str = String(value)
+    GC.@preserve str begin
+        ret = Iceoryx2FFI.iox2_config_global_service_set_blackboard_data_suffix(
+            _config_h_ref(config),
+            Base.unsafe_convert(Cstring, str),
+        )
+        check_ok(ret, Iceoryx2FFI.iox2_semantic_string_error_e)
+    end
+    return config
 end

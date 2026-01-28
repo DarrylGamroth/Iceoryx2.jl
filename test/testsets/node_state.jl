@@ -19,5 +19,9 @@
     @test found[]
     @test state_val[] == Iceoryx2.Iceoryx2FFI.iox2_node_state_e_ALIVE
 
+    node_id = Iceoryx2.id(node)
     close(node)
+    result = Iceoryx2.remove_stale_resources(node_id)
+    @test result isa Bool
+    close(node_id)
 end

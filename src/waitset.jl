@@ -68,6 +68,17 @@ end
     return unsafe_handle(fd)
 end
 
+function FileDescriptor(value::Integer; owned::Bool = true)
+    handle_ref = Ref{Iceoryx2FFI.iox2_file_descriptor_h}(_IOX2_NULL)
+    ok = Iceoryx2FFI.iox2_file_descriptor_new(Int32(value), owned, C_NULL, handle_ref)
+    ok || throw(ArgumentError("invalid file descriptor: $value"))
+    return FileDescriptor(handle_ref[])
+end
+
+@inline function native_handle(fd::Union{FileDescriptor, FileDescriptorView})
+    return Iceoryx2FFI.iox2_file_descriptor_native_handle(_file_descriptor_ptr(fd))
+end
+
 function file_descriptor(listener::Listener)
     _require_valid(listener.handle, "listener")
     ptr = Iceoryx2FFI.iox2_listener_get_file_descriptor(Ref{Iceoryx2FFI.iox2_listener_h}(listener.handle))

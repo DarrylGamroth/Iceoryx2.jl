@@ -398,6 +398,14 @@ end
     return payload(sample).ptr
 end
 
+@inline function header(sample::Sample)
+    _require_valid(sample.handle, "sample")
+    handle_ref = Ref{Iceoryx2FFI.iox2_publish_subscribe_header_h}(_IOX2_NULL)
+    Iceoryx2FFI.iox2_sample_header(Ref{Iceoryx2FFI.iox2_sample_h}(sample.handle), C_NULL, handle_ref)
+    handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire sample header"))
+    return PublishSubscribeHeader(handle_ref[])
+end
+
 @inline function unsafe_user_header_ptr(sample::Sample, ::Type{T}) where {T}
     _require_isbits(T)
     ptr_ref = Ref{Ptr{Cvoid}}()
@@ -431,11 +439,37 @@ end
     return payload_mut(sample).ptr
 end
 
+@inline function header(sample::SampleMut)
+    _require_valid(sample.handle, "sample")
+    handle_ref = Ref{Iceoryx2FFI.iox2_publish_subscribe_header_h}(_IOX2_NULL)
+    Iceoryx2FFI.iox2_sample_mut_header(Ref{Iceoryx2FFI.iox2_sample_mut_h}(sample.handle), C_NULL, handle_ref)
+    handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire sample header"))
+    return PublishSubscribeHeader(handle_ref[])
+end
+
 @inline function unsafe_user_header_mut_ptr(sample::SampleMut, ::Type{T}) where {T}
     _require_isbits(T)
     ptr_ref = Ref{Ptr{Cvoid}}()
     Iceoryx2FFI.iox2_sample_mut_user_header_mut(Ref{Iceoryx2FFI.iox2_sample_mut_h}(sample.handle), ptr_ref)
     return Ptr{T}(ptr_ref[])
+end
+
+@inline function publisher_id(header::PublishSubscribeHeader)
+    handle_ref = Ref{Iceoryx2FFI.iox2_unique_publisher_id_h}(_IOX2_NULL)
+    Iceoryx2FFI.iox2_publish_subscribe_header_publisher_id(
+        Ref{Iceoryx2FFI.iox2_publish_subscribe_header_h}(unsafe_handle(header)),
+        C_NULL,
+        handle_ref,
+    )
+    return UniquePublisherId(handle_ref[])
+end
+
+@inline function number_of_elements(header::PublishSubscribeHeader)
+    return Int(
+        Iceoryx2FFI.iox2_publish_subscribe_header_number_of_elements(
+            Ref{Iceoryx2FFI.iox2_publish_subscribe_header_h}(unsafe_handle(header)),
+        ),
+    )
 end
 
 
@@ -869,6 +903,14 @@ end
     return payload_mut(request).ptr
 end
 
+@inline function header(request::RequestMut)
+    _require_valid(request.handle, "request")
+    handle_ref = Ref{Iceoryx2FFI.iox2_request_header_h}(_IOX2_NULL)
+    Iceoryx2FFI.iox2_request_mut_header(Ref{Iceoryx2FFI.iox2_request_mut_h}(request.handle), C_NULL, handle_ref)
+    handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire request header"))
+    return RequestHeader(handle_ref[])
+end
+
 @inline function write_payload!(request::RequestMut{Req,Resp}, value::Req) where {Req,Resp}
     slice = payload_mut(request)
     unsafe_store!(slice.ptr, value, 1)
@@ -880,6 +922,24 @@ end
     ptr_ref = Ref{Ptr{Cvoid}}()
     Iceoryx2FFI.iox2_request_mut_user_header_mut(Ref{Iceoryx2FFI.iox2_request_mut_h}(request.handle), ptr_ref)
     return Ptr{T}(ptr_ref[])
+end
+
+@inline function client_id(header::RequestHeader)
+    handle_ref = Ref{Iceoryx2FFI.iox2_unique_client_id_h}(_IOX2_NULL)
+    Iceoryx2FFI.iox2_request_header_client_id(
+        Ref{Iceoryx2FFI.iox2_request_header_h}(unsafe_handle(header)),
+        C_NULL,
+        handle_ref,
+    )
+    return UniqueClientId(handle_ref[])
+end
+
+@inline function number_of_elements(header::RequestHeader)
+    return Int(
+        Iceoryx2FFI.iox2_request_header_number_of_elements(
+            Ref{Iceoryx2FFI.iox2_request_header_h}(unsafe_handle(header)),
+        ),
+    )
 end
 
 
@@ -895,6 +955,14 @@ function _finalize_pending_response(pending::PendingResponse)
     end
     pending.storage = nothing
     return nothing
+end
+
+@inline function header(pending::PendingResponse)
+    _require_valid(pending.handle, "pending response")
+    handle_ref = Ref{Iceoryx2FFI.iox2_request_header_h}(_IOX2_NULL)
+    Iceoryx2FFI.iox2_pending_response_header(Ref{Iceoryx2FFI.iox2_pending_response_h}(pending.handle), C_NULL, handle_ref)
+    handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire request header"))
+    return RequestHeader(handle_ref[])
 end
 
 @inline function unsafe_user_header_ptr(pending::PendingResponse, ::Type{T}) where {T}
@@ -987,11 +1055,37 @@ end
     return payload(resp).ptr
 end
 
+@inline function header(resp::Response)
+    _require_valid(resp.handle, "response")
+    handle_ref = Ref{Iceoryx2FFI.iox2_response_header_h}(_IOX2_NULL)
+    Iceoryx2FFI.iox2_response_header(Ref{Iceoryx2FFI.iox2_response_h}(resp.handle), C_NULL, handle_ref)
+    handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire response header"))
+    return ResponseHeader(handle_ref[])
+end
+
 @inline function unsafe_user_header_ptr(resp::Response, ::Type{T}) where {T}
     _require_isbits(T)
     ptr_ref = Ref{Ptr{Cvoid}}()
     Iceoryx2FFI.iox2_response_user_header(Ref{Iceoryx2FFI.iox2_response_h}(resp.handle), ptr_ref)
     return Ptr{T}(ptr_ref[])
+end
+
+@inline function server_id(header::ResponseHeader)
+    handle_ref = Ref{Iceoryx2FFI.iox2_unique_server_id_h}(_IOX2_NULL)
+    Iceoryx2FFI.iox2_response_header_server_id(
+        Ref{Iceoryx2FFI.iox2_response_header_h}(unsafe_handle(header)),
+        C_NULL,
+        handle_ref,
+    )
+    return UniqueServerId(handle_ref[])
+end
+
+@inline function number_of_elements(header::ResponseHeader)
+    return Int(
+        Iceoryx2FFI.iox2_response_header_number_of_elements(
+            Ref{Iceoryx2FFI.iox2_response_header_h}(unsafe_handle(header)),
+        ),
+    )
 end
 
 
@@ -1034,6 +1128,14 @@ end
     return payload(req).ptr
 end
 
+@inline function header(req::ActiveRequest)
+    _require_valid(req.handle, "active request")
+    handle_ref = Ref{Iceoryx2FFI.iox2_request_header_h}(_IOX2_NULL)
+    Iceoryx2FFI.iox2_active_request_header(Ref{Iceoryx2FFI.iox2_active_request_h}(req.handle), C_NULL, handle_ref)
+    handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire request header"))
+    return RequestHeader(handle_ref[])
+end
+
 @inline function unsafe_user_header_ptr(req::ActiveRequest, ::Type{T}) where {T}
     _require_isbits(T)
     ptr_ref = Ref{Ptr{Cvoid}}()
@@ -1065,6 +1167,14 @@ end
 
 @inline function unsafe_payload_mut_ptr(resp::ResponseMut{RespT}) where {RespT}
     return payload_mut(resp).ptr
+end
+
+@inline function header(resp::ResponseMut)
+    _require_valid(resp.handle, "response")
+    handle_ref = Ref{Iceoryx2FFI.iox2_response_header_h}(_IOX2_NULL)
+    Iceoryx2FFI.iox2_response_mut_header(Ref{Iceoryx2FFI.iox2_response_mut_h}(resp.handle), C_NULL, handle_ref)
+    handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire response header"))
+    return ResponseHeader(handle_ref[])
 end
 
 @inline function write_payload!(resp::ResponseMut{RespT}, value::RespT) where {RespT}
@@ -1173,6 +1283,73 @@ function event_id_max_value!(builder::EventServiceBuilder, value::Integer)
     return builder
 end
 
+function deadline!(builder::EventServiceBuilder, seconds::Integer, nanoseconds::Integer)
+    _require_valid(builder.handle, "event service builder")
+    Iceoryx2FFI.iox2_service_builder_event_set_deadline(
+        Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle),
+        UInt64(seconds),
+        UInt32(nanoseconds),
+    )
+    return builder
+end
+
+function disable_deadline!(builder::EventServiceBuilder)
+    _require_valid(builder.handle, "event service builder")
+    Iceoryx2FFI.iox2_service_builder_event_disable_deadline(Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle))
+    return builder
+end
+
+function notifier_created_event!(builder::EventServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "event service builder")
+    Iceoryx2FFI.iox2_service_builder_event_set_notifier_created_event(
+        Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return builder
+end
+
+function disable_notifier_created_event!(builder::EventServiceBuilder)
+    _require_valid(builder.handle, "event service builder")
+    Iceoryx2FFI.iox2_service_builder_event_disable_notifier_created_event(
+        Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle),
+    )
+    return builder
+end
+
+function notifier_dead_event!(builder::EventServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "event service builder")
+    Iceoryx2FFI.iox2_service_builder_event_set_notifier_dead_event(
+        Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return builder
+end
+
+function disable_notifier_dead_event!(builder::EventServiceBuilder)
+    _require_valid(builder.handle, "event service builder")
+    Iceoryx2FFI.iox2_service_builder_event_disable_notifier_dead_event(
+        Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle),
+    )
+    return builder
+end
+
+function notifier_dropped_event!(builder::EventServiceBuilder, value::Integer)
+    _require_valid(builder.handle, "event service builder")
+    Iceoryx2FFI.iox2_service_builder_event_set_notifier_dropped_event(
+        Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle),
+        Iceoryx2FFI.c_size_t(value),
+    )
+    return builder
+end
+
+function disable_notifier_dropped_event!(builder::EventServiceBuilder)
+    _require_valid(builder.handle, "event service builder")
+    Iceoryx2FFI.iox2_service_builder_event_disable_notifier_dropped_event(
+        Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle),
+    )
+    return builder
+end
+
 mutable struct PortFactoryEvent
     handle::Iceoryx2FFI.iox2_port_factory_event_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_event_t}
@@ -1188,6 +1365,42 @@ function _finalize_port_factory_event(factory::PortFactoryEvent)
     return nothing
 end
 
+@inline function attributes(factory::PortFactoryEvent)
+    _require_valid(factory.handle, "event port factory")
+    ptr = Iceoryx2FFI.iox2_port_factory_event_attributes(Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle))
+    return AttributeSetView(ptr)
+end
+
+@inline function service_name(factory::PortFactoryEvent)
+    _require_valid(factory.handle, "event port factory")
+    ptr = Iceoryx2FFI.iox2_port_factory_event_service_name(Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle))
+    return ServiceNameView(ptr)
+end
+
+function service_id(factory::PortFactoryEvent)
+    _require_valid(factory.handle, "event port factory")
+    buf_len = Int(Iceoryx2FFI.IOX2_SERVICE_ID_LENGTH)
+    buffer = Vector{UInt8}(undef, buf_len + 1)
+    GC.@preserve buffer begin
+        Iceoryx2FFI.iox2_port_factory_event_service_id(
+            Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle),
+            Ptr{Cchar}(pointer(buffer)),
+            Iceoryx2FFI.c_size_t(buf_len + 1),
+        )
+    end
+    return _string_from_buffer(buffer)
+end
+
+function static_config(factory::PortFactoryEvent)
+    _require_valid(factory.handle, "event port factory")
+    config_ref = Ref{Iceoryx2FFI.iox2_static_config_event_t}()
+    Iceoryx2FFI.iox2_port_factory_event_static_config(
+        Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle),
+        config_ref,
+    )
+    return StaticConfigEvent(config_ref[])
+end
+
 function open_or_create(builder::EventServiceBuilder)
     _require_valid(builder.handle, "event service builder")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_event_t}()
@@ -1201,8 +1414,136 @@ function open_or_create(builder::EventServiceBuilder)
     return factory
 end
 
+function open_or_create(builder::EventServiceBuilder, verifier::AttributeVerifier)
+    _require_valid(builder.handle, "event service builder")
+    _require_valid(unsafe_handle(verifier), "attribute verifier")
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_event_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_event_h}(_IOX2_NULL)
+    ret = Iceoryx2FFI.iox2_service_builder_event_open_or_create_with_attributes(
+        builder.handle,
+        Ref{Iceoryx2FFI.iox2_attribute_verifier_h}(unsafe_handle(verifier)),
+        storage,
+        handle_ref,
+    )
+    check_ok(ret, Iceoryx2FFI.iox2_event_open_or_create_error_e)
+    builder.handle = _IOX2_NULL
+    _finalize_service_builder_variant(builder)
+    factory = PortFactoryEvent(handle_ref[], storage, builder.keepalive)
+    finalizer(_finalize_port_factory_event, factory)
+    return factory
+end
+
 function open_or_create(f::Function, builder::EventServiceBuilder)
     factory = open_or_create(builder)
+    try
+        return f(factory)
+    finally
+        close(factory)
+    end
+end
+
+function open_or_create(f::Function, builder::EventServiceBuilder, verifier::AttributeVerifier)
+    factory = open_or_create(builder, verifier)
+    try
+        return f(factory)
+    finally
+        close(factory)
+    end
+end
+
+function open(builder::EventServiceBuilder)
+    _require_valid(builder.handle, "event service builder")
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_event_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_event_h}(_IOX2_NULL)
+    ret = Iceoryx2FFI.iox2_service_builder_event_open(builder.handle, storage, handle_ref)
+    check_ok(ret, Iceoryx2FFI.iox2_event_open_or_create_error_e)
+    builder.handle = _IOX2_NULL
+    _finalize_service_builder_variant(builder)
+    factory = PortFactoryEvent(handle_ref[], storage, builder.keepalive)
+    finalizer(_finalize_port_factory_event, factory)
+    return factory
+end
+
+function open(builder::EventServiceBuilder, verifier::AttributeVerifier)
+    _require_valid(builder.handle, "event service builder")
+    _require_valid(unsafe_handle(verifier), "attribute verifier")
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_event_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_event_h}(_IOX2_NULL)
+    ret = Iceoryx2FFI.iox2_service_builder_event_open_with_attributes(
+        builder.handle,
+        Ref{Iceoryx2FFI.iox2_attribute_verifier_h}(unsafe_handle(verifier)),
+        storage,
+        handle_ref,
+    )
+    check_ok(ret, Iceoryx2FFI.iox2_event_open_or_create_error_e)
+    builder.handle = _IOX2_NULL
+    _finalize_service_builder_variant(builder)
+    factory = PortFactoryEvent(handle_ref[], storage, builder.keepalive)
+    finalizer(_finalize_port_factory_event, factory)
+    return factory
+end
+
+function open(f::Function, builder::EventServiceBuilder)
+    factory = open(builder)
+    try
+        return f(factory)
+    finally
+        close(factory)
+    end
+end
+
+function open(f::Function, builder::EventServiceBuilder, verifier::AttributeVerifier)
+    factory = open(builder, verifier)
+    try
+        return f(factory)
+    finally
+        close(factory)
+    end
+end
+
+function create(builder::EventServiceBuilder)
+    _require_valid(builder.handle, "event service builder")
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_event_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_event_h}(_IOX2_NULL)
+    ret = Iceoryx2FFI.iox2_service_builder_event_create(builder.handle, storage, handle_ref)
+    check_ok(ret, Iceoryx2FFI.iox2_event_open_or_create_error_e)
+    builder.handle = _IOX2_NULL
+    _finalize_service_builder_variant(builder)
+    factory = PortFactoryEvent(handle_ref[], storage, builder.keepalive)
+    finalizer(_finalize_port_factory_event, factory)
+    return factory
+end
+
+function create(builder::EventServiceBuilder, specifier::AttributeSpecifier)
+    _require_valid(builder.handle, "event service builder")
+    _require_valid(unsafe_handle(specifier), "attribute specifier")
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_event_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_event_h}(_IOX2_NULL)
+    ret = Iceoryx2FFI.iox2_service_builder_event_create_with_attributes(
+        builder.handle,
+        Ref{Iceoryx2FFI.iox2_attribute_specifier_h}(unsafe_handle(specifier)),
+        storage,
+        handle_ref,
+    )
+    check_ok(ret, Iceoryx2FFI.iox2_event_open_or_create_error_e)
+    builder.handle = _IOX2_NULL
+    _finalize_service_builder_variant(builder)
+    factory = PortFactoryEvent(handle_ref[], storage, builder.keepalive)
+    finalizer(_finalize_port_factory_event, factory)
+    return factory
+end
+
+function create(f::Function, builder::EventServiceBuilder)
+    factory = create(builder)
+    try
+        return f(factory)
+    finally
+        close(factory)
+    end
+end
+
+function create(f::Function, builder::EventServiceBuilder, specifier::AttributeSpecifier)
+    factory = create(builder, specifier)
     try
         return f(factory)
     finally
@@ -1357,6 +1698,13 @@ function notify!(notifier::Notifier, id::EventId)
         check_ok(ret, Iceoryx2FFI.iox2_notifier_notify_error_e)
     end
     return Int(count[])
+end
+
+function deadline(notifier::Notifier)
+    seconds = Ref{UInt64}()
+    nanoseconds = Ref{UInt32}()
+    has = Iceoryx2FFI.iox2_notifier_deadline(Ref{Iceoryx2FFI.iox2_notifier_h}(notifier.handle), seconds, nanoseconds)
+    return has ? (seconds[], nanoseconds[]) : nothing
 end
 
 abstract type AbstractListenerWaitHandler end

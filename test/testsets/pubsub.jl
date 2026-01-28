@@ -24,6 +24,12 @@
         slice = Iceoryx2.payload(sample)
         @test length(slice) == 1
         @test slice[1] == data[1]
+        hdr = Iceoryx2.header(sample)
+        @test Iceoryx2.number_of_elements(hdr) == length(slice)
+        pub_id = Iceoryx2.publisher_id(hdr)
+        @test isvalid(pub_id)
+        close(pub_id)
+        close(hdr)
     end
 
     close(node)
