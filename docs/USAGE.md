@@ -89,6 +89,10 @@ Iceoryx2.write_payload!(sample, Distance(get_ultra_sonic_sensor_distance(), 42.0
 Iceoryx2.send!(sample)
 ```
 
+`loan`/`loan_slice` default-initialize payloads using `zero(::Type{T})`.
+If your payload type does not define `zero`, use `loan_uninit`/`loan_slice_uninit`
+and write the payload manually.
+
 ## Attribute scratch buffers
 
 For allocation-free access to attribute keys/values in tight loops, use an explicit scratch buffer:
