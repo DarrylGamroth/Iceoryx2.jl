@@ -1727,13 +1727,6 @@ function notify!(notifier::Notifier, id::EventId)
     return Int(count[])
 end
 
-function deadline(notifier::Notifier)
-    seconds = Ref{UInt64}()
-    nanoseconds = Ref{UInt32}()
-    has = Iceoryx2FFI.iox2_notifier_deadline(Ref{Iceoryx2FFI.iox2_notifier_h}(notifier.handle), seconds, nanoseconds)
-    return has ? (seconds[], nanoseconds[]) : nothing
-end
-
 abstract type AbstractListenerWaitHandler end
 
 mutable struct ListenerWaitHandler{T} <: AbstractListenerWaitHandler

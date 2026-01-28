@@ -190,8 +190,16 @@ function generate_simple_wrappers(spec_path::AbstractString, out_path::AbstractS
 
     emitters = Dict(
         "size_t_getset" => _emit_size_t_getset,
+        "size_t_get" => _emit_size_t_get,
         "bool_getset" => _emit_bool_getset,
         "string_getset" => _emit_string_getset,
+        "enum_getset" => _emit_enum_getset,
+        "optional_size_t_getset" => _emit_optional_size_t_getset,
+        "optional_duration_getset" => _emit_optional_duration_getset,
+        "optional_duration_get" => _emit_optional_duration_get,
+        "detail_id" => _emit_detail_id,
+        "detail_node_id" => _emit_detail_node_id,
+        "detail_size_t" => _emit_detail_size_t,
     )
 
     for (kind, emitter) in emitters
@@ -224,6 +232,21 @@ function _emit_size_t_getset(io::IO, defaults::Dict{String,Any}, item::Dict{Stri
     println(io, "function $(name)!($receiver_sig, value::Integer)")
     println(io, "    Iceoryx2FFI.$set_fn($handle_expr, Iceoryx2FFI.c_size_t(value))")
     println(io, "    return $receiver")
+    println(io, "end")
+    println(io)
+    return nothing
+end
+
+function _emit_size_t_get(io::IO, defaults::Dict{String,Any}, item::Dict{String,Any})
+    name = item["name"]
+    get_fn = item["get"]
+    receiver_sig = get(item, "receiver_sig", get(defaults, "receiver_sig", nothing))
+    handle_expr = get(item, "handle_expr", get(defaults, "handle_expr", nothing))
+    receiver_sig === nothing && error("Missing receiver_sig for $name")
+    handle_expr === nothing && error("Missing handle_expr for $name")
+
+    println(io, "@inline function $name($receiver_sig)")
+    println(io, "    return Int(Iceoryx2FFI.$get_fn($handle_expr))")
     println(io, "end")
     println(io)
     return nothing
@@ -275,6 +298,151 @@ function _emit_string_getset(io::IO, defaults::Dict{String,Any}, item::Dict{Stri
     end
     println(io, "    end")
     println(io, "    return $receiver")
+    println(io, "end")
+    println(io)
+    return nothing
+end
+
+function _emit_enum_getset(io::IO, defaults::Dict{String,Any}, item::Dict{String,Any})
+    name = item["name"]
+    get_fn = item["get"]
+    set_fn = item["set"]
+    receiver_sig = get(item, "receiver_sig", get(defaults, "receiver_sig", nothing))
+    handle_expr = get(item, "handle_expr", get(defaults, "handle_expr", nothing))
+    enum_type = get(item, "enum_type", get(defaults, "enum_type", nothing))
+    convert_fn = get(item, "convert_fn", get(defaults, "convert_fn", nothing))
+    receiver_sig === nothing && error("Missing receiver_sig for $name")
+    handle_expr === nothing && error("Missing handle_expr for $name")
+    enum_type === nothing && error("Missing enum_type for $name")
+    convert_fn === nothing && error("Missing convert_fn for $name")
+    receiver = _receiver_name(receiver_sig)
+
+    println(io, "@inline function $name($receiver_sig)")
+    println(io, "    return $enum_type(Iceoryx2FFI.$get_fn($handle_expr))")
+    println(io, "end")
+    println(io)
+    println(io, "function $(name)!($receiver_sig, value::Union{Symbol, $enum_type})")
+    println(io, "    Iceoryx2FFI.$set_fn($handle_expr, $convert_fn(value))")
+    println(io, "    return $receiver")
+    println(io, "end")
+    println(io)
+    return nothing
+end
+
+function _emit_optional_size_t_getset(io::IO, defaults::Dict{String,Any}, item::Dict{String,Any})
+    name = item["name"]
+    get_fn = item["get"]
+    set_fn = item["set"]
+    receiver_sig = get(item, "receiver_sig", get(defaults, "receiver_sig", nothing))
+    handle_expr = get(item, "handle_expr", get(defaults, "handle_expr", nothing))
+    receiver_sig === nothing && error("Missing receiver_sig for $name")
+    handle_expr === nothing && error("Missing handle_expr for $name")
+    receiver = _receiver_name(receiver_sig)
+
+    println(io, "function $name($receiver_sig)")
+    println(io, "    value = Ref{Iceoryx2FFI.c_size_t}()")
+    println(io, "    has = Iceoryx2FFI.$get_fn($handle_expr, value)")
+    println(io, "    return has ? Int(value[]) : nothing")
+    println(io, "end")
+    println(io)
+    println(io, "function $(name)!($receiver_sig, value::Integer)")
+    println(io, "    val_ref = Ref{Iceoryx2FFI.c_size_t}(Iceoryx2FFI.c_size_t(value))")
+    println(io, "    Iceoryx2FFI.$set_fn($handle_expr, val_ref)")
+    println(io, "    return $receiver")
+    println(io, "end")
+    println(io)
+    return nothing
+end
+
+function _emit_optional_duration_getset(io::IO, defaults::Dict{String,Any}, item::Dict{String,Any})
+    name = item["name"]
+    get_fn = item["get"]
+    set_fn = item["set"]
+    receiver_sig = get(item, "receiver_sig", get(defaults, "receiver_sig", nothing))
+    handle_expr = get(item, "handle_expr", get(defaults, "handle_expr", nothing))
+    receiver_sig === nothing && error("Missing receiver_sig for $name")
+    handle_expr === nothing && error("Missing handle_expr for $name")
+    receiver = _receiver_name(receiver_sig)
+
+    println(io, "function $name($receiver_sig)")
+    println(io, "    seconds = Ref{UInt64}()")
+    println(io, "    nanoseconds = Ref{UInt32}()")
+    println(io, "    has = Iceoryx2FFI.$get_fn($handle_expr, seconds, nanoseconds)")
+    println(io, "    return has ? (seconds[], nanoseconds[]) : nothing")
+    println(io, "end")
+    println(io)
+    println(io, "function $(name)!($receiver_sig, seconds::Integer, nanoseconds::Integer)")
+    println(io, "    sec_ref = Ref{UInt64}(UInt64(seconds))")
+    println(io, "    nsec_ref = Ref{UInt32}(UInt32(nanoseconds))")
+    println(io, "    Iceoryx2FFI.$set_fn($handle_expr, sec_ref, nsec_ref)")
+    println(io, "    return $receiver")
+    println(io, "end")
+    println(io)
+    return nothing
+end
+
+function _emit_optional_duration_get(io::IO, defaults::Dict{String,Any}, item::Dict{String,Any})
+    name = item["name"]
+    get_fn = item["get"]
+    receiver_sig = get(item, "receiver_sig", get(defaults, "receiver_sig", nothing))
+    handle_expr = get(item, "handle_expr", get(defaults, "handle_expr", nothing))
+    receiver_sig === nothing && error("Missing receiver_sig for $name")
+    handle_expr === nothing && error("Missing handle_expr for $name")
+
+    println(io, "function $name($receiver_sig)")
+    println(io, "    seconds = Ref{UInt64}()")
+    println(io, "    nanoseconds = Ref{UInt32}()")
+    println(io, "    has = Iceoryx2FFI.$get_fn($handle_expr, seconds, nanoseconds)")
+    println(io, "    return has ? (seconds[], nanoseconds[]) : nothing")
+    println(io, "end")
+    println(io)
+    return nothing
+end
+
+function _emit_detail_id(io::IO, defaults::Dict{String,Any}, item::Dict{String,Any})
+    name = item["name"]
+    ffi = item["ffi"]
+    handle_ref_type = item["handle_ref_type"]
+    return_type = item["return_type"]
+    receiver_sig = get(item, "receiver_sig", get(defaults, "receiver_sig", nothing))
+    handle_expr = get(item, "handle_expr", get(defaults, "handle_expr", nothing))
+    receiver_sig === nothing && error("Missing receiver_sig for $name")
+    handle_expr === nothing && error("Missing handle_expr for $name")
+
+    println(io, "@inline function $name($receiver_sig)")
+    println(io, "    handle_ref = Ref{$handle_ref_type}(_IOX2_NULL)")
+    println(io, "    Iceoryx2FFI.$ffi($handle_expr, C_NULL, handle_ref)")
+    println(io, "    return $return_type(handle_ref[])")
+    println(io, "end")
+    println(io)
+    return nothing
+end
+
+function _emit_detail_node_id(io::IO, defaults::Dict{String,Any}, item::Dict{String,Any})
+    name = item["name"]
+    ffi = item["ffi"]
+    receiver_sig = get(item, "receiver_sig", get(defaults, "receiver_sig", nothing))
+    handle_expr = get(item, "handle_expr", get(defaults, "handle_expr", nothing))
+    receiver_sig === nothing && error("Missing receiver_sig for $name")
+    handle_expr === nothing && error("Missing handle_expr for $name")
+
+    println(io, "@inline function $name($receiver_sig)")
+    println(io, "    return NodeIdView(Iceoryx2FFI.$ffi($handle_expr))")
+    println(io, "end")
+    println(io)
+    return nothing
+end
+
+function _emit_detail_size_t(io::IO, defaults::Dict{String,Any}, item::Dict{String,Any})
+    name = item["name"]
+    ffi = item["ffi"]
+    receiver_sig = get(item, "receiver_sig", get(defaults, "receiver_sig", nothing))
+    handle_expr = get(item, "handle_expr", get(defaults, "handle_expr", nothing))
+    receiver_sig === nothing && error("Missing receiver_sig for $name")
+    handle_expr === nothing && error("Missing handle_expr for $name")
+
+    println(io, "@inline function $name($receiver_sig)")
+    println(io, "    return Int(Iceoryx2FFI.$ffi($handle_expr))")
     println(io, "end")
     println(io)
     return nothing

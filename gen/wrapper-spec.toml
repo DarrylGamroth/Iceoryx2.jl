@@ -230,3 +230,210 @@ set = "iox2_config_global_service_set_blackboard_mgmt_suffix"
 name = "global_service_blackboard_data_suffix"
 get = "iox2_config_global_service_blackboard_data_suffix"
 set = "iox2_config_global_service_set_blackboard_data_suffix"
+
+[enum_getset.defaults]
+receiver_sig = "config::Union{Config, ConfigRef}"
+handle_expr = "_config_h_ref(config)"
+enum_type = "Iceoryx2FFI.iox2_unable_to_deliver_strategy_e"
+convert_fn = "_unable_to_deliver_strategy"
+
+[[enum_getset.items]]
+name = "defaults_publish_subscribe_unable_to_deliver_strategy"
+get = "iox2_config_defaults_publish_subscribe_unable_to_deliver_strategy"
+set = "iox2_config_defaults_publish_subscribe_set_unable_to_deliver_strategy"
+
+[[enum_getset.items]]
+name = "defaults_request_response_client_unable_to_deliver_strategy"
+get = "iox2_config_defaults_request_response_client_unable_to_deliver_strategy"
+set = "iox2_config_defaults_request_response_set_client_unable_to_deliver_strategy"
+
+[[enum_getset.items]]
+name = "defaults_request_response_server_unable_to_deliver_strategy"
+get = "iox2_config_defaults_request_response_server_unable_to_deliver_strategy"
+set = "iox2_config_defaults_request_response_set_server_unable_to_deliver_strategy"
+
+[optional_duration_getset.defaults]
+receiver_sig = "config::Union{Config, ConfigRef}"
+handle_expr = "_config_h_ref(config)"
+
+[[optional_duration_getset.items]]
+name = "defaults_event_deadline"
+get = "iox2_config_defaults_event_deadline"
+set = "iox2_config_defaults_event_set_deadline"
+
+[optional_size_t_getset.defaults]
+receiver_sig = "config::Union{Config, ConfigRef}"
+handle_expr = "_config_h_ref(config)"
+
+[[optional_size_t_getset.items]]
+name = "defaults_event_notifier_created_event"
+get = "iox2_config_defaults_event_notifier_created_event"
+set = "iox2_config_defaults_event_set_notifier_created_event"
+
+[[optional_size_t_getset.items]]
+name = "defaults_event_notifier_dead_event"
+get = "iox2_config_defaults_event_notifier_dead_event"
+set = "iox2_config_defaults_event_set_notifier_dead_event"
+
+[[optional_size_t_getset.items]]
+name = "defaults_event_notifier_dropped_event"
+get = "iox2_config_defaults_event_notifier_dropped_event"
+set = "iox2_config_defaults_event_set_notifier_dropped_event"
+
+[optional_duration_get.defaults]
+receiver_sig = "notifier::Notifier"
+handle_expr = "Ref{Iceoryx2FFI.iox2_notifier_h}(notifier.handle)"
+
+[[optional_duration_get.items]]
+name = "deadline"
+get = "iox2_notifier_deadline"
+
+[detail_id.defaults]
+handle_expr = "unsafe_handle(details)"
+
+[[detail_id.items]]
+name = "client_id"
+receiver_sig = "details::ClientDetailsView"
+ffi = "iox2_client_details_client_id"
+handle_ref_type = "Iceoryx2FFI.iox2_unique_client_id_h"
+return_type = "UniqueClientId"
+
+[[detail_id.items]]
+name = "listener_id"
+receiver_sig = "details::ListenerDetailsView"
+ffi = "iox2_listener_details_listener_id"
+handle_ref_type = "Iceoryx2FFI.iox2_unique_listener_id_h"
+return_type = "UniqueListenerId"
+
+[[detail_id.items]]
+name = "notifier_id"
+receiver_sig = "details::NotifierDetailsView"
+ffi = "iox2_notifier_details_notifier_id"
+handle_ref_type = "Iceoryx2FFI.iox2_unique_notifier_id_h"
+return_type = "UniqueNotifierId"
+
+[[detail_id.items]]
+name = "publisher_id"
+receiver_sig = "details::PublisherDetailsView"
+ffi = "iox2_publisher_details_publisher_id"
+handle_ref_type = "Iceoryx2FFI.iox2_unique_publisher_id_h"
+return_type = "UniquePublisherId"
+
+[[detail_id.items]]
+name = "reader_id"
+receiver_sig = "details::ReaderDetailsView"
+ffi = "iox2_reader_details_reader_id"
+handle_ref_type = "Iceoryx2FFI.iox2_unique_reader_id_h"
+return_type = "UniqueReaderId"
+
+[[detail_id.items]]
+name = "server_id"
+receiver_sig = "details::ServerDetailsView"
+ffi = "iox2_server_details_server_id"
+handle_ref_type = "Iceoryx2FFI.iox2_unique_server_id_h"
+return_type = "UniqueServerId"
+
+[[detail_id.items]]
+name = "subscriber_id"
+receiver_sig = "details::SubscriberDetailsView"
+ffi = "iox2_subscriber_details_subscriber_id"
+handle_ref_type = "Iceoryx2FFI.iox2_unique_subscriber_id_h"
+return_type = "UniqueSubscriberId"
+
+[[detail_id.items]]
+name = "writer_id"
+receiver_sig = "details::WriterDetailsView"
+ffi = "iox2_writer_details_writer_id"
+handle_ref_type = "Iceoryx2FFI.iox2_unique_writer_id_h"
+return_type = "UniqueWriterId"
+
+[detail_node_id.defaults]
+handle_expr = "unsafe_handle(details)"
+
+[[detail_node_id.items]]
+name = "node_id"
+receiver_sig = "details::ClientDetailsView"
+ffi = "iox2_client_details_node_id"
+
+[[detail_node_id.items]]
+name = "node_id"
+receiver_sig = "details::ListenerDetailsView"
+ffi = "iox2_listener_details_node_id"
+
+[[detail_node_id.items]]
+name = "node_id"
+receiver_sig = "details::NotifierDetailsView"
+ffi = "iox2_notifier_details_node_id"
+
+[[detail_node_id.items]]
+name = "node_id"
+receiver_sig = "details::PublisherDetailsView"
+ffi = "iox2_publisher_details_node_id"
+
+[[detail_node_id.items]]
+name = "node_id"
+receiver_sig = "details::ReaderDetailsView"
+ffi = "iox2_reader_details_node_id"
+
+[[detail_node_id.items]]
+name = "node_id"
+receiver_sig = "details::ServerDetailsView"
+ffi = "iox2_server_details_node_id"
+
+[[detail_node_id.items]]
+name = "node_id"
+receiver_sig = "details::SubscriberDetailsView"
+ffi = "iox2_subscriber_details_node_id"
+
+[[detail_node_id.items]]
+name = "node_id"
+receiver_sig = "details::WriterDetailsView"
+ffi = "iox2_writer_details_node_id"
+
+[detail_size_t.defaults]
+handle_expr = "unsafe_handle(details)"
+
+[[detail_size_t.items]]
+name = "number_of_requests"
+receiver_sig = "details::ClientDetailsView"
+ffi = "iox2_client_details_number_of_requests"
+
+[[detail_size_t.items]]
+name = "response_buffer_size"
+receiver_sig = "details::ClientDetailsView"
+ffi = "iox2_client_details_response_buffer_size"
+
+[[detail_size_t.items]]
+name = "max_slice_len"
+receiver_sig = "details::ClientDetailsView"
+ffi = "iox2_client_details_max_slice_len"
+
+[[detail_size_t.items]]
+name = "number_of_samples"
+receiver_sig = "details::PublisherDetailsView"
+ffi = "iox2_publisher_details_number_of_samples"
+
+[[detail_size_t.items]]
+name = "max_slice_len"
+receiver_sig = "details::PublisherDetailsView"
+ffi = "iox2_publisher_details_max_slice_len"
+
+[[detail_size_t.items]]
+name = "number_of_responses"
+receiver_sig = "details::ServerDetailsView"
+ffi = "iox2_server_details_number_of_responses"
+
+[[detail_size_t.items]]
+name = "request_buffer_size"
+receiver_sig = "details::ServerDetailsView"
+ffi = "iox2_server_details_request_buffer_size"
+
+[[detail_size_t.items]]
+name = "max_slice_len"
+receiver_sig = "details::ServerDetailsView"
+ffi = "iox2_server_details_max_slice_len"
+
+[[detail_size_t.items]]
+name = "buffer_size"
+receiver_sig = "details::SubscriberDetailsView"
+ffi = "iox2_subscriber_details_buffer_size"
