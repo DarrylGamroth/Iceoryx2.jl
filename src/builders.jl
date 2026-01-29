@@ -337,6 +337,7 @@ function blackboard_creator(builder::ServiceBuilder, ::Type{K}) where {K}
     builder.storage = nothing
     bb_builder = BlackboardCreatorBuilder{K}(handle, storage, builder.keepalive, Any[])
     _set_key_type!(bb_builder, K)
+    key_eq_comparison!(bb_builder)
     return bb_builder
 end
 

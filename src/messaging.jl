@@ -2512,28 +2512,28 @@ function _set_key_type!(builder::BlackboardOpenerBuilder{K}, ::Type{Other}) wher
     throw(ArgumentError("blackboard key type already set to $K"))
 end
 
-const _BLACKBOARD_KEY_EQ_CACHE = IdDict{DataType, Ptr{Cvoid}}()
 const _BLACKBOARD_KEY_EQ_LOCK = ReentrantLock()
 
 function _blackboard_key_eq_cmp_ptr(::Type{K}) where {K}
     Base.lock(_BLACKBOARD_KEY_EQ_LOCK) do
-        ptr = Base.get(_BLACKBOARD_KEY_EQ_CACHE, K, nothing)
-        ptr !== nothing && return ptr
-        fname = gensym(:_blackboard_key_eq_cmp_)
+        fname = Symbol(:_blackboard_key_eq_cmp_, hash(K))
+        ptrname = Symbol(:_BLACKBOARD_KEY_EQ_PTR_, hash(K))
+        if isdefined(@__MODULE__, ptrname)
+            return getfield(@__MODULE__, ptrname)
+        end
         @eval function $(fname)(a::Ptr{Cvoid}, b::Ptr{Cvoid})::Bool
             return unsafe_load(Ptr{$K}(a)) == unsafe_load(Ptr{$K}(b))
         end
-        ptr = @eval @cfunction($fname, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
-        _BLACKBOARD_KEY_EQ_CACHE[K] = ptr
-        return ptr
+        @eval const $(ptrname) = @cfunction($fname, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
+        return getfield(@__MODULE__, ptrname)
     end
 end
 
 """
     key_eq_comparison!(builder::BlackboardCreatorBuilder)
 
-Configures a byte-wise key equality comparator for the builder key type. Keys should avoid
-padding and uninitialized bytes to ensure deterministic equality.
+Configures a key equality comparator that uses `==` on the key type, matching the C++/Rust
+default comparator semantics.
 """
 function key_eq_comparison!(builder::BlackboardCreatorBuilder{K}) where {K}
     _require_valid(builder.handle, "blackboard creator")
