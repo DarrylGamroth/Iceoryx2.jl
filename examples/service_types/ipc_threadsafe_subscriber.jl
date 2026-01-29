@@ -11,7 +11,7 @@ function main()
     service = open_or_create(builder)
     subscriber = create(subscriber_builder(service))
 
-    lock = ReentrantLock()
+    io_lock = ReentrantLock()
     keep_running = Atomic{Bool}(true)
 
     background = @spawn begin
@@ -21,7 +21,7 @@ function main()
                 sleep(CYCLE_SECONDS)
                 if receive!(subscriber, sample)
                     try
-                        lock do
+                        Base.lock(io_lock) do
                             println("[thread] received: ", payload(sample)[1])
                         end
                     finally
@@ -40,7 +40,7 @@ function main()
             sleep(CYCLE_SECONDS)
             if receive!(subscriber, sample)
                 try
-                    lock do
+                    Base.lock(io_lock) do
                         println("[main] received: ", payload(sample)[1])
                     end
                 finally

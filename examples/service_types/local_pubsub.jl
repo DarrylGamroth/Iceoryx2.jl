@@ -6,7 +6,7 @@ const CYCLE_SECONDS = 1
 function main()
     set_log_level_from_env_or(:info)
 
-    lock = ReentrantLock()
+    io_lock = ReentrantLock()
     keep_running = Atomic{Bool}(true)
 
     background = @spawn begin
@@ -24,7 +24,7 @@ function main()
                 sleep(CYCLE_SECONDS)
                 while receive!(subscriber, sample)
                     try
-                        lock do
+                        Base.lock(io_lock) do
                             println("[thread] received: ", payload(sample)[1])
                         end
                     finally
@@ -52,7 +52,7 @@ function main()
     try
         while true
             sleep(CYCLE_SECONDS)
-            lock do
+            Base.lock(io_lock) do
                 println("send: ", counter)
             end
             send_copy(publisher, counter)
