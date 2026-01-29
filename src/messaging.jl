@@ -2559,7 +2559,7 @@ const _BLACKBOARD_KEY_EQ_LOCK = ReentrantLock()
 
 function _blackboard_key_eq_cmp_ptr_fallback(::Type{K}) where {K}
     Base.lock(_BLACKBOARD_KEY_EQ_LOCK) do
-        entry = get(_BLACKBOARD_KEY_EQ_CACHE, K, nothing)
+        entry = Base.get(_BLACKBOARD_KEY_EQ_CACHE, K, nothing)
         if entry !== nothing
             return entry[2]
         end
