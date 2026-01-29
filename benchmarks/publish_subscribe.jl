@@ -45,10 +45,9 @@ function build_pubsub_factory(node::Iceoryx2.Node, name::AbstractString, additio
     return Iceoryx2.open_or_create(builder)
 end
 
-function wait_for_sample(sub::Iceoryx2.Subscriber{UInt8})
+function wait_for_sample(sub::Iceoryx2.Subscriber{UInt8}, sample::Iceoryx2.Sample{UInt8})
     while true
-        sample = Iceoryx2.receive(sub)
-        sample === nothing && continue
+        Iceoryx2.receive!(sub, sample) || continue
         Iceoryx2.close(sample)
         return nothing
     end
@@ -101,16 +100,19 @@ function perform_benchmark(
         wait_barrier(startup)
         wait_barrier(start_benchmark)
 
-        sample = Iceoryx2.loan_slice(sender_a2b, payload_size)
+        sample = Iceoryx2.SampleMut(sender_a2b)
+        recv_sample = Iceoryx2.Sample(receiver_b2a)
+        Iceoryx2.loan_slice!(sender_a2b, sample, payload_size)
         send_copy && fill_sample!(sample)
 
         for _ in 1:iterations
             Iceoryx2.send!(sample)
-            sample = Iceoryx2.loan_slice(sender_a2b, payload_size)
-            wait_for_sample(receiver_b2a)
+            Iceoryx2.loan_slice!(sender_a2b, sample, payload_size)
+            wait_for_sample(receiver_b2a, recv_sample)
         end
 
         Iceoryx2.close(sample)
+        Iceoryx2.close(recv_sample)
         Iceoryx2.close(receiver_b2a)
         Iceoryx2.close(sender_a2b)
         return nothing
@@ -125,13 +127,18 @@ function perform_benchmark(
         wait_barrier(startup)
         wait_barrier(start_benchmark)
 
+        sample = Iceoryx2.SampleMut(sender_b2a)
+        recv_sample = Iceoryx2.Sample(receiver_a2b)
+
         for _ in 1:iterations
-            sample = Iceoryx2.loan_slice(sender_b2a, payload_size)
+            Iceoryx2.loan_slice!(sender_b2a, sample, payload_size)
             send_copy && fill_sample!(sample)
-            wait_for_sample(receiver_a2b)
+            wait_for_sample(receiver_a2b, recv_sample)
             Iceoryx2.send!(sample)
         end
 
+        Iceoryx2.close(sample)
+        Iceoryx2.close(recv_sample)
         Iceoryx2.close(receiver_a2b)
         Iceoryx2.close(sender_b2a)
         return nothing

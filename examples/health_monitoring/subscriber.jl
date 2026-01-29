@@ -24,7 +24,12 @@ function find_and_cleanup_dead_nodes()
     return nothing
 end
 
-function handle_incoming_events(listener::Listener, subscriber::Subscriber{UInt64,Nothing}, service_name::AbstractString)
+function handle_incoming_events(
+    listener::Listener,
+    subscriber::Subscriber{UInt64,Nothing},
+    sample::Sample{UInt64,Nothing},
+    service_name::AbstractString,
+)
     try_wait_all(listener) do event_id
         if Int(event_id) == Int(PubSubEvent.ProcessDied)
             println("$(service_name): process died!")
@@ -33,9 +38,12 @@ function handle_incoming_events(listener::Listener, subscriber::Subscriber{UInt6
         elseif Int(event_id) == Int(PubSubEvent.PublisherDisconnected)
             println("$(service_name): publisher disconnected!")
         elseif Int(event_id) == Int(PubSubEvent.SentSample)
-            sample = receive(subscriber)
-            if sample !== nothing
-                println("$(service_name): Received sample ", payload(sample)[1], " ...")
+            if receive!(subscriber, sample)
+                try
+                    println("$(service_name): Received sample ", payload(sample)[1], " ...")
+                finally
+                    close(sample)
+                end
             end
         end
     end
@@ -57,6 +65,8 @@ function main()
 
     subscriber_1 = create(subscriber_builder(service_1.pubsub))
     subscriber_2 = create(subscriber_builder(service_2.pubsub))
+    sample_1 = Sample(subscriber_1)
+    sample_2 = Sample(subscriber_2)
     listener_1 = create(listener_builder(service_1.event))
     listener_2 = create(listener_builder(service_2.event))
 
@@ -83,11 +93,11 @@ function main()
         end
 
         if has_event_from(attachment_id, listener_1_guard)
-            handle_incoming_events(listener_1, subscriber_1, service_name_1)
+            handle_incoming_events(listener_1, subscriber_1, sample_1, service_name_1)
         end
 
         if has_event_from(attachment_id, listener_2_guard)
-            handle_incoming_events(listener_2, subscriber_2, service_name_2)
+            handle_incoming_events(listener_2, subscriber_2, sample_2, service_name_2)
         end
 
         return :continue

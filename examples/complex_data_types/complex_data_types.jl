@@ -34,11 +34,13 @@ function main()
     subscriber = create(subscriber_builder(service))
 
     counter = UInt64(0)
+    sample = SampleMut(publisher)
+    recv_sample = Sample(subscriber)
     while true
         Iceoryx2.wait(node, CYCLE_SECONDS, 0)
         counter += 1
 
-        sample = loan_uninit(publisher)
+        loan_uninit!(publisher, sample)
         payload = ComplexDataType(
             counter,
             static_string(Val(8), "hello"),
@@ -51,10 +53,12 @@ function main()
 
         println("$counter :: send")
 
-        recv_sample = receive(subscriber)
-        while recv_sample !== nothing
-            println("received: ", string(payload(recv_sample)[1].text))
-            recv_sample = receive(subscriber)
+        while receive!(subscriber, recv_sample)
+            try
+                println("received: ", string(payload(recv_sample)[1].text))
+            finally
+                close(recv_sample)
+            end
         end
     end
 end

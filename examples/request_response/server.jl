@@ -13,16 +13,20 @@ function main()
     server = create(server_builder(service))
 
     println("Server ready to receive requests!")
+    active_request = ActiveRequest(server)
+    response = ResponseMut(active_request)
 
     while true
         Iceoryx2.wait(node, CYCLE_SECONDS, 0)
-        active_request = receive(server)
-        while active_request !== nothing
-            println("received request: ", payload(active_request)[1])
-            response = loan_uninit(active_request)
-            write_payload!(response, TransmissionData(Int32(payload(active_request)[1]), Int32(0), 0.0))
-            send!(response)
-            active_request = receive(server)
+        while receive!(server, active_request)
+            try
+                println("received request: ", payload(active_request)[1])
+                loan_uninit!(active_request, response)
+                write_payload!(response, TransmissionData(Int32(payload(active_request)[1]), Int32(0), 0.0))
+                send!(response)
+            finally
+                close(active_request)
+            end
         end
     end
 end

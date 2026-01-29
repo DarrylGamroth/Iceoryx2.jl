@@ -18,11 +18,12 @@ function main()
     publisher = create(publisher_builder(service))
 
     counter = UInt64(0)
+    sample = SampleMut(publisher)
     while true
         Iceoryx2.wait(node, CYCLE_SECONDS, 0)
         counter += 1
 
-        sample = loan_uninit(publisher)
+        loan_uninit!(publisher, sample)
         user_header_mut(sample)[1] = static_string(Val(64), "Why are Kermit and Miss Piggy no longer together?")
         payload_mut(sample)[1] = static_vector_from_value(UInt64, Val(32), 2, counter)
         send!(sample)

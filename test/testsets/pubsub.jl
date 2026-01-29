@@ -16,22 +16,26 @@
 
     pub = Iceoryx2.create(Iceoryx2.publisher_builder(factory))
     sub = Iceoryx2.create(Iceoryx2.subscriber_builder(factory))
+    sample_mut = Iceoryx2.SampleMut(pub)
+    sample = Iceoryx2.Sample(sub)
 
-    init_sample = Iceoryx2.loan(pub)
-    init_payload = Iceoryx2.payload_mut(init_sample)
+    Iceoryx2.loan!(pub, sample_mut)
+    init_payload = Iceoryx2.payload_mut(sample_mut)
     @test init_payload[1] == zero(UInt64)
-    close(init_sample)
+    close(sample_mut)
 
     data = UInt64[0x1234_5678_9abc_def0]
-    sample = nothing
+    received = false
     for _ in 1:50
         Iceoryx2.send_copy(pub, data)
-        sample = Iceoryx2.receive(sub)
-        sample !== nothing && break
+        if Iceoryx2.receive!(sub, sample)
+            received = true
+            break
+        end
         sleep(0.01)
     end
-    @test sample !== nothing
-    if sample !== nothing
+    @test received
+    if received
         slice = Iceoryx2.payload(sample)
         @test length(slice) == 1
         @test slice[1] == data[1]
@@ -41,6 +45,7 @@
         @test isvalid(pub_id)
         close(pub_id)
         close(hdr)
+        close(sample)
     end
 
     close(node)
@@ -59,23 +64,27 @@ end
     pub = Iceoryx2.create(Iceoryx2.publisher_builder(factory))
     sub = Iceoryx2.create(Iceoryx2.subscriber_builder(factory))
 
-    sample = Iceoryx2.loan_uninit(pub)
-    Iceoryx2.write_payload!(sample, UInt64(9))
-    hdr = Iceoryx2.user_header_mut(sample)
+    sample_mut = Iceoryx2.SampleMut(pub)
+    sample = Iceoryx2.Sample(sub)
+    Iceoryx2.loan_uninit!(pub, sample_mut)
+    Iceoryx2.write_payload!(sample_mut, UInt64(9))
+    hdr = Iceoryx2.user_header_mut(sample_mut)
     hdr[1] = UInt16(42)
-    Iceoryx2.send!(sample)
+    Iceoryx2.send!(sample_mut)
 
-    received = nothing
+    received = false
     for _ in 1:50
-        received = Iceoryx2.receive(sub)
-        received !== nothing && break
+        if Iceoryx2.receive!(sub, sample)
+            received = true
+            break
+        end
         sleep(0.01)
     end
-    @test received !== nothing
-    if received !== nothing
-        hdr_recv = Iceoryx2.user_header(received)
+    @test received
+    if received
+        hdr_recv = Iceoryx2.user_header(sample)
         @test hdr_recv[1] == UInt16(42)
-        close(received)
+        close(sample)
     end
 
     close(sub)
@@ -98,25 +107,29 @@ end
     Iceoryx2.initial_max_slice_len!(pub_builder, payload_len)
     pub = Iceoryx2.create(pub_builder)
     sub = Iceoryx2.create(Iceoryx2.subscriber_builder(factory))
+    sample_mut = Iceoryx2.SampleMut(pub)
+    sample = Iceoryx2.Sample(sub)
 
-    loaned = Iceoryx2.loan_slice_uninit(pub, payload_len)
-    slice = Iceoryx2.payload_mut(loaned)
+    Iceoryx2.loan_slice_uninit!(pub, sample_mut, payload_len)
+    slice = Iceoryx2.payload_mut(sample_mut)
     for idx in 1:payload_len
         @test slice[idx] == 0x00
     end
     for idx in 1:payload_len
         unsafe_store!(slice.ptr, UInt8(idx), idx)
     end
-    Iceoryx2.send!(loaned)
+    Iceoryx2.send!(sample_mut)
 
-    sample = nothing
+    received = false
     for _ in 1:50
-        sample = Iceoryx2.receive(sub)
-        sample !== nothing && break
+        if Iceoryx2.receive!(sub, sample)
+            received = true
+            break
+        end
         sleep(0.01)
     end
-    @test sample !== nothing
-    if sample !== nothing
+    @test received
+    if received
         recv = Iceoryx2.payload(sample)
         @test length(recv) == payload_len
         @test recv[1] == 0x01
@@ -149,21 +162,25 @@ end
     Iceoryx2.initial_max_slice_len!(pub_builder, payload_len)
     pub = Iceoryx2.create(pub_builder)
     sub = Iceoryx2.create(Iceoryx2.subscriber_builder(factory))
+    sample_mut = Iceoryx2.SampleMut(pub)
+    sample = Iceoryx2.Sample(sub)
 
-    loaned = Iceoryx2.loan_slice_uninit(pub, payload_len)
-    slice = Iceoryx2.payload_mut(loaned)
+    Iceoryx2.loan_slice_uninit!(pub, sample_mut, payload_len)
+    slice = Iceoryx2.payload_mut(sample_mut)
     slice[1] = TestHeader(UInt32(1), 2.0)
     slice[2] = TestHeader(UInt32(3), 4.0)
-    Iceoryx2.send!(loaned)
+    Iceoryx2.send!(sample_mut)
 
-    sample = nothing
+    received = false
     for _ in 1:50
-        sample = Iceoryx2.receive(sub)
-        sample !== nothing && break
+        if Iceoryx2.receive!(sub, sample)
+            received = true
+            break
+        end
         sleep(0.01)
     end
-    @test sample !== nothing
-    if sample !== nothing
+    @test received
+    if received
         recv = Iceoryx2.payload(sample)
         @test length(recv) == payload_len
         @test recv[1].a == UInt32(1)

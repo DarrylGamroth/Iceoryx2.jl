@@ -14,24 +14,30 @@ function main()
 
     request_counter = UInt64(0)
     response_counter = UInt64(0)
+    request = RequestMut(client)
+    pending = PendingResponse(client)
+    response = Response(pending)
 
     println("send request $(request_counter) ...")
-    pending = send_copy(client, request_counter)
+    send_copy!(client, request_counter, pending)
 
     while true
         Iceoryx2.wait(node, CYCLE_SECONDS, 0)
 
-        response = receive(pending)
-        while response !== nothing
-            println("received response $(response_counter): ", payload(response)[1])
-            response_counter += 1
-            response = receive(pending)
+        while receive!(pending, response)
+            try
+                println("received response $(response_counter): ", payload(response)[1])
+                response_counter += 1
+            finally
+                close(response)
+            end
         end
+        close(pending)
 
         request_counter += 1
-        request = loan_uninit(client)
+        loan_uninit!(client, request)
         write_payload!(request, request_counter)
-        pending = send!(request)
+        send!(request, pending)
         println("send request $(request_counter) ...")
     end
 end

@@ -18,11 +18,16 @@
 
     client = Iceoryx2.create(Iceoryx2.client_builder(factory))
     server = Iceoryx2.create(Iceoryx2.server_builder(factory))
+    request = Iceoryx2.RequestMut(client)
+    pending = Iceoryx2.PendingResponse(client)
+    response = Iceoryx2.Response(pending)
+    active = Iceoryx2.ActiveRequest(server)
+    response_mut = Iceoryx2.ResponseMut(active)
 
-    init_request = Iceoryx2.loan(client)
-    init_payload = Iceoryx2.payload_mut(init_request)
+    Iceoryx2.loan!(client, request)
+    init_payload = Iceoryx2.payload_mut(request)
     @test init_payload[1] == zero(UInt64)
-    close(init_request)
+    close(request)
 
     client_seen = Ref(false)
     Iceoryx2.list_clients(factory) do client_details
@@ -52,7 +57,7 @@
     end
     @test server_seen[]
 
-    request = Iceoryx2.loan_uninit(client)
+    Iceoryx2.loan_uninit!(client, request)
     Iceoryx2.write_payload!(request, UInt64(42))
     req_hdr = Iceoryx2.header(request)
     @test Iceoryx2.number_of_elements(req_hdr) == 1
@@ -60,41 +65,54 @@
     @test isvalid(client_id)
     close(client_id)
     close(req_hdr)
-    pending = Iceoryx2.send!(request)
+    Iceoryx2.send!(request, pending)
 
-    active = nothing
+    received = false
     for _ in 1:50
-        active = Iceoryx2.receive(server)
-        active !== nothing && break
+        if Iceoryx2.receive!(server, active)
+            received = true
+            break
+        end
         sleep(0.01)
     end
-    @test active !== nothing
-    if active !== nothing
-        req_payload = Iceoryx2.payload(active)
-        @test req_payload[1] == UInt64(42)
+    @test received
+    if received
+        try
+            req_payload = Iceoryx2.payload(active)
+            @test req_payload[1] == UInt64(42)
 
-        response_mut = Iceoryx2.loan_uninit(active)
-        Iceoryx2.write_payload!(response_mut, UInt64(84))
-        Iceoryx2.send!(response_mut)
+            Iceoryx2.loan_uninit!(active, response_mut)
+            Iceoryx2.write_payload!(response_mut, UInt64(84))
+            Iceoryx2.send!(response_mut)
+        finally
+            close(active)
+        end
     end
 
-    response = nothing
+    got_response = false
     for _ in 1:50
-        response = Iceoryx2.receive(pending)
-        response !== nothing && break
+        if Iceoryx2.receive!(pending, response)
+            got_response = true
+            break
+        end
         sleep(0.01)
     end
-    @test response !== nothing
-    if response !== nothing
-        resp_payload = Iceoryx2.payload(response)
-        @test resp_payload[1] == UInt64(84)
-        resp_hdr = Iceoryx2.header(response)
-        @test Iceoryx2.number_of_elements(resp_hdr) == 1
-        server_id = Iceoryx2.server_id(resp_hdr)
-        @test isvalid(server_id)
-        close(server_id)
-        close(resp_hdr)
+    @test got_response
+    if got_response
+        try
+            resp_payload = Iceoryx2.payload(response)
+            @test resp_payload[1] == UInt64(84)
+            resp_hdr = Iceoryx2.header(response)
+            @test Iceoryx2.number_of_elements(resp_hdr) == 1
+            server_id = Iceoryx2.server_id(resp_hdr)
+            @test isvalid(server_id)
+            close(server_id)
+            close(resp_hdr)
+        finally
+            close(response)
+        end
     end
+    close(pending)
 
     close(node)
 end

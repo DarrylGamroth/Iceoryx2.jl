@@ -9,6 +9,7 @@ struct CustomSubscriber
     subscriber::Subscriber{TransmissionData,Nothing}
     notifier::Notifier
     listener::Listener
+    sample::Sample{TransmissionData,Nothing}
 end
 
 function pubsub_event_from_id(id::EventId)
@@ -32,17 +33,18 @@ function create_custom_subscriber(node::Node, service_name::AbstractString)
     listener = create(listener_builder(event_service))
     notifier = create(notifier_builder(event_service))
     subscriber = create(subscriber_builder(pub_service))
+    sample = Sample(subscriber)
 
     notify!(notifier, EventId(Int(PubSubEvent.SubscriberConnected)))
-    return CustomSubscriber(subscriber, notifier, listener)
+    return CustomSubscriber(subscriber, notifier, listener, sample)
 end
 
 function receive_with_ack(custom::CustomSubscriber)
-    sample = receive(custom.subscriber)
-    if sample !== nothing
+    if receive!(custom.subscriber, custom.sample)
         notify!(custom.notifier, EventId(Int(PubSubEvent.ReceivedSample)))
+        return true
     end
-    return sample
+    return false
 end
 
 function handle_event!(custom::CustomSubscriber)
@@ -51,16 +53,20 @@ function handle_event!(custom::CustomSubscriber)
         event = pubsub_event_from_id(event_id)
         if event == PubSubEvent.SentHistory
             println("History delivered")
-            sample = receive_with_ack(custom)
-            while sample !== nothing
-                println("  history: ", payload(sample)[1].x)
-                sample = receive_with_ack(custom)
+            while receive_with_ack(custom)
+                try
+                    println("  history: ", payload(custom.sample)[1].x)
+                finally
+                    close(custom.sample)
+                end
             end
         elseif event == PubSubEvent.SentSample
-            sample = receive_with_ack(custom)
-            while sample !== nothing
-                println("received: ", payload(sample)[1].x)
-                sample = receive_with_ack(custom)
+            while receive_with_ack(custom)
+                try
+                    println("received: ", payload(custom.sample)[1].x)
+                finally
+                    close(custom.sample)
+                end
             end
         elseif event == PubSubEvent.PublisherConnected
             println("new publisher connected")

@@ -9,6 +9,7 @@ struct CustomPublisher
     publisher::Publisher{TransmissionData,Nothing}
     listener::Listener
     notifier::Notifier
+    sample::SampleMut{TransmissionData,Nothing}
 end
 
 function pubsub_event_from_id(id::EventId)
@@ -32,9 +33,10 @@ function create_custom_publisher(node::Node, service_name::AbstractString)
     notifier = create(notifier_builder(event_service))
     listener = create(listener_builder(event_service))
     publisher = create(publisher_builder(pub_service))
+    sample = SampleMut(publisher)
 
     notify!(notifier, EventId(Int(PubSubEvent.PublisherConnected)))
-    return CustomPublisher(publisher, listener, notifier)
+    return CustomPublisher(publisher, listener, notifier, sample)
 end
 
 function handle_event!(custom::CustomPublisher)
@@ -56,9 +58,9 @@ function handle_event!(custom::CustomPublisher)
 end
 
 function send_sample!(custom::CustomPublisher, counter::UInt64)
-    sample = loan_uninit(custom.publisher)
-    write_payload!(sample, TransmissionData(Int32(counter), Int32(counter), Float64(counter) * 812.12))
-    send!(sample)
+    loan_uninit!(custom.publisher, custom.sample)
+    write_payload!(custom.sample, TransmissionData(Int32(counter), Int32(counter), Float64(counter) * 812.12))
+    send!(custom.sample)
     notify!(custom.notifier, EventId(Int(PubSubEvent.SentSample)))
     return nothing
 end

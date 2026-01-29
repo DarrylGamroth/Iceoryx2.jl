@@ -17,15 +17,18 @@ function main()
         builder_service = publish_subscribe(service_builder(node, "Service-Variants-Example"), UInt64)
         service = open_or_create(builder_service)
         subscriber = create(subscriber_builder(service))
+        sample = Sample(subscriber)
 
         while atomic_load(keep_running)
             sleep(CYCLE_SECONDS)
-            sample = receive(subscriber)
-            while sample !== nothing
-                lock do
-                    println("[thread] received: ", payload(sample)[1])
+            while receive!(subscriber, sample)
+                try
+                    lock do
+                        println("[thread] received: ", payload(sample)[1])
+                    end
+                finally
+                    close(sample)
                 end
-                sample = receive(subscriber)
             end
         end
     end

@@ -15,23 +15,31 @@ function main()
     keep_running = Atomic{Bool}(true)
 
     background = @spawn begin
+        sample = Sample(subscriber)
         while atomic_load(keep_running)
             sleep(CYCLE_SECONDS)
-            sample = receive(subscriber)
-            if sample !== nothing
-                lock do
-                    println("[thread] received: ", payload(sample)[1])
+            if receive!(subscriber, sample)
+                try
+                    lock do
+                        println("[thread] received: ", payload(sample)[1])
+                    end
+                finally
+                    close(sample)
                 end
             end
         end
     end
 
+    sample = Sample(subscriber)
     while true
         Iceoryx2.wait(node, CYCLE_SECONDS, 0)
-        sample = receive(subscriber)
-        if sample !== nothing
-            lock do
-                println("[main] received: ", payload(sample)[1])
+        if receive!(subscriber, sample)
+            try
+                lock do
+                    println("[main] received: ", payload(sample)[1])
+                end
+            finally
+                close(sample)
             end
         end
     end

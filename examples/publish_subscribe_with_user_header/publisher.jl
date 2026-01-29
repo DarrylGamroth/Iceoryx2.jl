@@ -15,10 +15,11 @@ function main()
     publisher = create(publisher_builder(service))
 
     counter = UInt64(0)
+    sample = SampleMut(publisher)
     while true
         Iceoryx2.wait(node, CYCLE_SECONDS, 0)
         counter += 1
-        sample = loan_uninit(publisher)
+        loan_uninit!(publisher, sample)
 
         user_header_mut(sample)[1] = CustomHeader(Int32(123), UInt64(80337 + counter))
         write_payload!(sample, counter)

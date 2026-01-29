@@ -29,11 +29,12 @@ function main()
     publisher = create(publisher_builder(service))
 
     counter = Int32(0)
+    sample = SampleMut(publisher)
     while true
         Iceoryx2.wait(node, CYCLE_SECONDS, 0)
         counter += 1
 
-        sample = loan_uninit(publisher)
+        loan_uninit!(publisher, sample)
         write_payload!(sample, TransmissionData(counter, counter * 3, counter * 812.12))
         send!(sample)
 

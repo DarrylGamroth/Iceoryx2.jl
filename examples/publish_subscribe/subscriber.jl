@@ -13,17 +13,16 @@ function main()
     subscriber = create(subscriber_builder(service))
 
     println("Subscriber ready to receive data!")
+    sample = Sample(subscriber)
 
     while true
         Iceoryx2.wait(node, CYCLE_SECONDS, 0)
-        sample = receive(subscriber)
-        while sample !== nothing
+        while receive!(subscriber, sample)
             try
                 println("received: ", payload(sample)[1])
             finally
                 close(sample)
             end
-            sample = receive(subscriber)
         end
     end
 end

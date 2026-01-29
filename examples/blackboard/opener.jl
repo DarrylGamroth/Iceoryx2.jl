@@ -16,8 +16,10 @@ function main()
     key_1 = BlackboardKey(Int32(1), Int32(-4), Int32(4))
 
     reader = create(reader_builder(factory))
-    entry_0 = reader_entry(reader, key_0, Int32)
-    entry_1 = reader_entry(reader, key_1, Float64)
+    entry_0 = EntryHandle(reader, Int32)
+    entry_1 = EntryHandle(reader, Float64)
+    reader_entry!(reader, entry_0, key_0)
+    reader_entry!(reader, entry_1, key_1)
 
     while true
         Iceoryx2.wait(node, CYCLE_SECONDS, 0)

@@ -22,8 +22,11 @@ function main()
     println("Blackboard created.")
 
     writer = create(writer_builder(factory))
-    entry_0 = writer_entry(writer, key_0, Int32)
-    entry_1 = writer_entry(writer, key_1, Float64)
+    entry_0 = EntryHandleMut(writer, Int32)
+    entry_1 = EntryHandleMut(writer, Float64)
+    writer_entry!(writer, entry_0, key_0)
+    writer_entry!(writer, entry_1, key_1)
+    value_uninit = EntryValueUninit(entry_1)
 
     counter = 0
     while true
@@ -33,9 +36,9 @@ function main()
         update!(entry_0, Int32(counter))
         println("Write new value for key 0: $(counter)...")
 
-        value_uninit = loan_uninit(entry_1)
+        loan_uninit!(entry_1, value_uninit)
         unsafe_store!(value_mut(value_uninit), initial_value * counter)
-        entry_1 = update!(value_uninit)
+        update!(value_uninit, entry_1)
         println("Write new value for key 1: $(initial_value * counter)...\n")
     end
 end

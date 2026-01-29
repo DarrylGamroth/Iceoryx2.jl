@@ -37,11 +37,10 @@ function build_rr_factory(node::Iceoryx2.Node, name::AbstractString, additional_
     return Iceoryx2.open_or_create(builder)
 end
 
-function wait_for_request(server::Iceoryx2.Server{UInt64, UInt64})
+function wait_for_request(server::Iceoryx2.Server{UInt64, UInt64}, req::Iceoryx2.ActiveRequest{UInt64, UInt64})
     while true
-        req = Iceoryx2.receive(server)
-        req === nothing && continue
-        return req
+        Iceoryx2.receive!(server, req) || continue
+        return nothing
     end
 end
 
@@ -80,13 +79,16 @@ function perform_request_benchmark(
         wait_barrier(startup)
         wait_barrier(start_benchmark)
 
-        request = Iceoryx2.loan_uninit(client_a2b)
+        request = Iceoryx2.RequestMut(client_a2b)
+        pending = Iceoryx2.PendingResponse(client_a2b)
+        active = Iceoryx2.ActiveRequest(server_b2a)
+        Iceoryx2.loan_uninit!(client_a2b, request)
 
         for _ in 1:iterations
-            pending = Iceoryx2.send!(request)
+            Iceoryx2.send!(request, pending)
             Iceoryx2.close(pending)
-            request = Iceoryx2.loan_uninit(client_a2b)
-            active = wait_for_request(server_b2a)
+            Iceoryx2.loan_uninit!(client_a2b, request)
+            wait_for_request(server_b2a, active)
             Iceoryx2.close(active)
         end
 
@@ -103,11 +105,15 @@ function perform_request_benchmark(
         wait_barrier(startup)
         wait_barrier(start_benchmark)
 
+        request = Iceoryx2.RequestMut(client_b2a)
+        pending = Iceoryx2.PendingResponse(client_b2a)
+        active = Iceoryx2.ActiveRequest(server_a2b)
+
         for _ in 1:iterations
-            request = Iceoryx2.loan_uninit(client_b2a)
-            active = wait_for_request(server_a2b)
+            Iceoryx2.loan_uninit!(client_b2a, request)
+            wait_for_request(server_a2b, active)
             Iceoryx2.close(active)
-            pending = Iceoryx2.send!(request)
+            Iceoryx2.send!(request, pending)
             Iceoryx2.close(pending)
         end
 
@@ -170,22 +176,27 @@ function perform_response_stream_benchmark(
         server_b2a = Iceoryx2.create(Iceoryx2.server_builder(factory_b2a))
 
         wait_barrier(startup)
-        pending = Iceoryx2.send_copy(client_a2b, UInt64[0])
+        pending = Iceoryx2.PendingResponse(client_a2b)
+        response_in = Iceoryx2.Response(pending)
+        Iceoryx2.send_copy!(client_a2b, UInt64[0], pending)
         while !Iceoryx2.has_requests(server_b2a)
         end
-        active = Iceoryx2.receive(server_b2a)
-        active === nothing && error("expected active request")
+        active = Iceoryx2.ActiveRequest(server_b2a)
+        Iceoryx2.receive!(server_b2a, active) || error("expected active request")
         wait_barrier(start_benchmark)
 
-        response = Iceoryx2.loan_uninit(active)
+        response = Iceoryx2.ResponseMut(active)
+        Iceoryx2.loan_uninit!(active, response)
 
         for _ in 1:iterations
             Iceoryx2.send!(response)
-            response = Iceoryx2.loan_uninit(active)
-            while Iceoryx2.receive(pending) === nothing
+            Iceoryx2.loan_uninit!(active, response)
+            while !Iceoryx2.receive!(pending, response_in)
             end
+            Iceoryx2.close(response_in)
         end
 
+        Iceoryx2.close(response)
         Iceoryx2.close(response)
         Iceoryx2.close(active)
         Iceoryx2.close(pending)
@@ -199,17 +210,21 @@ function perform_response_stream_benchmark(
         server_a2b = Iceoryx2.create(Iceoryx2.server_builder(factory_a2b))
 
         wait_barrier(startup)
-        pending = Iceoryx2.send_copy(client_b2a, UInt64[0])
+        pending = Iceoryx2.PendingResponse(client_b2a)
+        response_in = Iceoryx2.Response(pending)
+        Iceoryx2.send_copy!(client_b2a, UInt64[0], pending)
         while !Iceoryx2.has_requests(server_a2b)
         end
-        active = Iceoryx2.receive(server_a2b)
-        active === nothing && error("expected active request")
+        active = Iceoryx2.ActiveRequest(server_a2b)
+        Iceoryx2.receive!(server_a2b, active) || error("expected active request")
         wait_barrier(start_benchmark)
 
+        response = Iceoryx2.ResponseMut(active)
         for _ in 1:iterations
-            response = Iceoryx2.loan_uninit(active)
-            while Iceoryx2.receive(pending) === nothing
+            Iceoryx2.loan_uninit!(active, response)
+            while !Iceoryx2.receive!(pending, response_in)
             end
+            Iceoryx2.close(response_in)
             Iceoryx2.send!(response)
         end
 

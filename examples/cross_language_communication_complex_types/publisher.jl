@@ -13,11 +13,12 @@ function main()
     publisher = create(publisher_builder(service))
 
     counter = UInt16(0)
+    sample = SampleMut(publisher)
     while true
         Iceoryx2.wait(node, CYCLE_SECONDS, 0)
         counter += 1
 
-        sample = loan_uninit(publisher)
+        loan_uninit!(publisher, sample)
         name = FullName(static_string(Val(256), "Ada"), static_string(Val(256), "Lovelace"))
         address_book = static_vector_from_value(FullName, Val(ADDRESS_BOOK_CAPACITY), 1, name)
         row = static_vector_from_value(Float64, Val(8), 8, 1.0)

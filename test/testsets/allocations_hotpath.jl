@@ -33,18 +33,22 @@
 
     pub = Iceoryx2.create(Iceoryx2.publisher_builder(factory))
     sub = Iceoryx2.create(Iceoryx2.subscriber_builder(factory))
+    sample = Iceoryx2.Sample(sub)
+    loaned = Iceoryx2.SampleMut(pub)
 
     data = UInt64[1]
-    sample = nothing
+    received = false
     for _ in 1:50
         Iceoryx2.send_copy(pub, data)
-        sample = Iceoryx2.receive(sub)
-        sample !== nothing && break
+        if Iceoryx2.receive!(sub, sample)
+            received = true
+            break
+        end
         sleep(0.01)
     end
-    @test sample !== nothing
+    @test received
 
-    if sample !== nothing
+    if received
         Iceoryx2.payload(sample)
         slice = Iceoryx2.payload(sample)
 
@@ -52,9 +56,10 @@
         @test unsafe_payload_ptr_alloc(sample) == 0
         @test @allocated(length(slice)) == 0
         @test @allocated(slice[1]) == 0
+        close(sample)
     end
 
-    loaned = Iceoryx2.loan_slice(pub, 1)
+    Iceoryx2.loan_slice!(pub, loaned, 1)
     Iceoryx2.payload_mut(loaned)
     @test payload_mut_alloc(loaned) == 0
     @test unsafe_payload_mut_ptr_alloc(loaned) == 0
@@ -66,46 +71,64 @@
 
     client = Iceoryx2.create(Iceoryx2.client_builder(rr_factory))
     server = Iceoryx2.create(Iceoryx2.server_builder(rr_factory))
+    req = Iceoryx2.RequestMut(client)
+    pending = Iceoryx2.PendingResponse(client)
+    active = Iceoryx2.ActiveRequest(server)
+    resp = Iceoryx2.Response(pending)
+    response_mut = Iceoryx2.ResponseMut(active)
 
-    req = Iceoryx2.loan_request(client, 1)
+    Iceoryx2.loan_request!(client, req, 1)
     Iceoryx2.payload_mut(req)
     @test payload_req_alloc(req) == 0
     @test unsafe_payload_req_mut_ptr_alloc(req) == 0
     @test write_payload_req_alloc(req, UInt64(1)) == 0
-    pending = Iceoryx2.send!(req)
+    Iceoryx2.send!(req, pending)
 
-    active = nothing
+    received_active = false
     for _ in 1:50
-        active = Iceoryx2.receive(server)
-        active !== nothing && break
+        if Iceoryx2.receive!(server, active)
+            received_active = true
+            break
+        end
         sleep(0.01)
     end
-    @test active !== nothing
+    @test received_active
 
-    if active !== nothing
-        Iceoryx2.payload(active)
-        @test payload_active_alloc(active) == 0
-        @test unsafe_payload_active_ptr_alloc(active) == 0
-        resp = Iceoryx2.loan_response(active, 1)
-        Iceoryx2.payload_mut(resp)
-        @test unsafe_payload_resp_mut_ptr_alloc(resp) == 0
-        @test write_payload_resp_alloc(resp, UInt64(2)) == 0
-        Iceoryx2.send!(resp)
+    if received_active
+        try
+            Iceoryx2.payload(active)
+            @test payload_active_alloc(active) == 0
+            @test unsafe_payload_active_ptr_alloc(active) == 0
+            Iceoryx2.loan_response!(active, response_mut, 1)
+            Iceoryx2.payload_mut(response_mut)
+            @test unsafe_payload_resp_mut_ptr_alloc(response_mut) == 0
+            @test write_payload_resp_alloc(response_mut, UInt64(2)) == 0
+            Iceoryx2.send!(response_mut)
+        finally
+            close(active)
+        end
     end
 
-    resp = nothing
+    received_response = false
     for _ in 1:50
-        resp = Iceoryx2.receive(pending)
-        resp !== nothing && break
+        if Iceoryx2.receive!(pending, resp)
+            received_response = true
+            break
+        end
         sleep(0.01)
     end
-    @test resp !== nothing
+    @test received_response
 
-    if resp !== nothing
-        Iceoryx2.payload(resp)
-        @test payload_resp_alloc(resp) == 0
-        @test unsafe_payload_resp_ptr_alloc(resp) == 0
+    if received_response
+        try
+            Iceoryx2.payload(resp)
+            @test payload_resp_alloc(resp) == 0
+            @test unsafe_payload_resp_ptr_alloc(resp) == 0
+        finally
+            close(resp)
+        end
     end
+    close(pending)
 
     waitset_builder = Iceoryx2.WaitsetBuilder()
     waitset = Iceoryx2.create(waitset_builder; service_type=:ipc)
@@ -131,8 +154,10 @@
     bb_factory = Iceoryx2.create(bb_builder)
     bb_writer = Iceoryx2.create(Iceoryx2.writer_builder(bb_factory))
     bb_reader = Iceoryx2.create(Iceoryx2.reader_builder(bb_factory))
-    entry_mut = Iceoryx2.writer_entry(bb_writer, UInt64(1), UInt64)
-    entry = Iceoryx2.reader_entry(bb_reader, UInt64(1), UInt64)
+    entry_mut = Iceoryx2.EntryHandleMut(bb_writer, UInt64)
+    entry = Iceoryx2.EntryHandle(bb_reader, UInt64)
+    Iceoryx2.writer_entry!(bb_writer, entry_mut, UInt64(1))
+    Iceoryx2.reader_entry!(bb_reader, entry, UInt64(1))
     value_ref = Ref{UInt64}(0)
     generation_ref = Ref{UInt64}(0)
     Iceoryx2.update!(entry_mut, UInt64(1))

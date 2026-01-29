@@ -13,10 +13,9 @@ function main()
         Iceoryx2.open_or_create(rr_builder) do factory
             Iceoryx2.create(Iceoryx2.server_builder(factory)) do server
                 server_task = @async begin
-                    request = nothing
-                    while request === nothing
-                        request = Iceoryx2.receive(server)
-                        request === nothing && yield()
+                    request = ActiveRequest(server)
+                    while !Iceoryx2.receive!(server, request)
+                        yield()
                     end
 
                     response_data = UInt64[0x2a]
@@ -27,12 +26,12 @@ function main()
                 end
 
                 Iceoryx2.create(Iceoryx2.client_builder(factory)) do client
-                    pending = Iceoryx2.send_copy(client, UInt64[0x01])
+                    pending = PendingResponse(client)
+                    Iceoryx2.send_copy!(client, UInt64[0x01], pending)
 
-                    response = nothing
-                    while response === nothing
-                        response = Iceoryx2.receive(pending)
-                        response === nothing && yield()
+                    response = Response(pending)
+                    while !Iceoryx2.receive!(pending, response)
+                        yield()
                     end
 
                     slice = Iceoryx2.payload(response)

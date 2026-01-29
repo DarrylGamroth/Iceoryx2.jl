@@ -16,11 +16,12 @@ function main()
     publisher = create(pub_builder)
 
     counter = UInt64(0)
+    sample = SampleMut(publisher)
 
     while true
         Iceoryx2.wait(node, CYCLE_SECONDS, 0)
         required_size = (counter + 1) * (counter + 1)
-        sample = loan_slice_uninit(publisher, required_size)
+        loan_slice_uninit!(publisher, sample, required_size)
         write_from_fn!(sample) do byte_idx
             return UInt8((UInt64(byte_idx) + counter) % MAX_VALUE)
         end

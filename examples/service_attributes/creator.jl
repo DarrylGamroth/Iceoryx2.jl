@@ -18,10 +18,11 @@ function main()
     publisher = create(publisher_builder(service))
 
     println("defined service attributes: ", attributes(service))
+    sample = SampleMut(publisher)
 
     while true
         Iceoryx2.wait(node, CYCLE_SECONDS, 0)
-        sample = loan(publisher)
+        loan!(publisher, sample)
         payload_mut(sample)[1] = UInt64(0)
         send!(sample)
     end

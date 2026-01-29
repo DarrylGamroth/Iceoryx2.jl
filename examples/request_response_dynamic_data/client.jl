@@ -18,23 +18,29 @@ function main()
     client = create(client_builder_obj)
 
     counter = UInt64(1)
+    request = RequestMut(client)
+    pending = PendingResponse(client)
+    response = Response(pending)
 
     while true
         required_size = min(UInt64(1_000_000), counter * counter)
-        request = loan_slice_uninit(client, required_size)
+        loan_slice_uninit!(client, request, required_size)
         write_from_fn!(request) do byte_idx
             return UInt8((UInt64(byte_idx) + counter) % MAX_VALUE)
         end
-        pending = send!(request)
+        send!(request, pending)
         println("send request $(counter) with $(required_size) bytes ...")
 
         Iceoryx2.wait(node, CYCLE_SECONDS, 0)
 
-        response = receive(pending)
-        while response !== nothing
-            println("received response with ", length(payload(response)), " bytes")
-            response = receive(pending)
+        while receive!(pending, response)
+            try
+                println("received response with ", length(payload(response)), " bytes")
+            finally
+                close(response)
+            end
         end
+        close(pending)
 
         counter += 1
     end

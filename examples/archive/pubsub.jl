@@ -15,10 +15,9 @@ function main()
                 Iceoryx2.create(Iceoryx2.subscriber_builder(factory)) do subscriber
                     Iceoryx2.send_copy(publisher, UInt64[0x1234_5678_9abc_def0])
 
-                    sample = nothing
-                    while sample === nothing
-                        sample = Iceoryx2.receive(subscriber)
-                        sample === nothing && yield()
+                    sample = Sample(subscriber)
+                    while !receive!(subscriber, sample)
+                        yield()
                     end
 
                     slice = Iceoryx2.payload(sample)
