@@ -2554,19 +2554,19 @@ struct BlackboardKeyEq{K} end
     return ccall(:memcmp, Cint, (Ptr{Cvoid}, Ptr{Cvoid}, Csize_t), a, b, sizeof(K)) == 0
 end
 
-const _BLACKBOARD_KEY_EQ_CACHE = IdDict{DataType, Tuple{Any, Ptr{Cvoid}}}()
+const _BLACKBOARD_KEY_EQ_CACHE = IdDict{DataType, Base.CFunction}()
 const _BLACKBOARD_KEY_EQ_LOCK = ReentrantLock()
 
 function _blackboard_key_eq_cmp_ptr_fallback(::Type{K}) where {K}
     Base.lock(_BLACKBOARD_KEY_EQ_LOCK) do
         entry = Base.get(_BLACKBOARD_KEY_EQ_CACHE, K, nothing)
         if entry !== nothing
-            return entry[2]
+            return Base.unsafe_convert(Ptr{Cvoid}, entry)
         end
         fn = BlackboardKeyEq{K}()
-        ptr = @cfunction($fn, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
-        _BLACKBOARD_KEY_EQ_CACHE[K] = (fn, ptr)
-        return ptr
+        cfunc = @cfunction($fn, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
+        _BLACKBOARD_KEY_EQ_CACHE[K] = cfunc
+        return Base.unsafe_convert(Ptr{Cvoid}, cfunc)
     end
 end
 
