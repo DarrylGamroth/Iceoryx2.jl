@@ -21,7 +21,7 @@
 
 ## Hot Path Definition
 Hot path refers to any API that is called per message/event or inside tight loops, including:
-- `Publisher`/`Subscriber` send/receive paths and `loan`/`loan_uninit`/`loan_slice` paths.
+- `Publisher`/`Subscriber` send/receive paths and `loan!`/`loan_uninit!`/`loan_slice!` paths.
 - `Client`/`Server` request/response send/receive paths.
 - `Reader`/`Writer` entry access and payload accessors.
 - `WaitSet` event processing (`wait_and_process*`) and callback dispatch.
@@ -218,7 +218,8 @@ Hot path refers to any API that is called per message/event or inside tight loop
   - Queue benchmark pending on queue API exposure in the C ABI.
   - Update (2026-01-27): added blackboard tuning (`max_readers!`, `max_nodes!`, key comparison) and cached type details to reduce hot-path allocations.
   - Update (2026-01-27): removed handle collisions with blackboard entry types, added entry-value uninit path, added slice keepalive + iteration interfaces, and hardened type-detail cache for multi-threaded use.
-  - Update (2026-01-27): added scalar `loan_uninit` helpers and `write_payload!` overloads for pub/sub and request/response; added `unsafe_payload_ptr`/`unsafe_payload_mut_ptr` convenience accessors.
+  - Update (2026-01-27): added scalar `loan_uninit!` helpers and `write_payload!` overloads for pub/sub and request/response; added `unsafe_payload_ptr`/`unsafe_payload_mut_ptr` convenience accessors.
+  - Update (2026-01-29): switched hot-path loan/receive APIs to reuse-based `receive!`/`loan_uninit!`/`loan_slice_uninit!`, removed allocating variants, and updated examples/tests to close samples explicitly.
   - Update (2026-01-27): added StringViews-based attribute accessors (`key_view!`, `value_view!`, `key_value_view!`) with `AttributeScratch` for reuse.
   - Update (2026-01-27): typed port factories and blackboard (payload/key types enforced at builder/factory boundaries).
 
@@ -240,7 +241,7 @@ Hot path refers to any API that is called per message/event or inside tight loop
 - [x] FileDescriptor helpers: `file_descriptor_new`, `native_handle`. (`src/waitset.jl:71`, `src/waitset.jl:78`)
 - [x] `dead_node_remove_stale_resources` wrapper. (`src/nodes.jl:62`)
 - [x] Ensure payload views keep owning handles alive and provide basic iteration interfaces. (`src/messaging.jl:63`, `src/messaging.jl:90`)
-- [x] Provide blackboard entry uninitialized update path (`loan_uninit`, `value_mut`, `update!`, `discard!`). (`src/messaging.jl:1957`, `src/messaging.jl:1980`, `src/messaging.jl:1989`, `src/messaging.jl:2000`)
+- [x] Provide blackboard entry uninitialized update path (`loan_uninit!`, `value_mut`, `update!`, `discard!`). (`src/messaging.jl:1957`, `src/messaging.jl:1980`, `src/messaging.jl:1989`, `src/messaging.jl:2000`)
 - [x] Clarify key comparator semantics and allow custom comparator pointer injection. (`src/messaging.jl:1747`, `src/messaging.jl:1759`)
 - [x] Make attribute iteration return owned strings by default and provide a pointer-based variant for zero-alloc use. (`src/callbacks.jl:173`, `src/callbacks.jl:195`, `src/callbacks.jl:199`)
 - [x] Harden attribute error/value string extraction against missing null terminators. (`src/attributes.jl:245`)

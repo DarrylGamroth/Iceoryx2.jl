@@ -81,17 +81,34 @@ unsafe_store!(slice.ptr, 0xdeadbeef, 1)
 
 Do not store the pointer or slice past the lifetime of the owning handle.
 
-For scalar payloads, you can use `loan_uninit` + `write_payload!`:
+For scalar payloads, preallocate a mutable sample and use `loan_uninit!` + `write_payload!`:
 
 ```julia
-sample = Iceoryx2.loan_uninit(publisher)
+sample = Iceoryx2.SampleMut(publisher)
+Iceoryx2.loan_uninit!(publisher, sample)
 Iceoryx2.write_payload!(sample, Distance(get_ultra_sonic_sensor_distance(), 42.0))
 Iceoryx2.send!(sample)
 ```
 
-`loan`/`loan_slice` default-initialize payloads using `zero(::Type{T})`.
-If your payload type does not define `zero`, use `loan_uninit`/`loan_slice_uninit`
+`loan!`/`loan_slice!` default-initialize payloads using `zero(::Type{T})`.
+If your payload type does not define `zero`, use `loan_uninit!`/`loan_slice_uninit!`
 and write the payload manually.
+
+## Receiving samples
+
+Receiving APIs are reuse-based to keep hot paths allocation-free. Preallocate a `Sample`
+and call `receive!` inside the loop; always `close` the sample to release the loan:
+
+```julia
+sample = Iceoryx2.Sample(subscriber)
+while Iceoryx2.receive!(subscriber, sample)
+    try
+        println("received: ", Iceoryx2.payload(sample)[1])
+    finally
+        close(sample)
+    end
+end
+```
 
 ## Attribute scratch buffers
 
@@ -127,13 +144,15 @@ end
 Use reader/writer entries to update and read key/value pairs:
 
 ```julia
-Iceoryx2.writer_entry(writer, UInt64(1), UInt64) do entry_mut
-    Iceoryx2.update!(entry_mut, UInt64(42))
-end
+entry_mut = Iceoryx2.EntryHandleMut(writer, UInt64)
+Iceoryx2.writer_entry!(writer, entry_mut, UInt64(1))
+Iceoryx2.update!(entry_mut, UInt64(42))
+close(entry_mut)
 
-Iceoryx2.reader_entry(reader, UInt64(1), UInt64) do entry
-    value, generation = Iceoryx2.get(entry)
-end
+entry = Iceoryx2.EntryHandle(reader, UInt64)
+Iceoryx2.reader_entry!(reader, entry, UInt64(1))
+value, generation = Iceoryx2.get(entry)
+close(entry)
 ```
 
 Blackboard factories are typed on the key type when the builder is created.
