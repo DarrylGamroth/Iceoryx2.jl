@@ -21,14 +21,19 @@ end
 mutable struct NodeBuilder
     handle::Iceoryx2FFI.iox2_node_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_node_builder_t}
-    function NodeBuilder(handle, storage)
-        obj = new(handle, storage)
+    name_handle::Iceoryx2FFI.iox2_node_name_h
+    function NodeBuilder(handle, storage, name_handle)
+        obj = new(handle, storage, name_handle)
         finalizer(_finalize_node_builder, obj)
         return obj
     end
 end
 
 function _finalize_node_builder(builder::NodeBuilder)
+    if builder.name_handle != _IOX2_NULL
+        Iceoryx2FFI.iox2_node_name_drop(builder.name_handle)
+        builder.name_handle = _IOX2_NULL
+    end
     builder.handle = _IOX2_NULL
     builder.storage = nothing
     return nothing
@@ -37,22 +42,31 @@ end
 function NodeBuilder()
     storage = Ref{Iceoryx2FFI.iox2_node_builder_t}()
     handle = Iceoryx2FFI.iox2_node_builder_new(storage)
-    return NodeBuilder(handle, storage)
+    return NodeBuilder(handle, storage, _IOX2_NULL)
 end
 
 @inline unsafe_handle(builder::NodeBuilder) = builder.handle
 @inline Base.isvalid(builder::NodeBuilder) = builder.handle != _IOX2_NULL
 
+function _clear_node_builder_name!(builder::NodeBuilder)
+    if builder.name_handle != _IOX2_NULL
+        Iceoryx2FFI.iox2_node_name_drop(builder.name_handle)
+        builder.name_handle = _IOX2_NULL
+    end
+    return nothing
+end
+
 function name!(builder::NodeBuilder, name::NodeName)
     _require_valid(builder.handle, "node builder")
-    ptr = _node_name_ptr(unsafe_handle(name))
-    Iceoryx2FFI.iox2_node_builder_set_name(Ref{Iceoryx2FFI.iox2_node_builder_h}(builder.handle), ptr)
+    _clear_node_builder_name!(builder)
+    builder.name_handle = unsafe_handle(name)
     invalidate!(name)
     return builder
 end
 
 function name!(builder::NodeBuilder, name::NodeNameView)
     _require_valid(builder.handle, "node builder")
+    _clear_node_builder_name!(builder)
     Iceoryx2FFI.iox2_node_builder_set_name(Ref{Iceoryx2FFI.iox2_node_builder_h}(builder.handle), unsafe_handle(name))
     return builder
 end
@@ -81,6 +95,12 @@ end
 
 function create(builder::NodeBuilder; service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e}=:ipc)
     _require_valid(builder.handle, "node builder")
+    if builder.name_handle != _IOX2_NULL
+        ptr = _node_name_ptr(builder.name_handle)
+        Iceoryx2FFI.iox2_node_builder_set_name(Ref{Iceoryx2FFI.iox2_node_builder_h}(builder.handle), ptr)
+        Iceoryx2FFI.iox2_node_name_drop(builder.name_handle)
+        builder.name_handle = _IOX2_NULL
+    end
     handle_ref = Ref{Iceoryx2FFI.iox2_node_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_node_builder_create(builder.handle, C_NULL, _service_type(service_type), handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_node_creation_failure_e)
