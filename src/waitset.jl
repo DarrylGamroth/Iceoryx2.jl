@@ -131,7 +131,6 @@ mutable struct WaitsetHandler{T} <: AbstractWaitsetHandler
     on_event::T
     attachment::WaitsetAttachmentId
     ref::Base.RefValue{WaitsetHandler{T}}
-    cfunction::Iceoryx2FFI.iox2_waitset_run_callback
     result_ref::Base.RefValue{Iceoryx2FFI.iox2_waitset_run_result_e}
     result_ptr::Ptr{Iceoryx2FFI.iox2_waitset_run_result_e}
     function WaitsetHandler(on_event::T) where {T}
@@ -139,12 +138,10 @@ mutable struct WaitsetHandler{T} <: AbstractWaitsetHandler
             on_event,
             WaitsetAttachmentId(_IOX2_NULL),
             Ref{WaitsetHandler{T}}(),
-            C_NULL,
             Ref{Iceoryx2FFI.iox2_waitset_run_result_e}(),
             C_NULL,
         )
         obj.ref[] = obj
-        obj.cfunction = _waitset_cfunction(WaitsetHandler{T})
         obj.result_ptr = Base.unsafe_convert(Ptr{Iceoryx2FFI.iox2_waitset_run_result_e}, obj.result_ref)
         return obj
     end
@@ -174,7 +171,7 @@ end
     return result
 end
 
-function _waitset_cfunction(::Type{T}) where {T<:AbstractWaitsetHandler}
+function _waitset_cfunction(::T) where {T<:AbstractWaitsetHandler}
     @cfunction(
         _waitset_wrapper,
         Iceoryx2FFI.iox2_callback_progression_e,
@@ -192,7 +189,7 @@ function wait_and_process_once(waitset::Waitset, handler::WaitsetHandler)
     GC.@preserve handler_ref begin
         ret = Iceoryx2FFI.iox2_waitset_wait_and_process_once(
             Ref{Iceoryx2FFI.iox2_waitset_h}(unsafe_handle(waitset)),
-            handler.cfunction,
+            _waitset_cfunction(handler),
             handler_ref,
             handler.result_ref,
         )
@@ -212,7 +209,7 @@ function wait_and_process_once(waitset::Waitset, handler::AbstractWaitsetHandler
     GC.@preserve handler_ref begin
         ret = Iceoryx2FFI.iox2_waitset_wait_and_process_once(
             Ref{Iceoryx2FFI.iox2_waitset_h}(unsafe_handle(waitset)),
-            _waitset_cfunction(typeof(handler)),
+            _waitset_cfunction(handler),
             handler_ref,
             result_ref,
         )
@@ -227,7 +224,7 @@ function wait_and_process_once(waitset::Waitset, seconds::Integer, nanoseconds::
     GC.@preserve handler_ref begin
         ret = Iceoryx2FFI.iox2_waitset_wait_and_process_once_with_timeout(
             Ref{Iceoryx2FFI.iox2_waitset_h}(unsafe_handle(waitset)),
-            handler.cfunction,
+            _waitset_cfunction(handler),
             handler_ref,
             UInt64(seconds),
             UInt32(nanoseconds),
@@ -249,7 +246,7 @@ function wait_and_process_once(waitset::Waitset, seconds::Integer, nanoseconds::
     GC.@preserve handler_ref begin
         ret = Iceoryx2FFI.iox2_waitset_wait_and_process_once_with_timeout(
             Ref{Iceoryx2FFI.iox2_waitset_h}(unsafe_handle(waitset)),
-            _waitset_cfunction(typeof(handler)),
+            _waitset_cfunction(handler),
             handler_ref,
             UInt64(seconds),
             UInt32(nanoseconds),
@@ -266,7 +263,7 @@ function wait_and_process(waitset::Waitset, handler::WaitsetHandler)
     GC.@preserve handler_ref begin
         ret = Iceoryx2FFI.iox2_waitset_wait_and_process(
             Ref{Iceoryx2FFI.iox2_waitset_h}(unsafe_handle(waitset)),
-            handler.cfunction,
+            _waitset_cfunction(handler),
             handler_ref,
             handler.result_ref,
         )
@@ -286,7 +283,7 @@ function wait_and_process(waitset::Waitset, handler::AbstractWaitsetHandler)
     GC.@preserve handler_ref begin
         ret = Iceoryx2FFI.iox2_waitset_wait_and_process(
             Ref{Iceoryx2FFI.iox2_waitset_h}(unsafe_handle(waitset)),
-            _waitset_cfunction(typeof(handler)),
+            _waitset_cfunction(handler),
             handler_ref,
             result_ref,
         )
