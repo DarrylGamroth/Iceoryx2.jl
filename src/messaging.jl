@@ -2564,7 +2564,7 @@ function _blackboard_key_eq_cmp_ptr_fallback(::Type{K}) where {K}
             return entry[2]
         end
         fn = BlackboardKeyEq{K}()
-        ptr = Base.cfunction(fn, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
+        ptr = @cfunction($fn, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
         _BLACKBOARD_KEY_EQ_CACHE[K] = (fn, ptr)
         return ptr
     end
