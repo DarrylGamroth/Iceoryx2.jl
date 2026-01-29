@@ -2548,6 +2548,28 @@ const _BLACKBOARD_KEY_EQ_CMP_16 = @cfunction(_blackboard_key_eq_cmp_16, Bool, (P
 const _BLACKBOARD_KEY_EQ_CMP_32 = @cfunction(_blackboard_key_eq_cmp_32, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
 const _BLACKBOARD_KEY_EQ_CMP_64 = @cfunction(_blackboard_key_eq_cmp_64, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
 
+struct BlackboardKeyEq{K} end
+
+@inline function (::BlackboardKeyEq{K})(a::Ptr{Cvoid}, b::Ptr{Cvoid})::Bool where {K}
+    return ccall(:memcmp, Cint, (Ptr{Cvoid}, Ptr{Cvoid}, Csize_t), a, b, sizeof(K)) == 0
+end
+
+const _BLACKBOARD_KEY_EQ_CACHE = IdDict{DataType, Tuple{Any, Ptr{Cvoid}}}()
+const _BLACKBOARD_KEY_EQ_LOCK = ReentrantLock()
+
+function _blackboard_key_eq_cmp_ptr_fallback(::Type{K}) where {K}
+    Base.lock(_BLACKBOARD_KEY_EQ_LOCK) do
+        entry = get(_BLACKBOARD_KEY_EQ_CACHE, K, nothing)
+        if entry !== nothing
+            return entry[2]
+        end
+        fn = BlackboardKeyEq{K}()
+        ptr = Base.cfunction(fn, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
+        _BLACKBOARD_KEY_EQ_CACHE[K] = (fn, ptr)
+        return ptr
+    end
+end
+
 @inline function _blackboard_key_eq_cmp_ptr(::Type{K}) where {K}
     size = sizeof(K)
     if size == 1
@@ -2565,7 +2587,7 @@ const _BLACKBOARD_KEY_EQ_CMP_64 = @cfunction(_blackboard_key_eq_cmp_64, Bool, (P
     elseif size == 64
         return _BLACKBOARD_KEY_EQ_CMP_64
     end
-    throw(ArgumentError("unsupported blackboard key size: $size bytes"))
+    return _blackboard_key_eq_cmp_ptr_fallback(K)
 end
 
 """
