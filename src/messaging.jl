@@ -98,7 +98,19 @@ Base.lastindex(slice::Slice) = slice.len
     return unsafe_load(slice.ptr, i)
 end
 
-@inline function Base.setindex!(slice::Slice{T}, value::T, i::Int) where {T}
+@inline function _require_inactive(handle_ref::Base.RefValue, what::AbstractString)
+    handle_ref[] == _IOX2_NULL || throw(ArgumentError("$what is still active; call close first"))
+    return nothing
+end
+
+@inline function _require_inactive(obj, what::AbstractString)
+    return _require_inactive(obj.handle_ref, what)
+end
+
+@inline _slice_mutable(::Type{O}) where {O} = O === Nothing
+
+@inline function Base.setindex!(slice::Slice{T,O}, value::T, i::Int) where {T,O}
+    _slice_mutable(O) || throw(ArgumentError("slice is read-only"))
     @boundscheck (i >= 1 && i <= slice.len) || throw(BoundsError(slice, i))
     unsafe_store!(slice.ptr, value, i)
     return value
@@ -117,7 +129,7 @@ end
 end
 
 @inline function _default_value(::Type{T}) where {T}
-    Base.hasmethod(zero, Tuple{Type{T}}) || throw(ArgumentError("loan/loan_slice requires zero(::Type{$T})"))
+    Base.hasmethod(zero, Tuple{Type{T}}) || throw(ArgumentError("loan!/loan_slice! requires zero(::Type{$T})"))
     return zero(T)
 end
 
@@ -502,23 +514,30 @@ function create(f::Function, builder::SubscriberBuilder{T,UH}) where {T,UH}
 end
 
 mutable struct Sample{T,UH}
-    handle::Iceoryx2FFI.iox2_sample_h
-    storage::_StorageRef{Iceoryx2FFI.iox2_sample_t}
+    handle_ref::Base.RefValue{Iceoryx2FFI.iox2_sample_h}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_sample_t}
 end
 
+function Sample{T,UH}() where {T,UH}
+    sample = Sample(Ref{Iceoryx2FFI.iox2_sample_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_sample_t}())
+    finalizer(_finalize_sample, sample)
+    return sample
+end
+
+Sample(subscriber::Subscriber{T,UH}) where {T,UH} = Sample{T,UH}()
+
 function _finalize_sample(sample::Sample)
-    if sample.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_sample_drop(sample.handle)
-        sample.handle = _IOX2_NULL
+    if sample.handle_ref[] != _IOX2_NULL
+        Iceoryx2FFI.iox2_sample_drop(sample.handle_ref[])
+        sample.handle_ref[] = _IOX2_NULL
     end
-    sample.storage = nothing
     return nothing
 end
 
 @inline function payload(sample::Sample{T,UH}) where {T,UH}
     ptr_ref = Ref{Ptr{Cvoid}}()
     len_ref = Ref{Iceoryx2FFI.c_size_t}()
-    Iceoryx2FFI.iox2_sample_payload(Ref{Iceoryx2FFI.iox2_sample_h}(sample.handle), ptr_ref, len_ref)
+    Iceoryx2FFI.iox2_sample_payload(sample.handle_ref, ptr_ref, len_ref)
     return Slice{T}(Ptr{T}(ptr_ref[]), Int(len_ref[]), sample)
 end
 
@@ -527,9 +546,9 @@ end
 end
 
 @inline function header(sample::Sample)
-    _require_valid(sample.handle, "sample")
+    _require_valid(sample.handle_ref[], "sample")
     handle_ref = Ref{Iceoryx2FFI.iox2_publish_subscribe_header_h}(_IOX2_NULL)
-    Iceoryx2FFI.iox2_sample_header(Ref{Iceoryx2FFI.iox2_sample_h}(sample.handle), C_NULL, handle_ref)
+    Iceoryx2FFI.iox2_sample_header(sample.handle_ref, C_NULL, handle_ref)
     handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire sample header"))
     return PublishSubscribeHeader(handle_ref[])
 end
@@ -537,7 +556,7 @@ end
 @inline function unsafe_user_header_ptr(sample::Sample, ::Type{T}) where {T}
     _require_isbits(T)
     ptr_ref = Ref{Ptr{Cvoid}}()
-    Iceoryx2FFI.iox2_sample_user_header(Ref{Iceoryx2FFI.iox2_sample_h}(sample.handle), ptr_ref)
+    Iceoryx2FFI.iox2_sample_user_header(sample.handle_ref, ptr_ref)
     return Ptr{T}(ptr_ref[])
 end
 
@@ -557,23 +576,32 @@ end
 
 
 mutable struct SampleMut{T,UH}
-    handle::Iceoryx2FFI.iox2_sample_mut_h
-    storage::_StorageRef{Iceoryx2FFI.iox2_sample_mut_t}
+    handle_ref::Base.RefValue{Iceoryx2FFI.iox2_sample_mut_h}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_sample_mut_t}
 end
 
+function SampleMut{T,UH}() where {T,UH}
+    sample = SampleMut(Ref{Iceoryx2FFI.iox2_sample_mut_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_sample_mut_t}())
+    finalizer(_finalize_sample_mut, sample)
+    return sample
+end
+
+SampleMut(publisher::Publisher{T,UH}) where {T,UH} = SampleMut{T,UH}()
+
+@inline _slice_mutable(::Type{<:SampleMut}) = true
+
 function _finalize_sample_mut(sample::SampleMut)
-    if sample.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_sample_mut_drop(sample.handle)
-        sample.handle = _IOX2_NULL
+    if sample.handle_ref[] != _IOX2_NULL
+        Iceoryx2FFI.iox2_sample_mut_drop(sample.handle_ref[])
+        sample.handle_ref[] = _IOX2_NULL
     end
-    sample.storage = nothing
     return nothing
 end
 
 @inline function payload_mut(sample::SampleMut{T,UH}) where {T,UH}
     ptr_ref = Ref{Ptr{Cvoid}}()
     len_ref = Ref{Iceoryx2FFI.c_size_t}()
-    Iceoryx2FFI.iox2_sample_mut_payload_mut(Ref{Iceoryx2FFI.iox2_sample_mut_h}(sample.handle), ptr_ref, len_ref)
+    Iceoryx2FFI.iox2_sample_mut_payload_mut(sample.handle_ref, ptr_ref, len_ref)
     return Slice{T}(Ptr{T}(ptr_ref[]), Int(len_ref[]), sample)
 end
 
@@ -582,9 +610,9 @@ end
 end
 
 @inline function header(sample::SampleMut)
-    _require_valid(sample.handle, "sample")
+    _require_valid(sample.handle_ref[], "sample")
     handle_ref = Ref{Iceoryx2FFI.iox2_publish_subscribe_header_h}(_IOX2_NULL)
-    Iceoryx2FFI.iox2_sample_mut_header(Ref{Iceoryx2FFI.iox2_sample_mut_h}(sample.handle), C_NULL, handle_ref)
+    Iceoryx2FFI.iox2_sample_mut_header(sample.handle_ref, C_NULL, handle_ref)
     handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire sample header"))
     return PublishSubscribeHeader(handle_ref[])
 end
@@ -592,7 +620,7 @@ end
 @inline function unsafe_user_header_mut_ptr(sample::SampleMut, ::Type{T}) where {T}
     _require_isbits(T)
     ptr_ref = Ref{Ptr{Cvoid}}()
-    Iceoryx2FFI.iox2_sample_mut_user_header_mut(Ref{Iceoryx2FFI.iox2_sample_mut_h}(sample.handle), ptr_ref)
+    Iceoryx2FFI.iox2_sample_mut_user_header_mut(sample.handle_ref, ptr_ref)
     return Ptr{T}(ptr_ref[])
 end
 
@@ -639,35 +667,38 @@ end
 end
 
 
-function loan_slice_uninit(publisher::Publisher{T,UH}, n::Integer) where {T,UH}
+function loan_slice_uninit!(publisher::Publisher{T,UH}, sample::SampleMut{T,UH}, n::Integer) where {T,UH}
     _require_valid(publisher.handle, "publisher")
-    storage = Ref{Iceoryx2FFI.iox2_sample_mut_t}()
-    handle_ref = Ref{Iceoryx2FFI.iox2_sample_mut_h}(_IOX2_NULL)
-    ret = Iceoryx2FFI.iox2_publisher_loan_slice_uninit(Ref{Iceoryx2FFI.iox2_publisher_h}(publisher.handle), storage, handle_ref, Iceoryx2FFI.c_size_t(n))
+    _require_inactive(sample, "sample")
+    sample.handle_ref[] = _IOX2_NULL
+    ret = Iceoryx2FFI.iox2_publisher_loan_slice_uninit(
+        Ref{Iceoryx2FFI.iox2_publisher_h}(publisher.handle),
+        sample.storage,
+        sample.handle_ref,
+        Iceoryx2FFI.c_size_t(n),
+    )
     check_ok(ret, Iceoryx2FFI.iox2_loan_error_e)
-    sample = SampleMut{T,UH}(handle_ref[], storage)
-    finalizer(_finalize_sample_mut, sample)
     return sample
 end
 
-@inline function loan_uninit(publisher::Publisher{T,UH}) where {T,UH}
-    return loan_slice_uninit(publisher, 1)
+@inline function loan_uninit!(publisher::Publisher{T,UH}, sample::SampleMut{T,UH}) where {T,UH}
+    return loan_slice_uninit!(publisher, sample, 1)
 end
 
-function loan(publisher::Publisher{T,UH}) where {T,UH}
-    sample = loan_slice_uninit(publisher, 1)
+function loan!(publisher::Publisher{T,UH}, sample::SampleMut{T,UH}) where {T,UH}
+    loan_slice_uninit!(publisher, sample, 1)
     _fill_slice!(payload_mut(sample), _default_value(T))
     return sample
 end
 
-function loan_slice(publisher::Publisher{T,UH}, n::Integer) where {T,UH}
-    sample = loan_slice_uninit(publisher, n)
+function loan_slice!(publisher::Publisher{T,UH}, sample::SampleMut{T,UH}, n::Integer) where {T,UH}
+    loan_slice_uninit!(publisher, sample, n)
     _fill_slice!(payload_mut(sample), _default_value(T))
     return sample
 end
 
-function loan_slice(f::Function, publisher::Publisher{T,UH}, n::Integer) where {T,UH}
-    sample = loan_slice(publisher, n)
+function loan_slice!(f::Function, publisher::Publisher{T,UH}, sample::SampleMut{T,UH}, n::Integer) where {T,UH}
+    loan_slice!(publisher, sample, n)
     try
         return f(sample)
     finally
@@ -675,8 +706,8 @@ function loan_slice(f::Function, publisher::Publisher{T,UH}, n::Integer) where {
     end
 end
 
-function loan_slice_uninit(f::Function, publisher::Publisher{T,UH}, n::Integer) where {T,UH}
-    sample = loan_slice_uninit(publisher, n)
+function loan_slice_uninit!(f::Function, publisher::Publisher{T,UH}, sample::SampleMut{T,UH}, n::Integer) where {T,UH}
+    loan_slice_uninit!(publisher, sample, n)
     try
         return f(sample)
     finally
@@ -703,10 +734,9 @@ function write_from_fn!(f::Function, sample::SampleMut{T,UH}) where {T,UH}
 end
 
 @inline function send!(sample::SampleMut)
-    ret = Iceoryx2FFI.iox2_sample_mut_send(sample.handle, C_NULL)
+    ret = Iceoryx2FFI.iox2_sample_mut_send(sample.handle_ref[], C_NULL)
     check_ok(ret, Iceoryx2FFI.iox2_send_error_e)
-    sample.handle = _IOX2_NULL
-    sample.storage = nothing
+    sample.handle_ref[] = _IOX2_NULL
     return nothing
 end
 
@@ -740,19 +770,28 @@ function update_connections!(publisher::Publisher)
     return nothing
 end
 
-function receive(subscriber::Subscriber{T,UH}) where {T,UH}
+function receive!(subscriber::Subscriber{T,UH}, sample::Sample{T,UH}) where {T,UH}
     _require_valid(subscriber.handle, "subscriber")
-    storage = Ref{Iceoryx2FFI.iox2_sample_t}()
-    handle_ref = Ref{Iceoryx2FFI.iox2_sample_h}(_IOX2_NULL)
-    ret = Iceoryx2FFI.iox2_subscriber_receive(Ref{Iceoryx2FFI.iox2_subscriber_h}(subscriber.handle), storage, handle_ref)
+    _require_inactive(sample, "sample")
+    sample.handle_ref[] = _IOX2_NULL
+    ret = Iceoryx2FFI.iox2_subscriber_receive(
+        Ref{Iceoryx2FFI.iox2_subscriber_h}(subscriber.handle),
+        sample.storage,
+        sample.handle_ref,
+    )
     check_ok(ret, Iceoryx2FFI.iox2_receive_error_e)
-    if handle_ref[] == _IOX2_NULL
-        storage = nothing
-        return nothing
+    return sample.handle_ref[] != _IOX2_NULL
+end
+
+function receive!(f::Function, subscriber::Subscriber{T,UH}, sample::Sample{T,UH}) where {T,UH}
+    if receive!(subscriber, sample)
+        try
+            return f(sample)
+        finally
+            close(sample)
+        end
     end
-    sample = Sample{T,UH}(handle_ref[], storage)
-    finalizer(_finalize_sample, sample)
-    return sample
+    return nothing
 end
 
 function has_samples(subscriber::Subscriber)
@@ -1229,23 +1268,33 @@ function create(f::Function, builder::ServerBuilder{Req,Resp,ReqH,RespH}) where 
 end
 
 mutable struct RequestMut{Req,Resp,ReqH,RespH}
-    handle::Iceoryx2FFI.iox2_request_mut_h
-    storage::_StorageRef{Iceoryx2FFI.iox2_request_mut_t}
+    handle_ref::Base.RefValue{Iceoryx2FFI.iox2_request_mut_h}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_request_mut_t}
 end
 
+function RequestMut{Req,Resp,ReqH,RespH}() where {Req,Resp,ReqH,RespH}
+    request = RequestMut(Ref{Iceoryx2FFI.iox2_request_mut_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_request_mut_t}())
+    finalizer(_finalize_request_mut, request)
+    return request
+end
+
+RequestMut(client::Client{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH} =
+    RequestMut{Req,Resp,ReqH,RespH}()
+
+@inline _slice_mutable(::Type{<:RequestMut}) = true
+
 function _finalize_request_mut(request::RequestMut)
-    if request.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_request_mut_drop(request.handle)
-        request.handle = _IOX2_NULL
+    if request.handle_ref[] != _IOX2_NULL
+        Iceoryx2FFI.iox2_request_mut_drop(request.handle_ref[])
+        request.handle_ref[] = _IOX2_NULL
     end
-    request.storage = nothing
     return nothing
 end
 
 @inline function payload_mut(request::RequestMut{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
     ptr_ref = Ref{Ptr{Cvoid}}()
     len_ref = Ref{Iceoryx2FFI.c_size_t}()
-    Iceoryx2FFI.iox2_request_mut_payload_mut(Ref{Iceoryx2FFI.iox2_request_mut_h}(request.handle), ptr_ref, len_ref)
+    Iceoryx2FFI.iox2_request_mut_payload_mut(request.handle_ref, ptr_ref, len_ref)
     return Slice{Req}(Ptr{Req}(ptr_ref[]), Int(len_ref[]), request)
 end
 
@@ -1254,9 +1303,9 @@ end
 end
 
 @inline function header(request::RequestMut)
-    _require_valid(request.handle, "request")
+    _require_valid(request.handle_ref[], "request")
     handle_ref = Ref{Iceoryx2FFI.iox2_request_header_h}(_IOX2_NULL)
-    Iceoryx2FFI.iox2_request_mut_header(Ref{Iceoryx2FFI.iox2_request_mut_h}(request.handle), C_NULL, handle_ref)
+    Iceoryx2FFI.iox2_request_mut_header(request.handle_ref, C_NULL, handle_ref)
     handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire request header"))
     return RequestHeader(handle_ref[])
 end
@@ -1275,7 +1324,7 @@ end
 @inline function unsafe_user_header_mut_ptr(request::RequestMut, ::Type{T}) where {T}
     _require_isbits(T)
     ptr_ref = Ref{Ptr{Cvoid}}()
-    Iceoryx2FFI.iox2_request_mut_user_header_mut(Ref{Iceoryx2FFI.iox2_request_mut_h}(request.handle), ptr_ref)
+    Iceoryx2FFI.iox2_request_mut_user_header_mut(request.handle_ref, ptr_ref)
     return Ptr{T}(ptr_ref[])
 end
 
@@ -1323,23 +1372,31 @@ end
 
 
 mutable struct PendingResponse{Resp,ReqH,RespH}
-    handle::Iceoryx2FFI.iox2_pending_response_h
-    storage::_StorageRef{Iceoryx2FFI.iox2_pending_response_t}
+    handle_ref::Base.RefValue{Iceoryx2FFI.iox2_pending_response_h}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_pending_response_t}
 end
 
+function PendingResponse{Resp,ReqH,RespH}() where {Resp,ReqH,RespH}
+    pending = PendingResponse(Ref{Iceoryx2FFI.iox2_pending_response_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_pending_response_t}())
+    finalizer(_finalize_pending_response, pending)
+    return pending
+end
+
+PendingResponse(client::Client{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH} =
+    PendingResponse{Resp,ReqH,RespH}()
+
 function _finalize_pending_response(pending::PendingResponse)
-    if pending.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_pending_response_drop(pending.handle)
-        pending.handle = _IOX2_NULL
+    if pending.handle_ref[] != _IOX2_NULL
+        Iceoryx2FFI.iox2_pending_response_drop(pending.handle_ref[])
+        pending.handle_ref[] = _IOX2_NULL
     end
-    pending.storage = nothing
     return nothing
 end
 
 @inline function header(pending::PendingResponse)
-    _require_valid(pending.handle, "pending response")
+    _require_valid(pending.handle_ref[], "pending response")
     handle_ref = Ref{Iceoryx2FFI.iox2_request_header_h}(_IOX2_NULL)
-    Iceoryx2FFI.iox2_pending_response_header(Ref{Iceoryx2FFI.iox2_pending_response_h}(pending.handle), C_NULL, handle_ref)
+    Iceoryx2FFI.iox2_pending_response_header(pending.handle_ref, C_NULL, handle_ref)
     handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire request header"))
     return RequestHeader(handle_ref[])
 end
@@ -1347,7 +1404,7 @@ end
 @inline function unsafe_user_header_ptr(pending::PendingResponse, ::Type{T}) where {T}
     _require_isbits(T)
     ptr_ref = Ref{Ptr{Cvoid}}()
-    Iceoryx2FFI.iox2_pending_response_user_header(Ref{Iceoryx2FFI.iox2_pending_response_h}(pending.handle), ptr_ref)
+    Iceoryx2FFI.iox2_pending_response_user_header(pending.handle_ref, ptr_ref)
     return Ptr{T}(ptr_ref[])
 end
 
@@ -1366,35 +1423,42 @@ end
 end
 
 
-function loan_slice_uninit(client::Client{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
+function loan_slice_uninit!(
+    client::Client{Req,Resp,ReqH,RespH},
+    request::RequestMut{Req,Resp,ReqH,RespH},
+    n::Integer,
+) where {Req,Resp,ReqH,RespH}
     _require_valid(client.handle, "client")
-    storage = Ref{Iceoryx2FFI.iox2_request_mut_t}()
-    handle_ref = Ref{Iceoryx2FFI.iox2_request_mut_h}(_IOX2_NULL)
-    ret = Iceoryx2FFI.iox2_client_loan_slice_uninit(Ref{Iceoryx2FFI.iox2_client_h}(client.handle), storage, handle_ref, Iceoryx2FFI.c_size_t(n))
+    _require_inactive(request, "request")
+    request.handle_ref[] = _IOX2_NULL
+    ret = Iceoryx2FFI.iox2_client_loan_slice_uninit(
+        Ref{Iceoryx2FFI.iox2_client_h}(client.handle),
+        request.storage,
+        request.handle_ref,
+        Iceoryx2FFI.c_size_t(n),
+    )
     check_ok(ret, Iceoryx2FFI.iox2_loan_error_e)
-    request = RequestMut{Req,Resp,ReqH,RespH}(handle_ref[], storage)
-    finalizer(_finalize_request_mut, request)
     return request
 end
 
-@inline function loan_uninit(client::Client{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
-    return loan_slice_uninit(client, 1)
+@inline function loan_uninit!(client::Client{Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
+    return loan_slice_uninit!(client, request, 1)
 end
 
-@inline function loan(client::Client{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
-    request = loan_slice_uninit(client, 1)
+@inline function loan!(client::Client{Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
+    loan_slice_uninit!(client, request, 1)
     _fill_slice!(payload_mut(request), _default_value(Req))
     return request
 end
 
-function loan_slice(client::Client{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
-    request = loan_slice_uninit(client, n)
+function loan_slice!(client::Client{Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
+    loan_slice_uninit!(client, request, n)
     _fill_slice!(payload_mut(request), _default_value(Req))
     return request
 end
 
-function loan_slice(f::Function, client::Client{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
-    request = loan_slice(client, n)
+function loan_slice!(f::Function, client::Client{Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
+    loan_slice!(client, request, n)
     try
         return f(request)
     finally
@@ -1402,8 +1466,8 @@ function loan_slice(f::Function, client::Client{Req,Resp,ReqH,RespH}, n::Integer
     end
 end
 
-function loan_slice_uninit(f::Function, client::Client{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
-    request = loan_slice_uninit(client, n)
+function loan_slice_uninit!(f::Function, client::Client{Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
+    loan_slice_uninit!(client, request, n)
     try
         return f(request)
     finally
@@ -1411,69 +1475,91 @@ function loan_slice_uninit(f::Function, client::Client{Req,Resp,ReqH,RespH}, n::
     end
 end
 
-function loan_request(client::Client{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
-    return loan_slice_uninit(client, n)
+function loan_request!(client::Client{Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
+    return loan_slice_uninit!(client, request, n)
 end
 
-function loan_request(f::Function, client::Client{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
-    return loan_slice_uninit(f, client, n)
+function loan_request!(f::Function, client::Client{Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
+    return loan_slice_uninit!(f, client, request, n)
 end
 
-function send!(request::RequestMut{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
-    pending_storage = Ref{Iceoryx2FFI.iox2_pending_response_t}()
-    pending_ref = Ref{Iceoryx2FFI.iox2_pending_response_h}(_IOX2_NULL)
-    ret = Iceoryx2FFI.iox2_request_mut_send(request.handle, pending_storage, pending_ref)
+function send!(request::RequestMut{Req,Resp,ReqH,RespH}, pending::PendingResponse{Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
+    _require_inactive(pending, "pending response")
+    pending.handle_ref[] = _IOX2_NULL
+    ret = Iceoryx2FFI.iox2_request_mut_send(request.handle_ref[], pending.storage, pending.handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_send_error_e)
-    request.handle = _IOX2_NULL
-    request.storage = nothing
-    pending = PendingResponse{Resp,ReqH,RespH}(pending_ref[], pending_storage)
-    finalizer(_finalize_pending_response, pending)
+    request.handle_ref[] = _IOX2_NULL
     return pending
 end
 
-function send_copy(client::Client{Req,Resp,ReqH,RespH}, data::Ptr{Req}, n::Integer) where {Req,Resp,ReqH,RespH}
-    pending_storage = Ref{Iceoryx2FFI.iox2_pending_response_t}()
-    pending_ref = Ref{Iceoryx2FFI.iox2_pending_response_h}(_IOX2_NULL)
-    ret = Iceoryx2FFI.iox2_client_send_copy(Ref{Iceoryx2FFI.iox2_client_h}(client.handle), data, Iceoryx2FFI.c_size_t(sizeof(Req)), Iceoryx2FFI.c_size_t(n), pending_storage, pending_ref)
+function send_copy!(
+    client::Client{Req,Resp,ReqH,RespH},
+    data::Ptr{Req},
+    n::Integer,
+    pending::PendingResponse{Resp,ReqH,RespH},
+) where {Req,Resp,ReqH,RespH}
+    _require_inactive(pending, "pending response")
+    pending.handle_ref[] = _IOX2_NULL
+    ret = Iceoryx2FFI.iox2_client_send_copy(
+        Ref{Iceoryx2FFI.iox2_client_h}(client.handle),
+        data,
+        Iceoryx2FFI.c_size_t(sizeof(Req)),
+        Iceoryx2FFI.c_size_t(n),
+        pending.storage,
+        pending.handle_ref,
+    )
     check_ok(ret, Iceoryx2FFI.iox2_send_error_e)
-    pending = PendingResponse{Resp,ReqH,RespH}(pending_ref[], pending_storage)
-    finalizer(_finalize_pending_response, pending)
     return pending
 end
 
-function send_copy(client::Client{Req,Resp,ReqH,RespH}, data::AbstractVector{Req}) where {Req,Resp,ReqH,RespH}
+function send_copy!(
+    client::Client{Req,Resp,ReqH,RespH},
+    data::AbstractVector{Req},
+    pending::PendingResponse{Resp,ReqH,RespH},
+) where {Req,Resp,ReqH,RespH}
     _require_isbits(Req)
     GC.@preserve data begin
-        return send_copy(client, pointer(data), length(data))
+        return send_copy!(client, pointer(data), length(data), pending)
     end
 end
 
-function send_copy(client::Client{Req,Resp,ReqH,RespH}, value::Req) where {Req,Resp,ReqH,RespH}
+function send_copy!(
+    client::Client{Req,Resp,ReqH,RespH},
+    value::Req,
+    pending::PendingResponse{Resp,ReqH,RespH},
+) where {Req,Resp,ReqH,RespH}
     _require_isbits(Req)
     value_ref = Ref{Req}(value)
     GC.@preserve value_ref begin
-        return send_copy(client, Base.unsafe_convert(Ptr{Req}, value_ref), 1)
+        return send_copy!(client, Base.unsafe_convert(Ptr{Req}, value_ref), 1, pending)
     end
 end
 
 mutable struct Response{Resp,RespH}
-    handle::Iceoryx2FFI.iox2_response_h
-    storage::_StorageRef{Iceoryx2FFI.iox2_response_t}
+    handle_ref::Base.RefValue{Iceoryx2FFI.iox2_response_h}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_response_t}
 end
 
+function Response{Resp,RespH}() where {Resp,RespH}
+    resp = Response(Ref{Iceoryx2FFI.iox2_response_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_response_t}())
+    finalizer(_finalize_response, resp)
+    return resp
+end
+
+Response(pending::PendingResponse{Resp,ReqH,RespH}) where {Resp,ReqH,RespH} = Response{Resp,RespH}()
+
 function _finalize_response(resp::Response)
-    if resp.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_response_drop(resp.handle)
-        resp.handle = _IOX2_NULL
+    if resp.handle_ref[] != _IOX2_NULL
+        Iceoryx2FFI.iox2_response_drop(resp.handle_ref[])
+        resp.handle_ref[] = _IOX2_NULL
     end
-    resp.storage = nothing
     return nothing
 end
 
 @inline function payload(resp::Response{RespT,RespH}) where {RespT,RespH}
     ptr_ref = Ref{Ptr{Cvoid}}()
     len_ref = Ref{Iceoryx2FFI.c_size_t}()
-    Iceoryx2FFI.iox2_response_payload(Ref{Iceoryx2FFI.iox2_response_h}(resp.handle), ptr_ref, len_ref)
+    Iceoryx2FFI.iox2_response_payload(resp.handle_ref, ptr_ref, len_ref)
     return Slice{RespT}(Ptr{RespT}(ptr_ref[]), Int(len_ref[]), resp)
 end
 
@@ -1482,9 +1568,9 @@ end
 end
 
 @inline function header(resp::Response)
-    _require_valid(resp.handle, "response")
+    _require_valid(resp.handle_ref[], "response")
     handle_ref = Ref{Iceoryx2FFI.iox2_response_header_h}(_IOX2_NULL)
-    Iceoryx2FFI.iox2_response_header(Ref{Iceoryx2FFI.iox2_response_h}(resp.handle), C_NULL, handle_ref)
+    Iceoryx2FFI.iox2_response_header(resp.handle_ref, C_NULL, handle_ref)
     handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire response header"))
     return ResponseHeader(handle_ref[])
 end
@@ -1492,7 +1578,7 @@ end
 @inline function unsafe_user_header_ptr(resp::Response, ::Type{T}) where {T}
     _require_isbits(T)
     ptr_ref = Ref{Ptr{Cvoid}}()
-    Iceoryx2FFI.iox2_response_user_header(Ref{Iceoryx2FFI.iox2_response_h}(resp.handle), ptr_ref)
+    Iceoryx2FFI.iox2_response_user_header(resp.handle_ref, ptr_ref)
     return Ptr{T}(ptr_ref[])
 end
 
@@ -1529,38 +1615,56 @@ end
 end
 
 
-function receive(pending::PendingResponse{Resp,ReqH,RespH}) where {Resp,ReqH,RespH}
-    storage = Ref{Iceoryx2FFI.iox2_response_t}()
-    handle_ref = Ref{Iceoryx2FFI.iox2_response_h}(_IOX2_NULL)
-    ret = Iceoryx2FFI.iox2_pending_response_receive(Ref{Iceoryx2FFI.iox2_pending_response_h}(pending.handle), storage, handle_ref)
+function receive!(pending::PendingResponse{Resp,ReqH,RespH}, resp::Response{Resp,RespH}) where {Resp,ReqH,RespH}
+    _require_valid(pending.handle_ref[], "pending response")
+    _require_inactive(resp, "response")
+    resp.handle_ref[] = _IOX2_NULL
+    ret = Iceoryx2FFI.iox2_pending_response_receive(
+        pending.handle_ref,
+        resp.storage,
+        resp.handle_ref,
+    )
     check_ok(ret, Iceoryx2FFI.iox2_receive_error_e)
-    if handle_ref[] == _IOX2_NULL
-        storage = nothing
-        return nothing
+    return resp.handle_ref[] != _IOX2_NULL
+end
+
+function receive!(f::Function, pending::PendingResponse{Resp,ReqH,RespH}, resp::Response{Resp,RespH}) where {Resp,ReqH,RespH}
+    if receive!(pending, resp)
+        try
+            return f(resp)
+        finally
+            close(resp)
+        end
     end
-    resp = Response{Resp,RespH}(handle_ref[], storage)
-    finalizer(_finalize_response, resp)
-    return resp
+    return nothing
 end
 
 mutable struct ActiveRequest{Req,Resp,ReqH,RespH}
-    handle::Iceoryx2FFI.iox2_active_request_h
-    storage::_StorageRef{Iceoryx2FFI.iox2_active_request_t}
+    handle_ref::Base.RefValue{Iceoryx2FFI.iox2_active_request_h}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_active_request_t}
 end
 
+function ActiveRequest{Req,Resp,ReqH,RespH}() where {Req,Resp,ReqH,RespH}
+    req = ActiveRequest(Ref{Iceoryx2FFI.iox2_active_request_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_active_request_t}())
+    finalizer(_finalize_active_request, req)
+    return req
+end
+
+ActiveRequest(server::Server{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH} =
+    ActiveRequest{Req,Resp,ReqH,RespH}()
+
 function _finalize_active_request(req::ActiveRequest)
-    if req.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_active_request_drop(req.handle)
-        req.handle = _IOX2_NULL
+    if req.handle_ref[] != _IOX2_NULL
+        Iceoryx2FFI.iox2_active_request_drop(req.handle_ref[])
+        req.handle_ref[] = _IOX2_NULL
     end
-    req.storage = nothing
     return nothing
 end
 
 @inline function payload(req::ActiveRequest{ReqT,RespT,ReqH,RespH}) where {ReqT,RespT,ReqH,RespH}
     ptr_ref = Ref{Ptr{Cvoid}}()
     len_ref = Ref{Iceoryx2FFI.c_size_t}()
-    Iceoryx2FFI.iox2_active_request_payload(Ref{Iceoryx2FFI.iox2_active_request_h}(req.handle), ptr_ref, len_ref)
+    Iceoryx2FFI.iox2_active_request_payload(req.handle_ref, ptr_ref, len_ref)
     return Slice{ReqT}(Ptr{ReqT}(ptr_ref[]), Int(len_ref[]), req)
 end
 
@@ -1569,9 +1673,9 @@ end
 end
 
 @inline function header(req::ActiveRequest)
-    _require_valid(req.handle, "active request")
+    _require_valid(req.handle_ref[], "active request")
     handle_ref = Ref{Iceoryx2FFI.iox2_request_header_h}(_IOX2_NULL)
-    Iceoryx2FFI.iox2_active_request_header(Ref{Iceoryx2FFI.iox2_active_request_h}(req.handle), C_NULL, handle_ref)
+    Iceoryx2FFI.iox2_active_request_header(req.handle_ref, C_NULL, handle_ref)
     handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire request header"))
     return RequestHeader(handle_ref[])
 end
@@ -1579,7 +1683,7 @@ end
 @inline function unsafe_user_header_ptr(req::ActiveRequest, ::Type{T}) where {T}
     _require_isbits(T)
     ptr_ref = Ref{Ptr{Cvoid}}()
-    Iceoryx2FFI.iox2_active_request_user_header(Ref{Iceoryx2FFI.iox2_active_request_h}(req.handle), ptr_ref)
+    Iceoryx2FFI.iox2_active_request_user_header(req.handle_ref, ptr_ref)
     return Ptr{T}(ptr_ref[])
 end
 
@@ -1599,23 +1703,32 @@ end
 
 
 mutable struct ResponseMut{Resp,RespH}
-    handle::Iceoryx2FFI.iox2_response_mut_h
-    storage::_StorageRef{Iceoryx2FFI.iox2_response_mut_t}
+    handle_ref::Base.RefValue{Iceoryx2FFI.iox2_response_mut_h}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_response_mut_t}
 end
 
+function ResponseMut{Resp,RespH}() where {Resp,RespH}
+    resp = ResponseMut(Ref{Iceoryx2FFI.iox2_response_mut_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_response_mut_t}())
+    finalizer(_finalize_response_mut, resp)
+    return resp
+end
+
+ResponseMut(req::ActiveRequest{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH} = ResponseMut{Resp,RespH}()
+
+@inline _slice_mutable(::Type{<:ResponseMut}) = true
+
 function _finalize_response_mut(resp::ResponseMut)
-    if resp.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_response_mut_drop(resp.handle)
-        resp.handle = _IOX2_NULL
+    if resp.handle_ref[] != _IOX2_NULL
+        Iceoryx2FFI.iox2_response_mut_drop(resp.handle_ref[])
+        resp.handle_ref[] = _IOX2_NULL
     end
-    resp.storage = nothing
     return nothing
 end
 
 @inline function payload_mut(resp::ResponseMut{RespT,RespH}) where {RespT,RespH}
     ptr_ref = Ref{Ptr{Cvoid}}()
     len_ref = Ref{Iceoryx2FFI.c_size_t}()
-    Iceoryx2FFI.iox2_response_mut_payload_mut(Ref{Iceoryx2FFI.iox2_response_mut_h}(resp.handle), ptr_ref, len_ref)
+    Iceoryx2FFI.iox2_response_mut_payload_mut(resp.handle_ref, ptr_ref, len_ref)
     return Slice{RespT}(Ptr{RespT}(ptr_ref[]), Int(len_ref[]), resp)
 end
 
@@ -1624,9 +1737,9 @@ end
 end
 
 @inline function header(resp::ResponseMut)
-    _require_valid(resp.handle, "response")
+    _require_valid(resp.handle_ref[], "response")
     handle_ref = Ref{Iceoryx2FFI.iox2_response_header_h}(_IOX2_NULL)
-    Iceoryx2FFI.iox2_response_mut_header(Ref{Iceoryx2FFI.iox2_response_mut_h}(resp.handle), C_NULL, handle_ref)
+    Iceoryx2FFI.iox2_response_mut_header(resp.handle_ref, C_NULL, handle_ref)
     handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire response header"))
     return ResponseHeader(handle_ref[])
 end
@@ -1645,7 +1758,7 @@ end
 @inline function unsafe_user_header_mut_ptr(resp::ResponseMut, ::Type{T}) where {T}
     _require_isbits(T)
     ptr_ref = Ref{Ptr{Cvoid}}()
-    Iceoryx2FFI.iox2_response_mut_user_header_mut(Ref{Iceoryx2FFI.iox2_response_mut_h}(resp.handle), ptr_ref)
+    Iceoryx2FFI.iox2_response_mut_user_header_mut(resp.handle_ref, ptr_ref)
     return Ptr{T}(ptr_ref[])
 end
 
@@ -1674,19 +1787,28 @@ end
 end
 
 
-function receive(server::Server{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
+function receive!(server::Server{Req,Resp,ReqH,RespH}, req::ActiveRequest{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
     _require_valid(server.handle, "server")
-    storage = Ref{Iceoryx2FFI.iox2_active_request_t}()
-    handle_ref = Ref{Iceoryx2FFI.iox2_active_request_h}(_IOX2_NULL)
-    ret = Iceoryx2FFI.iox2_server_receive(Ref{Iceoryx2FFI.iox2_server_h}(server.handle), storage, handle_ref)
+    _require_inactive(req, "active request")
+    req.handle_ref[] = _IOX2_NULL
+    ret = Iceoryx2FFI.iox2_server_receive(
+        Ref{Iceoryx2FFI.iox2_server_h}(server.handle),
+        req.storage,
+        req.handle_ref,
+    )
     check_ok(ret, Iceoryx2FFI.iox2_receive_error_e)
-    if handle_ref[] == _IOX2_NULL
-        storage = nothing
-        return nothing
+    return req.handle_ref[] != _IOX2_NULL
+end
+
+function receive!(f::Function, server::Server{Req,Resp,ReqH,RespH}, req::ActiveRequest{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
+    if receive!(server, req)
+        try
+            return f(req)
+        finally
+            close(req)
+        end
     end
-    req = ActiveRequest{Req,Resp,ReqH,RespH}(handle_ref[], storage)
-    finalizer(_finalize_active_request, req)
-    return req
+    return nothing
 end
 
 function has_requests(server::Server)
@@ -1696,69 +1818,75 @@ function has_requests(server::Server)
     return result[]
 end
 
-function loan_slice_uninit(req::ActiveRequest{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
-    storage = Ref{Iceoryx2FFI.iox2_response_mut_t}()
-    handle_ref = Ref{Iceoryx2FFI.iox2_response_mut_h}(_IOX2_NULL)
-    ret = Iceoryx2FFI.iox2_active_request_loan_slice_uninit(Ref{Iceoryx2FFI.iox2_active_request_h}(req.handle), storage, handle_ref, Iceoryx2FFI.c_size_t(n))
+function loan_slice_uninit!(
+    req::ActiveRequest{Req,Resp,ReqH,RespH},
+    resp::ResponseMut{Resp,RespH},
+    n::Integer,
+) where {Req,Resp,ReqH,RespH}
+    _require_inactive(resp, "response")
+    resp.handle_ref[] = _IOX2_NULL
+    ret = Iceoryx2FFI.iox2_active_request_loan_slice_uninit(
+        req.handle_ref,
+        resp.storage,
+        resp.handle_ref,
+        Iceoryx2FFI.c_size_t(n),
+    )
     check_ok(ret, Iceoryx2FFI.iox2_loan_error_e)
-    resp = ResponseMut{Resp,RespH}(handle_ref[], storage)
-    finalizer(_finalize_response_mut, resp)
     return resp
 end
 
-@inline function loan_uninit(req::ActiveRequest{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
-    return loan_slice_uninit(req, 1)
+@inline function loan_uninit!(req::ActiveRequest{Req,Resp,ReqH,RespH}, resp::ResponseMut{Resp,RespH}) where {Req,Resp,ReqH,RespH}
+    return loan_slice_uninit!(req, resp, 1)
 end
 
-@inline function loan(req::ActiveRequest{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
-    response = loan_slice_uninit(req, 1)
-    _fill_slice!(payload_mut(response), _default_value(Resp))
-    return response
+@inline function loan!(req::ActiveRequest{Req,Resp,ReqH,RespH}, resp::ResponseMut{Resp,RespH}) where {Req,Resp,ReqH,RespH}
+    loan_slice_uninit!(req, resp, 1)
+    _fill_slice!(payload_mut(resp), _default_value(Resp))
+    return resp
 end
 
-function loan_slice(req::ActiveRequest{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
-    response = loan_slice_uninit(req, n)
-    _fill_slice!(payload_mut(response), _default_value(Resp))
-    return response
+function loan_slice!(req::ActiveRequest{Req,Resp,ReqH,RespH}, resp::ResponseMut{Resp,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
+    loan_slice_uninit!(req, resp, n)
+    _fill_slice!(payload_mut(resp), _default_value(Resp))
+    return resp
 end
 
-function loan_slice(f::Function, req::ActiveRequest{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
-    response = loan_slice(req, n)
+function loan_slice!(f::Function, req::ActiveRequest{Req,Resp,ReqH,RespH}, resp::ResponseMut{Resp,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
+    loan_slice!(req, resp, n)
     try
-        return f(response)
+        return f(resp)
     finally
-        close(response)
+        close(resp)
     end
 end
 
-function loan_slice_uninit(f::Function, req::ActiveRequest{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
-    response = loan_slice_uninit(req, n)
+function loan_slice_uninit!(f::Function, req::ActiveRequest{Req,Resp,ReqH,RespH}, resp::ResponseMut{Resp,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
+    loan_slice_uninit!(req, resp, n)
     try
-        return f(response)
+        return f(resp)
     finally
-        close(response)
+        close(resp)
     end
 end
 
-function loan_response(req::ActiveRequest{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
-    return loan_slice_uninit(req, n)
+function loan_response!(req::ActiveRequest{Req,Resp,ReqH,RespH}, resp::ResponseMut{Resp,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
+    return loan_slice_uninit!(req, resp, n)
 end
 
-function loan_response(f::Function, req::ActiveRequest{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
-    return loan_slice_uninit(f, req, n)
+function loan_response!(f::Function, req::ActiveRequest{Req,Resp,ReqH,RespH}, resp::ResponseMut{Resp,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
+    return loan_slice_uninit!(f, req, resp, n)
 end
 
 function send_copy(req::ActiveRequest{Req,Resp,ReqH,RespH}, data::Ptr{Resp}, n::Integer) where {Req,Resp,ReqH,RespH}
-    ret = Iceoryx2FFI.iox2_active_request_send_copy(Ref{Iceoryx2FFI.iox2_active_request_h}(req.handle), data, Iceoryx2FFI.c_size_t(sizeof(Resp)), Iceoryx2FFI.c_size_t(n))
+    ret = Iceoryx2FFI.iox2_active_request_send_copy(req.handle_ref, data, Iceoryx2FFI.c_size_t(sizeof(Resp)), Iceoryx2FFI.c_size_t(n))
     check_ok(ret, Iceoryx2FFI.iox2_send_error_e)
     return nothing
 end
 
 function send!(resp::ResponseMut)
-    ret = Iceoryx2FFI.iox2_response_mut_send(resp.handle)
+    ret = Iceoryx2FFI.iox2_response_mut_send(resp.handle_ref[])
     check_ok(ret, Iceoryx2FFI.iox2_send_error_e)
-    resp.handle = _IOX2_NULL
-    resp.storage = nothing
+    resp.handle_ref[] = _IOX2_NULL
     return nothing
 end
 
@@ -2578,66 +2706,88 @@ function create(f::Function, builder::ReaderBuilder{K}) where {K}
 end
 
 mutable struct EntryHandle{K,V}
-    handle::Iceoryx2FFI.iox2_entry_handle_h
-    storage::_StorageRef{Iceoryx2FFI.iox2_entry_handle_t}
+    handle_ref::Base.RefValue{Iceoryx2FFI.iox2_entry_handle_h}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_entry_handle_t}
     keepalive::Reader{K}
 end
 
+function EntryHandle{K,V}(reader::Reader{K}) where {K,V}
+    entry = EntryHandle(Ref{Iceoryx2FFI.iox2_entry_handle_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_entry_handle_t}(), reader)
+    finalizer(_finalize_entry_handle, entry)
+    return entry
+end
+
+EntryHandle(reader::Reader{K}, ::Type{V}) where {K,V} = EntryHandle{K,V}(reader)
+
 function _finalize_entry_handle(entry::EntryHandle)
-    if entry.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_entry_handle_drop(entry.handle)
-        entry.handle = _IOX2_NULL
+    if entry.handle_ref[] != _IOX2_NULL
+        Iceoryx2FFI.iox2_entry_handle_drop(entry.handle_ref[])
+        entry.handle_ref[] = _IOX2_NULL
     end
-    entry.storage = nothing
     return nothing
 end
 
 mutable struct EntryHandleMut{K,V}
-    handle::Iceoryx2FFI.iox2_entry_handle_mut_h
-    storage::_StorageRef{Iceoryx2FFI.iox2_entry_handle_mut_t}
+    handle_ref::Base.RefValue{Iceoryx2FFI.iox2_entry_handle_mut_h}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_entry_handle_mut_t}
     keepalive::Writer{K}
 end
 
+function EntryHandleMut{K,V}(writer::Writer{K}) where {K,V}
+    entry = EntryHandleMut(Ref{Iceoryx2FFI.iox2_entry_handle_mut_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_entry_handle_mut_t}(), writer)
+    finalizer(_finalize_entry_handle_mut, entry)
+    return entry
+end
+
+EntryHandleMut(writer::Writer{K}, ::Type{V}) where {K,V} = EntryHandleMut{K,V}(writer)
+
 function _finalize_entry_handle_mut(entry::EntryHandleMut)
-    if entry.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_entry_handle_mut_drop(entry.handle)
-        entry.handle = _IOX2_NULL
+    if entry.handle_ref[] != _IOX2_NULL
+        Iceoryx2FFI.iox2_entry_handle_mut_drop(entry.handle_ref[])
+        entry.handle_ref[] = _IOX2_NULL
     end
-    entry.storage = nothing
     return nothing
 end
 
 mutable struct EntryValueUninit{K,V}
-    handle::Iceoryx2FFI.iox2_entry_value_uninit_h
-    storage::_StorageRef{Iceoryx2FFI.iox2_entry_value_uninit_t}
+    handle_ref::Base.RefValue{Iceoryx2FFI.iox2_entry_value_uninit_h}
+    storage::Base.RefValue{Iceoryx2FFI.iox2_entry_value_uninit_t}
     keepalive::Writer{K}
 end
 
-function _finalize_entry_value_uninit(value::EntryValueUninit)
-    if value.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_entry_value_uninit_drop(value.handle)
-        value.handle = _IOX2_NULL
-    end
-    value.storage = nothing
-    return nothing
-end
-
-function loan_uninit(entry::EntryHandleMut{K,V}) where {K,V}
-    _require_valid(entry.handle, "entry handle mut")
-    storage = Ref{Iceoryx2FFI.iox2_entry_value_uninit_t}()
-    handle_ref = Ref{Iceoryx2FFI.iox2_entry_value_uninit_h}(_IOX2_NULL)
-    size = Iceoryx2FFI.c_size_t(sizeof(V))
-    alignment = Iceoryx2FFI.c_size_t(Base.datatype_alignment(V))
-    Iceoryx2FFI.iox2_entry_handle_mut_loan_uninit(entry.handle, storage, handle_ref, size, alignment)
-    entry.handle = _IOX2_NULL
-    entry.storage = nothing
-    value = EntryValueUninit{K,V}(handle_ref[], storage, entry.keepalive)
+function EntryValueUninit{K,V}(writer::Writer{K}) where {K,V}
+    value = EntryValueUninit(Ref{Iceoryx2FFI.iox2_entry_value_uninit_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_entry_value_uninit_t}(), writer)
     finalizer(_finalize_entry_value_uninit, value)
     return value
 end
 
-function loan_uninit(f::Function, entry::EntryHandleMut{K,V}) where {K,V}
-    value = loan_uninit(entry)
+EntryValueUninit(writer::Writer{K}, ::Type{V}) where {K,V} = EntryValueUninit{K,V}(writer)
+EntryValueUninit(entry::EntryHandleMut{K,V}) where {K,V} = EntryValueUninit{K,V}(entry.keepalive)
+
+@inline _slice_mutable(::Type{<:EntryValueUninit}) = true
+
+function _finalize_entry_value_uninit(value::EntryValueUninit)
+    if value.handle_ref[] != _IOX2_NULL
+        Iceoryx2FFI.iox2_entry_value_uninit_drop(value.handle_ref[])
+        value.handle_ref[] = _IOX2_NULL
+    end
+    return nothing
+end
+
+function loan_uninit!(entry::EntryHandleMut{K,V}, value::EntryValueUninit{K,V}) where {K,V}
+    _require_valid(entry.handle_ref[], "entry handle mut")
+    _require_inactive(value, "entry value")
+    value.handle_ref[] = _IOX2_NULL
+    size = Iceoryx2FFI.c_size_t(sizeof(V))
+    alignment = Iceoryx2FFI.c_size_t(Base.datatype_alignment(V))
+    Iceoryx2FFI.iox2_entry_handle_mut_loan_uninit(entry.handle_ref[], value.storage, value.handle_ref, size, alignment)
+    entry.handle_ref[] = _IOX2_NULL
+    value.keepalive = entry.keepalive
+    return value
+end
+
+function loan_uninit!(f::Function, entry::EntryHandleMut{K,V}, value::EntryValueUninit{K,V}) where {K,V}
+    loan_uninit!(entry, value)
     try
         return f(value)
     finally
@@ -2648,47 +2798,43 @@ end
 @inline function value_mut(value::EntryValueUninit{K,V}) where {K,V}
     ptr_ref = Ref{Ptr{Cvoid}}()
     Iceoryx2FFI.iox2_entry_value_uninit_value_mut(
-        Ref{Iceoryx2FFI.iox2_entry_value_uninit_h}(value.handle),
+        value.handle_ref,
         ptr_ref,
     )
     return Ptr{V}(ptr_ref[])
 end
 
-function update!(value::EntryValueUninit{K,V}) where {K,V}
-    storage = Ref{Iceoryx2FFI.iox2_entry_handle_mut_t}()
-    handle_ref = Ref{Iceoryx2FFI.iox2_entry_handle_mut_h}(_IOX2_NULL)
-    Iceoryx2FFI.iox2_entry_value_uninit_update(value.handle, storage, handle_ref)
-    value.handle = _IOX2_NULL
-    value.storage = nothing
-    entry = EntryHandleMut{K,V}(handle_ref[], storage, value.keepalive)
-    finalizer(_finalize_entry_handle_mut, entry)
+function update!(value::EntryValueUninit{K,V}, entry::EntryHandleMut{K,V}) where {K,V}
+    _require_inactive(entry, "entry handle mut")
+    entry.handle_ref[] = _IOX2_NULL
+    Iceoryx2FFI.iox2_entry_value_uninit_update(value.handle_ref[], entry.storage, entry.handle_ref)
+    value.handle_ref[] = _IOX2_NULL
+    entry.keepalive = value.keepalive
     return entry
 end
 
-function discard!(value::EntryValueUninit{K,V}) where {K,V}
-    storage = Ref{Iceoryx2FFI.iox2_entry_handle_mut_t}()
-    handle_ref = Ref{Iceoryx2FFI.iox2_entry_handle_mut_h}(_IOX2_NULL)
-    Iceoryx2FFI.iox2_entry_value_uninit_discard(value.handle, storage, handle_ref)
-    value.handle = _IOX2_NULL
-    value.storage = nothing
-    entry = EntryHandleMut{K,V}(handle_ref[], storage, value.keepalive)
-    finalizer(_finalize_entry_handle_mut, entry)
+function discard!(value::EntryValueUninit{K,V}, entry::EntryHandleMut{K,V}) where {K,V}
+    _require_inactive(entry, "entry handle mut")
+    entry.handle_ref[] = _IOX2_NULL
+    Iceoryx2FFI.iox2_entry_value_uninit_discard(value.handle_ref[], entry.storage, entry.handle_ref)
+    value.handle_ref[] = _IOX2_NULL
+    entry.keepalive = value.keepalive
     return entry
 end
 
-function reader_entry(reader::Reader{K}, key::K, ::Type{V}) where {K,V}
+function reader_entry!(reader::Reader{K}, entry::EntryHandle{K,V}, key::K) where {K,V}
     _require_valid(reader.handle, "reader")
     _require_isbits(K)
     _require_isbits(V)
+    _require_inactive(entry, "entry handle")
+    entry.handle_ref[] = _IOX2_NULL
     key_ref = Ref{K}(key)
-    storage = Ref{Iceoryx2FFI.iox2_entry_handle_t}()
-    handle_ref = Ref{Iceoryx2FFI.iox2_entry_handle_h}(_IOX2_NULL)
     name, name_len, size, alignment = _type_details(V)
     GC.@preserve key_ref name begin
         ret = Iceoryx2FFI.iox2_reader_entry(
             Ref{Iceoryx2FFI.iox2_reader_h}(reader.handle),
-            storage,
-            handle_ref,
+            entry.storage,
+            entry.handle_ref,
             Base.unsafe_convert(Ptr{Cvoid}, key_ref),
             Base.unsafe_convert(Cstring, name),
             name_len,
@@ -2697,13 +2843,12 @@ function reader_entry(reader::Reader{K}, key::K, ::Type{V}) where {K,V}
         )
         check_ok(ret, Iceoryx2FFI.iox2_entry_handle_error_e)
     end
-    entry = EntryHandle{K,V}(handle_ref[], storage, reader)
-    finalizer(_finalize_entry_handle, entry)
+    entry.keepalive = reader
     return entry
 end
 
-function reader_entry(f::Function, reader::Reader{K}, key::K, ::Type{V}) where {K,V}
-    entry = reader_entry(reader, key, V)
+function reader_entry!(f::Function, reader::Reader{K}, entry::EntryHandle{K,V}, key::K) where {K,V}
+    reader_entry!(reader, entry, key)
     try
         return f(entry)
     finally
@@ -2711,19 +2856,19 @@ function reader_entry(f::Function, reader::Reader{K}, key::K, ::Type{V}) where {
     end
 end
 
-function try_reader_entry(reader::Reader{K}, key::K, ::Type{V}) where {K,V}
+function try_reader_entry!(reader::Reader{K}, entry::EntryHandle{K,V}, key::K) where {K,V}
     _require_valid(reader.handle, "reader")
     _require_isbits(K)
     _require_isbits(V)
+    _require_inactive(entry, "entry handle")
+    entry.handle_ref[] = _IOX2_NULL
     key_ref = Ref{K}(key)
-    storage = Ref{Iceoryx2FFI.iox2_entry_handle_t}()
-    handle_ref = Ref{Iceoryx2FFI.iox2_entry_handle_h}(_IOX2_NULL)
     name, name_len, size, alignment = _type_details(V)
     GC.@preserve key_ref name begin
         ret = Iceoryx2FFI.iox2_reader_entry(
             Ref{Iceoryx2FFI.iox2_reader_h}(reader.handle),
-            storage,
-            handle_ref,
+            entry.storage,
+            entry.handle_ref,
             Base.unsafe_convert(Ptr{Cvoid}, key_ref),
             Base.unsafe_convert(Cstring, name),
             name_len,
@@ -2732,18 +2877,16 @@ function try_reader_entry(reader::Reader{K}, key::K, ::Type{V}) where {K,V}
         )
         err = Iceoryx2FFI.iox2_entry_handle_error_e(ret)
         if err == Iceoryx2FFI.iox2_entry_handle_error_e_ENTRY_DOES_NOT_EXIST
-            return nothing
+            return false
         end
         check_ok(ret, Iceoryx2FFI.iox2_entry_handle_error_e)
     end
-    entry = EntryHandle{K,V}(handle_ref[], storage, reader)
-    finalizer(_finalize_entry_handle, entry)
-    return entry
+    entry.keepalive = reader
+    return true
 end
 
-function try_reader_entry(f::Function, reader::Reader{K}, key::K, ::Type{V}) where {K,V}
-    entry = try_reader_entry(reader, key, V)
-    entry === nothing && return nothing
+function try_reader_entry!(f::Function, reader::Reader{K}, entry::EntryHandle{K,V}, key::K) where {K,V}
+    try_reader_entry!(reader, entry, key) || return nothing
     try
         return f(entry)
     finally
@@ -2751,19 +2894,19 @@ function try_reader_entry(f::Function, reader::Reader{K}, key::K, ::Type{V}) whe
     end
 end
 
-function writer_entry(writer::Writer{K}, key::K, ::Type{V}) where {K,V}
+function writer_entry!(writer::Writer{K}, entry::EntryHandleMut{K,V}, key::K) where {K,V}
     _require_valid(writer.handle, "writer")
     _require_isbits(K)
     _require_isbits(V)
+    _require_inactive(entry, "entry handle mut")
+    entry.handle_ref[] = _IOX2_NULL
     key_ref = Ref{K}(key)
-    storage = Ref{Iceoryx2FFI.iox2_entry_handle_mut_t}()
-    handle_ref = Ref{Iceoryx2FFI.iox2_entry_handle_mut_h}(_IOX2_NULL)
     name, name_len, size, alignment = _type_details(V)
     GC.@preserve key_ref name begin
         ret = Iceoryx2FFI.iox2_writer_entry(
             Ref{Iceoryx2FFI.iox2_writer_h}(writer.handle),
-            storage,
-            handle_ref,
+            entry.storage,
+            entry.handle_ref,
             Base.unsafe_convert(Ptr{Cvoid}, key_ref),
             Base.unsafe_convert(Cstring, name),
             name_len,
@@ -2772,13 +2915,12 @@ function writer_entry(writer::Writer{K}, key::K, ::Type{V}) where {K,V}
         )
         check_ok(ret, Iceoryx2FFI.iox2_entry_handle_mut_error_e)
     end
-    entry = EntryHandleMut{K,V}(handle_ref[], storage, writer)
-    finalizer(_finalize_entry_handle_mut, entry)
+    entry.keepalive = writer
     return entry
 end
 
-function writer_entry(f::Function, writer::Writer{K}, key::K, ::Type{V}) where {K,V}
-    entry = writer_entry(writer, key, V)
+function writer_entry!(f::Function, writer::Writer{K}, entry::EntryHandleMut{K,V}, key::K) where {K,V}
+    writer_entry!(writer, entry, key)
     try
         return f(entry)
     finally
@@ -2786,19 +2928,19 @@ function writer_entry(f::Function, writer::Writer{K}, key::K, ::Type{V}) where {
     end
 end
 
-function try_writer_entry(writer::Writer{K}, key::K, ::Type{V}) where {K,V}
+function try_writer_entry!(writer::Writer{K}, entry::EntryHandleMut{K,V}, key::K) where {K,V}
     _require_valid(writer.handle, "writer")
     _require_isbits(K)
     _require_isbits(V)
+    _require_inactive(entry, "entry handle mut")
+    entry.handle_ref[] = _IOX2_NULL
     key_ref = Ref{K}(key)
-    storage = Ref{Iceoryx2FFI.iox2_entry_handle_mut_t}()
-    handle_ref = Ref{Iceoryx2FFI.iox2_entry_handle_mut_h}(_IOX2_NULL)
     name, name_len, size, alignment = _type_details(V)
     GC.@preserve key_ref name begin
         ret = Iceoryx2FFI.iox2_writer_entry(
             Ref{Iceoryx2FFI.iox2_writer_h}(writer.handle),
-            storage,
-            handle_ref,
+            entry.storage,
+            entry.handle_ref,
             Base.unsafe_convert(Ptr{Cvoid}, key_ref),
             Base.unsafe_convert(Cstring, name),
             name_len,
@@ -2807,18 +2949,16 @@ function try_writer_entry(writer::Writer{K}, key::K, ::Type{V}) where {K,V}
         )
         err = Iceoryx2FFI.iox2_entry_handle_mut_error_e(ret)
         if err == Iceoryx2FFI.iox2_entry_handle_mut_error_e_ENTRY_DOES_NOT_EXIST
-            return nothing
+            return false
         end
         check_ok(ret, Iceoryx2FFI.iox2_entry_handle_mut_error_e)
     end
-    entry = EntryHandleMut{K,V}(handle_ref[], storage, writer)
-    finalizer(_finalize_entry_handle_mut, entry)
-    return entry
+    entry.keepalive = writer
+    return true
 end
 
-function try_writer_entry(f::Function, writer::Writer{K}, key::K, ::Type{V}) where {K,V}
-    entry = try_writer_entry(writer, key, V)
-    entry === nothing && return nothing
+function try_writer_entry!(f::Function, writer::Writer{K}, entry::EntryHandleMut{K,V}, key::K) where {K,V}
+    try_writer_entry!(writer, entry, key) || return nothing
     try
         return f(entry)
     finally
@@ -2828,13 +2968,13 @@ end
 
 @inline function entry_id(entry::EntryHandle)
     id_ref = Ref{Iceoryx2FFI.iox2_event_id_t}()
-    Iceoryx2FFI.iox2_entry_handle_entry_id(Ref{Iceoryx2FFI.iox2_entry_handle_h}(entry.handle), id_ref)
+    Iceoryx2FFI.iox2_entry_handle_entry_id(entry.handle_ref, id_ref)
     return EventId(id_ref[])
 end
 
 @inline function entry_id(entry::EntryHandleMut)
     id_ref = Ref{Iceoryx2FFI.iox2_event_id_t}()
-    Iceoryx2FFI.iox2_entry_handle_mut_entry_id(Ref{Iceoryx2FFI.iox2_entry_handle_mut_h}(entry.handle), id_ref)
+    Iceoryx2FFI.iox2_entry_handle_mut_entry_id(entry.handle_ref, id_ref)
     return EventId(id_ref[])
 end
 
@@ -2843,7 +2983,7 @@ function get!(entry::EntryHandle{K,V}, value_ref::Base.RefValue{V}, generation_r
     alignment = Iceoryx2FFI.c_size_t(Base.datatype_alignment(V))
     GC.@preserve value_ref generation_ref begin
         Iceoryx2FFI.iox2_entry_handle_get(
-            Ref{Iceoryx2FFI.iox2_entry_handle_h}(entry.handle),
+            entry.handle_ref,
             Base.unsafe_convert(Ptr{Cvoid}, value_ref),
             size,
             alignment,
@@ -2868,7 +3008,7 @@ end
 
 @inline function is_up_to_date(entry::EntryHandle, generation_counter::UInt64)
     return Iceoryx2FFI.iox2_entry_handle_is_up_to_date(
-        Ref{Iceoryx2FFI.iox2_entry_handle_h}(entry.handle),
+        entry.handle_ref,
         generation_counter,
     )
 end
@@ -2878,7 +3018,7 @@ function update!(entry::EntryHandleMut{K,V}, value_ref::Base.RefValue{V}) where 
     alignment = Iceoryx2FFI.c_size_t(Base.datatype_alignment(V))
     GC.@preserve value_ref begin
         Iceoryx2FFI.iox2_entry_handle_mut_update_with_copy(
-            Ref{Iceoryx2FFI.iox2_entry_handle_mut_h}(entry.handle),
+            entry.handle_ref,
             Base.unsafe_convert(Ptr{Cvoid}, value_ref),
             size,
             alignment,
@@ -2896,25 +3036,25 @@ end
 @inline Base.isvalid(obj::PortFactoryPubSub) = obj.handle != _IOX2_NULL
 @inline Base.isvalid(obj::Publisher) = obj.handle != _IOX2_NULL
 @inline Base.isvalid(obj::Subscriber) = obj.handle != _IOX2_NULL
-@inline Base.isvalid(obj::Sample) = obj.handle != _IOX2_NULL
-@inline Base.isvalid(obj::SampleMut) = obj.handle != _IOX2_NULL
+@inline Base.isvalid(obj::Sample) = obj.handle_ref[] != _IOX2_NULL
+@inline Base.isvalid(obj::SampleMut) = obj.handle_ref[] != _IOX2_NULL
 @inline Base.isvalid(obj::PortFactoryRequestResponse) = obj.handle != _IOX2_NULL
 @inline Base.isvalid(obj::Client) = obj.handle != _IOX2_NULL
 @inline Base.isvalid(obj::Server) = obj.handle != _IOX2_NULL
-@inline Base.isvalid(obj::RequestMut) = obj.handle != _IOX2_NULL
-@inline Base.isvalid(obj::PendingResponse) = obj.handle != _IOX2_NULL
-@inline Base.isvalid(obj::Response) = obj.handle != _IOX2_NULL
-@inline Base.isvalid(obj::ActiveRequest) = obj.handle != _IOX2_NULL
-@inline Base.isvalid(obj::ResponseMut) = obj.handle != _IOX2_NULL
+@inline Base.isvalid(obj::RequestMut) = obj.handle_ref[] != _IOX2_NULL
+@inline Base.isvalid(obj::PendingResponse) = obj.handle_ref[] != _IOX2_NULL
+@inline Base.isvalid(obj::Response) = obj.handle_ref[] != _IOX2_NULL
+@inline Base.isvalid(obj::ActiveRequest) = obj.handle_ref[] != _IOX2_NULL
+@inline Base.isvalid(obj::ResponseMut) = obj.handle_ref[] != _IOX2_NULL
 @inline Base.isvalid(obj::PortFactoryEvent) = obj.handle != _IOX2_NULL
 @inline Base.isvalid(obj::Notifier) = obj.handle != _IOX2_NULL
 @inline Base.isvalid(obj::Listener) = obj.handle != _IOX2_NULL
 @inline Base.isvalid(obj::PortFactoryBlackboard) = obj.handle != _IOX2_NULL
 @inline Base.isvalid(obj::Writer) = obj.handle != _IOX2_NULL
 @inline Base.isvalid(obj::Reader) = obj.handle != _IOX2_NULL
-@inline Base.isvalid(obj::EntryHandle) = obj.handle != _IOX2_NULL
-@inline Base.isvalid(obj::EntryHandleMut) = obj.handle != _IOX2_NULL
-@inline Base.isvalid(obj::EntryValueUninit) = obj.handle != _IOX2_NULL
+@inline Base.isvalid(obj::EntryHandle) = obj.handle_ref[] != _IOX2_NULL
+@inline Base.isvalid(obj::EntryHandleMut) = obj.handle_ref[] != _IOX2_NULL
+@inline Base.isvalid(obj::EntryValueUninit) = obj.handle_ref[] != _IOX2_NULL
 
 function Base.close(obj::PortFactoryPubSub)
     _finalize_port_factory_pub_sub(obj)
