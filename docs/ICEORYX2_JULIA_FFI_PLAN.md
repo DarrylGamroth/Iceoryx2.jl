@@ -188,6 +188,7 @@ Hot path refers to any API that is called per message/event or inside tight loop
   - Update (2026-01-27): added testsets mirroring iceoryx2-cxx coverage (attributes, enum conversion, logging, node/service names, node state, event/blackboard services, unique IDs, waitset notification, config basics).
   - Update (2026-01-27): added allocation gates for blackboard entry accessors and listener wait helpers.
   - Update (2026-01-27): added allocation gates for new payload helpers and a regression test for dynamic pub/sub slices.
+  - Update (2026-01-29): refreshed reuse-based test coverage and fixed blackboard entry test imports.
 
 ## Phase 13: Documentation & Examples
 - Provide examples matching C++ docs:
