@@ -462,7 +462,6 @@ function create(builder::PublisherBuilder{T,UH}) where {T,UH}
     handle_ref = Ref{Iceoryx2FFI.iox2_publisher_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_publisher_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_publisher_create_error_e)
-    builder.handle = _IOX2_NULL
     _finalize_publisher_builder(builder)
     return Publisher{T,UH}(handle_ref[], storage, builder.keepalive)
 end
@@ -502,7 +501,6 @@ function create(builder::SubscriberBuilder{T,UH}) where {T,UH}
     handle_ref = Ref{Iceoryx2FFI.iox2_subscriber_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_subscriber_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_subscriber_create_error_e)
-    builder.handle = _IOX2_NULL
     _finalize_subscriber_builder(builder)
     return Subscriber{T,UH}(handle_ref[], storage, builder.keepalive)
 end
@@ -1223,7 +1221,6 @@ function create(builder::ClientBuilder{Req,Resp,ReqH,RespH}) where {Req,Resp,Req
     handle_ref = Ref{Iceoryx2FFI.iox2_client_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_client_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_client_create_error_e)
-    builder.handle = _IOX2_NULL
     _finalize_client_builder(builder)
     return Client{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
@@ -1263,7 +1260,6 @@ function create(builder::ServerBuilder{Req,Resp,ReqH,RespH}) where {Req,Resp,Req
     handle_ref = Ref{Iceoryx2FFI.iox2_server_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_server_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_server_create_error_e)
-    builder.handle = _IOX2_NULL
     _finalize_server_builder(builder)
     return Server{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
@@ -2188,7 +2184,6 @@ function create(builder::NotifierBuilder)
     handle_ref = Ref{Iceoryx2FFI.iox2_notifier_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_notifier_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_notifier_create_error_e)
-    builder.handle = _IOX2_NULL
     _finalize_notifier_builder(builder)
     return Notifier(handle_ref[], storage, builder.keepalive)
 end
@@ -2240,7 +2235,6 @@ function create(builder::ListenerBuilder)
     handle_ref = Ref{Iceoryx2FFI.iox2_listener_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_listener_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_listener_create_error_e)
-    builder.handle = _IOX2_NULL
     _finalize_listener_builder(builder)
     return Listener(handle_ref[], storage, builder.keepalive)
 end
@@ -2402,8 +2396,6 @@ function blocking_wait_one(listener::Listener)
     check_ok(ret, Iceoryx2FFI.iox2_listener_wait_error_e)
     return has_received[] ? EventId(event_id[]) : nothing
 end
-
-# === Blackboard (minimal) ===
 
 mutable struct PortFactoryBlackboard{K}
     handle::Iceoryx2FFI.iox2_port_factory_blackboard_h
@@ -2628,7 +2620,6 @@ function create(builder::WriterBuilder{K}) where {K}
     handle_ref = Ref{Iceoryx2FFI.iox2_writer_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_writer_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_writer_create_error_e)
-    builder.handle = _IOX2_NULL
     _finalize_writer_builder(builder)
     return Writer{K}(handle_ref[], storage, builder.keepalive)
 end
@@ -2668,7 +2659,6 @@ function create(builder::ReaderBuilder{K}) where {K}
     handle_ref = Ref{Iceoryx2FFI.iox2_reader_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_reader_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_reader_create_error_e)
-    builder.handle = _IOX2_NULL
     _finalize_reader_builder(builder)
     return Reader{K}(handle_ref[], storage, builder.keepalive)
 end
