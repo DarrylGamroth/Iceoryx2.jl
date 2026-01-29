@@ -57,7 +57,7 @@ end
         Iceoryx2FFI.c_size_t(Base.datatype_alignment(T))
 end
 
-struct Slice{T,O}
+struct Slice{T,O} <: AbstractVector{T}
     ptr::Ptr{T}
     len::Int
     owner::O
@@ -68,10 +68,18 @@ Slice{T}(ptr::Ptr{T}, len::Integer, owner) where {T} = Slice{T,typeof(owner)}(pt
 
 Base.length(slice::Slice) = slice.len
 Base.size(slice::Slice) = (slice.len,)
+Base.axes(slice::Slice) = (Base.OneTo(slice.len),)
 Base.eltype(::Type{Slice{T}}) where {T} = T
+Base.elsize(::Type{Slice{T}}) where {T} = sizeof(T)
 Base.IndexStyle(::Type{<:Slice}) = IndexLinear()
 Base.firstindex(::Slice) = 1
 Base.lastindex(slice::Slice) = slice.len
+Base.unsafe_convert(::Type{Ptr{T}}, slice::Slice{T}) where {T} = slice.ptr
+Base.iscontiguous(::Slice) = true
+Base.iscontiguous(::Type{<:Slice}) = true
+Base.pointer(slice::Slice{T}) where {T} = slice.ptr
+Base.strides(::Slice) = (1,)
+Base.similar(slice::Slice{T}) where {T} = Vector{T}(undef, slice.len)
 
 @inline function Base.getindex(slice::Slice{T}, i::Int) where {T}
     @boundscheck (i >= 1 && i <= slice.len) || throw(BoundsError(slice, i))
@@ -101,11 +109,27 @@ end
     return unsafe_load(slice.ptr, state), state + 1
 end
 
-@inline function _fill_slice!(slice::Slice{T}, value::T) where {T}
+@inline function Base.fill!(slice::Slice{T}, value::T) where {T}
     @inbounds for idx in 1:slice.len
         unsafe_store!(slice.ptr, value, idx)
     end
     return slice
+end
+
+function Base.copyto!(dest::AbstractVector{T}, src::Slice{T}) where {T}
+    length(dest) == src.len || throw(DimensionMismatch("destination has length $(length(dest)), expected $(src.len)"))
+    @inbounds for i in 1:src.len
+        dest[i] = unsafe_load(src.ptr, i)
+    end
+    return dest
+end
+
+function Base.copyto!(dest::Slice{T}, src::AbstractVector{T}) where {T}
+    length(src) == dest.len || throw(DimensionMismatch("source has length $(length(src)), expected $(dest.len)"))
+    @inbounds for i in 1:dest.len
+        unsafe_store!(dest.ptr, src[i], i)
+    end
+    return dest
 end
 
 @inline function _default_value(::Type{T}) where {T}
@@ -674,13 +698,13 @@ end
 
 function loan!(publisher::Publisher{T,UH}, sample::SampleMut{T,UH}) where {T,UH}
     loan_slice_uninit!(publisher, sample, 1)
-    _fill_slice!(payload_mut(sample), _default_value(T))
+    fill!(payload_mut(sample), _default_value(T))
     return sample
 end
 
 function loan_slice!(publisher::Publisher{T,UH}, sample::SampleMut{T,UH}, n::Integer) where {T,UH}
     loan_slice_uninit!(publisher, sample, n)
-    _fill_slice!(payload_mut(sample), _default_value(T))
+    fill!(payload_mut(sample), _default_value(T))
     return sample
 end
 
@@ -1439,13 +1463,13 @@ end
 
 @inline function loan!(client::Client{Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
     loan_slice_uninit!(client, request, 1)
-    _fill_slice!(payload_mut(request), _default_value(Req))
+    fill!(payload_mut(request), _default_value(Req))
     return request
 end
 
 function loan_slice!(client::Client{Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
     loan_slice_uninit!(client, request, n)
-    _fill_slice!(payload_mut(request), _default_value(Req))
+    fill!(payload_mut(request), _default_value(Req))
     return request
 end
 
@@ -1842,13 +1866,13 @@ end
 
 @inline function loan!(req::ActiveRequest{Req,Resp,ReqH,RespH}, resp::ResponseMut{Resp,RespH}) where {Req,Resp,ReqH,RespH}
     loan_slice_uninit!(req, resp, 1)
-    _fill_slice!(payload_mut(resp), _default_value(Resp))
+    fill!(payload_mut(resp), _default_value(Resp))
     return resp
 end
 
 function loan_slice!(req::ActiveRequest{Req,Resp,ReqH,RespH}, resp::ResponseMut{Resp,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
     loan_slice_uninit!(req, resp, n)
-    _fill_slice!(payload_mut(resp), _default_value(Resp))
+    fill!(payload_mut(resp), _default_value(Resp))
     return resp
 end
 

@@ -76,7 +76,7 @@ Writing (for mutable samples/requests/responses):
 
 ```julia
 slice = Iceoryx2.payload_mut(sample)
-unsafe_store!(slice.ptr, 0xdeadbeef, 1)
+slice[1] = 0xdeadbeef
 ```
 
 Do not store the pointer or slice past the lifetime of the owning handle.
