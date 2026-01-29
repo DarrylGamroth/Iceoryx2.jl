@@ -9,6 +9,7 @@ julia --project=. examples/<example>/<file>.jl
 
 Examples:
 - blackboard: `creator.jl`, `opener.jl`
+- blackboard_event_based_communication: `creator.jl`, `opener.jl`
 - complex_data_types: `complex_data_types.jl`
 - cross_language_communication_basics: `publisher.jl`, `subscriber.jl`
 - cross_language_communication_complex_types: `publisher.jl`, `subscriber.jl`
@@ -28,3 +29,7 @@ Examples:
 - service_types: `ipc_publisher.jl`, `ipc_threadsafe_subscriber.jl`, `local_pubsub.jl`
 
 Previous examples are archived in `examples/archive`.
+
+Out-of-scope upstream examples:
+- `custom_vocabulary_types` (C++-only; vocabulary type swapping is not applicable in Julia).
+- `discovery_service` and `service_variant_customization` (Rust-only; use crates/traits not exposed in the C ABI).

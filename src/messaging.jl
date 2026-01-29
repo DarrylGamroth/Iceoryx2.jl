@@ -2287,6 +2287,8 @@ function notify!(notifier::Notifier, id::EventId)
     return Int(count[])
 end
 
+@inline notify_with_custom_event_id!(notifier::Notifier, id::EventId) = notify!(notifier, id)
+
 abstract type AbstractListenerWaitHandler end
 
 mutable struct ListenerWaitHandler{T} <: AbstractListenerWaitHandler
@@ -3016,6 +3018,9 @@ function update!(entry::EntryHandleMut{K,V}, value::V) where {K,V}
     update!(entry, value_ref)
     return nothing
 end
+
+@inline update_with_copy(entry::EntryHandleMut{K,V}, value_ref::Base.RefValue{V}) where {K,V} = update!(entry, value_ref)
+@inline update_with_copy(entry::EntryHandleMut{K,V}, value::V) where {K,V} = update!(entry, value)
 
 @inline Base.isvalid(obj::PortFactoryPubSub) = obj.handle != _IOX2_NULL
 @inline Base.isvalid(obj::Publisher) = obj.handle != _IOX2_NULL

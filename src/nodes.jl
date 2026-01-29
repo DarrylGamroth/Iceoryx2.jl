@@ -22,6 +22,13 @@ function wait(node::Node, seconds::Integer, nanoseconds::Integer)
     return nothing
 end
 
+function wait(node::Node, seconds::Real)
+    seconds < 0 && throw(ArgumentError("wait duration must be non-negative, got $seconds"))
+    secs = floor(Int, seconds)
+    nanos = floor(Int, (seconds - secs) * 1e9)
+    return wait(node, secs, nanos)
+end
+
 function id(node::Node; service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e} = :ipc)
     _require_valid(unsafe_handle(node), "node")
     ptr = Iceoryx2FFI.iox2_node_id(Ref{Iceoryx2FFI.iox2_node_h}(unsafe_handle(node)), _service_type(service_type))
