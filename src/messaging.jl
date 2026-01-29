@@ -189,9 +189,7 @@ function user_header(builder::PubSubServiceBuilder{T,Nothing}, ::Type{UH}; varia
     storage = builder.storage
     builder.handle = _IOX2_NULL
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
-    updated = PubSubServiceBuilder{T,UH}(handle, storage, builder.keepalive)
-    finalizer(_finalize_service_builder_variant, updated)
-    return updated
+    return PubSubServiceBuilder{T,UH}(handle, storage, builder.keepalive)
 end
 
 function user_header(builder::PubSubServiceBuilder{T,UH}, ::Type{UH}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T,UH}
@@ -210,6 +208,11 @@ mutable struct PortFactoryPubSub{T,UH}
     handle::Iceoryx2FFI.iox2_port_factory_pub_sub_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_pub_sub_t}
     keepalive::Node
+    function PortFactoryPubSub{T,UH}(handle, storage, keepalive) where {T,UH}
+        obj = new{T,UH}(handle, storage, keepalive)
+        finalizer(_finalize_port_factory_pub_sub, obj)
+        return obj
+    end
 end
 
 function _finalize_port_factory_pub_sub(factory::PortFactoryPubSub)
@@ -230,9 +233,7 @@ function open_or_create(builder::PubSubServiceBuilder{T,UH}) where {T,UH}
     check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryPubSub{T,UH}(handle_ref[], storage, builder.keepalive)
-    finalizer(_finalize_port_factory_pub_sub, factory)
-    return factory
+    return PortFactoryPubSub{T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
 function open_or_create(builder::PubSubServiceBuilder{T,UH}, verifier::AttributeVerifier) where {T,UH}
@@ -250,9 +251,7 @@ function open_or_create(builder::PubSubServiceBuilder{T,UH}, verifier::Attribute
     check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryPubSub{T,UH}(handle_ref[], storage, builder.keepalive)
-    finalizer(_finalize_port_factory_pub_sub, factory)
-    return factory
+    return PortFactoryPubSub{T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
 function open(builder::PubSubServiceBuilder{T,UH}) where {T,UH}
@@ -264,9 +263,7 @@ function open(builder::PubSubServiceBuilder{T,UH}) where {T,UH}
     check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryPubSub{T,UH}(handle_ref[], storage, builder.keepalive)
-    finalizer(_finalize_port_factory_pub_sub, factory)
-    return factory
+    return PortFactoryPubSub{T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
 function open(builder::PubSubServiceBuilder{T,UH}, verifier::AttributeVerifier) where {T,UH}
@@ -284,9 +281,7 @@ function open(builder::PubSubServiceBuilder{T,UH}, verifier::AttributeVerifier) 
     check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryPubSub{T,UH}(handle_ref[], storage, builder.keepalive)
-    finalizer(_finalize_port_factory_pub_sub, factory)
-    return factory
+    return PortFactoryPubSub{T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
 function create(builder::PubSubServiceBuilder{T,UH}) where {T,UH}
@@ -298,9 +293,7 @@ function create(builder::PubSubServiceBuilder{T,UH}) where {T,UH}
     check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryPubSub{T,UH}(handle_ref[], storage, builder.keepalive)
-    finalizer(_finalize_port_factory_pub_sub, factory)
-    return factory
+    return PortFactoryPubSub{T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
 function create(builder::PubSubServiceBuilder{T,UH}, specifier::AttributeSpecifier) where {T,UH}
@@ -318,9 +311,7 @@ function create(builder::PubSubServiceBuilder{T,UH}, specifier::AttributeSpecifi
     check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryPubSub{T,UH}(handle_ref[], storage, builder.keepalive)
-    finalizer(_finalize_port_factory_pub_sub, factory)
-    return factory
+    return PortFactoryPubSub{T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
 function open_or_create(f::Function, builder::PubSubServiceBuilder)
@@ -388,6 +379,11 @@ mutable struct PublisherBuilder{T,UH}
     handle::Iceoryx2FFI.iox2_port_factory_publisher_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_publisher_builder_t}
     keepalive::PortFactoryPubSub{T,UH}
+    function PublisherBuilder{T,UH}(handle, storage, keepalive) where {T,UH}
+        obj = new{T,UH}(handle, storage, keepalive)
+        finalizer(_finalize_publisher_builder, obj)
+        return obj
+    end
 end
 
 function _finalize_publisher_builder(builder::PublisherBuilder)
@@ -401,9 +397,7 @@ function publisher_builder(factory::PortFactoryPubSub{T,UH}) where {T,UH}
     _require_isbits(T)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_publisher_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_pub_sub_publisher_builder(Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle), storage)
-    builder = PublisherBuilder{T,UH}(handle, storage, factory)
-    finalizer(_finalize_publisher_builder, builder)
-    return builder
+    return PublisherBuilder{T,UH}(handle, storage, factory)
 end
 
 ### builder tuning setters generated in src/generated/wrappers.jl
@@ -421,6 +415,11 @@ mutable struct SubscriberBuilder{T,UH}
     handle::Iceoryx2FFI.iox2_port_factory_subscriber_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_subscriber_builder_t}
     keepalive::PortFactoryPubSub{T,UH}
+    function SubscriberBuilder{T,UH}(handle, storage, keepalive) where {T,UH}
+        obj = new{T,UH}(handle, storage, keepalive)
+        finalizer(_finalize_subscriber_builder, obj)
+        return obj
+    end
 end
 
 function _finalize_subscriber_builder(builder::SubscriberBuilder)
@@ -434,15 +433,18 @@ function subscriber_builder(factory::PortFactoryPubSub{T,UH}) where {T,UH}
     _require_isbits(T)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_subscriber_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_pub_sub_subscriber_builder(Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle), storage)
-    builder = SubscriberBuilder{T,UH}(handle, storage, factory)
-    finalizer(_finalize_subscriber_builder, builder)
-    return builder
+    return SubscriberBuilder{T,UH}(handle, storage, factory)
 end
 
 mutable struct Publisher{T,UH}
     handle::Iceoryx2FFI.iox2_publisher_h
     storage::_StorageRef{Iceoryx2FFI.iox2_publisher_t}
     keepalive::PortFactoryPubSub{T,UH}
+    function Publisher{T,UH}(handle, storage, keepalive) where {T,UH}
+        obj = new{T,UH}(handle, storage, keepalive)
+        finalizer(_finalize_publisher, obj)
+        return obj
+    end
 end
 
 function _finalize_publisher(pub::Publisher)
@@ -462,9 +464,7 @@ function create(builder::PublisherBuilder{T,UH}) where {T,UH}
     check_ok(ret, Iceoryx2FFI.iox2_publisher_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_publisher_builder(builder)
-    pub = Publisher{T,UH}(handle_ref[], storage, builder.keepalive)
-    finalizer(_finalize_publisher, pub)
-    return pub
+    return Publisher{T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
 function create(f::Function, builder::PublisherBuilder{T,UH}) where {T,UH}
@@ -480,6 +480,11 @@ mutable struct Subscriber{T,UH}
     handle::Iceoryx2FFI.iox2_subscriber_h
     storage::_StorageRef{Iceoryx2FFI.iox2_subscriber_t}
     keepalive::PortFactoryPubSub{T,UH}
+    function Subscriber{T,UH}(handle, storage, keepalive) where {T,UH}
+        obj = new{T,UH}(handle, storage, keepalive)
+        finalizer(_finalize_subscriber, obj)
+        return obj
+    end
 end
 
 function _finalize_subscriber(sub::Subscriber)
@@ -499,9 +504,7 @@ function create(builder::SubscriberBuilder{T,UH}) where {T,UH}
     check_ok(ret, Iceoryx2FFI.iox2_subscriber_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_subscriber_builder(builder)
-    sub = Subscriber{T,UH}(handle_ref[], storage, builder.keepalive)
-    finalizer(_finalize_subscriber, sub)
-    return sub
+    return Subscriber{T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
 function create(f::Function, builder::SubscriberBuilder{T,UH}) where {T,UH}
@@ -516,12 +519,15 @@ end
 mutable struct Sample{T,UH}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_sample_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_sample_t}
+    function Sample{T,UH}(handle_ref, storage) where {T,UH}
+        obj = new{T,UH}(handle_ref, storage)
+        finalizer(_finalize_sample, obj)
+        return obj
+    end
 end
 
 function Sample{T,UH}() where {T,UH}
-    sample = Sample{T,UH}(Ref{Iceoryx2FFI.iox2_sample_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_sample_t}())
-    finalizer(_finalize_sample, sample)
-    return sample
+    return Sample{T,UH}(Ref{Iceoryx2FFI.iox2_sample_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_sample_t}())
 end
 
 Sample(subscriber::Subscriber{T,UH}) where {T,UH} = Sample{T,UH}()
@@ -578,12 +584,15 @@ end
 mutable struct SampleMut{T,UH}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_sample_mut_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_sample_mut_t}
+    function SampleMut{T,UH}(handle_ref, storage) where {T,UH}
+        obj = new{T,UH}(handle_ref, storage)
+        finalizer(_finalize_sample_mut, obj)
+        return obj
+    end
 end
 
 function SampleMut{T,UH}() where {T,UH}
-    sample = SampleMut{T,UH}(Ref{Iceoryx2FFI.iox2_sample_mut_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_sample_mut_t}())
-    finalizer(_finalize_sample_mut, sample)
-    return sample
+    return SampleMut{T,UH}(Ref{Iceoryx2FFI.iox2_sample_mut_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_sample_mut_t}())
 end
 
 SampleMut(publisher::Publisher{T,UH}) where {T,UH} = SampleMut{T,UH}()
@@ -873,9 +882,7 @@ function request_user_header(builder::RequestResponseServiceBuilder{Req,Resp,Not
     storage = builder.storage
     builder.handle = _IOX2_NULL
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
-    updated = RequestResponseServiceBuilder{Req,Resp,H,RespH}(handle, storage, builder.keepalive)
-    finalizer(_finalize_service_builder_variant, updated)
-    return updated
+    return RequestResponseServiceBuilder{Req,Resp,H,RespH}(handle, storage, builder.keepalive)
 end
 
 function request_user_header(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, ::Type{ReqH}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {Req,Resp,ReqH,RespH}
@@ -908,9 +915,7 @@ function response_user_header(builder::RequestResponseServiceBuilder{Req,Resp,Re
     storage = builder.storage
     builder.handle = _IOX2_NULL
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
-    updated = RequestResponseServiceBuilder{Req,Resp,ReqH,H}(handle, storage, builder.keepalive)
-    finalizer(_finalize_service_builder_variant, updated)
-    return updated
+    return RequestResponseServiceBuilder{Req,Resp,ReqH,H}(handle, storage, builder.keepalive)
 end
 
 function response_user_header(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, ::Type{RespH}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {Req,Resp,ReqH,RespH}
@@ -929,6 +934,11 @@ mutable struct PortFactoryRequestResponse{Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_port_factory_request_response_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_request_response_t}
     keepalive::Node
+    function PortFactoryRequestResponse{Req,Resp,ReqH,RespH}(handle, storage, keepalive) where {Req,Resp,ReqH,RespH}
+        obj = new{Req,Resp,ReqH,RespH}(handle, storage, keepalive)
+        finalizer(_finalize_port_factory_request_response, obj)
+        return obj
+    end
 end
 
 function _finalize_port_factory_request_response(factory::PortFactoryRequestResponse)
@@ -950,9 +960,7 @@ function open_or_create(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,Res
     check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryRequestResponse{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
-    finalizer(_finalize_port_factory_request_response, factory)
-    return factory
+    return PortFactoryRequestResponse{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
 
 function open_or_create(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, verifier::AttributeVerifier) where {Req,Resp,ReqH,RespH}
@@ -971,9 +979,7 @@ function open_or_create(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,Res
     check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryRequestResponse{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
-    finalizer(_finalize_port_factory_request_response, factory)
-    return factory
+    return PortFactoryRequestResponse{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
 
 function open(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
@@ -986,9 +992,7 @@ function open(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}) where
     check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryRequestResponse{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
-    finalizer(_finalize_port_factory_request_response, factory)
-    return factory
+    return PortFactoryRequestResponse{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
 
 function open(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, verifier::AttributeVerifier) where {Req,Resp,ReqH,RespH}
@@ -1007,9 +1011,7 @@ function open(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, verif
     check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryRequestResponse{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
-    finalizer(_finalize_port_factory_request_response, factory)
-    return factory
+    return PortFactoryRequestResponse{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
 
 function create(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
@@ -1022,9 +1024,7 @@ function create(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}) whe
     check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryRequestResponse{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
-    finalizer(_finalize_port_factory_request_response, factory)
-    return factory
+    return PortFactoryRequestResponse{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
 
 function create(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, specifier::AttributeSpecifier) where {Req,Resp,ReqH,RespH}
@@ -1043,9 +1043,7 @@ function create(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, spe
     check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryRequestResponse{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
-    finalizer(_finalize_port_factory_request_response, factory)
-    return factory
+    return PortFactoryRequestResponse{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
 
 function open_or_create(f::Function, builder::RequestResponseServiceBuilder)
@@ -1113,6 +1111,11 @@ mutable struct ClientBuilder{Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_port_factory_client_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_client_builder_t}
     keepalive::PortFactoryRequestResponse{Req,Resp,ReqH,RespH}
+    function ClientBuilder{Req,Resp,ReqH,RespH}(handle, storage, keepalive) where {Req,Resp,ReqH,RespH}
+        obj = new{Req,Resp,ReqH,RespH}(handle, storage, keepalive)
+        finalizer(_finalize_client_builder, obj)
+        return obj
+    end
 end
 
 function _finalize_client_builder(builder::ClientBuilder)
@@ -1127,15 +1130,18 @@ function client_builder(factory::PortFactoryRequestResponse{Req,Resp,ReqH,RespH}
     _require_isbits(Resp)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_client_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_request_response_client_builder(Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle), storage)
-    builder = ClientBuilder{Req,Resp,ReqH,RespH}(handle, storage, factory)
-    finalizer(_finalize_client_builder, builder)
-    return builder
+    return ClientBuilder{Req,Resp,ReqH,RespH}(handle, storage, factory)
 end
 
 mutable struct ServerBuilder{Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_port_factory_server_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_server_builder_t}
     keepalive::PortFactoryRequestResponse{Req,Resp,ReqH,RespH}
+    function ServerBuilder{Req,Resp,ReqH,RespH}(handle, storage, keepalive) where {Req,Resp,ReqH,RespH}
+        obj = new{Req,Resp,ReqH,RespH}(handle, storage, keepalive)
+        finalizer(_finalize_server_builder, obj)
+        return obj
+    end
 end
 
 function _finalize_server_builder(builder::ServerBuilder)
@@ -1150,9 +1156,7 @@ function server_builder(factory::PortFactoryRequestResponse{Req,Resp,ReqH,RespH}
     _require_isbits(Resp)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_server_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_request_response_server_builder(Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle), storage)
-    builder = ServerBuilder{Req,Resp,ReqH,RespH}(handle, storage, factory)
-    finalizer(_finalize_server_builder, builder)
-    return builder
+    return ServerBuilder{Req,Resp,ReqH,RespH}(handle, storage, factory)
 end
 
 ### builder tuning setters generated in src/generated/wrappers.jl
@@ -1197,6 +1201,11 @@ mutable struct Client{Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_client_h
     storage::_StorageRef{Iceoryx2FFI.iox2_client_t}
     keepalive::PortFactoryRequestResponse{Req,Resp,ReqH,RespH}
+    function Client{Req,Resp,ReqH,RespH}(handle, storage, keepalive) where {Req,Resp,ReqH,RespH}
+        obj = new{Req,Resp,ReqH,RespH}(handle, storage, keepalive)
+        finalizer(_finalize_client, obj)
+        return obj
+    end
 end
 
 function _finalize_client(client::Client)
@@ -1216,9 +1225,7 @@ function create(builder::ClientBuilder{Req,Resp,ReqH,RespH}) where {Req,Resp,Req
     check_ok(ret, Iceoryx2FFI.iox2_client_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_client_builder(builder)
-    client = Client{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
-    finalizer(_finalize_client, client)
-    return client
+    return Client{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
 
 function create(f::Function, builder::ClientBuilder{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
@@ -1234,6 +1241,11 @@ mutable struct Server{Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_server_h
     storage::_StorageRef{Iceoryx2FFI.iox2_server_t}
     keepalive::PortFactoryRequestResponse{Req,Resp,ReqH,RespH}
+    function Server{Req,Resp,ReqH,RespH}(handle, storage, keepalive) where {Req,Resp,ReqH,RespH}
+        obj = new{Req,Resp,ReqH,RespH}(handle, storage, keepalive)
+        finalizer(_finalize_server, obj)
+        return obj
+    end
 end
 
 function _finalize_server(server::Server)
@@ -1253,9 +1265,7 @@ function create(builder::ServerBuilder{Req,Resp,ReqH,RespH}) where {Req,Resp,Req
     check_ok(ret, Iceoryx2FFI.iox2_server_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_server_builder(builder)
-    server = Server{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
-    finalizer(_finalize_server, server)
-    return server
+    return Server{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
 
 function create(f::Function, builder::ServerBuilder{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
@@ -1270,12 +1280,15 @@ end
 mutable struct RequestMut{Req,Resp,ReqH,RespH}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_request_mut_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_request_mut_t}
+    function RequestMut{Req,Resp,ReqH,RespH}(handle_ref, storage) where {Req,Resp,ReqH,RespH}
+        obj = new{Req,Resp,ReqH,RespH}(handle_ref, storage)
+        finalizer(_finalize_request_mut, obj)
+        return obj
+    end
 end
 
 function RequestMut{Req,Resp,ReqH,RespH}() where {Req,Resp,ReqH,RespH}
-    request = RequestMut{Req,Resp,ReqH,RespH}(Ref{Iceoryx2FFI.iox2_request_mut_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_request_mut_t}())
-    finalizer(_finalize_request_mut, request)
-    return request
+    return RequestMut{Req,Resp,ReqH,RespH}(Ref{Iceoryx2FFI.iox2_request_mut_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_request_mut_t}())
 end
 
 RequestMut(client::Client{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH} =
@@ -1374,12 +1387,15 @@ end
 mutable struct PendingResponse{Resp,ReqH,RespH}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_pending_response_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_pending_response_t}
+    function PendingResponse{Resp,ReqH,RespH}(handle_ref, storage) where {Resp,ReqH,RespH}
+        obj = new{Resp,ReqH,RespH}(handle_ref, storage)
+        finalizer(_finalize_pending_response, obj)
+        return obj
+    end
 end
 
 function PendingResponse{Resp,ReqH,RespH}() where {Resp,ReqH,RespH}
-    pending = PendingResponse{Resp,ReqH,RespH}(Ref{Iceoryx2FFI.iox2_pending_response_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_pending_response_t}())
-    finalizer(_finalize_pending_response, pending)
-    return pending
+    return PendingResponse{Resp,ReqH,RespH}(Ref{Iceoryx2FFI.iox2_pending_response_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_pending_response_t}())
 end
 
 PendingResponse(client::Client{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH} =
@@ -1538,12 +1554,15 @@ end
 mutable struct Response{Resp,RespH}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_response_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_response_t}
+    function Response{Resp,RespH}(handle_ref, storage) where {Resp,RespH}
+        obj = new{Resp,RespH}(handle_ref, storage)
+        finalizer(_finalize_response, obj)
+        return obj
+    end
 end
 
 function Response{Resp,RespH}() where {Resp,RespH}
-    resp = Response{Resp,RespH}(Ref{Iceoryx2FFI.iox2_response_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_response_t}())
-    finalizer(_finalize_response, resp)
-    return resp
+    return Response{Resp,RespH}(Ref{Iceoryx2FFI.iox2_response_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_response_t}())
 end
 
 Response(pending::PendingResponse{Resp,ReqH,RespH}) where {Resp,ReqH,RespH} = Response{Resp,RespH}()
@@ -1642,12 +1661,15 @@ end
 mutable struct ActiveRequest{Req,Resp,ReqH,RespH}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_active_request_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_active_request_t}
+    function ActiveRequest{Req,Resp,ReqH,RespH}(handle_ref, storage) where {Req,Resp,ReqH,RespH}
+        obj = new{Req,Resp,ReqH,RespH}(handle_ref, storage)
+        finalizer(_finalize_active_request, obj)
+        return obj
+    end
 end
 
 function ActiveRequest{Req,Resp,ReqH,RespH}() where {Req,Resp,ReqH,RespH}
-    req = ActiveRequest{Req,Resp,ReqH,RespH}(Ref{Iceoryx2FFI.iox2_active_request_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_active_request_t}())
-    finalizer(_finalize_active_request, req)
-    return req
+    return ActiveRequest{Req,Resp,ReqH,RespH}(Ref{Iceoryx2FFI.iox2_active_request_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_active_request_t}())
 end
 
 ActiveRequest(server::Server{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH} =
@@ -1705,12 +1727,15 @@ end
 mutable struct ResponseMut{Resp,RespH}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_response_mut_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_response_mut_t}
+    function ResponseMut{Resp,RespH}(handle_ref, storage) where {Resp,RespH}
+        obj = new{Resp,RespH}(handle_ref, storage)
+        finalizer(_finalize_response_mut, obj)
+        return obj
+    end
 end
 
 function ResponseMut{Resp,RespH}() where {Resp,RespH}
-    resp = ResponseMut{Resp,RespH}(Ref{Iceoryx2FFI.iox2_response_mut_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_response_mut_t}())
-    finalizer(_finalize_response_mut, resp)
-    return resp
+    return ResponseMut{Resp,RespH}(Ref{Iceoryx2FFI.iox2_response_mut_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_response_mut_t}())
 end
 
 ResponseMut(req::ActiveRequest{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH} = ResponseMut{Resp,RespH}()
@@ -1898,6 +1923,11 @@ mutable struct PortFactoryEvent
     handle::Iceoryx2FFI.iox2_port_factory_event_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_event_t}
     keepalive::Node
+    function PortFactoryEvent(handle, storage, keepalive)
+        obj = new(handle, storage, keepalive)
+        finalizer(_finalize_port_factory_event, obj)
+        return obj
+    end
 end
 
 function _finalize_port_factory_event(factory::PortFactoryEvent)
@@ -1935,9 +1965,7 @@ function open_or_create(builder::EventServiceBuilder)
     check_ok(ret, Iceoryx2FFI.iox2_event_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryEvent(handle_ref[], storage, builder.keepalive)
-    finalizer(_finalize_port_factory_event, factory)
-    return factory
+    return PortFactoryEvent(handle_ref[], storage, builder.keepalive)
 end
 
 function open_or_create(builder::EventServiceBuilder, verifier::AttributeVerifier)
@@ -1954,9 +1982,7 @@ function open_or_create(builder::EventServiceBuilder, verifier::AttributeVerifie
     check_ok(ret, Iceoryx2FFI.iox2_event_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryEvent(handle_ref[], storage, builder.keepalive)
-    finalizer(_finalize_port_factory_event, factory)
-    return factory
+    return PortFactoryEvent(handle_ref[], storage, builder.keepalive)
 end
 
 function open_or_create(f::Function, builder::EventServiceBuilder)
@@ -1985,9 +2011,7 @@ function open(builder::EventServiceBuilder)
     check_ok(ret, Iceoryx2FFI.iox2_event_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryEvent(handle_ref[], storage, builder.keepalive)
-    finalizer(_finalize_port_factory_event, factory)
-    return factory
+    return PortFactoryEvent(handle_ref[], storage, builder.keepalive)
 end
 
 function open(builder::EventServiceBuilder, verifier::AttributeVerifier)
@@ -2004,9 +2028,7 @@ function open(builder::EventServiceBuilder, verifier::AttributeVerifier)
     check_ok(ret, Iceoryx2FFI.iox2_event_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryEvent(handle_ref[], storage, builder.keepalive)
-    finalizer(_finalize_port_factory_event, factory)
-    return factory
+    return PortFactoryEvent(handle_ref[], storage, builder.keepalive)
 end
 
 function open(f::Function, builder::EventServiceBuilder)
@@ -2035,9 +2057,7 @@ function create(builder::EventServiceBuilder)
     check_ok(ret, Iceoryx2FFI.iox2_event_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryEvent(handle_ref[], storage, builder.keepalive)
-    finalizer(_finalize_port_factory_event, factory)
-    return factory
+    return PortFactoryEvent(handle_ref[], storage, builder.keepalive)
 end
 
 function create(builder::EventServiceBuilder, specifier::AttributeSpecifier)
@@ -2054,9 +2074,7 @@ function create(builder::EventServiceBuilder, specifier::AttributeSpecifier)
     check_ok(ret, Iceoryx2FFI.iox2_event_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryEvent(handle_ref[], storage, builder.keepalive)
-    finalizer(_finalize_port_factory_event, factory)
-    return factory
+    return PortFactoryEvent(handle_ref[], storage, builder.keepalive)
 end
 
 function create(f::Function, builder::EventServiceBuilder)
@@ -2088,6 +2106,11 @@ mutable struct NotifierBuilder
     handle::Iceoryx2FFI.iox2_port_factory_notifier_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_notifier_builder_t}
     keepalive::PortFactoryEvent
+    function NotifierBuilder(handle, storage, keepalive)
+        obj = new(handle, storage, keepalive)
+        finalizer(_finalize_notifier_builder, obj)
+        return obj
+    end
 end
 
 function _finalize_notifier_builder(builder::NotifierBuilder)
@@ -2100,9 +2123,7 @@ function notifier_builder(factory::PortFactoryEvent)
     _require_valid(factory.handle, "event port factory")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_notifier_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_event_notifier_builder(Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle), storage)
-    builder = NotifierBuilder(handle, storage, factory)
-    finalizer(_finalize_notifier_builder, builder)
-    return builder
+    return NotifierBuilder(handle, storage, factory)
 end
 
 function default_event_id!(builder::NotifierBuilder, id::EventId)
@@ -2121,6 +2142,11 @@ mutable struct ListenerBuilder
     handle::Iceoryx2FFI.iox2_port_factory_listener_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_listener_builder_t}
     keepalive::PortFactoryEvent
+    function ListenerBuilder(handle, storage, keepalive)
+        obj = new(handle, storage, keepalive)
+        finalizer(_finalize_listener_builder, obj)
+        return obj
+    end
 end
 
 function _finalize_listener_builder(builder::ListenerBuilder)
@@ -2133,15 +2159,18 @@ function listener_builder(factory::PortFactoryEvent)
     _require_valid(factory.handle, "event port factory")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_listener_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_event_listener_builder(Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle), storage)
-    builder = ListenerBuilder(handle, storage, factory)
-    finalizer(_finalize_listener_builder, builder)
-    return builder
+    return ListenerBuilder(handle, storage, factory)
 end
 
 mutable struct Notifier
     handle::Iceoryx2FFI.iox2_notifier_h
     storage::_StorageRef{Iceoryx2FFI.iox2_notifier_t}
     keepalive::PortFactoryEvent
+    function Notifier(handle, storage, keepalive)
+        obj = new(handle, storage, keepalive)
+        finalizer(_finalize_notifier, obj)
+        return obj
+    end
 end
 
 function _finalize_notifier(notifier::Notifier)
@@ -2161,9 +2190,7 @@ function create(builder::NotifierBuilder)
     check_ok(ret, Iceoryx2FFI.iox2_notifier_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_notifier_builder(builder)
-    notifier = Notifier(handle_ref[], storage, builder.keepalive)
-    finalizer(_finalize_notifier, notifier)
-    return notifier
+    return Notifier(handle_ref[], storage, builder.keepalive)
 end
 
 function create(f::Function, builder::NotifierBuilder)
@@ -2191,6 +2218,11 @@ mutable struct Listener
     handle::Iceoryx2FFI.iox2_listener_h
     storage::_StorageRef{Iceoryx2FFI.iox2_listener_t}
     keepalive::PortFactoryEvent
+    function Listener(handle, storage, keepalive)
+        obj = new(handle, storage, keepalive)
+        finalizer(_finalize_listener, obj)
+        return obj
+    end
 end
 
 function _finalize_listener(listener::Listener)
@@ -2210,9 +2242,7 @@ function create(builder::ListenerBuilder)
     check_ok(ret, Iceoryx2FFI.iox2_listener_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_listener_builder(builder)
-    listener = Listener(handle_ref[], storage, builder.keepalive)
-    finalizer(_finalize_listener, listener)
-    return listener
+    return Listener(handle_ref[], storage, builder.keepalive)
 end
 
 function create(f::Function, builder::ListenerBuilder)
@@ -2378,6 +2408,11 @@ mutable struct PortFactoryBlackboard{K}
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_blackboard_t}
     keepalive::Node
     values::Vector{Any}
+    function PortFactoryBlackboard{K}(handle, storage, keepalive, values) where {K}
+        obj = new{K}(handle, storage, keepalive, values)
+        finalizer(_finalize_port_factory_blackboard, obj)
+        return obj
+    end
 end
 
 function _finalize_port_factory_blackboard(factory::PortFactoryBlackboard)
@@ -2401,9 +2436,7 @@ function create(builder::BlackboardCreatorBuilder{K}) where {K}
     values = builder.values
     builder.values = Any[]
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryBlackboard{K}(handle_ref[], storage, builder.keepalive, values)
-    finalizer(_finalize_port_factory_blackboard, factory)
-    return factory
+    return PortFactoryBlackboard{K}(handle_ref[], storage, builder.keepalive, values)
 end
 
 function create(f::Function, builder::BlackboardCreatorBuilder)
@@ -2424,9 +2457,7 @@ function open(builder::BlackboardOpenerBuilder{K}) where {K}
     check_ok(ret, Iceoryx2FFI.iox2_blackboard_open_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    factory = PortFactoryBlackboard{K}(handle_ref[], storage, builder.keepalive, Any[])
-    finalizer(_finalize_port_factory_blackboard, factory)
-    return factory
+    return PortFactoryBlackboard{K}(handle_ref[], storage, builder.keepalive, Any[])
 end
 
 function open(f::Function, builder::BlackboardOpenerBuilder)
@@ -2593,6 +2624,11 @@ mutable struct WriterBuilder{K}
     handle::Iceoryx2FFI.iox2_port_factory_writer_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_writer_builder_t}
     keepalive::PortFactoryBlackboard{K}
+    function WriterBuilder{K}(handle, storage, keepalive) where {K}
+        obj = new{K}(handle, storage, keepalive)
+        finalizer(_finalize_writer_builder, obj)
+        return obj
+    end
 end
 
 function _finalize_writer_builder(builder::WriterBuilder)
@@ -2605,15 +2641,18 @@ function writer_builder(factory::PortFactoryBlackboard{K}) where {K}
     _require_valid(factory.handle, "blackboard port factory")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_writer_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_blackboard_writer_builder(Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle), storage)
-    builder = WriterBuilder{K}(handle, storage, factory)
-    finalizer(_finalize_writer_builder, builder)
-    return builder
+    return WriterBuilder{K}(handle, storage, factory)
 end
 
 mutable struct ReaderBuilder{K}
     handle::Iceoryx2FFI.iox2_port_factory_reader_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_reader_builder_t}
     keepalive::PortFactoryBlackboard{K}
+    function ReaderBuilder{K}(handle, storage, keepalive) where {K}
+        obj = new{K}(handle, storage, keepalive)
+        finalizer(_finalize_reader_builder, obj)
+        return obj
+    end
 end
 
 function _finalize_reader_builder(builder::ReaderBuilder)
@@ -2626,15 +2665,18 @@ function reader_builder(factory::PortFactoryBlackboard{K}) where {K}
     _require_valid(factory.handle, "blackboard port factory")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_reader_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_blackboard_reader_builder(Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle), storage)
-    builder = ReaderBuilder{K}(handle, storage, factory)
-    finalizer(_finalize_reader_builder, builder)
-    return builder
+    return ReaderBuilder{K}(handle, storage, factory)
 end
 
 mutable struct Writer{K}
     handle::Iceoryx2FFI.iox2_writer_h
     storage::_StorageRef{Iceoryx2FFI.iox2_writer_t}
     keepalive::PortFactoryBlackboard{K}
+    function Writer{K}(handle, storage, keepalive) where {K}
+        obj = new{K}(handle, storage, keepalive)
+        finalizer(_finalize_writer, obj)
+        return obj
+    end
 end
 
 function _finalize_writer(writer::Writer)
@@ -2654,9 +2696,7 @@ function create(builder::WriterBuilder{K}) where {K}
     check_ok(ret, Iceoryx2FFI.iox2_writer_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_writer_builder(builder)
-    writer = Writer{K}(handle_ref[], storage, builder.keepalive)
-    finalizer(_finalize_writer, writer)
-    return writer
+    return Writer{K}(handle_ref[], storage, builder.keepalive)
 end
 
 function create(f::Function, builder::WriterBuilder{K}) where {K}
@@ -2672,6 +2712,11 @@ mutable struct Reader{K}
     handle::Iceoryx2FFI.iox2_reader_h
     storage::_StorageRef{Iceoryx2FFI.iox2_reader_t}
     keepalive::PortFactoryBlackboard{K}
+    function Reader{K}(handle, storage, keepalive) where {K}
+        obj = new{K}(handle, storage, keepalive)
+        finalizer(_finalize_reader, obj)
+        return obj
+    end
 end
 
 function _finalize_reader(reader::Reader)
@@ -2691,9 +2736,7 @@ function create(builder::ReaderBuilder{K}) where {K}
     check_ok(ret, Iceoryx2FFI.iox2_reader_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_reader_builder(builder)
-    reader = Reader{K}(handle_ref[], storage, builder.keepalive)
-    finalizer(_finalize_reader, reader)
-    return reader
+    return Reader{K}(handle_ref[], storage, builder.keepalive)
 end
 
 function create(f::Function, builder::ReaderBuilder{K}) where {K}
@@ -2709,12 +2752,15 @@ mutable struct EntryHandle{K,V}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_entry_handle_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_entry_handle_t}
     keepalive::Reader{K}
+    function EntryHandle{K,V}(handle_ref, storage, keepalive) where {K,V}
+        obj = new{K,V}(handle_ref, storage, keepalive)
+        finalizer(_finalize_entry_handle, obj)
+        return obj
+    end
 end
 
 function EntryHandle{K,V}(reader::Reader{K}) where {K,V}
-    entry = EntryHandle{K,V}(Ref{Iceoryx2FFI.iox2_entry_handle_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_entry_handle_t}(), reader)
-    finalizer(_finalize_entry_handle, entry)
-    return entry
+    return EntryHandle{K,V}(Ref{Iceoryx2FFI.iox2_entry_handle_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_entry_handle_t}(), reader)
 end
 
 EntryHandle(reader::Reader{K}, ::Type{V}) where {K,V} = EntryHandle{K,V}(reader)
@@ -2731,12 +2777,15 @@ mutable struct EntryHandleMut{K,V}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_entry_handle_mut_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_entry_handle_mut_t}
     keepalive::Writer{K}
+    function EntryHandleMut{K,V}(handle_ref, storage, keepalive) where {K,V}
+        obj = new{K,V}(handle_ref, storage, keepalive)
+        finalizer(_finalize_entry_handle_mut, obj)
+        return obj
+    end
 end
 
 function EntryHandleMut{K,V}(writer::Writer{K}) where {K,V}
-    entry = EntryHandleMut{K,V}(Ref{Iceoryx2FFI.iox2_entry_handle_mut_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_entry_handle_mut_t}(), writer)
-    finalizer(_finalize_entry_handle_mut, entry)
-    return entry
+    return EntryHandleMut{K,V}(Ref{Iceoryx2FFI.iox2_entry_handle_mut_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_entry_handle_mut_t}(), writer)
 end
 
 EntryHandleMut(writer::Writer{K}, ::Type{V}) where {K,V} = EntryHandleMut{K,V}(writer)
@@ -2753,12 +2802,15 @@ mutable struct EntryValueUninit{K,V}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_entry_value_uninit_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_entry_value_uninit_t}
     keepalive::Writer{K}
+    function EntryValueUninit{K,V}(handle_ref, storage, keepalive) where {K,V}
+        obj = new{K,V}(handle_ref, storage, keepalive)
+        finalizer(_finalize_entry_value_uninit, obj)
+        return obj
+    end
 end
 
 function EntryValueUninit{K,V}(writer::Writer{K}) where {K,V}
-    value = EntryValueUninit{K,V}(Ref{Iceoryx2FFI.iox2_entry_value_uninit_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_entry_value_uninit_t}(), writer)
-    finalizer(_finalize_entry_value_uninit, value)
-    return value
+    return EntryValueUninit{K,V}(Ref{Iceoryx2FFI.iox2_entry_value_uninit_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_entry_value_uninit_t}(), writer)
 end
 
 EntryValueUninit(writer::Writer{K}, ::Type{V}) where {K,V} = EntryValueUninit{K,V}(writer)

@@ -21,6 +21,11 @@ end
 mutable struct NodeBuilder
     handle::Iceoryx2FFI.iox2_node_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_node_builder_t}
+    function NodeBuilder(handle, storage)
+        obj = new(handle, storage)
+        finalizer(_finalize_node_builder, obj)
+        return obj
+    end
 end
 
 function _finalize_node_builder(builder::NodeBuilder)
@@ -32,9 +37,7 @@ end
 function NodeBuilder()
     storage = Ref{Iceoryx2FFI.iox2_node_builder_t}()
     handle = Iceoryx2FFI.iox2_node_builder_new(storage)
-    builder = NodeBuilder(handle, storage)
-    finalizer(_finalize_node_builder, builder)
-    return builder
+    return NodeBuilder(handle, storage)
 end
 
 @inline unsafe_handle(builder::NodeBuilder) = builder.handle
@@ -99,6 +102,11 @@ mutable struct ServiceBuilder
     handle::Iceoryx2FFI.iox2_service_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node
+    function ServiceBuilder(handle, storage, keepalive)
+        obj = new(handle, storage, keepalive)
+        finalizer(_finalize_service_builder, obj)
+        return obj
+    end
 end
 
 function _finalize_service_builder(builder::ServiceBuilder)
@@ -114,9 +122,7 @@ function service_builder(node::Node, name::ServiceName)
     ptr = _service_name_ptr(unsafe_handle(name))
     handle = Iceoryx2FFI.iox2_node_service_builder(node_ref, storage, ptr)
     invalidate!(name)
-    builder = ServiceBuilder(handle, storage, node)
-    finalizer(_finalize_service_builder, builder)
-    return builder
+    return ServiceBuilder(handle, storage, node)
 end
 
 function service_builder(node::Node, name::ServiceNameView)
@@ -124,9 +130,7 @@ function service_builder(node::Node, name::ServiceNameView)
     storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
     node_ref = Ref{Iceoryx2FFI.iox2_node_h}(unsafe_handle(node))
     handle = Iceoryx2FFI.iox2_node_service_builder(node_ref, storage, unsafe_handle(name))
-    builder = ServiceBuilder(handle, storage, node)
-    finalizer(_finalize_service_builder, builder)
-    return builder
+    return ServiceBuilder(handle, storage, node)
 end
 
 function service_builder(node::Node, name::AbstractString)
@@ -140,18 +144,33 @@ mutable struct EventServiceBuilder
     handle::Iceoryx2FFI.iox2_service_builder_event_h
     storage::_StorageRef{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node
+    function EventServiceBuilder(handle, storage, keepalive)
+        obj = new(handle, storage, keepalive)
+        finalizer(_finalize_service_builder_variant, obj)
+        return obj
+    end
 end
 
 mutable struct PubSubServiceBuilder{T,UH}
     handle::Iceoryx2FFI.iox2_service_builder_pub_sub_h
     storage::_StorageRef{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node
+    function PubSubServiceBuilder{T,UH}(handle, storage, keepalive) where {T,UH}
+        obj = new{T,UH}(handle, storage, keepalive)
+        finalizer(_finalize_service_builder_variant, obj)
+        return obj
+    end
 end
 
 mutable struct RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_service_builder_request_response_h
     storage::_StorageRef{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node
+    function RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}(handle, storage, keepalive) where {Req,Resp,ReqH,RespH}
+        obj = new{Req,Resp,ReqH,RespH}(handle, storage, keepalive)
+        finalizer(_finalize_service_builder_variant, obj)
+        return obj
+    end
 end
 
 mutable struct BlackboardCreatorBuilder{K}
@@ -159,12 +178,22 @@ mutable struct BlackboardCreatorBuilder{K}
     storage::_StorageRef{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node
     values::Vector{Any}
+    function BlackboardCreatorBuilder{K}(handle, storage, keepalive, values) where {K}
+        obj = new{K}(handle, storage, keepalive, values)
+        finalizer(_finalize_service_builder_variant, obj)
+        return obj
+    end
 end
 
 mutable struct BlackboardOpenerBuilder{K}
     handle::Iceoryx2FFI.iox2_service_builder_blackboard_opener_h
     storage::_StorageRef{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node
+    function BlackboardOpenerBuilder{K}(handle, storage, keepalive) where {K}
+        obj = new{K}(handle, storage, keepalive)
+        finalizer(_finalize_service_builder_variant, obj)
+        return obj
+    end
 end
 
 function _finalize_service_builder_variant(builder)
@@ -199,9 +228,7 @@ function event(builder::ServiceBuilder)
     builder.handle = _IOX2_NULL
     storage = builder.storage
     builder.storage = nothing
-    variant = EventServiceBuilder(handle, storage, builder.keepalive)
-    finalizer(_finalize_service_builder_variant, variant)
-    return variant
+    return EventServiceBuilder(handle, storage, builder.keepalive)
 end
 
 function publish_subscribe(
@@ -215,7 +242,6 @@ function publish_subscribe(
     storage = builder.storage
     builder.storage = nothing
     pub_builder = PubSubServiceBuilder{T,Nothing}(handle, storage, builder.keepalive)
-    finalizer(_finalize_service_builder_variant, pub_builder)
     _set_payload_type!(pub_builder, T; variant)
     return pub_builder
 end
@@ -233,7 +259,6 @@ function request_response(
     storage = builder.storage
     builder.storage = nothing
     rr_builder = RequestResponseServiceBuilder{Req,Resp,Nothing,Nothing}(handle, storage, builder.keepalive)
-    finalizer(_finalize_service_builder_variant, rr_builder)
     _set_request_payload_type!(rr_builder, Req; variant = request_variant)
     _set_response_payload_type!(rr_builder, Resp; variant = response_variant)
     return rr_builder
@@ -246,7 +271,6 @@ function blackboard_creator(builder::ServiceBuilder, ::Type{K}) where {K}
     storage = builder.storage
     builder.storage = nothing
     bb_builder = BlackboardCreatorBuilder{K}(handle, storage, builder.keepalive, Any[])
-    finalizer(_finalize_service_builder_variant, bb_builder)
     _set_key_type!(bb_builder, K)
     return bb_builder
 end
@@ -258,7 +282,6 @@ function blackboard_opener(builder::ServiceBuilder, ::Type{K}) where {K}
     storage = builder.storage
     builder.storage = nothing
     bb_builder = BlackboardOpenerBuilder{K}(handle, storage, builder.keepalive)
-    finalizer(_finalize_service_builder_variant, bb_builder)
     _set_key_type!(bb_builder, K)
     return bb_builder
 end
