@@ -43,6 +43,19 @@ end
 const _TYPE_DETAILS = IdDict{DataType, TypeDetails}()
 const _TYPE_DETAILS_LOCK = Base.Threads.SpinLock()
 
+type_name(::Type{UInt8}) = "u8"
+type_name(::Type{UInt16}) = "u16"
+type_name(::Type{UInt32}) = "u32"
+type_name(::Type{UInt64}) = "u64"
+type_name(::Type{Int8}) = "i8"
+type_name(::Type{Int16}) = "i16"
+type_name(::Type{Int32}) = "i32"
+type_name(::Type{Int64}) = "i64"
+type_name(::Type{Float32}) = "f32"
+type_name(::Type{Float64}) = "f64"
+type_name(::Type{Nothing}) = "()"
+type_name(::Type{Cvoid}) = "()"
+
 function type_name(::Type{T}) where {T}
     return string(T)
 end
