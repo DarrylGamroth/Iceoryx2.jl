@@ -2512,30 +2512,21 @@ function _set_key_type!(builder::BlackboardOpenerBuilder{K}, ::Type{Other}) wher
     throw(ArgumentError("blackboard key type already set to $K"))
 end
 
-struct BlackboardKeyEq{K} end
-
-@inline function (::BlackboardKeyEq{K})(a::Ptr{Cvoid}, b::Ptr{Cvoid})::Bool where {K}
-    return unsafe_load(Ptr{K}(a)) == unsafe_load(Ptr{K}(b))
-end
-
-const _BLACKBOARD_KEY_EQ_CACHE = IdDict{DataType, Base.CFunction}()
+const _BLACKBOARD_KEY_EQ_CACHE = IdDict{DataType, Ptr{Cvoid}}()
 const _BLACKBOARD_KEY_EQ_LOCK = ReentrantLock()
 
-function _blackboard_key_eq_cmp_ptr_fallback(::Type{K}) where {K}
+function _blackboard_key_eq_cmp_ptr(::Type{K}) where {K}
     Base.lock(_BLACKBOARD_KEY_EQ_LOCK) do
-        entry = Base.get(_BLACKBOARD_KEY_EQ_CACHE, K, nothing)
-        if entry !== nothing
-            return Base.unsafe_convert(Ptr{Cvoid}, entry)
+        ptr = Base.get(_BLACKBOARD_KEY_EQ_CACHE, K, nothing)
+        ptr !== nothing && return ptr
+        fname = gensym(:_blackboard_key_eq_cmp_)
+        @eval function $(fname)(a::Ptr{Cvoid}, b::Ptr{Cvoid})::Bool
+            return unsafe_load(Ptr{$K}(a)) == unsafe_load(Ptr{$K}(b))
         end
-        fn = BlackboardKeyEq{K}()
-        cfunc = @cfunction($fn, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
-        _BLACKBOARD_KEY_EQ_CACHE[K] = cfunc
-        return Base.unsafe_convert(Ptr{Cvoid}, cfunc)
+        ptr = @eval @cfunction($fname, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
+        _BLACKBOARD_KEY_EQ_CACHE[K] = ptr
+        return ptr
     end
-end
-
-@inline function _blackboard_key_eq_cmp_ptr(::Type{K}) where {K}
-    return _blackboard_key_eq_cmp_ptr_fallback(K)
 end
 
 """
