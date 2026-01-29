@@ -1,4 +1,5 @@
 import Iceoryx2
+Base.exit_on_sigint(false)
 using Iceoryx2: ActiveRequest, AttributeSpecifier, AttributeVerifier, EntryHandle, EntryHandleMut, EntryValueUninit,
     EventId, Listener, Node, NodeBuilder, Notifier, PendingResponse, Publisher, RequestMut, Response, ResponseMut,
     Sample, SampleMut, Server, Subscriber, WaitsetBuilder, add!, allocation_strategy!, attach_deadline, attach_interval,
