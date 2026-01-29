@@ -2512,21 +2512,14 @@ function _set_key_type!(builder::BlackboardOpenerBuilder{K}, ::Type{Other}) wher
     throw(ArgumentError("blackboard key type already set to $K"))
 end
 
-const _BLACKBOARD_KEY_EQ_LOCK = ReentrantLock()
+struct _BlackboardKeyEq{K} end
 
-function _blackboard_key_eq_cmp_ptr(::Type{K}) where {K}
-    Base.lock(_BLACKBOARD_KEY_EQ_LOCK) do
-        fname = Symbol(:_blackboard_key_eq_cmp_, hash(K))
-        ptrname = Symbol(:_BLACKBOARD_KEY_EQ_PTR_, hash(K))
-        if isdefined(@__MODULE__, ptrname)
-            return getfield(@__MODULE__, ptrname)
-        end
-        @eval function $(fname)(a::Ptr{Cvoid}, b::Ptr{Cvoid})::Bool
-            return unsafe_load(Ptr{$K}(a)) == unsafe_load(Ptr{$K}(b))
-        end
-        @eval const $(ptrname) = @cfunction($fname, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
-        return getfield(@__MODULE__, ptrname)
-    end
+function (::(_BlackboardKeyEq{K}))(a::Ptr{Cvoid}, b::Ptr{Cvoid})::Bool where {K}
+    return unsafe_load(Ptr{K}(a)) == unsafe_load(Ptr{K}(b))
+end
+
+function _blackboard_key_eq_cmp_cfunction(::Type{K}) where {K}
+    return @cfunction(_BlackboardKeyEq{K}(), Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
 end
 
 """
@@ -2538,7 +2531,19 @@ default comparator semantics.
 function key_eq_comparison!(builder::BlackboardCreatorBuilder{K}) where {K}
     _require_valid(builder.handle, "blackboard creator")
     _require_isbits(K)
-    return key_eq_comparison!(builder, _blackboard_key_eq_cmp_ptr(K))
+    cfun = _blackboard_key_eq_cmp_cfunction(K)
+    builder.key_eq_cfunction = cfun
+    return key_eq_comparison!(builder, cfun)
+end
+
+function key_eq_comparison!(builder::BlackboardCreatorBuilder, cmp::Base.CFunction)
+    _require_valid(builder.handle, "blackboard creator")
+    ptr = Base.unsafe_convert(Ptr{Cvoid}, cmp)
+    Iceoryx2FFI.iox2_service_builder_blackboard_creator_set_key_eq_comparison_function(
+        Ref{Iceoryx2FFI.iox2_service_builder_blackboard_creator_h}(builder.handle),
+        ptr,
+    )
+    return builder
 end
 
 function key_eq_comparison!(builder::BlackboardCreatorBuilder, cmp::Ptr{Cvoid})
