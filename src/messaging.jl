@@ -519,7 +519,7 @@ mutable struct Sample{T,UH}
 end
 
 function Sample{T,UH}() where {T,UH}
-    sample = Sample(Ref{Iceoryx2FFI.iox2_sample_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_sample_t}())
+    sample = Sample{T,UH}(Ref{Iceoryx2FFI.iox2_sample_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_sample_t}())
     finalizer(_finalize_sample, sample)
     return sample
 end
@@ -581,7 +581,7 @@ mutable struct SampleMut{T,UH}
 end
 
 function SampleMut{T,UH}() where {T,UH}
-    sample = SampleMut(Ref{Iceoryx2FFI.iox2_sample_mut_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_sample_mut_t}())
+    sample = SampleMut{T,UH}(Ref{Iceoryx2FFI.iox2_sample_mut_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_sample_mut_t}())
     finalizer(_finalize_sample_mut, sample)
     return sample
 end
@@ -1273,7 +1273,7 @@ mutable struct RequestMut{Req,Resp,ReqH,RespH}
 end
 
 function RequestMut{Req,Resp,ReqH,RespH}() where {Req,Resp,ReqH,RespH}
-    request = RequestMut(Ref{Iceoryx2FFI.iox2_request_mut_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_request_mut_t}())
+    request = RequestMut{Req,Resp,ReqH,RespH}(Ref{Iceoryx2FFI.iox2_request_mut_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_request_mut_t}())
     finalizer(_finalize_request_mut, request)
     return request
 end
@@ -1377,7 +1377,7 @@ mutable struct PendingResponse{Resp,ReqH,RespH}
 end
 
 function PendingResponse{Resp,ReqH,RespH}() where {Resp,ReqH,RespH}
-    pending = PendingResponse(Ref{Iceoryx2FFI.iox2_pending_response_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_pending_response_t}())
+    pending = PendingResponse{Resp,ReqH,RespH}(Ref{Iceoryx2FFI.iox2_pending_response_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_pending_response_t}())
     finalizer(_finalize_pending_response, pending)
     return pending
 end
@@ -1541,7 +1541,7 @@ mutable struct Response{Resp,RespH}
 end
 
 function Response{Resp,RespH}() where {Resp,RespH}
-    resp = Response(Ref{Iceoryx2FFI.iox2_response_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_response_t}())
+    resp = Response{Resp,RespH}(Ref{Iceoryx2FFI.iox2_response_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_response_t}())
     finalizer(_finalize_response, resp)
     return resp
 end
@@ -1645,7 +1645,7 @@ mutable struct ActiveRequest{Req,Resp,ReqH,RespH}
 end
 
 function ActiveRequest{Req,Resp,ReqH,RespH}() where {Req,Resp,ReqH,RespH}
-    req = ActiveRequest(Ref{Iceoryx2FFI.iox2_active_request_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_active_request_t}())
+    req = ActiveRequest{Req,Resp,ReqH,RespH}(Ref{Iceoryx2FFI.iox2_active_request_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_active_request_t}())
     finalizer(_finalize_active_request, req)
     return req
 end
@@ -1708,7 +1708,7 @@ mutable struct ResponseMut{Resp,RespH}
 end
 
 function ResponseMut{Resp,RespH}() where {Resp,RespH}
-    resp = ResponseMut(Ref{Iceoryx2FFI.iox2_response_mut_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_response_mut_t}())
+    resp = ResponseMut{Resp,RespH}(Ref{Iceoryx2FFI.iox2_response_mut_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_response_mut_t}())
     finalizer(_finalize_response_mut, resp)
     return resp
 end
@@ -2712,7 +2712,7 @@ mutable struct EntryHandle{K,V}
 end
 
 function EntryHandle{K,V}(reader::Reader{K}) where {K,V}
-    entry = EntryHandle(Ref{Iceoryx2FFI.iox2_entry_handle_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_entry_handle_t}(), reader)
+    entry = EntryHandle{K,V}(Ref{Iceoryx2FFI.iox2_entry_handle_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_entry_handle_t}(), reader)
     finalizer(_finalize_entry_handle, entry)
     return entry
 end
@@ -2734,7 +2734,7 @@ mutable struct EntryHandleMut{K,V}
 end
 
 function EntryHandleMut{K,V}(writer::Writer{K}) where {K,V}
-    entry = EntryHandleMut(Ref{Iceoryx2FFI.iox2_entry_handle_mut_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_entry_handle_mut_t}(), writer)
+    entry = EntryHandleMut{K,V}(Ref{Iceoryx2FFI.iox2_entry_handle_mut_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_entry_handle_mut_t}(), writer)
     finalizer(_finalize_entry_handle_mut, entry)
     return entry
 end
@@ -2756,7 +2756,7 @@ mutable struct EntryValueUninit{K,V}
 end
 
 function EntryValueUninit{K,V}(writer::Writer{K}) where {K,V}
-    value = EntryValueUninit(Ref{Iceoryx2FFI.iox2_entry_value_uninit_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_entry_value_uninit_t}(), writer)
+    value = EntryValueUninit{K,V}(Ref{Iceoryx2FFI.iox2_entry_value_uninit_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_entry_value_uninit_t}(), writer)
     finalizer(_finalize_entry_value_uninit, value)
     return value
 end
