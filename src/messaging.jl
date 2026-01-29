@@ -2512,46 +2512,10 @@ function _set_key_type!(builder::BlackboardOpenerBuilder{K}, ::Type{Other}) wher
     throw(ArgumentError("blackboard key type already set to $K"))
 end
 
-function _blackboard_key_eq_cmp_1(a::Ptr{Cvoid}, b::Ptr{Cvoid})::Bool
-    return unsafe_load(Ptr{NTuple{1, UInt8}}(a)) == unsafe_load(Ptr{NTuple{1, UInt8}}(b))
-end
-
-function _blackboard_key_eq_cmp_2(a::Ptr{Cvoid}, b::Ptr{Cvoid})::Bool
-    return unsafe_load(Ptr{NTuple{2, UInt8}}(a)) == unsafe_load(Ptr{NTuple{2, UInt8}}(b))
-end
-
-function _blackboard_key_eq_cmp_4(a::Ptr{Cvoid}, b::Ptr{Cvoid})::Bool
-    return unsafe_load(Ptr{NTuple{4, UInt8}}(a)) == unsafe_load(Ptr{NTuple{4, UInt8}}(b))
-end
-
-function _blackboard_key_eq_cmp_8(a::Ptr{Cvoid}, b::Ptr{Cvoid})::Bool
-    return unsafe_load(Ptr{NTuple{8, UInt8}}(a)) == unsafe_load(Ptr{NTuple{8, UInt8}}(b))
-end
-
-function _blackboard_key_eq_cmp_16(a::Ptr{Cvoid}, b::Ptr{Cvoid})::Bool
-    return unsafe_load(Ptr{NTuple{16, UInt8}}(a)) == unsafe_load(Ptr{NTuple{16, UInt8}}(b))
-end
-
-function _blackboard_key_eq_cmp_32(a::Ptr{Cvoid}, b::Ptr{Cvoid})::Bool
-    return unsafe_load(Ptr{NTuple{32, UInt8}}(a)) == unsafe_load(Ptr{NTuple{32, UInt8}}(b))
-end
-
-function _blackboard_key_eq_cmp_64(a::Ptr{Cvoid}, b::Ptr{Cvoid})::Bool
-    return unsafe_load(Ptr{NTuple{64, UInt8}}(a)) == unsafe_load(Ptr{NTuple{64, UInt8}}(b))
-end
-
-const _BLACKBOARD_KEY_EQ_CMP_1 = @cfunction(_blackboard_key_eq_cmp_1, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
-const _BLACKBOARD_KEY_EQ_CMP_2 = @cfunction(_blackboard_key_eq_cmp_2, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
-const _BLACKBOARD_KEY_EQ_CMP_4 = @cfunction(_blackboard_key_eq_cmp_4, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
-const _BLACKBOARD_KEY_EQ_CMP_8 = @cfunction(_blackboard_key_eq_cmp_8, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
-const _BLACKBOARD_KEY_EQ_CMP_16 = @cfunction(_blackboard_key_eq_cmp_16, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
-const _BLACKBOARD_KEY_EQ_CMP_32 = @cfunction(_blackboard_key_eq_cmp_32, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
-const _BLACKBOARD_KEY_EQ_CMP_64 = @cfunction(_blackboard_key_eq_cmp_64, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
-
 struct BlackboardKeyEq{K} end
 
 @inline function (::BlackboardKeyEq{K})(a::Ptr{Cvoid}, b::Ptr{Cvoid})::Bool where {K}
-    return ccall(:memcmp, Cint, (Ptr{Cvoid}, Ptr{Cvoid}, Csize_t), a, b, sizeof(K)) == 0
+    return unsafe_load(Ptr{K}(a)) == unsafe_load(Ptr{K}(b))
 end
 
 const _BLACKBOARD_KEY_EQ_CACHE = IdDict{DataType, Base.CFunction}()
@@ -2571,22 +2535,6 @@ function _blackboard_key_eq_cmp_ptr_fallback(::Type{K}) where {K}
 end
 
 @inline function _blackboard_key_eq_cmp_ptr(::Type{K}) where {K}
-    size = sizeof(K)
-    if size == 1
-        return _BLACKBOARD_KEY_EQ_CMP_1
-    elseif size == 2
-        return _BLACKBOARD_KEY_EQ_CMP_2
-    elseif size == 4
-        return _BLACKBOARD_KEY_EQ_CMP_4
-    elseif size == 8
-        return _BLACKBOARD_KEY_EQ_CMP_8
-    elseif size == 16
-        return _BLACKBOARD_KEY_EQ_CMP_16
-    elseif size == 32
-        return _BLACKBOARD_KEY_EQ_CMP_32
-    elseif size == 64
-        return _BLACKBOARD_KEY_EQ_CMP_64
-    end
     return _blackboard_key_eq_cmp_ptr_fallback(K)
 end
 
