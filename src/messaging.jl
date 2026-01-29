@@ -40,9 +40,6 @@ struct TypeDetails
     alignment::Iceoryx2FFI.c_size_t
 end
 
-const _TYPE_DETAILS = IdDict{DataType, TypeDetails}()
-const _TYPE_DETAILS_LOCK = Base.Threads.SpinLock()
-
 type_name(::Type{UInt8}) = "u8"
 type_name(::Type{UInt16}) = "u16"
 type_name(::Type{UInt32}) = "u32"
@@ -54,39 +51,23 @@ type_name(::Type{Int64}) = "i64"
 type_name(::Type{Float32}) = "f32"
 type_name(::Type{Float64}) = "f64"
 type_name(::Type{Nothing}) = "()"
-type_name(::Type{Cvoid}) = "()"
 
 function type_name(::Type{T}) where {T}
     return string(T)
 end
 
+@inline function type_details(::Type{T}) where {T}
+    name = type_name(T)
+    return TypeDetails(
+        name,
+        Iceoryx2FFI.c_size_t(ncodeunits(name)),
+        Iceoryx2FFI.c_size_t(sizeof(T)),
+        Iceoryx2FFI.c_size_t(Base.datatype_alignment(T)),
+    )
+end
+
 @inline function _type_details(::Type{T}) where {T}
-    if Base.Threads.nthreads() == 1
-        details = Base.get!(_TYPE_DETAILS, T) do
-            name = type_name(T)
-            TypeDetails(
-                name,
-                Iceoryx2FFI.c_size_t(ncodeunits(name)),
-                Iceoryx2FFI.c_size_t(sizeof(T)),
-                Iceoryx2FFI.c_size_t(Base.datatype_alignment(T)),
-            )
-        end::TypeDetails
-        return details.name, details.name_len, details.size, details.alignment
-    end
-    lock(_TYPE_DETAILS_LOCK)
-    try
-        details = Base.get!(_TYPE_DETAILS, T) do
-            name = type_name(T)
-            TypeDetails(
-                name,
-                Iceoryx2FFI.c_size_t(ncodeunits(name)),
-                Iceoryx2FFI.c_size_t(sizeof(T)),
-                Iceoryx2FFI.c_size_t(Base.datatype_alignment(T)),
-            )
-        end::TypeDetails
-    finally
-        unlock(_TYPE_DETAILS_LOCK)
-    end
+    details = type_details(T)
     return details.name, details.name_len, details.size, details.alignment
 end
 
