@@ -243,9 +243,10 @@ mutable struct BlackboardCreatorBuilder{K}
     storage::_StorageRef{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node
     values::Vector{Any}
-    key_eq_cfunction::Union{Nothing, Base.CFunction}
-    function BlackboardCreatorBuilder{K}(handle, storage, keepalive, values, key_eq_cfunction) where {K}
-        obj = new{K}(handle, storage, keepalive, values, key_eq_cfunction)
+    key_eq_cmp::Union{Nothing, Ptr{Cvoid}}
+    key_eq_keepalive::Union{Nothing, Base.CFunction}
+    function BlackboardCreatorBuilder{K}(handle, storage, keepalive, values, key_eq_cmp, key_eq_keepalive) where {K}
+        obj = new{K}(handle, storage, keepalive, values, key_eq_cmp, key_eq_keepalive)
         finalizer(_finalize_service_builder_variant, obj)
         return obj
     end
@@ -269,7 +270,8 @@ end
 
 function _finalize_service_builder_variant(builder::BlackboardCreatorBuilder)
     builder.storage = nothing
-    builder.key_eq_cfunction = nothing
+    builder.key_eq_cmp = nothing
+    builder.key_eq_keepalive = nothing
     empty!(builder.values)
     return nothing
 end
@@ -337,7 +339,7 @@ function blackboard_creator(builder::ServiceBuilder, ::Type{K}) where {K}
     builder.handle = _IOX2_NULL
     storage = builder.storage
     builder.storage = nothing
-    bb_builder = BlackboardCreatorBuilder{K}(handle, storage, builder.keepalive, Any[], nothing)
+    bb_builder = BlackboardCreatorBuilder{K}(handle, storage, builder.keepalive, Any[], nothing, nothing)
     _set_key_type!(bb_builder, K)
     key_eq_comparison!(bb_builder)
     return bb_builder
