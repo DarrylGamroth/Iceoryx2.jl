@@ -2512,39 +2512,11 @@ function _set_key_type!(builder::BlackboardOpenerBuilder{K}, ::Type{Other}) wher
     throw(ArgumentError("blackboard key type already set to $K"))
 end
 
-function _blackboard_key_eq_cmp_cfunction(::Type{K}) where {K}
-    fname = gensym(:_blackboard_key_eq_cmp_)
-    @eval function $(fname)(a::Ptr{Cvoid}, b::Ptr{Cvoid})::Bool
-        return unsafe_load(Ptr{$K}(a)) == unsafe_load(Ptr{$K}(b))
-    end
-    return @eval @cfunction($fname, Bool, (Ptr{Cvoid}, Ptr{Cvoid}))
-end
-
-"""
-    key_eq_comparison!(builder::BlackboardCreatorBuilder)
-
-Configures a key equality comparator that uses `==` on the key type, matching the C++/Rust
-default comparator semantics.
-"""
-function key_eq_comparison!(builder::BlackboardCreatorBuilder{K}) where {K}
+function _key_eq_comparison!(builder::BlackboardCreatorBuilder{K}) where {K}
     _require_valid(builder.handle, "blackboard creator")
-    _require_isbits(K)
-    ptr = _blackboard_key_eq_cmp_cfunction(K)
-    builder.key_eq_cmp = ptr
-    return key_eq_comparison!(builder, ptr)
-end
-
-function key_eq_comparison!(builder::BlackboardCreatorBuilder, cmp::Base.CFunction)
-    builder.key_eq_keepalive = cmp
-    return key_eq_comparison!(builder, Base.unsafe_convert(Ptr{Cvoid}, cmp))
-end
-
-function key_eq_comparison!(builder::BlackboardCreatorBuilder, cmp::Ptr{Cvoid})
-    _require_valid(builder.handle, "blackboard creator")
-    builder.key_eq_cmp = cmp
     Iceoryx2FFI.iox2_service_builder_blackboard_creator_set_key_eq_comparison_function(
         Ref{Iceoryx2FFI.iox2_service_builder_blackboard_creator_h}(builder.handle),
-        cmp,
+        _blackboard_key_eq_cmp_cfunction(K),
     )
     return builder
 end

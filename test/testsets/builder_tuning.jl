@@ -79,7 +79,6 @@
 
     bb_service = unique_service_name()
     bb_builder = Iceoryx2.blackboard_creator(Iceoryx2.service_builder(node, bb_service), UInt64)
-    Iceoryx2.key_eq_comparison!(bb_builder)
     Iceoryx2.max_readers!(bb_builder, 1)
     Iceoryx2.max_nodes!(bb_builder, 1)
     Iceoryx2.add!(bb_builder, UInt64(1), UInt64(0))

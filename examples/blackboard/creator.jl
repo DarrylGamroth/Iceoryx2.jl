@@ -14,7 +14,6 @@ function main()
 
     builder = service_builder(node, "My/Funk/ServiceName")
     bb_builder = blackboard_creator(builder, BlackboardKey)
-    key_eq_comparison!(bb_builder)
     add!(bb_builder, key_0, Int32(3))
     add!(bb_builder, key_1, initial_value)
     factory = create(bb_builder)

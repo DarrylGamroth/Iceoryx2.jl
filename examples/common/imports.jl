@@ -6,7 +6,7 @@ using Iceoryx2: ActiveRequest, AttributeSpecifier, AttributeVerifier, EntryHandl
     attach_notification, attributes, blackboard_creator, blackboard_opener, client_builder, config!, config_from_ptr,
     create, create_with_attributes, deadline, deadline!, default_event_id!, define!, enable_safe_overflow!, event,
     file_descriptor, global_config, global_prefix!, has_event_from, has_missed_deadline, history_size!, id,
-    initial_max_slice_len!, key_eq_comparison!, list_nodes, list_services, loan!, loan_request!, loan_response!,
+    initial_max_slice_len!, list_nodes, list_services, loan!, loan_request!, loan_response!,
     loan_slice!, loan_slice_uninit!, loan_uninit!, max_publishers!, max_subscribers!, messaging_pattern, name, name!,
     notifier_builder, notifier_created_event!, notifier_dead_event!, notifier_dropped_event!, open_or_create,
     open_with_attributes, payload, event_id_max_value, payload_mut, publish_subscribe, publisher_builder, reader_builder,
