@@ -36,30 +36,41 @@ function main()
     counter = UInt64(0)
     sample = SampleMut(publisher)
     recv_sample = Sample(subscriber)
-    while true
-        sleep_or_interrupt(CYCLE_SECONDS) || break
-        counter += 1
+    try
+        while true
+            sleep(CYCLE_SECONDS)
+            counter += 1
 
-        loan_uninit!(publisher, sample)
-        payload = ComplexDataType(
-            counter,
-            static_string(Val(8), "hello"),
-            static_vector_from_value(UInt64, Val(4), 1, counter),
-            static_vector_from_value(ComplexData, Val(COMPLEX_CAPACITY), 1,
-                ComplexData(static_string(Val(4), "bla"), static_vector_from_value(UInt64, Val(4), 2, counter))),
-        )
-        payload_mut(sample)[1] = payload
-        send!(sample)
+            loan_uninit!(publisher, sample)
+            payload = ComplexDataType(
+                counter,
+                static_string(Val(8), "hello"),
+                static_vector_from_value(UInt64, Val(4), 1, counter),
+                static_vector_from_value(ComplexData, Val(COMPLEX_CAPACITY), 1,
+                    ComplexData(static_string(Val(4), "bla"), static_vector_from_value(UInt64, Val(4), 2, counter))),
+            )
+            payload_mut(sample)[1] = payload
+            send!(sample)
 
-        println("$counter :: send")
+            println("$counter :: send")
 
-        while receive!(subscriber, recv_sample)
-            try
-                println("received: ", string(payload(recv_sample)[1].text))
-            finally
-                close(recv_sample)
+            while receive!(subscriber, recv_sample)
+                try
+                    println("received: ", string(payload(recv_sample)[1].text))
+                finally
+                    close(recv_sample)
+                end
             end
         end
+    catch err
+        err isa InterruptException || rethrow()
+    finally
+        close(recv_sample)
+        close(sample)
+        close(subscriber)
+        close(publisher)
+        close(service)
+        close(node)
     end
 end
 

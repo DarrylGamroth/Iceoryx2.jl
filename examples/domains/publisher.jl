@@ -30,15 +30,24 @@ function main()
 
     counter = Int32(0)
     sample = SampleMut(publisher)
-    while true
-        sleep_or_interrupt(CYCLE_SECONDS) || break
-        counter += 1
+    try
+        while true
+            sleep(CYCLE_SECONDS)
+            counter += 1
 
-        loan_uninit!(publisher, sample)
-        write_payload!(sample, TransmissionData(counter, counter * 3, counter * 812.12))
-        send!(sample)
+            loan_uninit!(publisher, sample)
+            write_payload!(sample, TransmissionData(counter, counter * 3, counter * 812.12))
+            send!(sample)
 
-        println("[domain: \"$(domain)\", service: \"$(service_name)\"] Send sample $(counter)...")
+            println("[domain: \"$(domain)\", service: \"$(service_name)\"] Send sample $(counter)...")
+        end
+    catch err
+        err isa InterruptException || rethrow()
+    finally
+        close(sample)
+        close(publisher)
+        close(service)
+        close(node)
     end
 end
 

@@ -15,16 +15,25 @@ function main()
     println("Subscriber ready to receive data!")
     sample = Sample(subscriber)
 
-    while true
-        sleep_or_interrupt(CYCLE_SECONDS) || break
-        while receive!(subscriber, sample)
-            try
-                payload = payload(sample)[1]
-                println("received: some_value=", payload.some_value, ", another_value=", payload.another_value)
-            finally
-                close(sample)
+    try
+        while true
+            sleep(CYCLE_SECONDS)
+            while receive!(subscriber, sample)
+                try
+                    payload = payload(sample)[1]
+                    println("received: some_value=", payload.some_value, ", another_value=", payload.another_value)
+                finally
+                    close(sample)
+                end
             end
         end
+    catch err
+        err isa InterruptException || rethrow()
+    finally
+        close(sample)
+        close(subscriber)
+        close(service)
+        close(node)
     end
 end
 

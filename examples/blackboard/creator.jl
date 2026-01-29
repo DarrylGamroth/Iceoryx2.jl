@@ -29,17 +29,28 @@ function main()
     value_uninit = EntryValueUninit(entry_1)
 
     counter = 0
-    while true
-        sleep_or_interrupt(CYCLE_SECONDS) || break
-        counter += 1
+    try
+        while true
+            sleep(CYCLE_SECONDS)
+            counter += 1
 
-        update!(entry_0, Int32(counter))
-        println("Write new value for key 0: $(counter)...")
+            update!(entry_0, Int32(counter))
+            println("Write new value for key 0: $(counter)...")
 
-        loan_uninit!(entry_1, value_uninit)
-        unsafe_store!(value_mut(value_uninit), initial_value * counter)
-        update!(value_uninit, entry_1)
-        println("Write new value for key 1: $(initial_value * counter)...\n")
+            loan_uninit!(entry_1, value_uninit)
+            unsafe_store!(value_mut(value_uninit), initial_value * counter)
+            update!(value_uninit, entry_1)
+            println("Write new value for key 1: $(initial_value * counter)...\n")
+        end
+    catch err
+        err isa InterruptException || rethrow()
+    finally
+        close(value_uninit)
+        close(entry_1)
+        close(entry_0)
+        close(writer)
+        close(factory)
+        close(node)
     end
 end
 

@@ -22,23 +22,33 @@ function main()
     response = ResponseMut(active_request)
 
     counter = UInt64(1)
-    while true
-        sleep_or_interrupt(CYCLE_MILLIS / 1000) || break
-        while receive!(server, active_request)
-            try
-                println("received request with ", length(payload(active_request)), " bytes ...")
-                required_size = min(UInt64(1_000_000), counter * counter)
-                loan_slice_uninit!(active_request, response, required_size)
-                write_from_fn!(response) do byte_idx
-                    return UInt8((UInt64(byte_idx) + counter) % MAX_VALUE)
+    try
+        while true
+            sleep(CYCLE_MILLIS / 1000)
+            while receive!(server, active_request)
+                try
+                    println("received request with ", length(payload(active_request)), " bytes ...")
+                    required_size = min(UInt64(1_000_000), counter * counter)
+                    loan_slice_uninit!(active_request, response, required_size)
+                    write_from_fn!(response) do byte_idx
+                        return UInt8((UInt64(byte_idx) + counter) % MAX_VALUE)
+                    end
+                    println("send response with ", length(payload_mut(response)), " bytes")
+                    send!(response)
+                finally
+                    close(active_request)
                 end
-                println("send response with ", length(payload_mut(response)), " bytes")
-                send!(response)
-            finally
-                close(active_request)
             end
+            counter += 1
         end
-        counter += 1
+    catch err
+        err isa InterruptException || rethrow()
+    finally
+        close(response)
+        close(active_request)
+        close(server)
+        close(service)
+        close(node)
     end
 end
 

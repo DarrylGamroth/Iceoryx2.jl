@@ -21,12 +21,22 @@ function main()
     reader_entry!(reader, entry_0, key_0)
     reader_entry!(reader, entry_1, key_1)
 
-    while true
-        sleep_or_interrupt(CYCLE_SECONDS) || break
-        value_0, _ = Iceoryx2.get(entry_0)
-        value_1, _ = Iceoryx2.get(entry_1)
-        println("Read value $(value_0) for key 0...")
-        println("Read value $(value_1) for key 1...\n")
+    try
+        while true
+            sleep(CYCLE_SECONDS)
+            value_0, _ = Iceoryx2.get(entry_0)
+            value_1, _ = Iceoryx2.get(entry_1)
+            println("Read value $(value_0) for key 0...")
+            println("Read value $(value_1) for key 1...\n")
+        end
+    catch err
+        err isa InterruptException || rethrow()
+    finally
+        close(entry_1)
+        close(entry_0)
+        close(reader)
+        close(factory)
+        close(node)
     end
 end
 

@@ -19,17 +19,24 @@ function main()
         subscriber = create(subscriber_builder(service))
         sample = Sample(subscriber)
 
-        while atomic_load(keep_running)
-            sleep(CYCLE_SECONDS)
-            while receive!(subscriber, sample)
-                try
-                    lock do
-                        println("[thread] received: ", payload(sample)[1])
+        try
+            while atomic_load(keep_running)
+                sleep(CYCLE_SECONDS)
+                while receive!(subscriber, sample)
+                    try
+                        lock do
+                            println("[thread] received: ", payload(sample)[1])
+                        end
+                    finally
+                        close(sample)
                     end
-                finally
-                    close(sample)
                 end
             end
+        finally
+            close(sample)
+            close(subscriber)
+            close(service)
+            close(node)
         end
     end
 
@@ -42,17 +49,24 @@ function main()
     publisher = create(publisher_builder(service))
 
     counter = UInt64(0)
-    while true
-        sleep_or_interrupt(CYCLE_SECONDS) || break
-        lock do
-            println("send: ", counter)
+    try
+        while true
+            sleep(CYCLE_SECONDS)
+            lock do
+                println("send: ", counter)
+            end
+            send_copy(publisher, counter)
+            counter += 1
         end
-        send_copy(publisher, counter)
-        counter += 1
+    catch err
+        err isa InterruptException || rethrow()
+    finally
+        atomic_store!(keep_running, false)
+        wait(background)
+        close(publisher)
+        close(service)
+        close(node)
     end
-
-    atomic_store!(keep_running, false)
-    wait(background)
 end
 
 main()

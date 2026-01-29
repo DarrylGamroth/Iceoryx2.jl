@@ -22,27 +22,38 @@ function main()
     pending = PendingResponse(client)
     response = Response(pending)
 
-    while true
-        required_size = min(UInt64(1_000_000), counter * counter)
-        loan_slice_uninit!(client, request, required_size)
-        write_from_fn!(request) do byte_idx
-            return UInt8((UInt64(byte_idx) + counter) % MAX_VALUE)
-        end
-        send!(request, pending)
-        println("send request $(counter) with $(required_size) bytes ...")
-
-        sleep_or_interrupt(CYCLE_SECONDS) || break
-
-        while receive!(pending, response)
-            try
-                println("received response with ", length(payload(response)), " bytes")
-            finally
-                close(response)
+    try
+        while true
+            required_size = min(UInt64(1_000_000), counter * counter)
+            loan_slice_uninit!(client, request, required_size)
+            write_from_fn!(request) do byte_idx
+                return UInt8((UInt64(byte_idx) + counter) % MAX_VALUE)
             end
-        end
-        close(pending)
+            send!(request, pending)
+            println("send request $(counter) with $(required_size) bytes ...")
 
-        counter += 1
+            sleep(CYCLE_SECONDS)
+
+            while receive!(pending, response)
+                try
+                    println("received response with ", length(payload(response)), " bytes")
+                finally
+                    close(response)
+                end
+            end
+            close(pending)
+
+            counter += 1
+        end
+    catch err
+        err isa InterruptException || rethrow()
+    finally
+        close(response)
+        close(pending)
+        close(request)
+        close(client)
+        close(service)
+        close(node)
     end
 end
 

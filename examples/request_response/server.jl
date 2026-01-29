@@ -16,18 +16,28 @@ function main()
     active_request = ActiveRequest(server)
     response = ResponseMut(active_request)
 
-    while true
-        sleep_or_interrupt(CYCLE_SECONDS) || break
-        while receive!(server, active_request)
-            try
-                println("received request: ", payload(active_request)[1])
-                loan_uninit!(active_request, response)
-                write_payload!(response, TransmissionData(Int32(payload(active_request)[1]), Int32(0), 0.0))
-                send!(response)
-            finally
-                close(active_request)
+    try
+        while true
+            sleep(CYCLE_SECONDS)
+            while receive!(server, active_request)
+                try
+                    println("received request: ", payload(active_request)[1])
+                    loan_uninit!(active_request, response)
+                    write_payload!(response, TransmissionData(Int32(payload(active_request)[1]), Int32(0), 0.0))
+                    send!(response)
+                finally
+                    close(active_request)
+                end
             end
         end
+    catch err
+        err isa InterruptException || rethrow()
+    finally
+        close(response)
+        close(active_request)
+        close(server)
+        close(service)
+        close(node)
     end
 end
 

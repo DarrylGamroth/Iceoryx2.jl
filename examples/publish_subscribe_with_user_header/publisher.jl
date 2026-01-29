@@ -16,16 +16,25 @@ function main()
 
     counter = UInt64(0)
     sample = SampleMut(publisher)
-    while true
-        sleep_or_interrupt(CYCLE_SECONDS) || break
-        counter += 1
-        loan_uninit!(publisher, sample)
+    try
+        while true
+            sleep(CYCLE_SECONDS)
+            counter += 1
+            loan_uninit!(publisher, sample)
 
-        user_header_mut(sample)[1] = CustomHeader(Int32(123), UInt64(80337 + counter))
-        write_payload!(sample, counter)
-        send!(sample)
+            user_header_mut(sample)[1] = CustomHeader(Int32(123), UInt64(80337 + counter))
+            write_payload!(sample, counter)
+            send!(sample)
 
-        println("Send sample $(counter)...")
+            println("Send sample $(counter)...")
+        end
+    catch err
+        err isa InterruptException || rethrow()
+    finally
+        close(sample)
+        close(publisher)
+        close(service)
+        close(node)
     end
 end
 

@@ -16,36 +16,48 @@ function main()
 
     background = @spawn begin
         sample = Sample(subscriber)
-        while atomic_load(keep_running)
+        try
+            while atomic_load(keep_running)
+                sleep(CYCLE_SECONDS)
+                if receive!(subscriber, sample)
+                    try
+                        lock do
+                            println("[thread] received: ", payload(sample)[1])
+                        end
+                    finally
+                        close(sample)
+                    end
+                end
+            end
+        finally
+            close(sample)
+        end
+    end
+
+    sample = Sample(subscriber)
+    try
+        while true
             sleep(CYCLE_SECONDS)
             if receive!(subscriber, sample)
                 try
                     lock do
-                        println("[thread] received: ", payload(sample)[1])
+                        println("[main] received: ", payload(sample)[1])
                     end
                 finally
                     close(sample)
                 end
             end
         end
+    catch err
+        err isa InterruptException || rethrow()
+    finally
+        atomic_store!(keep_running, false)
+        wait(background)
+        close(sample)
+        close(subscriber)
+        close(service)
+        close(node)
     end
-
-    sample = Sample(subscriber)
-    while true
-        sleep_or_interrupt(CYCLE_SECONDS) || break
-        if receive!(subscriber, sample)
-            try
-                lock do
-                    println("[main] received: ", payload(sample)[1])
-                end
-            finally
-                close(sample)
-            end
-        end
-    end
-
-    atomic_store!(keep_running, false)
-    wait(background)
 end
 
 main()

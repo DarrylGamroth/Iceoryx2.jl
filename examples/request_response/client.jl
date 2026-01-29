@@ -21,24 +21,35 @@ function main()
     println("send request $(request_counter) ...")
     send_copy!(client, request_counter, pending)
 
-    while true
-        sleep_or_interrupt(CYCLE_SECONDS) || break
+    try
+        while true
+            sleep(CYCLE_SECONDS)
 
-        while receive!(pending, response)
-            try
-                println("received response $(response_counter): ", payload(response)[1])
-                response_counter += 1
-            finally
-                close(response)
+            while receive!(pending, response)
+                try
+                    println("received response $(response_counter): ", payload(response)[1])
+                    response_counter += 1
+                finally
+                    close(response)
+                end
             end
-        end
-        close(pending)
+            close(pending)
 
-        request_counter += 1
-        loan_uninit!(client, request)
-        write_payload!(request, request_counter)
-        send!(request, pending)
-        println("send request $(request_counter) ...")
+            request_counter += 1
+            loan_uninit!(client, request)
+            write_payload!(request, request_counter)
+            send!(request, pending)
+            println("send request $(request_counter) ...")
+        end
+    catch err
+        err isa InterruptException || rethrow()
+    finally
+        close(response)
+        close(pending)
+        close(request)
+        close(client)
+        close(service)
+        close(node)
     end
 end
 

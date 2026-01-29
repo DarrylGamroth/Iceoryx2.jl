@@ -26,10 +26,18 @@ function main()
     service = open_or_create(event(service_builder(node, service_name)))
     notifier = create(notifier_builder(service))
 
-    while true
-        sleep_or_interrupt(CYCLE_SECONDS) || break
-        notify!(notifier, EventId(event_id_val))
-        println("[service: \"$(service_name)\"] Trigger event with id $(event_id_val)...")
+    try
+        while true
+            sleep(CYCLE_SECONDS)
+            notify!(notifier, EventId(event_id_val))
+            println("[service: \"$(service_name)\"] Trigger event with id $(event_id_val)...")
+        end
+    catch err
+        err isa InterruptException || rethrow()
+    finally
+        close(notifier)
+        close(service)
+        close(node)
     end
 end
 

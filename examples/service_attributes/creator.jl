@@ -20,11 +20,20 @@ function main()
     println("defined service attributes: ", attributes(service))
     sample = SampleMut(publisher)
 
-    while true
-        sleep_or_interrupt(CYCLE_SECONDS) || break
-        loan!(publisher, sample)
-        payload_mut(sample)[1] = UInt64(0)
-        send!(sample)
+    try
+        while true
+            sleep(CYCLE_SECONDS)
+            loan!(publisher, sample)
+            payload_mut(sample)[1] = UInt64(0)
+            send!(sample)
+        end
+    catch err
+        err isa InterruptException || rethrow()
+    finally
+        close(sample)
+        close(publisher)
+        close(service)
+        close(node)
     end
 end
 

@@ -13,12 +13,20 @@ function main()
     notifier = create(notifier_builder(service))
 
     counter = UInt64(0)
-    while true
-        sleep_or_interrupt(CYCLE_SECONDS) || break
-        counter += 1
-        event_id = EventId(counter % UInt64(max_event_id))
-        notify!(notifier, event_id)
-        println("Trigger event with id $(Int(event_id))...")
+    try
+        while true
+            sleep(CYCLE_SECONDS)
+            counter += 1
+            event_id = EventId(counter % UInt64(max_event_id))
+            notify!(notifier, event_id)
+            println("Trigger event with id $(Int(event_id))...")
+        end
+    catch err
+        err isa InterruptException || rethrow()
+    finally
+        close(notifier)
+        close(service)
+        close(node)
     end
 end
 

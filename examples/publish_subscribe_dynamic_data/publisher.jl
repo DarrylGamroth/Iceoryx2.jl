@@ -18,17 +18,26 @@ function main()
     counter = UInt64(0)
     sample = SampleMut(publisher)
 
-    while true
-        sleep_or_interrupt(CYCLE_SECONDS) || break
-        required_size = (counter + 1) * (counter + 1)
-        loan_slice_uninit!(publisher, sample, required_size)
-        write_from_fn!(sample) do byte_idx
-            return UInt8((UInt64(byte_idx) + counter) % MAX_VALUE)
-        end
-        send!(sample)
+    try
+        while true
+            sleep(CYCLE_SECONDS)
+            required_size = (counter + 1) * (counter + 1)
+            loan_slice_uninit!(publisher, sample, required_size)
+            write_from_fn!(sample) do byte_idx
+                return UInt8((UInt64(byte_idx) + counter) % MAX_VALUE)
+            end
+            send!(sample)
 
-        println("Send sample $(counter) with $(required_size) bytes...")
-        counter += 1
+            println("Send sample $(counter) with $(required_size) bytes...")
+            counter += 1
+        end
+    catch err
+        err isa InterruptException || rethrow()
+    finally
+        close(sample)
+        close(publisher)
+        close(service)
+        close(node)
     end
 end
 

@@ -19,16 +19,25 @@ function main()
 
     counter = UInt64(0)
     sample = SampleMut(publisher)
-    while true
-        sleep_or_interrupt(CYCLE_SECONDS) || break
-        counter += 1
+    try
+        while true
+            sleep(CYCLE_SECONDS)
+            counter += 1
 
-        loan_uninit!(publisher, sample)
-        user_header_mut(sample)[1] = static_string(Val(64), "Why are Kermit and Miss Piggy no longer together?")
-        payload_mut(sample)[1] = static_vector_from_value(UInt64, Val(32), 2, counter)
-        send!(sample)
+            loan_uninit!(publisher, sample)
+            user_header_mut(sample)[1] = static_string(Val(64), "Why are Kermit and Miss Piggy no longer together?")
+            payload_mut(sample)[1] = static_vector_from_value(UInt64, Val(32), 2, counter)
+            send!(sample)
 
-        println("Send sample $(counter)...")
+            println("Send sample $(counter)...")
+        end
+    catch err
+        err isa InterruptException || rethrow()
+    finally
+        close(sample)
+        close(publisher)
+        close(service)
+        close(node)
     end
 end
 

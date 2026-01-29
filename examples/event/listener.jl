@@ -11,11 +11,19 @@ function main()
 
     println("Listener ready to receive events!")
 
-    while true
-        event_id = timed_wait_one(listener, CYCLE_SECONDS, 0)
-        if event_id !== nothing
-            println("event was triggered with id: ", Int(event_id))
+    try
+        while true
+            event_id = timed_wait_one(listener, CYCLE_SECONDS, 0)
+            if event_id !== nothing
+                println("event was triggered with id: ", Int(event_id))
+            end
         end
+    catch err
+        err isa InterruptException || rethrow()
+    finally
+        close(listener)
+        close(service)
+        close(node)
     end
 end
 
