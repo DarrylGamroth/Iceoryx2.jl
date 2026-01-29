@@ -4,6 +4,7 @@ using Iceoryx2
 include("testutils.jl")
 
 include("testsets/node_name.jl")
+include("testsets/type_names.jl")
 include("testsets/service_name.jl")
 include("testsets/enum_conversion.jl")
 include("testsets/logging.jl")

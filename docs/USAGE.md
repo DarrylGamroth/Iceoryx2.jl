@@ -137,6 +137,21 @@ You can wait on listener events directly without a waitset:
 event_id = Iceoryx2.timed_wait_one(listener, 1, 0)
 ```
 
+## Durations and timeouts
+
+The C++/Rust APIs use `Duration` values. In Julia we keep the low-level
+`(seconds, nanoseconds)` arguments for allocation-free hot paths:
+
+```julia
+# 1 second
+Iceoryx2.wait(node, 1, 0)
+
+# 250 milliseconds
+Iceoryx2.attach_interval(waitset, 0, 250_000_000)
+```
+
+This maps directly to the C ABI and avoids extra conversion overhead.
+
 For batch handling, use `*_wait_all` with a callback:
 
 ```julia

@@ -22,6 +22,8 @@
         @allocated Iceoryx2.has_event_from(id, guard)
     missed_deadline_alloc(id::Iceoryx2.WaitsetAttachmentId, guard::Iceoryx2.WaitsetGuard) =
         @allocated Iceoryx2.has_missed_deadline(id, guard)
+    waitset_once_alloc(waitset::Iceoryx2.Waitset, handler::Iceoryx2.WaitsetHandler) =
+        @allocated Iceoryx2.wait_and_process_once(waitset, 0, 0, handler)
 
     builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(builder, "iceoryx2_julia_alloc_hotpath")
@@ -139,6 +141,12 @@
     @test has_event_alloc(attachment, guard) == 0
     Iceoryx2.has_missed_deadline(attachment, guard)
     @test missed_deadline_alloc(attachment, guard) == 0
+
+    struct WaitsetCallback end
+    (::WaitsetCallback)(::Iceoryx2.WaitsetAttachmentId) = :stop
+    handler = Iceoryx2.WaitsetHandler(WaitsetCallback())
+    Iceoryx2.wait_and_process_once(waitset, 0, 0, handler)
+    @test waitset_once_alloc(waitset, handler) == 0
 
     event_builder = Iceoryx2.event(Iceoryx2.service_builder(node, unique_service_name()))
     event_factory = Iceoryx2.open_or_create(event_builder)
