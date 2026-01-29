@@ -110,6 +110,12 @@ while Iceoryx2.receive!(subscriber, sample)
 end
 ```
 
+Reusable wrappers (`Sample`, `SampleMut`, `RequestMut`, `Response`, `ResponseMut`, `PendingResponse`,
+`ActiveRequest`, `EntryHandle`, `EntryHandleMut`, `EntryValueUninit`) are designed for hot paths: they
+hold preallocated storage and only borrow/release a C handle per call. After each `receive!`, `send!`,
+`update!`, or `discard!`, the wrapper must be `close`d before reuse. These objects are not thread-safe;
+use one instance per task or guard with external synchronization.
+
 ## Attribute scratch buffers
 
 For allocation-free access to attribute keys/values in tight loops, use an explicit scratch buffer:
