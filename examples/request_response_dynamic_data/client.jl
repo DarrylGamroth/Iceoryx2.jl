@@ -31,7 +31,7 @@ function main()
         send!(request, pending)
         println("send request $(counter) with $(required_size) bytes ...")
 
-        Iceoryx2.wait(node, CYCLE_SECONDS, 0)
+        sleep_or_interrupt(CYCLE_SECONDS) || break
 
         while receive!(pending, response)
             try

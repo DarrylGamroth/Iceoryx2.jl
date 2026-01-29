@@ -37,7 +37,7 @@ function main()
     sample = SampleMut(publisher)
     recv_sample = Sample(subscriber)
     while true
-        Iceoryx2.wait(node, CYCLE_SECONDS, 0)
+        sleep_or_interrupt(CYCLE_SECONDS) || break
         counter += 1
 
         loan_uninit!(publisher, sample)

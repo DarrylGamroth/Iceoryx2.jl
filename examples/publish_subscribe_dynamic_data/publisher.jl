@@ -19,7 +19,7 @@ function main()
     sample = SampleMut(publisher)
 
     while true
-        Iceoryx2.wait(node, CYCLE_SECONDS, 0)
+        sleep_or_interrupt(CYCLE_SECONDS) || break
         required_size = (counter + 1) * (counter + 1)
         loan_slice_uninit!(publisher, sample, required_size)
         write_from_fn!(sample) do byte_idx

@@ -20,7 +20,7 @@ function main()
     counter = UInt64(0)
     sample = SampleMut(publisher)
     while true
-        Iceoryx2.wait(node, CYCLE_SECONDS, 0)
+        sleep_or_interrupt(CYCLE_SECONDS) || break
         counter += 1
 
         loan_uninit!(publisher, sample)

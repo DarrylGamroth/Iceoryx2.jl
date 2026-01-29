@@ -43,7 +43,7 @@ function main()
 
     counter = UInt64(0)
     while true
-        Iceoryx2.wait(node, CYCLE_SECONDS, 0)
+        sleep_or_interrupt(CYCLE_SECONDS) || break
         lock do
             println("send: ", counter)
         end

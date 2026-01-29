@@ -21,7 +21,7 @@ function main()
     sample = SampleMut(publisher)
 
     while true
-        Iceoryx2.wait(node, CYCLE_SECONDS, 0)
+        sleep_or_interrupt(CYCLE_SECONDS) || break
         loan!(publisher, sample)
         payload_mut(sample)[1] = UInt64(0)
         send!(sample)

@@ -22,7 +22,7 @@ function main()
     reader_entry!(reader, entry_1, key_1)
 
     while true
-        Iceoryx2.wait(node, CYCLE_SECONDS, 0)
+        sleep_or_interrupt(CYCLE_SECONDS) || break
         value_0, _ = Iceoryx2.get(entry_0)
         value_1, _ = Iceoryx2.get(entry_1)
         println("Read value $(value_0) for key 0...")

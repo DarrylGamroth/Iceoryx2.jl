@@ -14,3 +14,13 @@ using Iceoryx2: ActiveRequest, AttributeSpecifier, AttributeVerifier, EntryHandl
     subscriber_max_buffer_size!, timed_wait_one, to_owned, try_reader_entry!, try_wait_all, try_wait_one,
     try_writer_entry!, update_connections!, user_header, user_header_mut, wait_and_process, writer_builder,
     writer_entry!, write_from_fn!, write_payload!, update!
+
+function sleep_or_interrupt(seconds::Real)
+    try
+        sleep(seconds)
+        return true
+    catch err
+        err isa InterruptException || rethrow()
+        return false
+    end
+end

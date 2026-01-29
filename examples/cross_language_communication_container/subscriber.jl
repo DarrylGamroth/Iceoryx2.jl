@@ -20,7 +20,7 @@ function main()
     println("Subscriber ready to receive data!")
     sample = Sample(subscriber)
     while true
-        Iceoryx2.wait(node, CYCLE_SECONDS, 0)
+        sleep_or_interrupt(CYCLE_SECONDS) || break
         while receive!(subscriber, sample)
             try
                 println("received: ", payload(sample)[1], ", user_header: ", user_header(sample)[1])

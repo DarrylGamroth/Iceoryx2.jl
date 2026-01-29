@@ -14,7 +14,7 @@ function main()
 
     counter = UInt64(0)
     while true
-        Iceoryx2.wait(node, CYCLE_SECONDS, 0)
+        sleep_or_interrupt(CYCLE_SECONDS) || break
         counter += 1
         event_id = EventId(counter % UInt64(max_event_id))
         notify!(notifier, event_id)

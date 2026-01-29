@@ -31,7 +31,7 @@ function main()
     println("subscribed to: [domain: \"$(domain)\", service: \"$(service_name)\"]")
     sample = Sample(subscriber)
     while true
-        Iceoryx2.wait(node, CYCLE_SECONDS, 0)
+        sleep_or_interrupt(CYCLE_SECONDS) || break
         while receive!(subscriber, sample)
             try
                 println("received: ", payload(sample)[1])

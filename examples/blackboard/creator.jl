@@ -30,7 +30,7 @@ function main()
 
     counter = 0
     while true
-        Iceoryx2.wait(node, CYCLE_SECONDS, 0)
+        sleep_or_interrupt(CYCLE_SECONDS) || break
         counter += 1
 
         update!(entry_0, Int32(counter))

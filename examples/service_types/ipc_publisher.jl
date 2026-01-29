@@ -12,7 +12,7 @@ function main()
 
     counter = UInt64(0)
     while true
-        Iceoryx2.wait(node, 0, CYCLE_MILLIS * 1_000_000)
+        sleep_or_interrupt(CYCLE_MILLIS / 1000) || break
         println("send: ", counter)
         send_copy(publisher, counter)
         counter += 1

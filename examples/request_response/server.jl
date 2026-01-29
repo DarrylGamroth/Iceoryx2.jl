@@ -17,7 +17,7 @@ function main()
     response = ResponseMut(active_request)
 
     while true
-        Iceoryx2.wait(node, CYCLE_SECONDS, 0)
+        sleep_or_interrupt(CYCLE_SECONDS) || break
         while receive!(server, active_request)
             try
                 println("received request: ", payload(active_request)[1])

@@ -23,7 +23,7 @@ function main()
 
     counter = UInt64(1)
     while true
-        Iceoryx2.wait(node, 0, CYCLE_MILLIS * 1_000_000)
+        sleep_or_interrupt(CYCLE_MILLIS / 1000) || break
         while receive!(server, active_request)
             try
                 println("received request with ", length(payload(active_request)), " bytes ...")

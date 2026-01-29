@@ -22,7 +22,7 @@ function main()
     send_copy!(client, request_counter, pending)
 
     while true
-        Iceoryx2.wait(node, CYCLE_SECONDS, 0)
+        sleep_or_interrupt(CYCLE_SECONDS) || break
 
         while receive!(pending, response)
             try

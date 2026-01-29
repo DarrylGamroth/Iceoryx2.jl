@@ -27,7 +27,7 @@ function main()
     notifier = create(notifier_builder(service))
 
     while true
-        Iceoryx2.wait(node, CYCLE_SECONDS, 0)
+        sleep_or_interrupt(CYCLE_SECONDS) || break
         notify!(notifier, EventId(event_id_val))
         println("[service: \"$(service_name)\"] Trigger event with id $(event_id_val)...")
     end
