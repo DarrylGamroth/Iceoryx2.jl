@@ -54,7 +54,16 @@ function NodeBuilder()
     storage = Ref{Iceoryx2FFI.iox2_node_builder_t}()
     handle = Iceoryx2FFI.iox2_node_builder_new(storage)
     config_storage = Ref{Iceoryx2FFI.iox2_config_h}(_IOX2_NULL)
-    return NodeBuilder(handle, storage, _IOX2_NULL, _IOX2_NULL, config_storage, nothing, Iceoryx2FFI.iox2_signal_handling_mode_e_NONE, false)
+    return NodeBuilder(
+        handle,
+        storage,
+        _IOX2_NULL,
+        _IOX2_NULL,
+        config_storage,
+        nothing,
+        Iceoryx2FFI.iox2_signal_handling_mode_e_HANDLE_TERMINATION_REQUESTS,
+        false,
+    )
 end
 
 @inline unsafe_handle(builder::NodeBuilder) = builder.handle
