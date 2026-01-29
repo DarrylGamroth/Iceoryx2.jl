@@ -33,13 +33,6 @@ end
 
 @inline _allocation_strategy(value) = throw(ArgumentError("unsupported allocation_strategy: $value"))
 
-struct TypeDetails
-    name::String
-    name_len::Iceoryx2FFI.c_size_t
-    size::Iceoryx2FFI.c_size_t
-    alignment::Iceoryx2FFI.c_size_t
-end
-
 type_name(::Type{UInt8}) = "u8"
 type_name(::Type{UInt16}) = "u16"
 type_name(::Type{UInt32}) = "u32"
@@ -56,19 +49,12 @@ function type_name(::Type{T}) where {T}
     return string(T)
 end
 
-@inline function type_details(::Type{T}) where {T}
+@inline function _type_details(::Type{T}) where {T}
     name = type_name(T)
-    return TypeDetails(
-        name,
+    return name,
         Iceoryx2FFI.c_size_t(ncodeunits(name)),
         Iceoryx2FFI.c_size_t(sizeof(T)),
-        Iceoryx2FFI.c_size_t(Base.datatype_alignment(T)),
-    )
-end
-
-@inline function _type_details(::Type{T}) where {T}
-    details = type_details(T)
-    return details.name, details.name_len, details.size, details.alignment
+        Iceoryx2FFI.c_size_t(Base.datatype_alignment(T))
 end
 
 struct Slice{T,O}
