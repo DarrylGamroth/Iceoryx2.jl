@@ -36,7 +36,7 @@ Options:
 end
 
 function build_pubsub_factory(node::Iceoryx2.Node, name::AbstractString, additional_publishers::Int, additional_subscribers::Int)
-    builder = Iceoryx2.publish_subscribe(Iceoryx2.service_builder(node, name), UInt8; variant = :dynamic)
+    builder = Iceoryx2.publish_subscribe(Iceoryx2.service_builder(node, name), AbstractVector{UInt8})
     Iceoryx2.max_publishers!(builder, 1 + additional_publishers)
     Iceoryx2.max_subscribers!(builder, 1 + additional_subscribers)
     Iceoryx2.history_size!(builder, 0)

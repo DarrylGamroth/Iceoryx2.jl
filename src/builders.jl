@@ -306,34 +306,37 @@ end
 
 function publish_subscribe(
     builder::ServiceBuilder,
-    ::Type{T};
-    variant::Union{Symbol, Iceoryx2FFI.iox2_type_variant_e} = :fixed,
+    ::Type{T}
 ) where {T}
     _require_valid(builder.handle, "service builder")
     handle = Iceoryx2FFI.iox2_service_builder_pub_sub(builder.handle)
     builder.handle = _IOX2_NULL
     storage = builder.storage
     builder.storage = nothing
-    pub_builder = PubSubServiceBuilder{T,Nothing}(handle, storage, builder.keepalive)
-    _set_payload_type!(pub_builder, T; variant)
+    variant = _variant_type(T)
+    payload_type = _payload_type(T)
+    pub_builder = PubSubServiceBuilder{payload_type,Nothing}(handle, storage, builder.keepalive)
+    _set_payload_type!(pub_builder, payload_type, variant)
     return pub_builder
 end
 
 function request_response(
     builder::ServiceBuilder,
     ::Type{Req},
-    ::Type{Resp};
-    request_variant::Union{Symbol, Iceoryx2FFI.iox2_type_variant_e} = :fixed,
-    response_variant::Union{Symbol, Iceoryx2FFI.iox2_type_variant_e} = :fixed,
+    ::Type{Resp}
 ) where {Req,Resp}
     _require_valid(builder.handle, "service builder")
     handle = Iceoryx2FFI.iox2_service_builder_request_response(builder.handle)
     builder.handle = _IOX2_NULL
     storage = builder.storage
     builder.storage = nothing
-    rr_builder = RequestResponseServiceBuilder{Req,Resp,Nothing,Nothing}(handle, storage, builder.keepalive)
-    _set_request_payload_type!(rr_builder, Req; variant = request_variant)
-    _set_response_payload_type!(rr_builder, Resp; variant = response_variant)
+    req_variant = _variant_type(Req)
+    resp_variant = _variant_type(Resp)
+    req_type = _payload_type(Req)
+    resp_type = _payload_type(Resp)
+    rr_builder = RequestResponseServiceBuilder{req_type,resp_type,Nothing,Nothing}(handle, storage, builder.keepalive)
+    _set_request_payload_type!(rr_builder, req_type, req_variant)
+    _set_response_payload_type!(rr_builder, resp_type, resp_variant)
     return rr_builder
 end
 

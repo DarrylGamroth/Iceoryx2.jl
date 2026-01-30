@@ -6,7 +6,7 @@ function main()
     set_log_level_from_env_or(:info)
     node = create(NodeBuilder(); service_type = :ipc)
 
-    builder = publish_subscribe(service_builder(node, "Service With Dynamic Data"), UInt8; variant = :dynamic)
+    builder = publish_subscribe(service_builder(node, "Service With Dynamic Data"), AbstractVector{UInt8})
     service = open_or_create(builder)
     subscriber = create(subscriber_builder(service))
 

@@ -7,10 +7,8 @@ function main()
     set_log_level_from_env_or(:info)
     node = create(NodeBuilder(); service_type = :ipc)
 
-    builder = request_response(service_builder(node, "My/Funk/ServiceName"), UInt8, UInt8;
-        request_variant = :dynamic,
-        response_variant = :dynamic,
-    )
+    builder = request_response(service_builder(node, "My/Funk/ServiceName"),
+        AbstractVector{UInt8}, AbstractVector{UInt8})
     service = open_or_create(builder)
     server_builder_obj = server_builder(service)
     initial_max_slice_len!(server_builder_obj, 16)
