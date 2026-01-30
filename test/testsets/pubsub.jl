@@ -6,7 +6,7 @@
     hdr_builder = Iceoryx2.service_builder(node, "iceoryx2_julia_test_service_pubsub_hdr")
     pubsub_hdr_builder = Iceoryx2.publish_subscribe(hdr_builder, UInt64)
     pubsub_hdr_builder = Iceoryx2.user_header(pubsub_hdr_builder, UInt16)
-    @test_throws ArgumentError Iceoryx2.user_header(pubsub_hdr_builder, UInt32)
+    @test_throws MethodError Iceoryx2.user_header(pubsub_hdr_builder, UInt32)
     hdr_factory = Iceoryx2.open_or_create(pubsub_hdr_builder)
     close(hdr_factory)
 
@@ -93,13 +93,53 @@ end
     close(node)
 end
 
+@testset "PubSubTuplePayload" begin
+    builder = Iceoryx2.NodeBuilder()
+    Iceoryx2.name!(builder, "iceoryx2_julia_test_node_pubsub_tuple")
+    node = Iceoryx2.create(builder; service_type=:ipc)
+
+    svc_builder = Iceoryx2.service_builder(node, unique_service_name())
+    pubsub_builder = Iceoryx2.publish_subscribe(svc_builder, Tuple{UInt32,Float64})
+    factory = Iceoryx2.open_or_create(pubsub_builder)
+
+    pub = Iceoryx2.create(Iceoryx2.publisher_builder(factory))
+    sub = Iceoryx2.create(Iceoryx2.subscriber_builder(factory))
+
+    sample_mut = Iceoryx2.SampleMut(pub)
+    sample = Iceoryx2.Sample(sub)
+    Iceoryx2.loan_uninit!(pub, sample_mut)
+    payload = (UInt32(7), 3.25)
+    Iceoryx2.write_payload!(sample_mut, payload)
+    Iceoryx2.send!(sample_mut)
+
+    received = false
+    for _ in 1:50
+        if Iceoryx2.receive!(sub, sample)
+            received = true
+            break
+        end
+        sleep(0.01)
+    end
+    @test received
+    if received
+        recv = Iceoryx2.payload(sample)
+        @test recv[1] == payload
+        close(sample)
+    end
+
+    close(sub)
+    close(pub)
+    close(factory)
+    close(node)
+end
+
 @testset "PubSubDynamicSlice" begin
     builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(builder, "iceoryx2_julia_test_node_pubsub_dynamic")
     node = Iceoryx2.create(builder; service_type=:ipc)
 
     svc_builder = Iceoryx2.service_builder(node, unique_service_name())
-    pubsub_builder = Iceoryx2.publish_subscribe(svc_builder, UInt8; variant = :dynamic)
+    pubsub_builder = Iceoryx2.publish_subscribe(svc_builder, AbstractVector{UInt8})
     factory = Iceoryx2.open_or_create(pubsub_builder)
 
     payload_len = 8
@@ -154,7 +194,7 @@ end
     node = Iceoryx2.create(builder; service_type=:ipc)
 
     svc_builder = Iceoryx2.service_builder(node, unique_service_name())
-    pubsub_builder = Iceoryx2.publish_subscribe(svc_builder, TestHeader; variant = :dynamic)
+    pubsub_builder = Iceoryx2.publish_subscribe(svc_builder, AbstractVector{TestHeader})
     factory = Iceoryx2.open_or_create(pubsub_builder)
 
     payload_len = 2

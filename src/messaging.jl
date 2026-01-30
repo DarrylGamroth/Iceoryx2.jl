@@ -5,20 +5,13 @@
     return nothing
 end
 
-@inline _type_variant(value::Iceoryx2FFI.iox2_type_variant_e) = value
+_variant_type(::Type{T}) where {T} = iox2_type_variant_e_FIXED_SIZE
+_variant_type(::Type{T}) where {T<:AbstractVector} = iox2_type_variant_e_DYNAMIC
+_variant_type(::Type{T}) where {T<:Tuple} = iox2_type_variant_e_FIXED_SIZE
+_payload_type(::Type{T}) where {T} = T
+_payload_type(::Type{T}) where {T<:AbstractArray} = eltype(T)
 
-@inline function _type_variant(value::Symbol)
-    if value === :fixed
-        return Iceoryx2FFI.iox2_type_variant_e_FIXED_SIZE
-    elseif value === :dynamic
-        return Iceoryx2FFI.iox2_type_variant_e_DYNAMIC
-    end
-    throw(ArgumentError("unsupported type variant: $value"))
-end
-
-@inline _type_variant(value) = throw(ArgumentError("unsupported type variant: $value"))
-
-@inline _allocation_strategy(value::Iceoryx2FFI.iox2_allocation_strategy_e) = value
+_allocation_strategy(value::Iceoryx2FFI.iox2_allocation_strategy_e) = value
 
 @inline function _allocation_strategy(value::Symbol)
     if value === :best_fit
@@ -180,20 +173,26 @@ EventId(value::Integer) = EventId(Iceoryx2FFI.iox2_event_id_t(Iceoryx2FFI.c_size
 
 # === Publish/Subscribe ===
 
-function _set_payload_type!(builder::PubSubServiceBuilder{T}, ::Type{T}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T}
+function _set_payload_type!(
+    builder::PubSubServiceBuilder{T},
+    ::Type{T},
+    variant::Iceoryx2FFI.iox2_type_variant_e,
+) where {T}
     _require_valid(builder.handle, "publish_subscribe service builder")
     _require_isbits(T)
     name, name_len, size, alignment = _type_details(T)
-    v = _type_variant(variant)
     GC.@preserve name begin
-        ret = Iceoryx2FFI.iox2_service_builder_pub_sub_set_payload_type_details(Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle), v, Base.unsafe_convert(Cstring, name), name_len, size, alignment)
+        ret = Iceoryx2FFI.iox2_service_builder_pub_sub_set_payload_type_details(
+            Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle),
+            variant,
+            Base.unsafe_convert(Cstring, name),
+            name_len,
+            size,
+            alignment,
+        )
         check_ok(ret, Iceoryx2FFI.iox2_type_detail_error_e)
     end
     return builder
-end
-
-function _set_payload_type!(builder::PubSubServiceBuilder{T}, ::Type{Other}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T,Other}
-    throw(ArgumentError("publish_subscribe payload type already set to $T"))
 end
 
 function payload_alignment!(builder::PubSubServiceBuilder, alignment::Integer)
@@ -205,15 +204,15 @@ function payload_alignment!(builder::PubSubServiceBuilder, alignment::Integer)
     return builder
 end
 
-function user_header(builder::PubSubServiceBuilder{T,Nothing}, ::Type{UH}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T,UH}
+function user_header(builder::PubSubServiceBuilder{T,Nothing}, ::Type{UH}) where {T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
-    _require_isbits(UH)
-    name, name_len, size, alignment = _type_details(UH)
-    v = _type_variant(variant)
+    variant = _variant_type(UH)
+    header_type = _payload_type(UH)
+    name, name_len, size, alignment = _type_details(header_type)
     GC.@preserve name begin
         ret = Iceoryx2FFI.iox2_service_builder_pub_sub_set_user_header_type_details(
             Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle),
-            v,
+            variant,
             Base.unsafe_convert(Cstring, name),
             name_len,
             size,
@@ -225,17 +224,12 @@ function user_header(builder::PubSubServiceBuilder{T,Nothing}, ::Type{UH}; varia
     storage = builder.storage
     builder.handle = _IOX2_NULL
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
-    return PubSubServiceBuilder{T,UH}(handle, storage, builder.keepalive)
+    return PubSubServiceBuilder{T,header_type}(handle, storage, builder.keepalive)
 end
 
-function user_header(builder::PubSubServiceBuilder{T,UH}, ::Type{UH}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T,UH}
+function user_header(builder::PubSubServiceBuilder{T,UH}, ::Type{UH}) where {T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
     return builder
-end
-
-function user_header(builder::PubSubServiceBuilder{T,UH}, ::Type{Other}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {T,UH,Other}
-    _require_valid(builder.handle, "publish_subscribe service builder")
-    throw(ArgumentError("publish_subscribe user header type already set to $UH"))
 end
 
 ### builder tuning setters generated in src/generated/wrappers.jl
@@ -902,20 +896,26 @@ end
 
 # === Request/Response ===
 
-function _set_request_payload_type!(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, ::Type{Req}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {Req,Resp,ReqH,RespH}
+function _set_request_payload_type!(
+    builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH},
+    ::Type{Req},
+    variant::Iceoryx2FFI.iox2_type_variant_e,
+) where {Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request_response service builder")
     _require_isbits(Req)
     name, name_len, size, alignment = _type_details(Req)
-    v = _type_variant(variant)
     GC.@preserve name begin
-        ret = Iceoryx2FFI.iox2_service_builder_request_response_set_request_payload_type_details(Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle), v, Base.unsafe_convert(Cstring, name), name_len, size, alignment)
+        ret = Iceoryx2FFI.iox2_service_builder_request_response_set_request_payload_type_details(
+            Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle),
+            variant,
+            Base.unsafe_convert(Cstring, name),
+            name_len,
+            size,
+            alignment,
+        )
         check_ok(ret, Iceoryx2FFI.iox2_type_detail_error_e)
     end
     return builder
-end
-
-function _set_request_payload_type!(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, ::Type{Other}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {Req,Resp,ReqH,RespH,Other}
-    throw(ArgumentError("request payload type already set to $Req"))
 end
 
 function request_payload_alignment!(builder::RequestResponseServiceBuilder, alignment::Integer)
@@ -927,20 +927,26 @@ function request_payload_alignment!(builder::RequestResponseServiceBuilder, alig
     return builder
 end
 
-function _set_response_payload_type!(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, ::Type{Resp}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {Req,Resp,ReqH,RespH}
+function _set_response_payload_type!(
+    builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH},
+    ::Type{Resp},
+    variant::Iceoryx2FFI.iox2_type_variant_e,
+) where {Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request_response service builder")
     _require_isbits(Resp)
     name, name_len, size, alignment = _type_details(Resp)
-    v = _type_variant(variant)
     GC.@preserve name begin
-        ret = Iceoryx2FFI.iox2_service_builder_request_response_set_response_payload_type_details(Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle), v, Base.unsafe_convert(Cstring, name), name_len, size, alignment)
+        ret = Iceoryx2FFI.iox2_service_builder_request_response_set_response_payload_type_details(
+            Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle),
+            variant,
+            Base.unsafe_convert(Cstring, name),
+            name_len,
+            size,
+            alignment,
+        )
         check_ok(ret, Iceoryx2FFI.iox2_type_detail_error_e)
     end
     return builder
-end
-
-function _set_response_payload_type!(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, ::Type{Other}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {Req,Resp,ReqH,RespH,Other}
-    throw(ArgumentError("response payload type already set to $Resp"))
 end
 
 function response_payload_alignment!(builder::RequestResponseServiceBuilder, alignment::Integer)
@@ -952,15 +958,15 @@ function response_payload_alignment!(builder::RequestResponseServiceBuilder, ali
     return builder
 end
 
-function request_user_header(builder::RequestResponseServiceBuilder{Req,Resp,Nothing,RespH}, ::Type{H}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {Req,Resp,RespH,H}
+function request_user_header(builder::RequestResponseServiceBuilder{Req,Resp,Nothing,RespH}, ::Type{H}) where {Req,Resp,RespH,H}
     _require_valid(builder.handle, "request/response service builder")
-    _require_isbits(H)
-    name, name_len, size, alignment = _type_details(H)
-    v = _type_variant(variant)
+    header_type = _payload_type(H)
+    variant = _variant_type(H)
+    name, name_len, size, alignment = _type_details(header_type)
     GC.@preserve name begin
         ret = Iceoryx2FFI.iox2_service_builder_request_response_set_request_header_type_details(
             Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle),
-            v,
+            variant,
             Base.unsafe_convert(Cstring, name),
             name_len,
             size,
@@ -972,28 +978,23 @@ function request_user_header(builder::RequestResponseServiceBuilder{Req,Resp,Not
     storage = builder.storage
     builder.handle = _IOX2_NULL
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
-    return RequestResponseServiceBuilder{Req,Resp,H,RespH}(handle, storage, builder.keepalive)
+    return RequestResponseServiceBuilder{Req,Resp,header_type,RespH}(handle, storage, builder.keepalive)
 end
 
-function request_user_header(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, ::Type{ReqH}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {Req,Resp,ReqH,RespH}
+function request_user_header(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, ::Type{ReqH}) where {Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request/response service builder")
     return builder
 end
 
-function request_user_header(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, ::Type{Other}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {Req,Resp,ReqH,RespH,Other}
+function response_user_header(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,Nothing}, ::Type{H}) where {Req,Resp,ReqH,H}
     _require_valid(builder.handle, "request/response service builder")
-    throw(ArgumentError("request user header type already set to $ReqH"))
-end
-
-function response_user_header(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,Nothing}, ::Type{H}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {Req,Resp,ReqH,H}
-    _require_valid(builder.handle, "request/response service builder")
-    _require_isbits(H)
-    name, name_len, size, alignment = _type_details(H)
-    v = _type_variant(variant)
+    header_type = _payload_type(H)
+    variant = _variant_type(H)
+    name, name_len, size, alignment = _type_details(header_type)
     GC.@preserve name begin
         ret = Iceoryx2FFI.iox2_service_builder_request_response_set_response_header_type_details(
             Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle),
-            v,
+            variant,
             Base.unsafe_convert(Cstring, name),
             name_len,
             size,
@@ -1005,17 +1006,12 @@ function response_user_header(builder::RequestResponseServiceBuilder{Req,Resp,Re
     storage = builder.storage
     builder.handle = _IOX2_NULL
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
-    return RequestResponseServiceBuilder{Req,Resp,ReqH,H}(handle, storage, builder.keepalive)
+    return RequestResponseServiceBuilder{Req,Resp,ReqH,header_type}(handle, storage, builder.keepalive)
 end
 
-function response_user_header(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, ::Type{RespH}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {Req,Resp,ReqH,RespH}
+function response_user_header(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, ::Type{RespH}) where {Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request/response service builder")
     return builder
-end
-
-function response_user_header(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, ::Type{Other}; variant::Union{Symbol,Iceoryx2FFI.iox2_type_variant_e}=:fixed) where {Req,Resp,ReqH,RespH,Other}
-    _require_valid(builder.handle, "request/response service builder")
-    throw(ArgumentError("response user header type already set to $RespH"))
 end
 
 ### builder tuning setters generated in src/generated/wrappers.jl
@@ -2723,14 +2719,6 @@ function _set_key_type!(builder::BlackboardOpenerBuilder{K}, ::Type{K}) where {K
         check_ok(ret, Iceoryx2FFI.iox2_type_detail_error_e)
     end
     return builder
-end
-
-function _set_key_type!(builder::BlackboardCreatorBuilder{K}, ::Type{Other}) where {K,Other}
-    throw(ArgumentError("blackboard key type already set to $K"))
-end
-
-function _set_key_type!(builder::BlackboardOpenerBuilder{K}, ::Type{Other}) where {K,Other}
-    throw(ArgumentError("blackboard key type already set to $K"))
 end
 
 function _key_eq_comparison!(builder::BlackboardCreatorBuilder{K}) where {K}

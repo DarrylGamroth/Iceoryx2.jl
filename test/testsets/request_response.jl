@@ -6,9 +6,9 @@
     svc_builder_hdr = Iceoryx2.service_builder(node, "iceoryx2_julia_test_service_rr_hdr")
     rr_hdr_builder = Iceoryx2.request_response(svc_builder_hdr, UInt64, UInt64)
     rr_hdr_builder = Iceoryx2.request_user_header(rr_hdr_builder, UInt16)
-    @test_throws ArgumentError Iceoryx2.request_user_header(rr_hdr_builder, UInt32)
+    @test_throws MethodError Iceoryx2.request_user_header(rr_hdr_builder, UInt32)
     rr_hdr_builder = Iceoryx2.response_user_header(rr_hdr_builder, UInt8)
-    @test_throws ArgumentError Iceoryx2.response_user_header(rr_hdr_builder, UInt16)
+    @test_throws MethodError Iceoryx2.response_user_header(rr_hdr_builder, UInt16)
     factory_hdr = Iceoryx2.open_or_create(rr_hdr_builder)
     close(factory_hdr)
 
@@ -108,6 +108,77 @@
             @test isvalid(server_id)
             close(server_id)
             close(resp_hdr)
+        finally
+            close(response)
+        end
+    end
+    close(pending)
+
+    close(node)
+end
+
+@testset "RequestResponseTuplePayload" begin
+    builder = Iceoryx2.NodeBuilder()
+    Iceoryx2.name!(builder, "iceoryx2_julia_test_node_rr_tuple")
+    node = Iceoryx2.create(builder; service_type=:ipc)
+
+    svc_builder = Iceoryx2.service_builder(node, unique_service_name())
+    rr_builder = Iceoryx2.request_response(
+        svc_builder,
+        Tuple{UInt32,Float64},
+        Tuple{UInt16,UInt8},
+    )
+    factory = Iceoryx2.open_or_create(rr_builder)
+
+    client = Iceoryx2.create(Iceoryx2.client_builder(factory))
+    server = Iceoryx2.create(Iceoryx2.server_builder(factory))
+    request = Iceoryx2.RequestMut(client)
+    pending = Iceoryx2.PendingResponse(client)
+    response = Iceoryx2.Response(pending)
+    active = Iceoryx2.ActiveRequest(server)
+    response_mut = Iceoryx2.ResponseMut(active)
+
+    Iceoryx2.loan_uninit!(client, request)
+    req_payload = (UInt32(11), 2.5)
+    Iceoryx2.write_payload!(request, req_payload)
+    Iceoryx2.send!(request, pending)
+
+    received = false
+    for _ in 1:50
+        if Iceoryx2.receive!(server, active)
+            received = true
+            break
+        end
+        sleep(0.01)
+    end
+    @test received
+    if received
+        try
+            got = Iceoryx2.payload(active)
+            @test got[1] == req_payload
+
+            Iceoryx2.loan_uninit!(active, response_mut)
+            resp_payload = (UInt16(9), UInt8(3))
+            Iceoryx2.write_payload!(response_mut, resp_payload)
+            Iceoryx2.send!(response_mut)
+        finally
+            close(active)
+        end
+    end
+
+    got_response = false
+    for _ in 1:50
+        if Iceoryx2.receive!(pending, response)
+            got_response = true
+            break
+        end
+        sleep(0.01)
+    end
+    @test got_response
+    if got_response
+        try
+            resp_got = Iceoryx2.payload(response)
+            @test resp_got[1] == (UInt16(9), UInt8(3))
         finally
             close(response)
         end
