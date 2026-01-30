@@ -31,6 +31,14 @@ end
     return Iceoryx2FFI.iox2_config_global_config()
 end
 
+@inline function _handler_ref(h::T) where {T}
+    if hasfield(T, :ref)
+        return getfield(h, :ref)
+    else
+        return Ref(h)
+    end
+end
+
 abstract type AbstractNodeListHandler end
 
 mutable struct NodeListHandler{T} <: AbstractNodeListHandler
@@ -46,8 +54,6 @@ end
 NodeListHandler(on_list) = NodeListHandler{typeof(on_list)}(on_list)
 
 on_node_list(h::NodeListHandler) = h.on_list
-@inline _handler_ref(h::NodeListHandler) = h.ref
-@inline _handler_ref(h::AbstractNodeListHandler) = Ref(h)
 
 function _node_list_wrapper(
     state::Iceoryx2FFI.iox2_node_state_e,
@@ -138,8 +144,6 @@ function AttributeValueHandler(on_value::T) where {T}
 end
 
 on_attribute_value(h::AttributeValueHandler) = h.on_value
-@inline _handler_ref(h::AttributeValueHandler) = h.ref
-@inline _handler_ref(h::AbstractAttributeValueHandler) = Ref(h)
 
 function _attribute_value_wrapper(value::Cstring, handler::AbstractAttributeValueHandler)
     return _callback_progression(on_attribute_value(handler)(unsafe_string(value)))
@@ -170,8 +174,6 @@ function AttributeValuePtrHandler(on_value::T) where {T}
 end
 
 on_attribute_value_ptr(h::AttributeValuePtrHandler) = h.on_value
-@inline _handler_ref(h::AttributeValuePtrHandler) = h.ref
-@inline _handler_ref(h::AbstractAttributeValuePtrHandler) = Ref(h)
 
 function _attribute_value_ptr_wrapper(value::Cstring, handler::AbstractAttributeValuePtrHandler)
     return _callback_progression(on_attribute_value_ptr(handler)(value))
