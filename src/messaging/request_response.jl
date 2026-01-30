@@ -1,10 +1,10 @@
 # === Request/Response ===
 
 function _set_request_payload_type!(
-    builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH},
+    builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH},
     ::Type{Req},
     variant::Iceoryx2FFI.iox2_type_variant_e,
-) where {Req,Resp,ReqH,RespH}
+) where {S,Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request_response service builder")
     _require_isbits(Req)
     name, name_len, size, alignment = _type_details(Req)
@@ -32,10 +32,10 @@ function request_payload_alignment!(builder::RequestResponseServiceBuilder, alig
 end
 
 function _set_response_payload_type!(
-    builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH},
+    builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH},
     ::Type{Resp},
     variant::Iceoryx2FFI.iox2_type_variant_e,
-) where {Req,Resp,ReqH,RespH}
+) where {S,Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request_response service builder")
     _require_isbits(Resp)
     name, name_len, size, alignment = _type_details(Resp)
@@ -62,7 +62,7 @@ function response_payload_alignment!(builder::RequestResponseServiceBuilder, ali
     return builder
 end
 
-function request_user_header(builder::RequestResponseServiceBuilder{Req,Resp,Nothing,RespH}, ::Type{H}) where {Req,Resp,RespH,H}
+function request_user_header(builder::RequestResponseServiceBuilder{S,Req,Resp,Nothing,RespH}, ::Type{H}) where {S,Req,Resp,RespH,H}
     _require_valid(builder.handle, "request/response service builder")
     header_type = _payload_type(H)
     variant = _variant_type(H)
@@ -82,15 +82,15 @@ function request_user_header(builder::RequestResponseServiceBuilder{Req,Resp,Not
     storage = builder.storage
     builder.handle = _IOX2_NULL
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
-    return RequestResponseServiceBuilder{Req,Resp,header_type,RespH}(handle, storage, builder.keepalive)
+    return RequestResponseServiceBuilder{S,Req,Resp,header_type,RespH}(handle, storage, builder.keepalive)
 end
 
-function request_user_header(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, ::Type{ReqH}) where {Req,Resp,ReqH,RespH}
+function request_user_header(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}, ::Type{ReqH}) where {S,Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request/response service builder")
     return builder
 end
 
-function response_user_header(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,Nothing}, ::Type{H}) where {Req,Resp,ReqH,H}
+function response_user_header(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,Nothing}, ::Type{H}) where {S,Req,Resp,ReqH,H}
     _require_valid(builder.handle, "request/response service builder")
     header_type = _payload_type(H)
     variant = _variant_type(H)
@@ -110,22 +110,22 @@ function response_user_header(builder::RequestResponseServiceBuilder{Req,Resp,Re
     storage = builder.storage
     builder.handle = _IOX2_NULL
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
-    return RequestResponseServiceBuilder{Req,Resp,ReqH,header_type}(handle, storage, builder.keepalive)
+    return RequestResponseServiceBuilder{S,Req,Resp,ReqH,header_type}(handle, storage, builder.keepalive)
 end
 
-function response_user_header(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, ::Type{RespH}) where {Req,Resp,ReqH,RespH}
+function response_user_header(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}, ::Type{RespH}) where {S,Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request/response service builder")
     return builder
 end
 
 ### builder tuning setters generated in src/generated/wrappers.jl
 
-mutable struct PortFactoryRequestResponse{Req,Resp,ReqH,RespH}
+mutable struct PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_port_factory_request_response_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_request_response_t}
-    keepalive::Node
-    function PortFactoryRequestResponse{Req,Resp,ReqH,RespH}(handle, storage, keepalive) where {Req,Resp,ReqH,RespH}
-        obj = new{Req,Resp,ReqH,RespH}(handle, storage, keepalive)
+    keepalive::Node{S}
+    function PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}(handle, storage, keepalive) where {S,Req,Resp,ReqH,RespH}
+        obj = new{S,Req,Resp,ReqH,RespH}(handle, storage, keepalive)
         finalizer(_finalize_port_factory_request_response, obj)
         return obj
     end
@@ -140,7 +140,7 @@ function _finalize_port_factory_request_response(factory::PortFactoryRequestResp
     return nothing
 end
 
-function open_or_create(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
+function open_or_create(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request_response service builder")
     _require_isbits(Req)
     _require_isbits(Resp)
@@ -150,10 +150,10 @@ function open_or_create(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,Res
     check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    return PortFactoryRequestResponse{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
+    return PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
 
-function open_or_create(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, verifier::AttributeVerifier) where {Req,Resp,ReqH,RespH}
+function open_or_create(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}, verifier::AttributeVerifier) where {S,Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request_response service builder")
     _require_isbits(Req)
     _require_isbits(Resp)
@@ -169,10 +169,10 @@ function open_or_create(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,Res
     check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    return PortFactoryRequestResponse{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
+    return PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
 
-function open(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
+function open(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request_response service builder")
     _require_isbits(Req)
     _require_isbits(Resp)
@@ -182,10 +182,10 @@ function open(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}) where
     check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    return PortFactoryRequestResponse{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
+    return PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
 
-function open(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, verifier::AttributeVerifier) where {Req,Resp,ReqH,RespH}
+function open(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}, verifier::AttributeVerifier) where {S,Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request_response service builder")
     _require_isbits(Req)
     _require_isbits(Resp)
@@ -201,10 +201,10 @@ function open(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, verif
     check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    return PortFactoryRequestResponse{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
+    return PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
 
-function create(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
+function create(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request_response service builder")
     _require_isbits(Req)
     _require_isbits(Resp)
@@ -214,10 +214,10 @@ function create(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}) whe
     check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    return PortFactoryRequestResponse{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
+    return PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
 
-function create(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, specifier::AttributeSpecifier) where {Req,Resp,ReqH,RespH}
+function create(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}, specifier::AttributeSpecifier) where {S,Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request_response service builder")
     _require_isbits(Req)
     _require_isbits(Resp)
@@ -233,7 +233,7 @@ function create(builder::RequestResponseServiceBuilder{Req,Resp,ReqH,RespH}, spe
     check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    return PortFactoryRequestResponse{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
+    return PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
 
 function open_or_create(f::Function, builder::RequestResponseServiceBuilder)
@@ -263,7 +263,7 @@ function open(f::Function, builder::RequestResponseServiceBuilder)
     end
 end
 
-function open(f::Function, builder::RequestResponseServiceBuilder, verifier::AttributeVerifier)
+function open(f::Function, builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}, verifier::AttributeVerifier) where {S,Req,Resp,ReqH,RespH}
     factory = open(builder, verifier)
     try
         return f(factory)
@@ -272,7 +272,7 @@ function open(f::Function, builder::RequestResponseServiceBuilder, verifier::Att
     end
 end
 
-function create(f::Function, builder::RequestResponseServiceBuilder)
+function create(f::Function, builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     factory = create(builder)
     try
         return f(factory)
@@ -281,7 +281,7 @@ function create(f::Function, builder::RequestResponseServiceBuilder)
     end
 end
 
-function create(f::Function, builder::RequestResponseServiceBuilder, specifier::AttributeSpecifier)
+function create(f::Function, builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}, specifier::AttributeSpecifier) where {S,Req,Resp,ReqH,RespH}
     factory = create(builder, specifier)
     try
         return f(factory)
@@ -290,19 +290,19 @@ function create(f::Function, builder::RequestResponseServiceBuilder, specifier::
     end
 end
 
-open_or_create_with_attributes(builder::RequestResponseServiceBuilder, verifier::AttributeVerifier) = open_or_create(builder, verifier)
-open_or_create_with_attributes(f::Function, builder::RequestResponseServiceBuilder, verifier::AttributeVerifier) = open_or_create(f, builder, verifier)
-open_with_attributes(builder::RequestResponseServiceBuilder, verifier::AttributeVerifier) = open(builder, verifier)
-open_with_attributes(f::Function, builder::RequestResponseServiceBuilder, verifier::AttributeVerifier) = open(f, builder, verifier)
-create_with_attributes(builder::RequestResponseServiceBuilder, specifier::AttributeSpecifier) = create(builder, specifier)
-create_with_attributes(f::Function, builder::RequestResponseServiceBuilder, specifier::AttributeSpecifier) = create(f, builder, specifier)
+open_or_create_with_attributes(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}, verifier::AttributeVerifier) where {S,Req,Resp,ReqH,RespH} = open_or_create(builder, verifier)
+open_or_create_with_attributes(f::Function, builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}, verifier::AttributeVerifier) where {S,Req,Resp,ReqH,RespH} = open_or_create(f, builder, verifier)
+open_with_attributes(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}, verifier::AttributeVerifier) where {S,Req,Resp,ReqH,RespH} = open(builder, verifier)
+open_with_attributes(f::Function, builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}, verifier::AttributeVerifier) where {S,Req,Resp,ReqH,RespH} = open(f, builder, verifier)
+create_with_attributes(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}, specifier::AttributeSpecifier) where {S,Req,Resp,ReqH,RespH} = create(builder, specifier)
+create_with_attributes(f::Function, builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}, specifier::AttributeSpecifier) where {S,Req,Resp,ReqH,RespH} = create(f, builder, specifier)
 
-mutable struct ClientBuilder{Req,Resp,ReqH,RespH}
+mutable struct ClientBuilder{S,Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_port_factory_client_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_client_builder_t}
-    keepalive::PortFactoryRequestResponse{Req,Resp,ReqH,RespH}
-    function ClientBuilder{Req,Resp,ReqH,RespH}(handle, storage, keepalive) where {Req,Resp,ReqH,RespH}
-        obj = new{Req,Resp,ReqH,RespH}(handle, storage, keepalive)
+    keepalive::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}
+    function ClientBuilder{S,Req,Resp,ReqH,RespH}(handle, storage, keepalive) where {S,Req,Resp,ReqH,RespH}
+        obj = new{S,Req,Resp,ReqH,RespH}(handle, storage, keepalive)
         finalizer(_finalize_client_builder, obj)
         return obj
     end
@@ -314,21 +314,21 @@ function _finalize_client_builder(builder::ClientBuilder)
     return nothing
 end
 
-function client_builder(factory::PortFactoryRequestResponse{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
+function client_builder(factory::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     _require_valid(factory.handle, "request_response port factory")
     _require_isbits(Req)
     _require_isbits(Resp)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_client_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_request_response_client_builder(Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle), storage)
-    return ClientBuilder{Req,Resp,ReqH,RespH}(handle, storage, factory)
+    return ClientBuilder{S,Req,Resp,ReqH,RespH}(handle, storage, factory)
 end
 
-mutable struct ServerBuilder{Req,Resp,ReqH,RespH}
+mutable struct ServerBuilder{S,Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_port_factory_server_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_server_builder_t}
-    keepalive::PortFactoryRequestResponse{Req,Resp,ReqH,RespH}
-    function ServerBuilder{Req,Resp,ReqH,RespH}(handle, storage, keepalive) where {Req,Resp,ReqH,RespH}
-        obj = new{Req,Resp,ReqH,RespH}(handle, storage, keepalive)
+    keepalive::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}
+    function ServerBuilder{S,Req,Resp,ReqH,RespH}(handle, storage, keepalive) where {S,Req,Resp,ReqH,RespH}
+        obj = new{S,Req,Resp,ReqH,RespH}(handle, storage, keepalive)
         finalizer(_finalize_server_builder, obj)
         return obj
     end
@@ -340,13 +340,13 @@ function _finalize_server_builder(builder::ServerBuilder)
     return nothing
 end
 
-function server_builder(factory::PortFactoryRequestResponse{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
+function server_builder(factory::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     _require_valid(factory.handle, "request_response port factory")
     _require_isbits(Req)
     _require_isbits(Resp)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_server_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_request_response_server_builder(Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle), storage)
-    return ServerBuilder{Req,Resp,ReqH,RespH}(handle, storage, factory)
+    return ServerBuilder{S,Req,Resp,ReqH,RespH}(handle, storage, factory)
 end
 
 ### builder tuning setters generated in src/generated/wrappers.jl
@@ -387,12 +387,12 @@ function initial_max_slice_len!(builder::ServerBuilder, value::Integer)
     return builder
 end
 
-mutable struct Client{Req,Resp,ReqH,RespH}
+mutable struct Client{S,Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_client_h
     storage::_StorageRef{Iceoryx2FFI.iox2_client_t}
-    keepalive::PortFactoryRequestResponse{Req,Resp,ReqH,RespH}
-    function Client{Req,Resp,ReqH,RespH}(handle, storage, keepalive) where {Req,Resp,ReqH,RespH}
-        obj = new{Req,Resp,ReqH,RespH}(handle, storage, keepalive)
+    keepalive::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}
+    function Client{S,Req,Resp,ReqH,RespH}(handle, storage, keepalive) where {S,Req,Resp,ReqH,RespH}
+        obj = new{S,Req,Resp,ReqH,RespH}(handle, storage, keepalive)
         finalizer(_finalize_client, obj)
         return obj
     end
@@ -407,17 +407,17 @@ function _finalize_client(client::Client)
     return nothing
 end
 
-function create(builder::ClientBuilder{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
+function create(builder::ClientBuilder{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "client builder")
     storage = Ref{Iceoryx2FFI.iox2_client_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_client_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_client_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_client_create_error_e)
     _finalize_client_builder(builder)
-    return Client{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
+    return Client{S,Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
 
-function create(f::Function, builder::ClientBuilder{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
+function create(f::Function, builder::ClientBuilder{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     client = create(builder)
     try
         return f(client)
@@ -426,12 +426,12 @@ function create(f::Function, builder::ClientBuilder{Req,Resp,ReqH,RespH}) where 
     end
 end
 
-mutable struct Server{Req,Resp,ReqH,RespH}
+mutable struct Server{S,Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_server_h
     storage::_StorageRef{Iceoryx2FFI.iox2_server_t}
-    keepalive::PortFactoryRequestResponse{Req,Resp,ReqH,RespH}
-    function Server{Req,Resp,ReqH,RespH}(handle, storage, keepalive) where {Req,Resp,ReqH,RespH}
-        obj = new{Req,Resp,ReqH,RespH}(handle, storage, keepalive)
+    keepalive::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}
+    function Server{S,Req,Resp,ReqH,RespH}(handle, storage, keepalive) where {S,Req,Resp,ReqH,RespH}
+        obj = new{S,Req,Resp,ReqH,RespH}(handle, storage, keepalive)
         finalizer(_finalize_server, obj)
         return obj
     end
@@ -446,17 +446,17 @@ function _finalize_server(server::Server)
     return nothing
 end
 
-function create(builder::ServerBuilder{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
+function create(builder::ServerBuilder{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "server builder")
     storage = Ref{Iceoryx2FFI.iox2_server_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_server_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_server_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_server_create_error_e)
     _finalize_server_builder(builder)
-    return Server{Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
+    return Server{S,Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
 
-function create(f::Function, builder::ServerBuilder{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
+function create(f::Function, builder::ServerBuilder{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     server = create(builder)
     try
         return f(server)
@@ -492,7 +492,7 @@ function RequestMut{Req,Resp,ReqH,RespH}() where {Req,Resp,ReqH,RespH}
     )
 end
 
-RequestMut(client::Client{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH} =
+RequestMut(client::Client{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH} =
     RequestMut{Req,Resp,ReqH,RespH}()
 
 @inline _slice_mutable(::Type{<:RequestMut}) = true
@@ -614,7 +614,7 @@ function PendingResponse{Resp,ReqH,RespH}() where {Resp,ReqH,RespH}
     )
 end
 
-PendingResponse(client::Client{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH} =
+PendingResponse(client::Client{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH} =
     PendingResponse{Resp,ReqH,RespH}()
 
 function _finalize_pending_response(pending::PendingResponse)
@@ -659,10 +659,10 @@ end
 
 
 function loan_slice_uninit!(
-    client::Client{Req,Resp,ReqH,RespH},
+    client::Client{S,Req,Resp,ReqH,RespH},
     request::RequestMut{Req,Resp,ReqH,RespH},
     n::Integer,
-) where {Req,Resp,ReqH,RespH}
+) where {S,Req,Resp,ReqH,RespH}
     _require_valid(client.handle, "client")
     _require_inactive(request, "request")
     request.handle_ref[] = _IOX2_NULL
@@ -677,10 +677,10 @@ function loan_slice_uninit!(
 end
 
 function try_loan_slice_uninit!(
-    client::Client{Req,Resp,ReqH,RespH},
+    client::Client{S,Req,Resp,ReqH,RespH},
     request::RequestMut{Req,Resp,ReqH,RespH},
     n::Integer,
-) where {Req,Resp,ReqH,RespH}
+) where {S,Req,Resp,ReqH,RespH}
     _require_valid(client.handle, "client")
     _require_inactive(request, "request")
     request.handle_ref[] = _IOX2_NULL
@@ -695,27 +695,27 @@ function try_loan_slice_uninit!(
     return true
 end
 
-@inline function loan_uninit!(client::Client{Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
+@inline function loan_uninit!(client::Client{S,Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     return loan_slice_uninit!(client, request, 1)
 end
 
-@inline function try_loan_uninit!(client::Client{Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
+@inline function try_loan_uninit!(client::Client{S,Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     return try_loan_slice_uninit!(client, request, 1)
 end
 
-@inline function loan!(client::Client{Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
+@inline function loan!(client::Client{S,Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     loan_slice_uninit!(client, request, 1)
     fill!(payload_mut(request), _default_value(Req))
     return request
 end
 
-function loan_slice!(client::Client{Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
+function loan_slice!(client::Client{S,Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}, n::Integer) where {S,Req,Resp,ReqH,RespH}
     loan_slice_uninit!(client, request, n)
     fill!(payload_mut(request), _default_value(Req))
     return request
 end
 
-function loan_slice!(f::Function, client::Client{Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
+function loan_slice!(f::Function, client::Client{S,Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}, n::Integer) where {S,Req,Resp,ReqH,RespH}
     loan_slice!(client, request, n)
     try
         return f(request)
@@ -724,7 +724,7 @@ function loan_slice!(f::Function, client::Client{Req,Resp,ReqH,RespH}, request::
     end
 end
 
-function loan_slice_uninit!(f::Function, client::Client{Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
+function loan_slice_uninit!(f::Function, client::Client{S,Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}, n::Integer) where {S,Req,Resp,ReqH,RespH}
     loan_slice_uninit!(client, request, n)
     try
         return f(request)
@@ -733,11 +733,11 @@ function loan_slice_uninit!(f::Function, client::Client{Req,Resp,ReqH,RespH}, re
     end
 end
 
-function loan_request!(client::Client{Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
+function loan_request!(client::Client{S,Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}, n::Integer) where {S,Req,Resp,ReqH,RespH}
     return loan_slice_uninit!(client, request, n)
 end
 
-function loan_request!(f::Function, client::Client{Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}, n::Integer) where {Req,Resp,ReqH,RespH}
+function loan_request!(f::Function, client::Client{S,Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}, n::Integer) where {S,Req,Resp,ReqH,RespH}
     return loan_slice_uninit!(f, client, request, n)
 end
 
@@ -752,11 +752,11 @@ function send!(request::RequestMut{Req,Resp,ReqH,RespH}, pending::PendingRespons
 end
 
 function send_copy!(
-    client::Client{Req,Resp,ReqH,RespH},
+    client::Client{S,Req,Resp,ReqH,RespH},
     data::Ptr{Req},
     n::Integer,
     pending::PendingResponse{Resp,ReqH,RespH},
-) where {Req,Resp,ReqH,RespH}
+) where {S,Req,Resp,ReqH,RespH}
     _require_inactive(pending, "pending response")
     pending.handle_ref[] = _IOX2_NULL
     ret = Iceoryx2FFI.iox2_client_send_copy(
@@ -772,10 +772,10 @@ function send_copy!(
 end
 
 function send_copy!(
-    client::Client{Req,Resp,ReqH,RespH},
+    client::Client{S,Req,Resp,ReqH,RespH},
     data::AbstractVector{Req},
     pending::PendingResponse{Resp,ReqH,RespH},
-) where {Req,Resp,ReqH,RespH}
+) where {S,Req,Resp,ReqH,RespH}
     _require_isbits(Req)
     GC.@preserve data begin
         return send_copy!(client, pointer(data), length(data), pending)
@@ -783,10 +783,10 @@ function send_copy!(
 end
 
 function send_copy!(
-    client::Client{Req,Resp,ReqH,RespH},
+    client::Client{S,Req,Resp,ReqH,RespH},
     value::Req,
     pending::PendingResponse{Resp,ReqH,RespH},
-) where {Req,Resp,ReqH,RespH}
+) where {S,Req,Resp,ReqH,RespH}
     _require_isbits(Req)
     value_ref = Ref{Req}(value)
     GC.@preserve value_ref begin
@@ -948,7 +948,7 @@ function ActiveRequest{Req,Resp,ReqH,RespH}() where {Req,Resp,ReqH,RespH}
     )
 end
 
-ActiveRequest(server::Server{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH} =
+ActiveRequest(server::Server{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH} =
     ActiveRequest{Req,Resp,ReqH,RespH}()
 
 function _finalize_active_request(req::ActiveRequest)
@@ -1102,7 +1102,7 @@ end
 end
 
 
-function receive!(server::Server{Req,Resp,ReqH,RespH}, req::ActiveRequest{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
+function receive!(server::Server{S,Req,Resp,ReqH,RespH}, req::ActiveRequest{Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     _require_valid(server.handle, "server")
     _require_inactive(req, "active request")
     req.handle_ref[] = _IOX2_NULL
@@ -1115,7 +1115,7 @@ function receive!(server::Server{Req,Resp,ReqH,RespH}, req::ActiveRequest{Req,Re
     return req.handle_ref[] != _IOX2_NULL
 end
 
-function receive!(f::Function, server::Server{Req,Resp,ReqH,RespH}, req::ActiveRequest{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
+function receive!(f::Function, server::Server{S,Req,Resp,ReqH,RespH}, req::ActiveRequest{Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     if receive!(server, req)
         try
             return f(req)
@@ -1227,4 +1227,3 @@ function send!(resp::ResponseMut)
     resp.handle_ref[] = _IOX2_NULL
     return nothing
 end
-

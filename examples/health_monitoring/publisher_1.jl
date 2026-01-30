@@ -10,7 +10,7 @@ function main()
 
     builder = NodeBuilder()
     name!(builder, "publisher 1")
-    node = create(builder; service_type = :ipc)
+    node = create(builder)
 
     service = open_service(node, service_name)
 
@@ -21,7 +21,7 @@ function main()
 
     counter = UInt64(0)
 
-    waitset = create(WaitsetBuilder(); service_type = :ipc)
+    waitset = create(WaitsetBuilder(ServiceType.IPC))
     _cycle_guard = attach_interval(waitset, 0, CYCLE_MILLIS * 1_000_000)
 
     wait_and_process(waitset) do _attachment_id

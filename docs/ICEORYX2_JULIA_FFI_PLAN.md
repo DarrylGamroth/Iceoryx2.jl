@@ -103,7 +103,7 @@ Hot path refers to any API that is called per message/event or inside tight loop
 ## Phase 6: Builder & Factory API
 - Implement builder types matching the C++ API shape:
   - `NodeBuilder()`, `name!(builder, name)`, `config!(builder, config)`
-  - `create(builder; service_type=:ipc)`
+  - `create(builder)` (service type is encoded in `NodeBuilder`)
 - Ensure builders are consumable and cleaned:
   - On `create`, mark builder invalid.
   - Add a finalizer to release if user never calls `create`.
@@ -125,6 +125,8 @@ Hot path refers to any API that is called per message/event or inside tight loop
 - Outputs:
   - Messaging wrappers: `src/messaging.jl`
 - Status: Completed (2026-01-27)
+  - Update (2026-01-30): added `ServiceType` enum and propagated service type as a type parameter through
+    `Node`/`ServiceBuilder`/factories/ports; replaced `:ipc`/`:local` call sites with `ServiceType.IPC/LOCAL`.
   - Update (2026-01-28): moved generated bindings/handles/errors into `src/generated/` and updated scripts/docs accordingly.
   - Update (2026-01-28): aligned builder API with C++/Rust (`publish_subscribe`/typed `request_response`/typed blackboard builders) and removed the `payload_type!`/`key_type!` setup step from user code.
   - Update (2026-01-27): added typed blackboard creator helpers (`blackboard_creator(builder, ::Type)`) and `add!` to supply required entries.

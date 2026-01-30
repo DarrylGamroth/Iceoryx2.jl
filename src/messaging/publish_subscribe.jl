@@ -1,10 +1,10 @@
 # === Publish/Subscribe ===
 
 function _set_payload_type!(
-    builder::PubSubServiceBuilder{T},
+    builder::PubSubServiceBuilder{S,T},
     ::Type{T},
     variant::Iceoryx2FFI.iox2_type_variant_e,
-) where {T}
+) where {S,T}
     _require_valid(builder.handle, "publish_subscribe service builder")
     _require_isbits(T)
     name, name_len, size, alignment = _type_details(T)
@@ -31,7 +31,7 @@ function payload_alignment!(builder::PubSubServiceBuilder, alignment::Integer)
     return builder
 end
 
-function user_header(builder::PubSubServiceBuilder{T,Nothing}, ::Type{UH}) where {T,UH}
+function user_header(builder::PubSubServiceBuilder{S,T,Nothing}, ::Type{UH}) where {S,T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
     variant = _variant_type(UH)
     header_type = _payload_type(UH)
@@ -51,22 +51,22 @@ function user_header(builder::PubSubServiceBuilder{T,Nothing}, ::Type{UH}) where
     storage = builder.storage
     builder.handle = _IOX2_NULL
     builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
-    return PubSubServiceBuilder{T,header_type}(handle, storage, builder.keepalive)
+    return PubSubServiceBuilder{S,T,header_type}(handle, storage, builder.keepalive)
 end
 
-function user_header(builder::PubSubServiceBuilder{T,UH}, ::Type{UH}) where {T,UH}
+function user_header(builder::PubSubServiceBuilder{S,T,UH}, ::Type{UH}) where {S,T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
     return builder
 end
 
 ### builder tuning setters generated in src/generated/wrappers.jl
 
-mutable struct PortFactoryPubSub{T,UH}
+mutable struct PortFactoryPubSub{S,T,UH}
     handle::Iceoryx2FFI.iox2_port_factory_pub_sub_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_pub_sub_t}
-    keepalive::Node
-    function PortFactoryPubSub{T,UH}(handle, storage, keepalive) where {T,UH}
-        obj = new{T,UH}(handle, storage, keepalive)
+    keepalive::Node{S}
+    function PortFactoryPubSub{S,T,UH}(handle, storage, keepalive) where {S,T,UH}
+        obj = new{S,T,UH}(handle, storage, keepalive)
         finalizer(_finalize_port_factory_pub_sub, obj)
         return obj
     end
@@ -81,7 +81,7 @@ function _finalize_port_factory_pub_sub(factory::PortFactoryPubSub)
     return nothing
 end
 
-function open_or_create(builder::PubSubServiceBuilder{T,UH}) where {T,UH}
+function open_or_create(builder::PubSubServiceBuilder{S,T,UH}) where {S,T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
     _require_isbits(T)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_t}()
@@ -90,10 +90,10 @@ function open_or_create(builder::PubSubServiceBuilder{T,UH}) where {T,UH}
     check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    return PortFactoryPubSub{T,UH}(handle_ref[], storage, builder.keepalive)
+    return PortFactoryPubSub{S,T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
-function open_or_create(builder::PubSubServiceBuilder{T,UH}, verifier::AttributeVerifier) where {T,UH}
+function open_or_create(builder::PubSubServiceBuilder{S,T,UH}, verifier::AttributeVerifier) where {S,T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
     _require_isbits(T)
     _require_valid(unsafe_handle(verifier), "attribute verifier")
@@ -108,10 +108,10 @@ function open_or_create(builder::PubSubServiceBuilder{T,UH}, verifier::Attribute
     check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    return PortFactoryPubSub{T,UH}(handle_ref[], storage, builder.keepalive)
+    return PortFactoryPubSub{S,T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
-function open(builder::PubSubServiceBuilder{T,UH}) where {T,UH}
+function open(builder::PubSubServiceBuilder{S,T,UH}) where {S,T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
     _require_isbits(T)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_t}()
@@ -120,10 +120,10 @@ function open(builder::PubSubServiceBuilder{T,UH}) where {T,UH}
     check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    return PortFactoryPubSub{T,UH}(handle_ref[], storage, builder.keepalive)
+    return PortFactoryPubSub{S,T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
-function open(builder::PubSubServiceBuilder{T,UH}, verifier::AttributeVerifier) where {T,UH}
+function open(builder::PubSubServiceBuilder{S,T,UH}, verifier::AttributeVerifier) where {S,T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
     _require_isbits(T)
     _require_valid(unsafe_handle(verifier), "attribute verifier")
@@ -138,10 +138,10 @@ function open(builder::PubSubServiceBuilder{T,UH}, verifier::AttributeVerifier) 
     check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    return PortFactoryPubSub{T,UH}(handle_ref[], storage, builder.keepalive)
+    return PortFactoryPubSub{S,T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
-function create(builder::PubSubServiceBuilder{T,UH}) where {T,UH}
+function create(builder::PubSubServiceBuilder{S,T,UH}) where {S,T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
     _require_isbits(T)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_t}()
@@ -150,10 +150,10 @@ function create(builder::PubSubServiceBuilder{T,UH}) where {T,UH}
     check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    return PortFactoryPubSub{T,UH}(handle_ref[], storage, builder.keepalive)
+    return PortFactoryPubSub{S,T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
-function create(builder::PubSubServiceBuilder{T,UH}, specifier::AttributeSpecifier) where {T,UH}
+function create(builder::PubSubServiceBuilder{S,T,UH}, specifier::AttributeSpecifier) where {S,T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
     _require_isbits(T)
     _require_valid(unsafe_handle(specifier), "attribute specifier")
@@ -168,7 +168,7 @@ function create(builder::PubSubServiceBuilder{T,UH}, specifier::AttributeSpecifi
     check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    return PortFactoryPubSub{T,UH}(handle_ref[], storage, builder.keepalive)
+    return PortFactoryPubSub{S,T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
 function open_or_create(f::Function, builder::PubSubServiceBuilder)
@@ -189,7 +189,7 @@ function open_or_create(f::Function, builder::PubSubServiceBuilder, verifier::At
     end
 end
 
-function open(f::Function, builder::PubSubServiceBuilder)
+function open(f::Function, builder::PubSubServiceBuilder{S,T,UH}) where {S,T,UH}
     factory = open(builder)
     try
         return f(factory)
@@ -198,7 +198,7 @@ function open(f::Function, builder::PubSubServiceBuilder)
     end
 end
 
-function open(f::Function, builder::PubSubServiceBuilder, verifier::AttributeVerifier)
+function open(f::Function, builder::PubSubServiceBuilder{S,T,UH}, verifier::AttributeVerifier) where {S,T,UH}
     factory = open(builder, verifier)
     try
         return f(factory)
@@ -207,7 +207,7 @@ function open(f::Function, builder::PubSubServiceBuilder, verifier::AttributeVer
     end
 end
 
-function create(f::Function, builder::PubSubServiceBuilder)
+function create(f::Function, builder::PubSubServiceBuilder{S,T,UH}) where {S,T,UH}
     factory = create(builder)
     try
         return f(factory)
@@ -216,7 +216,7 @@ function create(f::Function, builder::PubSubServiceBuilder)
     end
 end
 
-function create(f::Function, builder::PubSubServiceBuilder, specifier::AttributeSpecifier)
+function create(f::Function, builder::PubSubServiceBuilder{S,T,UH}, specifier::AttributeSpecifier) where {S,T,UH}
     factory = create(builder, specifier)
     try
         return f(factory)
@@ -225,19 +225,19 @@ function create(f::Function, builder::PubSubServiceBuilder, specifier::Attribute
     end
 end
 
-open_or_create_with_attributes(builder::PubSubServiceBuilder, verifier::AttributeVerifier) = open_or_create(builder, verifier)
-open_or_create_with_attributes(f::Function, builder::PubSubServiceBuilder, verifier::AttributeVerifier) = open_or_create(f, builder, verifier)
-open_with_attributes(builder::PubSubServiceBuilder, verifier::AttributeVerifier) = open(builder, verifier)
-open_with_attributes(f::Function, builder::PubSubServiceBuilder, verifier::AttributeVerifier) = open(f, builder, verifier)
-create_with_attributes(builder::PubSubServiceBuilder, specifier::AttributeSpecifier) = create(builder, specifier)
-create_with_attributes(f::Function, builder::PubSubServiceBuilder, specifier::AttributeSpecifier) = create(f, builder, specifier)
+open_or_create_with_attributes(builder::PubSubServiceBuilder{S,T,UH}, verifier::AttributeVerifier) where {S,T,UH} = open_or_create(builder, verifier)
+open_or_create_with_attributes(f::Function, builder::PubSubServiceBuilder{S,T,UH}, verifier::AttributeVerifier) where {S,T,UH} = open_or_create(f, builder, verifier)
+open_with_attributes(builder::PubSubServiceBuilder{S,T,UH}, verifier::AttributeVerifier) where {S,T,UH} = open(builder, verifier)
+open_with_attributes(f::Function, builder::PubSubServiceBuilder{S,T,UH}, verifier::AttributeVerifier) where {S,T,UH} = open(f, builder, verifier)
+create_with_attributes(builder::PubSubServiceBuilder{S,T,UH}, specifier::AttributeSpecifier) where {S,T,UH} = create(builder, specifier)
+create_with_attributes(f::Function, builder::PubSubServiceBuilder{S,T,UH}, specifier::AttributeSpecifier) where {S,T,UH} = create(f, builder, specifier)
 
-mutable struct PublisherBuilder{T,UH}
+mutable struct PublisherBuilder{S,T,UH}
     handle::Iceoryx2FFI.iox2_port_factory_publisher_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_publisher_builder_t}
-    keepalive::PortFactoryPubSub{T,UH}
-    function PublisherBuilder{T,UH}(handle, storage, keepalive) where {T,UH}
-        obj = new{T,UH}(handle, storage, keepalive)
+    keepalive::PortFactoryPubSub{S,T,UH}
+    function PublisherBuilder{S,T,UH}(handle, storage, keepalive) where {S,T,UH}
+        obj = new{S,T,UH}(handle, storage, keepalive)
         finalizer(_finalize_publisher_builder, obj)
         return obj
     end
@@ -249,12 +249,12 @@ function _finalize_publisher_builder(builder::PublisherBuilder)
     return nothing
 end
 
-function publisher_builder(factory::PortFactoryPubSub{T,UH}) where {T,UH}
+function publisher_builder(factory::PortFactoryPubSub{S,T,UH}) where {S,T,UH}
     _require_valid(factory.handle, "publish_subscribe port factory")
     _require_isbits(T)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_publisher_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_pub_sub_publisher_builder(Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle), storage)
-    return PublisherBuilder{T,UH}(handle, storage, factory)
+    return PublisherBuilder{S,T,UH}(handle, storage, factory)
 end
 
 ### builder tuning setters generated in src/generated/wrappers.jl
@@ -268,12 +268,12 @@ function allocation_strategy!(builder::PublisherBuilder, value::Union{Symbol,Ice
     return builder
 end
 
-mutable struct SubscriberBuilder{T,UH}
+mutable struct SubscriberBuilder{S,T,UH}
     handle::Iceoryx2FFI.iox2_port_factory_subscriber_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_subscriber_builder_t}
-    keepalive::PortFactoryPubSub{T,UH}
-    function SubscriberBuilder{T,UH}(handle, storage, keepalive) where {T,UH}
-        obj = new{T,UH}(handle, storage, keepalive)
+    keepalive::PortFactoryPubSub{S,T,UH}
+    function SubscriberBuilder{S,T,UH}(handle, storage, keepalive) where {S,T,UH}
+        obj = new{S,T,UH}(handle, storage, keepalive)
         finalizer(_finalize_subscriber_builder, obj)
         return obj
     end
@@ -285,20 +285,20 @@ function _finalize_subscriber_builder(builder::SubscriberBuilder)
     return nothing
 end
 
-function subscriber_builder(factory::PortFactoryPubSub{T,UH}) where {T,UH}
+function subscriber_builder(factory::PortFactoryPubSub{S,T,UH}) where {S,T,UH}
     _require_valid(factory.handle, "publish_subscribe port factory")
     _require_isbits(T)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_subscriber_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_pub_sub_subscriber_builder(Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle), storage)
-    return SubscriberBuilder{T,UH}(handle, storage, factory)
+    return SubscriberBuilder{S,T,UH}(handle, storage, factory)
 end
 
-mutable struct Publisher{T,UH}
+mutable struct Publisher{S,T,UH}
     handle::Iceoryx2FFI.iox2_publisher_h
     storage::_StorageRef{Iceoryx2FFI.iox2_publisher_t}
-    keepalive::PortFactoryPubSub{T,UH}
-    function Publisher{T,UH}(handle, storage, keepalive) where {T,UH}
-        obj = new{T,UH}(handle, storage, keepalive)
+    keepalive::PortFactoryPubSub{S,T,UH}
+    function Publisher{S,T,UH}(handle, storage, keepalive) where {S,T,UH}
+        obj = new{S,T,UH}(handle, storage, keepalive)
         finalizer(_finalize_publisher, obj)
         return obj
     end
@@ -313,17 +313,17 @@ function _finalize_publisher(pub::Publisher)
     return nothing
 end
 
-function create(builder::PublisherBuilder{T,UH}) where {T,UH}
+function create(builder::PublisherBuilder{S,T,UH}) where {S,T,UH}
     _require_valid(builder.handle, "publisher builder")
     storage = Ref{Iceoryx2FFI.iox2_publisher_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_publisher_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_publisher_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_publisher_create_error_e)
     _finalize_publisher_builder(builder)
-    return Publisher{T,UH}(handle_ref[], storage, builder.keepalive)
+    return Publisher{S,T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
-function create(f::Function, builder::PublisherBuilder{T,UH}) where {T,UH}
+function create(f::Function, builder::PublisherBuilder{S,T,UH}) where {S,T,UH}
     pub = create(builder)
     try
         return f(pub)
@@ -332,12 +332,12 @@ function create(f::Function, builder::PublisherBuilder{T,UH}) where {T,UH}
     end
 end
 
-mutable struct Subscriber{T,UH}
+mutable struct Subscriber{S,T,UH}
     handle::Iceoryx2FFI.iox2_subscriber_h
     storage::_StorageRef{Iceoryx2FFI.iox2_subscriber_t}
-    keepalive::PortFactoryPubSub{T,UH}
-    function Subscriber{T,UH}(handle, storage, keepalive) where {T,UH}
-        obj = new{T,UH}(handle, storage, keepalive)
+    keepalive::PortFactoryPubSub{S,T,UH}
+    function Subscriber{S,T,UH}(handle, storage, keepalive) where {S,T,UH}
+        obj = new{S,T,UH}(handle, storage, keepalive)
         finalizer(_finalize_subscriber, obj)
         return obj
     end
@@ -352,17 +352,17 @@ function _finalize_subscriber(sub::Subscriber)
     return nothing
 end
 
-function create(builder::SubscriberBuilder{T,UH}) where {T,UH}
+function create(builder::SubscriberBuilder{S,T,UH}) where {S,T,UH}
     _require_valid(builder.handle, "subscriber builder")
     storage = Ref{Iceoryx2FFI.iox2_subscriber_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_subscriber_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_subscriber_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_subscriber_create_error_e)
     _finalize_subscriber_builder(builder)
-    return Subscriber{T,UH}(handle_ref[], storage, builder.keepalive)
+    return Subscriber{S,T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
-function create(f::Function, builder::SubscriberBuilder{T,UH}) where {T,UH}
+function create(f::Function, builder::SubscriberBuilder{S,T,UH}) where {S,T,UH}
     sub = create(builder)
     try
         return f(sub)
@@ -398,7 +398,7 @@ function Sample{T,UH}() where {T,UH}
     )
 end
 
-Sample(subscriber::Subscriber{T,UH}) where {T,UH} = Sample{T,UH}()
+Sample(subscriber::Subscriber{S,T,UH}) where {S,T,UH} = Sample{T,UH}()
 
 function _finalize_sample(sample::Sample)
     _drop_header!(sample.header_slot)
@@ -479,7 +479,7 @@ function SampleMut{T,UH}() where {T,UH}
     )
 end
 
-SampleMut(publisher::Publisher{T,UH}) where {T,UH} = SampleMut{T,UH}()
+SampleMut(publisher::Publisher{S,T,UH}) where {S,T,UH} = SampleMut{T,UH}()
 
 @inline _slice_mutable(::Type{<:SampleMut}) = true
 
@@ -567,7 +567,7 @@ end
 end
 
 
-function loan_slice_uninit!(publisher::Publisher{T,UH}, sample::SampleMut{T,UH}, n::Integer) where {T,UH}
+function loan_slice_uninit!(publisher::Publisher{S,T,UH}, sample::SampleMut{T,UH}, n::Integer) where {S,T,UH}
     _require_valid(publisher.handle, "publisher")
     _require_inactive(sample, "sample")
     sample.handle_ref[] = _IOX2_NULL
@@ -581,7 +581,7 @@ function loan_slice_uninit!(publisher::Publisher{T,UH}, sample::SampleMut{T,UH},
     return sample
 end
 
-function try_loan_slice_uninit!(publisher::Publisher{T,UH}, sample::SampleMut{T,UH}, n::Integer) where {T,UH}
+function try_loan_slice_uninit!(publisher::Publisher{S,T,UH}, sample::SampleMut{T,UH}, n::Integer) where {S,T,UH}
     _require_valid(publisher.handle, "publisher")
     _require_inactive(sample, "sample")
     sample.handle_ref[] = _IOX2_NULL
@@ -596,27 +596,27 @@ function try_loan_slice_uninit!(publisher::Publisher{T,UH}, sample::SampleMut{T,
     return true
 end
 
-@inline function loan_uninit!(publisher::Publisher{T,UH}, sample::SampleMut{T,UH}) where {T,UH}
+@inline function loan_uninit!(publisher::Publisher{S,T,UH}, sample::SampleMut{T,UH}) where {S,T,UH}
     return loan_slice_uninit!(publisher, sample, 1)
 end
 
-@inline function try_loan_uninit!(publisher::Publisher{T,UH}, sample::SampleMut{T,UH}) where {T,UH}
+@inline function try_loan_uninit!(publisher::Publisher{S,T,UH}, sample::SampleMut{T,UH}) where {S,T,UH}
     return try_loan_slice_uninit!(publisher, sample, 1)
 end
 
-function loan!(publisher::Publisher{T,UH}, sample::SampleMut{T,UH}) where {T,UH}
+function loan!(publisher::Publisher{S,T,UH}, sample::SampleMut{T,UH}) where {S,T,UH}
     loan_slice_uninit!(publisher, sample, 1)
     fill!(payload_mut(sample), _default_value(T))
     return sample
 end
 
-function loan_slice!(publisher::Publisher{T,UH}, sample::SampleMut{T,UH}, n::Integer) where {T,UH}
+function loan_slice!(publisher::Publisher{S,T,UH}, sample::SampleMut{T,UH}, n::Integer) where {S,T,UH}
     loan_slice_uninit!(publisher, sample, n)
     fill!(payload_mut(sample), _default_value(T))
     return sample
 end
 
-function loan_slice!(f::Function, publisher::Publisher{T,UH}, sample::SampleMut{T,UH}, n::Integer) where {T,UH}
+function loan_slice!(f::Function, publisher::Publisher{S,T,UH}, sample::SampleMut{T,UH}, n::Integer) where {S,T,UH}
     loan_slice!(publisher, sample, n)
     try
         return f(sample)
@@ -625,7 +625,7 @@ function loan_slice!(f::Function, publisher::Publisher{T,UH}, sample::SampleMut{
     end
 end
 
-function loan_slice_uninit!(f::Function, publisher::Publisher{T,UH}, sample::SampleMut{T,UH}, n::Integer) where {T,UH}
+function loan_slice_uninit!(f::Function, publisher::Publisher{S,T,UH}, sample::SampleMut{T,UH}, n::Integer) where {S,T,UH}
     loan_slice_uninit!(publisher, sample, n)
     try
         return f(sample)
@@ -648,7 +648,7 @@ end
     return nothing
 end
 
-function send_copy(publisher::Publisher{T,UH}, data::Ptr{T}, n::Integer) where {T,UH}
+function send_copy(publisher::Publisher{S,T,UH}, data::Ptr{T}, n::Integer) where {S,T,UH}
     _require_valid(publisher.handle, "publisher")
     recipients = Ref{Iceoryx2FFI.c_size_t}()
     ret = Iceoryx2FFI.iox2_publisher_send_slice_copy(Ref{Iceoryx2FFI.iox2_publisher_h}(publisher.handle), data, Iceoryx2FFI.c_size_t(sizeof(T)), Iceoryx2FFI.c_size_t(n), recipients)
@@ -656,14 +656,14 @@ function send_copy(publisher::Publisher{T,UH}, data::Ptr{T}, n::Integer) where {
     return Int(recipients[])
 end
 
-function send_copy(publisher::Publisher{T,UH}, data::AbstractVector{T}) where {T,UH}
+function send_copy(publisher::Publisher{S,T,UH}, data::AbstractVector{T}) where {S,T,UH}
     _require_isbits(T)
     GC.@preserve data begin
         return send_copy(publisher, pointer(data), length(data))
     end
 end
 
-function send_copy(publisher::Publisher{T,UH}, value::T) where {T,UH}
+function send_copy(publisher::Publisher{S,T,UH}, value::T) where {S,T,UH}
     _require_isbits(T)
     value_ref = Ref{T}(value)
     GC.@preserve value_ref begin
@@ -678,7 +678,7 @@ function update_connections!(publisher::Publisher)
     return nothing
 end
 
-function receive!(subscriber::Subscriber{T,UH}, sample::Sample{T,UH}) where {T,UH}
+function receive!(subscriber::Subscriber{S,T,UH}, sample::Sample{T,UH}) where {S,T,UH}
     _require_valid(subscriber.handle, "subscriber")
     _require_inactive(sample, "sample")
     sample.handle_ref[] = _IOX2_NULL
@@ -691,7 +691,7 @@ function receive!(subscriber::Subscriber{T,UH}, sample::Sample{T,UH}) where {T,U
     return sample.handle_ref[] != _IOX2_NULL
 end
 
-function receive!(f::Function, subscriber::Subscriber{T,UH}, sample::Sample{T,UH}) where {T,UH}
+function receive!(f::Function, subscriber::Subscriber{S,T,UH}, sample::Sample{T,UH}) where {S,T,UH}
     if receive!(subscriber, sample)
         try
             return f(sample)
@@ -708,4 +708,3 @@ function has_samples(subscriber::Subscriber)
     check_ok(ret, Iceoryx2FFI.iox2_connection_failure_e)
     return result[]
 end
-

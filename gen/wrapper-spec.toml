@@ -874,13 +874,13 @@ less = "iox2_unique_server_id_less"
 
 [[size_t_get.items]]
 name = "number_of_publishers"
-receiver_sig = "factory::PortFactoryPubSub{T} where {T}"
+receiver_sig = "factory::PortFactoryPubSub{S,T,UH} where {S,T,UH}"
 get = "iox2_port_factory_pub_sub_dynamic_config_number_of_publishers"
 handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle)"
 
 [[size_t_get.items]]
 name = "number_of_subscribers"
-receiver_sig = "factory::PortFactoryPubSub{T} where {T}"
+receiver_sig = "factory::PortFactoryPubSub{S,T,UH} where {S,T,UH}"
 get = "iox2_port_factory_pub_sub_dynamic_config_number_of_subscribers"
 handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle)"
 
@@ -898,25 +898,25 @@ handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle)"
 
 [[size_t_get.items]]
 name = "number_of_clients"
-receiver_sig = "factory::PortFactoryRequestResponse{Req,Resp} where {Req,Resp}"
+receiver_sig = "factory::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH} where {S,Req,Resp,ReqH,RespH}"
 get = "iox2_port_factory_request_response_dynamic_config_number_of_clients"
 handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle)"
 
 [[size_t_get.items]]
 name = "number_of_servers"
-receiver_sig = "factory::PortFactoryRequestResponse{Req,Resp} where {Req,Resp}"
+receiver_sig = "factory::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH} where {S,Req,Resp,ReqH,RespH}"
 get = "iox2_port_factory_request_response_dynamic_config_number_of_servers"
 handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle)"
 
 [[size_t_get.items]]
 name = "number_of_readers"
-receiver_sig = "factory::PortFactoryBlackboard{K} where {K}"
+receiver_sig = "factory::PortFactoryBlackboard{S,K} where {S,K}"
 get = "iox2_port_factory_blackboard_dynamic_config_number_of_readers"
 handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle)"
 
 [[size_t_get.items]]
 name = "number_of_writers"
-receiver_sig = "factory::PortFactoryBlackboard{K} where {K}"
+receiver_sig = "factory::PortFactoryBlackboard{S,K} where {S,K}"
 get = "iox2_port_factory_blackboard_dynamic_config_number_of_writers"
 handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle)"
 
@@ -933,7 +933,7 @@ valid_message = "event port factory"
 
 [[view_get.items]]
 name = "attributes"
-receiver_sig = "factory::PortFactoryPubSub{T} where {T}"
+receiver_sig = "factory::PortFactoryPubSub{S,T,UH} where {S,T,UH}"
 ffi = "iox2_port_factory_pub_sub_attributes"
 handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle)"
 view_type = "AttributeSetView"
@@ -942,7 +942,7 @@ valid_message = "pub_sub port factory"
 
 [[view_get.items]]
 name = "attributes"
-receiver_sig = "factory::PortFactoryRequestResponse{Req,Resp} where {Req,Resp}"
+receiver_sig = "factory::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH} where {S,Req,Resp,ReqH,RespH}"
 ffi = "iox2_port_factory_request_response_attributes"
 handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle)"
 view_type = "AttributeSetView"
@@ -951,7 +951,7 @@ valid_message = "request_response port factory"
 
 [[view_get.items]]
 name = "attributes"
-receiver_sig = "factory::PortFactoryBlackboard{K} where {K}"
+receiver_sig = "factory::PortFactoryBlackboard{S,K} where {S,K}"
 ffi = "iox2_port_factory_blackboard_attributes"
 handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle)"
 view_type = "AttributeSetView"
@@ -969,7 +969,7 @@ valid_message = "event port factory"
 
 [[view_get.items]]
 name = "service_name"
-receiver_sig = "factory::PortFactoryPubSub{T} where {T}"
+receiver_sig = "factory::PortFactoryPubSub{S,T,UH} where {S,T,UH}"
 ffi = "iox2_port_factory_pub_sub_service_name"
 handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle)"
 view_type = "ServiceNameView"
@@ -978,7 +978,7 @@ valid_message = "pub_sub port factory"
 
 [[view_get.items]]
 name = "service_name"
-receiver_sig = "factory::PortFactoryRequestResponse{Req,Resp} where {Req,Resp}"
+receiver_sig = "factory::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH} where {S,Req,Resp,ReqH,RespH}"
 ffi = "iox2_port_factory_request_response_service_name"
 handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle)"
 view_type = "ServiceNameView"
@@ -987,7 +987,7 @@ valid_message = "request_response port factory"
 
 [[view_get.items]]
 name = "service_name"
-receiver_sig = "factory::PortFactoryBlackboard{K} where {K}"
+receiver_sig = "factory::PortFactoryBlackboard{S,K} where {S,K}"
 ffi = "iox2_port_factory_blackboard_service_name"
 handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle)"
 view_type = "ServiceNameView"
@@ -1008,7 +1008,7 @@ valid_message = "event port factory"
 
 [[static_config.items]]
 name = "static_config"
-receiver_sig = "factory::PortFactoryPubSub{T} where {T}"
+receiver_sig = "factory::PortFactoryPubSub{S,T,UH} where {S,T,UH}"
 ffi = "iox2_port_factory_pub_sub_static_config"
 handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle)"
 raw_type = "Iceoryx2FFI.iox2_static_config_publish_subscribe_t"
@@ -1018,7 +1018,7 @@ valid_message = "pub_sub port factory"
 
 [[static_config.items]]
 name = "static_config"
-receiver_sig = "factory::PortFactoryRequestResponse{Req,Resp} where {Req,Resp}"
+receiver_sig = "factory::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH} where {S,Req,Resp,ReqH,RespH}"
 ffi = "iox2_port_factory_request_response_static_config"
 handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle)"
 raw_type = "Iceoryx2FFI.iox2_static_config_request_response_t"
@@ -1028,7 +1028,7 @@ valid_message = "request_response port factory"
 
 [[static_config.items]]
 name = "static_config"
-receiver_sig = "factory::PortFactoryBlackboard{K} where {K}"
+receiver_sig = "factory::PortFactoryBlackboard{S,K} where {S,K}"
 ffi = "iox2_port_factory_blackboard_static_config"
 handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle)"
 raw_type = "Iceoryx2FFI.iox2_static_config_blackboard_t"

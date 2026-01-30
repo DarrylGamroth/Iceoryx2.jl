@@ -58,7 +58,7 @@ function main()
 
     builder = NodeBuilder()
     name!(builder, "subscriber")
-    node = create(builder; service_type = :ipc)
+    node = create(builder)
 
     service_1 = open_service(node, service_name_1)
     service_2 = open_service(node, service_name_2)
@@ -70,7 +70,7 @@ function main()
     listener_1 = create(listener_builder(service_1.event))
     listener_2 = create(listener_builder(service_2.event))
 
-    waitset = create(WaitsetBuilder(); service_type = :ipc)
+    waitset = create(WaitsetBuilder(ServiceType.IPC))
 
     deadline_1 = deadline(listener_1)
     deadline_2 = deadline(listener_2)

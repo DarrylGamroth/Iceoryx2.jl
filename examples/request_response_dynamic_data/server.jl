@@ -5,7 +5,7 @@ const MAX_VALUE = UInt64(0xff)
 
 function main()
     set_log_level_from_env_or(:info)
-    node = create(NodeBuilder(); service_type = :ipc)
+    node = create(NodeBuilder(ServiceType.IPC))
 
     builder = request_response(service_builder(node, "My/Funk/ServiceName"),
         AbstractVector{UInt8}, AbstractVector{UInt8})

@@ -166,7 +166,7 @@ end
 
 function service_does_exist(
     service_name::Union{ServiceName, ServiceNameView};
-    service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e} = :ipc,
+    service_type::ServiceType = ServiceType.IPC,
     messaging_pattern::Union{Symbol, Iceoryx2FFI.iox2_messaging_pattern_e} = :publish_subscribe,
     config::Union{Config, ConfigView, Nothing} = nothing,
 )
@@ -184,7 +184,7 @@ end
 
 function service_does_exist(
     service_name::AbstractString;
-    service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e} = :ipc,
+    service_type::ServiceType = ServiceType.IPC,
     messaging_pattern::Union{Symbol, Iceoryx2FFI.iox2_messaging_pattern_e} = :publish_subscribe,
     config::Union{Config, ConfigView, Nothing} = nothing,
 )
@@ -198,7 +198,7 @@ end
 
 function service_details(
     service_name::Union{ServiceName, ServiceNameView};
-    service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e} = :ipc,
+    service_type::ServiceType = ServiceType.IPC,
     messaging_pattern::Union{Symbol, Iceoryx2FFI.iox2_messaging_pattern_e} = :publish_subscribe,
     config::Union{Config, ConfigView, Nothing} = nothing,
 )
@@ -218,7 +218,7 @@ end
 
 function service_details(
     service_name::AbstractString;
-    service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e} = :ipc,
+    service_type::ServiceType = ServiceType.IPC,
     messaging_pattern::Union{Symbol, Iceoryx2FFI.iox2_messaging_pattern_e} = :publish_subscribe,
     config::Union{Config, ConfigView, Nothing} = nothing,
 )
@@ -252,7 +252,7 @@ end
 
 function list_services(
     handler::AbstractServiceListHandler;
-    service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e} = :ipc,
+    service_type::ServiceType = ServiceType.IPC,
     config::Union{Config, ConfigView, Nothing} = nothing,
 )
     handler_ref = Ref(handler)
@@ -270,7 +270,7 @@ end
 
 function list_services(
     f::Function;
-    service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e} = :ipc,
+    service_type::ServiceType = ServiceType.IPC,
     config::Union{Config, ConfigView, Nothing} = nothing,
 )
     return list_services(ServiceListHandler(f); service_type, config)
@@ -437,7 +437,7 @@ function _server_details_cfunction(::T) where {T<:AbstractServerDetailsHandler}
 end
 
 
-function list_publishers(factory::PortFactoryPubSub{T}, handler::AbstractPublisherDetailsHandler) where {T}
+function list_publishers(factory::PortFactoryPubSub{S,T,UH}, handler::AbstractPublisherDetailsHandler) where {S,T,UH}
     handler_ref = Ref(handler)
     GC.@preserve handler_ref begin
         Iceoryx2FFI.iox2_port_factory_pub_sub_dynamic_config_list_publishers(
@@ -449,11 +449,11 @@ function list_publishers(factory::PortFactoryPubSub{T}, handler::AbstractPublish
     return nothing
 end
 
-function list_publishers(f::Function, factory::PortFactoryPubSub{T}) where {T}
+function list_publishers(f::Function, factory::PortFactoryPubSub{S,T,UH}) where {S,T,UH}
     return list_publishers(factory, PublisherDetailsHandler(f))
 end
 
-function list_subscribers(factory::PortFactoryPubSub{T}, handler::AbstractSubscriberDetailsHandler) where {T}
+function list_subscribers(factory::PortFactoryPubSub{S,T,UH}, handler::AbstractSubscriberDetailsHandler) where {S,T,UH}
     handler_ref = Ref(handler)
     GC.@preserve handler_ref begin
         Iceoryx2FFI.iox2_port_factory_pub_sub_dynamic_config_list_subscribers(
@@ -465,12 +465,12 @@ function list_subscribers(factory::PortFactoryPubSub{T}, handler::AbstractSubscr
     return nothing
 end
 
-function list_subscribers(f::Function, factory::PortFactoryPubSub{T}) where {T}
+function list_subscribers(f::Function, factory::PortFactoryPubSub{S,T,UH}) where {S,T,UH}
     return list_subscribers(factory, SubscriberDetailsHandler(f))
 end
 
 
-function list_listeners(factory::PortFactoryEvent, handler::AbstractListenerDetailsHandler)
+function list_listeners(factory::PortFactoryEvent{S}, handler::AbstractListenerDetailsHandler) where {S}
     handler_ref = Ref(handler)
     GC.@preserve handler_ref begin
         Iceoryx2FFI.iox2_port_factory_event_dynamic_config_list_listeners(
@@ -482,11 +482,11 @@ function list_listeners(factory::PortFactoryEvent, handler::AbstractListenerDeta
     return nothing
 end
 
-function list_listeners(f::Function, factory::PortFactoryEvent)
+function list_listeners(f::Function, factory::PortFactoryEvent{S}) where {S}
     return list_listeners(factory, ListenerDetailsHandler(f))
 end
 
-function list_notifiers(factory::PortFactoryEvent, handler::AbstractNotifierDetailsHandler)
+function list_notifiers(factory::PortFactoryEvent{S}, handler::AbstractNotifierDetailsHandler) where {S}
     handler_ref = Ref(handler)
     GC.@preserve handler_ref begin
         Iceoryx2FFI.iox2_port_factory_event_dynamic_config_list_notifiers(
@@ -498,12 +498,12 @@ function list_notifiers(factory::PortFactoryEvent, handler::AbstractNotifierDeta
     return nothing
 end
 
-function list_notifiers(f::Function, factory::PortFactoryEvent)
+function list_notifiers(f::Function, factory::PortFactoryEvent{S}) where {S}
     return list_notifiers(factory, NotifierDetailsHandler(f))
 end
 
 
-function list_clients(factory::PortFactoryRequestResponse{Req,Resp}, handler::AbstractClientDetailsHandler) where {Req,Resp}
+function list_clients(factory::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}, handler::AbstractClientDetailsHandler) where {S,Req,Resp,ReqH,RespH}
     handler_ref = Ref(handler)
     GC.@preserve handler_ref begin
         Iceoryx2FFI.iox2_port_factory_request_response_dynamic_config_list_clients(
@@ -515,11 +515,11 @@ function list_clients(factory::PortFactoryRequestResponse{Req,Resp}, handler::Ab
     return nothing
 end
 
-function list_clients(f::Function, factory::PortFactoryRequestResponse{Req,Resp}) where {Req,Resp}
+function list_clients(f::Function, factory::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     return list_clients(factory, ClientDetailsHandler(f))
 end
 
-function list_servers(factory::PortFactoryRequestResponse{Req,Resp}, handler::AbstractServerDetailsHandler) where {Req,Resp}
+function list_servers(factory::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}, handler::AbstractServerDetailsHandler) where {S,Req,Resp,ReqH,RespH}
     handler_ref = Ref(handler)
     GC.@preserve handler_ref begin
         Iceoryx2FFI.iox2_port_factory_request_response_dynamic_config_list_servers(
@@ -531,7 +531,7 @@ function list_servers(factory::PortFactoryRequestResponse{Req,Resp}, handler::Ab
     return nothing
 end
 
-function list_servers(f::Function, factory::PortFactoryRequestResponse{Req,Resp}) where {Req,Resp}
+function list_servers(f::Function, factory::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     return list_servers(factory, ServerDetailsHandler(f))
 end
 
@@ -554,7 +554,7 @@ function _blackboard_key_cfunction(::T) where {T<:AbstractBlackboardKeyHandler}
     @cfunction(_blackboard_key_wrapper, Iceoryx2FFI.iox2_callback_progression_e, (Ptr{Cvoid}, Ref{T}))
 end
 
-function list_keys(factory::PortFactoryBlackboard{K}, ::Type{K}, handler::AbstractBlackboardKeyHandler{K}) where {K}
+function list_keys(factory::PortFactoryBlackboard{S,K}, ::Type{K}, handler::AbstractBlackboardKeyHandler{K}) where {S,K}
     _require_isbits(K)
     handler_ref = Ref(handler)
     GC.@preserve handler_ref begin
@@ -567,12 +567,12 @@ function list_keys(factory::PortFactoryBlackboard{K}, ::Type{K}, handler::Abstra
     return nothing
 end
 
-function list_keys(f::Function, factory::PortFactoryBlackboard{K}, ::Type{K}) where {K}
+function list_keys(f::Function, factory::PortFactoryBlackboard{S,K}, ::Type{K}) where {S,K}
     return list_keys(factory, K, BlackboardKeyHandler{K}(f))
 end
 
 
-function list_readers(factory::PortFactoryBlackboard{K}, handler::AbstractReaderDetailsHandler) where {K}
+function list_readers(factory::PortFactoryBlackboard{S,K}, handler::AbstractReaderDetailsHandler) where {S,K}
     handler_ref = Ref(handler)
     GC.@preserve handler_ref begin
         Iceoryx2FFI.iox2_port_factory_blackboard_dynamic_config_list_readers(
@@ -584,11 +584,11 @@ function list_readers(factory::PortFactoryBlackboard{K}, handler::AbstractReader
     return nothing
 end
 
-function list_readers(f::Function, factory::PortFactoryBlackboard{K}) where {K}
+function list_readers(f::Function, factory::PortFactoryBlackboard{S,K}) where {S,K}
     return list_readers(factory, ReaderDetailsHandler(f))
 end
 
-function list_writers(factory::PortFactoryBlackboard{K}, handler::AbstractWriterDetailsHandler) where {K}
+function list_writers(factory::PortFactoryBlackboard{S,K}, handler::AbstractWriterDetailsHandler) where {S,K}
     handler_ref = Ref(handler)
     GC.@preserve handler_ref begin
         Iceoryx2FFI.iox2_port_factory_blackboard_dynamic_config_list_writers(
@@ -600,7 +600,7 @@ function list_writers(factory::PortFactoryBlackboard{K}, handler::AbstractWriter
     return nothing
 end
 
-function list_writers(f::Function, factory::PortFactoryBlackboard{K}) where {K}
+function list_writers(f::Function, factory::PortFactoryBlackboard{S,K}) where {S,K}
     return list_writers(factory, WriterDetailsHandler(f))
 end
 

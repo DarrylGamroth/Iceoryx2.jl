@@ -37,7 +37,7 @@ function build_rr_factory(node::Iceoryx2.Node, name::AbstractString, additional_
     return Iceoryx2.open_or_create(builder)
 end
 
-function wait_for_request(server::Iceoryx2.Server{UInt64, UInt64}, req::Iceoryx2.ActiveRequest{UInt64, UInt64})
+function wait_for_request(server::Iceoryx2.Server, req::Iceoryx2.ActiveRequest)
     while true
         Iceoryx2.receive!(server, req) || continue
         return nothing
@@ -46,18 +46,18 @@ end
 
 function perform_request_benchmark(
     iterations::Int,
-    service_type::Symbol,
+    service_type::Iceoryx2.ServiceType,
     additional_servers::Int,
     additional_clients::Int,
 )
-    node_builder = Iceoryx2.NodeBuilder()
-    node = Iceoryx2.create(node_builder; service_type)
+    node_builder = Iceoryx2.NodeBuilder(service_type)
+    node = Iceoryx2.create(node_builder)
 
     factory_a2b = build_rr_factory(node, "a2b", additional_servers, additional_clients)
     factory_b2a = build_rr_factory(node, "b2a", additional_servers, additional_clients)
 
-    extra_clients = Iceoryx2.Client{UInt64, UInt64}[]
-    extra_servers = Iceoryx2.Server{UInt64, UInt64}[]
+    extra_clients = Iceoryx2.Client[]
+    extra_servers = Iceoryx2.Server[]
 
     for _ in 1:additional_clients
         push!(extra_clients, Iceoryx2.create(Iceoryx2.client_builder(factory_a2b)))
@@ -145,18 +145,18 @@ end
 
 function perform_response_stream_benchmark(
     iterations::Int,
-    service_type::Symbol,
+    service_type::Iceoryx2.ServiceType,
     additional_servers::Int,
     additional_clients::Int,
 )
-    node_builder = Iceoryx2.NodeBuilder()
-    node = Iceoryx2.create(node_builder; service_type)
+    node_builder = Iceoryx2.NodeBuilder(service_type)
+    node = Iceoryx2.create(node_builder)
 
     factory_a2b = build_rr_factory(node, "a2b", additional_servers, additional_clients)
     factory_b2a = build_rr_factory(node, "b2a", additional_servers, additional_clients)
 
-    extra_clients = Iceoryx2.Client{UInt64, UInt64}[]
-    extra_servers = Iceoryx2.Server{UInt64, UInt64}[]
+    extra_clients = Iceoryx2.Client[]
+    extra_servers = Iceoryx2.Server[]
 
     for _ in 1:additional_clients
         push!(extra_clients, Iceoryx2.create(Iceoryx2.client_builder(factory_a2b)))
@@ -279,7 +279,7 @@ function main(args::Vector{String})
         Iceoryx2.set_log_level(:error)
     end
 
-    for service_type in (:ipc, :local)
+    for service_type in (Iceoryx2.ServiceType.IPC, Iceoryx2.ServiceType.LOCAL)
         perform_request_benchmark(iterations, service_type, additional_servers, additional_clients)
         perform_response_stream_benchmark(iterations, service_type, additional_servers, additional_clients)
     end

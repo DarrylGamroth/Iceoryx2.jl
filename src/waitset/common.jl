@@ -13,10 +13,10 @@ end
 
 @inline _signal_handling_mode(value) = throw(ArgumentError("unsupported signal handling mode: $value"))
 
-function WaitsetBuilder()
+function WaitsetBuilder(service_type::ServiceType = ServiceType.IPC)
     handle_ref = Ref{Iceoryx2FFI.iox2_waitset_builder_h}(_IOX2_NULL)
     Iceoryx2FFI.iox2_waitset_builder_new(C_NULL, handle_ref)
-    return WaitsetBuilder(handle_ref[])
+    return WaitsetBuilder{service_type}(handle_ref[])
 end
 
 function signal_handling_mode!(builder::WaitsetBuilder, mode::Union{Symbol, Iceoryx2FFI.iox2_signal_handling_mode_e})
@@ -25,17 +25,17 @@ function signal_handling_mode!(builder::WaitsetBuilder, mode::Union{Symbol, Iceo
     return builder
 end
 
-function create(builder::WaitsetBuilder; service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e} = :ipc)
+function create(builder::WaitsetBuilder{S}) where {S}
     _require_valid(unsafe_handle(builder), "waitset builder")
     handle_ref = Ref{Iceoryx2FFI.iox2_waitset_h}(_IOX2_NULL)
-    ret = Iceoryx2FFI.iox2_waitset_builder_create(unsafe_handle(builder), _service_type(service_type), C_NULL, handle_ref)
+    ret = Iceoryx2FFI.iox2_waitset_builder_create(unsafe_handle(builder), _service_type(S), C_NULL, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_waitset_create_error_e)
     invalidate!(builder)
-    return Waitset(handle_ref[])
+    return Waitset{S}(handle_ref[])
 end
 
-function create(f::Function, builder::WaitsetBuilder; service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e} = :ipc)
-    waitset = create(builder; service_type)
+function create(f::Function, builder::WaitsetBuilder{S}) where {S}
+    waitset = create(builder)
     try
         return f(waitset)
     finally

@@ -60,7 +60,7 @@ julia --project benchmarks/event.jl --help
 
 ## Notes
 
-- The Julia bindings expose only `:ipc` and `:local` service types from the C ABI, so
+- The Julia bindings expose only `ServiceType.IPC` and `ServiceType.LOCAL` service types from the C ABI, so
   `--bench-all` runs those two variants (the upstream threadsafe variants are not available).
 - CPU affinity and priority options are accepted for CLI parity but ignored in Julia.
 - The upstream queue benchmark is not implemented here because the queue API is not yet wrapped.

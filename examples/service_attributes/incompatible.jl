@@ -2,7 +2,7 @@ include(joinpath(@__DIR__, "..", "common", "imports.jl"))
 
 function main()
     set_log_level_from_env_or(:info)
-    node = create(NodeBuilder(); service_type = :ipc)
+    node = create(NodeBuilder(ServiceType.IPC))
 
     verifier = AttributeVerifier()
     require!(verifier, "camera_resolution", "3840x2160")

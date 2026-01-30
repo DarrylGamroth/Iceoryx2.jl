@@ -1,7 +1,7 @@
 @testset "PubSub" begin
     builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(builder, "iceoryx2_julia_test_node_pubsub")
-    node = Iceoryx2.create(builder; service_type=:ipc)
+    node = Iceoryx2.create(builder)
 
     hdr_builder = Iceoryx2.service_builder(node, "iceoryx2_julia_test_service_pubsub_hdr")
     pubsub_hdr_builder = Iceoryx2.publish_subscribe(hdr_builder, UInt64)
@@ -54,7 +54,7 @@ end
 @testset "PubSubUserHeader" begin
     builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(builder, "iceoryx2_julia_test_node_pubsub_user_header")
-    node = Iceoryx2.create(builder; service_type=:ipc)
+    node = Iceoryx2.create(builder)
 
     svc_builder = Iceoryx2.service_builder(node, unique_service_name())
     pubsub_builder = Iceoryx2.publish_subscribe(svc_builder, UInt64)
@@ -96,7 +96,7 @@ end
 @testset "PubSubTuplePayload" begin
     builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(builder, "iceoryx2_julia_test_node_pubsub_tuple")
-    node = Iceoryx2.create(builder; service_type=:ipc)
+    node = Iceoryx2.create(builder)
 
     svc_builder = Iceoryx2.service_builder(node, unique_service_name())
     pubsub_builder = Iceoryx2.publish_subscribe(svc_builder, Tuple{UInt32,Float64})
@@ -136,7 +136,7 @@ end
 @testset "PubSubDynamicSlice" begin
     builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(builder, "iceoryx2_julia_test_node_pubsub_dynamic")
-    node = Iceoryx2.create(builder; service_type=:ipc)
+    node = Iceoryx2.create(builder)
 
     svc_builder = Iceoryx2.service_builder(node, unique_service_name())
     pubsub_builder = Iceoryx2.publish_subscribe(svc_builder, AbstractVector{UInt8})
@@ -191,7 +191,7 @@ end
 
     builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(builder, "iceoryx2_julia_test_node_pubsub_struct_slice")
-    node = Iceoryx2.create(builder; service_type=:ipc)
+    node = Iceoryx2.create(builder)
 
     svc_builder = Iceoryx2.service_builder(node, unique_service_name())
     pubsub_builder = Iceoryx2.publish_subscribe(svc_builder, AbstractVector{TestHeader})

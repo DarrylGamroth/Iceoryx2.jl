@@ -1,6 +1,6 @@
 @testset "WaitsetInterval" begin
     builder = Iceoryx2.WaitsetBuilder()
-    waitset = Iceoryx2.create(builder; service_type=:ipc)
+    waitset = Iceoryx2.create(builder)
     guard = Iceoryx2.attach_interval(waitset, 0, 10_000_000)
 
     called = Ref(false)

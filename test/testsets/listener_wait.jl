@@ -1,7 +1,7 @@
 @testset "ListenerWait" begin
     node_builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(node_builder, unique_node_name())
-    node = Iceoryx2.create(node_builder; service_type=:ipc)
+    node = Iceoryx2.create(node_builder)
 
     event_builder = Iceoryx2.event(Iceoryx2.service_builder(node, unique_service_name()))
     event_factory = Iceoryx2.open_or_create(event_builder)

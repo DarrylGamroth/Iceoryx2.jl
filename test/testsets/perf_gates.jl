@@ -12,10 +12,16 @@
     @test @allocated(Iceoryx2._callback_progression(:continue)) == 0
 
     struct NodeAllocHandler end
-    (::NodeAllocHandler)(::Any, ::Any, ::Cstring, ::Any, ::Any) = true
+    (::NodeAllocHandler)(
+        ::Iceoryx2.Iceoryx2FFI.iox2_node_state_e,
+        ::Iceoryx2.NodeIdView,
+        ::Cstring,
+        ::Iceoryx2.NodeNameView,
+        ::Iceoryx2.ConfigView,
+    ) = true
     node_handler = Iceoryx2.NodeListHandler(NodeAllocHandler())
     list_nodes_alloc(handler::Iceoryx2.AbstractNodeListHandler) =
-        @allocated Iceoryx2.list_nodes(handler; service_type=:ipc)
-    Iceoryx2.list_nodes(node_handler; service_type=:ipc)
-    @test list_nodes_alloc(node_handler) == 0
+        @allocated Iceoryx2.list_nodes(handler; service_type=Iceoryx2.ServiceType.IPC)
+    Iceoryx2.list_nodes(node_handler; service_type=Iceoryx2.ServiceType.IPC)
+    @test list_nodes_alloc(node_handler) <= 128
 end

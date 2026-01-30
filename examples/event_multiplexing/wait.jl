@@ -15,14 +15,14 @@ function main()
     service_name_1 = parse_arg(ARGS, "-s", "--service1", "fuu")
     service_name_2 = parse_arg(ARGS, "-t", "--service2", "bar")
 
-    node = create(NodeBuilder(); service_type = :ipc)
+    node = create(NodeBuilder(ServiceType.IPC))
 
     service_1 = open_or_create(event(service_builder(node, service_name_1)))
     service_2 = open_or_create(event(service_builder(node, service_name_2)))
     listener_1 = create(listener_builder(service_1))
     listener_2 = create(listener_builder(service_2))
 
-    waitset = create(WaitsetBuilder(); service_type = :ipc)
+    waitset = create(WaitsetBuilder(ServiceType.IPC))
     guard_1 = attach_notification(waitset, file_descriptor(listener_1))
     guard_2 = attach_notification(waitset, file_descriptor(listener_2))
 

@@ -6,7 +6,7 @@ function main()
     node_builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(node_builder, "iox2_julia_request_response_node")
 
-    Iceoryx2.create(node_builder; service_type = :ipc) do node
+    Iceoryx2.create(node_builder) do node
         service_builder = Iceoryx2.service_builder(node, "iox2_julia_request_response_service")
         rr_builder = Iceoryx2.request_response(service_builder, UInt64, UInt64)
 

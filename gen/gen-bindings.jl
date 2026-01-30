@@ -41,6 +41,7 @@ wrappers_path = joinpath(@__DIR__, "..", "src", "generated", "wrappers.jl")
 wrapper_spec = joinpath(@__DIR__, "wrapper-spec.toml")
 
 ignore_owning = Set([
+    "node",
     "port_factory_pub_sub",
     "port_factory_request_response",
     "port_factory_event",
@@ -63,6 +64,8 @@ ignore_owning = Set([
     "entry_handle",
     "entry_handle_mut",
     "entry_value_uninit",
+    "waitset",
+    "waitset_builder",
 ])
 
 ffi_text = read(ffi_path, String)

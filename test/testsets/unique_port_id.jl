@@ -1,7 +1,7 @@
 @testset "UniquePortId" begin
     node_builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(node_builder, unique_node_name())
-    node = Iceoryx2.create(node_builder; service_type=:ipc)
+    node = Iceoryx2.create(node_builder)
 
     event_name = unique_service_name()
     event_builder = Iceoryx2.event(Iceoryx2.service_builder(node, event_name))

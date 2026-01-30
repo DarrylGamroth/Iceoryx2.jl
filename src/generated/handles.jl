@@ -132,32 +132,6 @@ function Base.close(obj::FileDescriptor)
     return nothing
 end
 
-mutable struct Node
-    handle::Iceoryx2FFI.iox2_node_h
-    function Node(handle::Iceoryx2FFI.iox2_node_h)
-        obj = new(handle)
-        finalizer(_finalize_Node, obj)
-        return obj
-    end
-end
-
-@inline unsafe_handle(obj::Node) = obj.handle
-@inline Base.isvalid(obj::Node) = obj.handle != _IOX2_NULL
-@inline invalidate!(obj::Node) = (obj.handle = _IOX2_NULL)
-
-function _finalize_Node(obj::Node)
-    if obj.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_node_drop(obj.handle)
-        obj.handle = _IOX2_NULL
-    end
-    return nothing
-end
-
-function Base.close(obj::Node)
-    _finalize_Node(obj)
-    return nothing
-end
-
 mutable struct NodeId
     handle::Iceoryx2FFI.iox2_node_id_h
     function NodeId(handle::Iceoryx2FFI.iox2_node_id_h)
@@ -522,32 +496,6 @@ function Base.close(obj::UniqueWriterId)
     return nothing
 end
 
-mutable struct Waitset
-    handle::Iceoryx2FFI.iox2_waitset_h
-    function Waitset(handle::Iceoryx2FFI.iox2_waitset_h)
-        obj = new(handle)
-        finalizer(_finalize_Waitset, obj)
-        return obj
-    end
-end
-
-@inline unsafe_handle(obj::Waitset) = obj.handle
-@inline Base.isvalid(obj::Waitset) = obj.handle != _IOX2_NULL
-@inline invalidate!(obj::Waitset) = (obj.handle = _IOX2_NULL)
-
-function _finalize_Waitset(obj::Waitset)
-    if obj.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_waitset_drop(obj.handle)
-        obj.handle = _IOX2_NULL
-    end
-    return nothing
-end
-
-function Base.close(obj::Waitset)
-    _finalize_Waitset(obj)
-    return nothing
-end
-
 mutable struct WaitsetAttachmentId
     handle::Iceoryx2FFI.iox2_waitset_attachment_id_h
     function WaitsetAttachmentId(handle::Iceoryx2FFI.iox2_waitset_attachment_id_h)
@@ -571,32 +519,6 @@ end
 
 function Base.close(obj::WaitsetAttachmentId)
     _finalize_WaitsetAttachmentId(obj)
-    return nothing
-end
-
-mutable struct WaitsetBuilder
-    handle::Iceoryx2FFI.iox2_waitset_builder_h
-    function WaitsetBuilder(handle::Iceoryx2FFI.iox2_waitset_builder_h)
-        obj = new(handle)
-        finalizer(_finalize_WaitsetBuilder, obj)
-        return obj
-    end
-end
-
-@inline unsafe_handle(obj::WaitsetBuilder) = obj.handle
-@inline Base.isvalid(obj::WaitsetBuilder) = obj.handle != _IOX2_NULL
-@inline invalidate!(obj::WaitsetBuilder) = (obj.handle = _IOX2_NULL)
-
-function _finalize_WaitsetBuilder(obj::WaitsetBuilder)
-    if obj.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_waitset_builder_drop(obj.handle)
-        obj.handle = _IOX2_NULL
-    end
-    return nothing
-end
-
-function Base.close(obj::WaitsetBuilder)
-    _finalize_WaitsetBuilder(obj)
     return nothing
 end
 

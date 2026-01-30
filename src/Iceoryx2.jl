@@ -4,6 +4,7 @@ include("generated/Iceoryx2FFI.jl")
 using .Iceoryx2FFI
 
 include("generated/handles.jl")
+include("service_types.jl")
 include("generated/errors.jl")
 include("strings.jl")
 include("storage.jl")

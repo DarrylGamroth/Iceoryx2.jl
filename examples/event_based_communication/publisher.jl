@@ -6,11 +6,11 @@ const CYCLE_SECONDS = 1
 
 function main()
     set_log_level_from_env_or(:info)
-    node = create(NodeBuilder(); service_type = :ipc)
+    node = create(NodeBuilder(ServiceType.IPC))
 
     publisher = create_custom_publisher(node, "My/Funk/ServiceName")
 
-    waitset = create(WaitsetBuilder(); service_type = :ipc)
+    waitset = create(WaitsetBuilder(ServiceType.IPC))
     publisher_guard = attach_notification(waitset, file_descriptor(publisher.listener))
     cyclic_guard = attach_interval(waitset, CYCLE_SECONDS, 0)
 

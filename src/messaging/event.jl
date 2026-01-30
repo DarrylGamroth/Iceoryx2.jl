@@ -2,12 +2,12 @@
 
 ### builder tuning setters generated in src/generated/wrappers.jl
 
-mutable struct PortFactoryEvent
+mutable struct PortFactoryEvent{S}
     handle::Iceoryx2FFI.iox2_port_factory_event_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_event_t}
-    keepalive::Node
-    function PortFactoryEvent(handle, storage, keepalive)
-        obj = new(handle, storage, keepalive)
+    keepalive::Node{S}
+    function PortFactoryEvent{S}(handle, storage, keepalive) where {S}
+        obj = new{S}(handle, storage, keepalive)
         finalizer(_finalize_port_factory_event, obj)
         return obj
     end
@@ -40,7 +40,7 @@ end
 
 ### port factory view accessors generated in src/generated/wrappers.jl
 
-function open_or_create(builder::EventServiceBuilder)
+function open_or_create(builder::EventServiceBuilder{S}) where {S}
     _require_valid(builder.handle, "event service builder")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_event_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_event_h}(_IOX2_NULL)
@@ -48,10 +48,10 @@ function open_or_create(builder::EventServiceBuilder)
     check_ok(ret, Iceoryx2FFI.iox2_event_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    return PortFactoryEvent(handle_ref[], storage, builder.keepalive)
+    return PortFactoryEvent{S}(handle_ref[], storage, builder.keepalive)
 end
 
-function open_or_create(builder::EventServiceBuilder, verifier::AttributeVerifier)
+function open_or_create(builder::EventServiceBuilder{S}, verifier::AttributeVerifier) where {S}
     _require_valid(builder.handle, "event service builder")
     _require_valid(unsafe_handle(verifier), "attribute verifier")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_event_t}()
@@ -65,10 +65,10 @@ function open_or_create(builder::EventServiceBuilder, verifier::AttributeVerifie
     check_ok(ret, Iceoryx2FFI.iox2_event_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    return PortFactoryEvent(handle_ref[], storage, builder.keepalive)
+    return PortFactoryEvent{S}(handle_ref[], storage, builder.keepalive)
 end
 
-function open_or_create(f::Function, builder::EventServiceBuilder)
+function open_or_create(f::Function, builder::EventServiceBuilder{S}) where {S}
     factory = open_or_create(builder)
     try
         return f(factory)
@@ -77,7 +77,7 @@ function open_or_create(f::Function, builder::EventServiceBuilder)
     end
 end
 
-function open_or_create(f::Function, builder::EventServiceBuilder, verifier::AttributeVerifier)
+function open_or_create(f::Function, builder::EventServiceBuilder{S}, verifier::AttributeVerifier) where {S}
     factory = open_or_create(builder, verifier)
     try
         return f(factory)
@@ -86,7 +86,7 @@ function open_or_create(f::Function, builder::EventServiceBuilder, verifier::Att
     end
 end
 
-function open(builder::EventServiceBuilder)
+function open(builder::EventServiceBuilder{S}) where {S}
     _require_valid(builder.handle, "event service builder")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_event_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_event_h}(_IOX2_NULL)
@@ -94,10 +94,10 @@ function open(builder::EventServiceBuilder)
     check_ok(ret, Iceoryx2FFI.iox2_event_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    return PortFactoryEvent(handle_ref[], storage, builder.keepalive)
+    return PortFactoryEvent{S}(handle_ref[], storage, builder.keepalive)
 end
 
-function open(builder::EventServiceBuilder, verifier::AttributeVerifier)
+function open(builder::EventServiceBuilder{S}, verifier::AttributeVerifier) where {S}
     _require_valid(builder.handle, "event service builder")
     _require_valid(unsafe_handle(verifier), "attribute verifier")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_event_t}()
@@ -111,10 +111,10 @@ function open(builder::EventServiceBuilder, verifier::AttributeVerifier)
     check_ok(ret, Iceoryx2FFI.iox2_event_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    return PortFactoryEvent(handle_ref[], storage, builder.keepalive)
+    return PortFactoryEvent{S}(handle_ref[], storage, builder.keepalive)
 end
 
-function open(f::Function, builder::EventServiceBuilder)
+function open(f::Function, builder::EventServiceBuilder{S}) where {S}
     factory = open(builder)
     try
         return f(factory)
@@ -123,7 +123,7 @@ function open(f::Function, builder::EventServiceBuilder)
     end
 end
 
-function open(f::Function, builder::EventServiceBuilder, verifier::AttributeVerifier)
+function open(f::Function, builder::EventServiceBuilder{S}, verifier::AttributeVerifier) where {S}
     factory = open(builder, verifier)
     try
         return f(factory)
@@ -132,7 +132,7 @@ function open(f::Function, builder::EventServiceBuilder, verifier::AttributeVeri
     end
 end
 
-function create(builder::EventServiceBuilder)
+function create(builder::EventServiceBuilder{S}) where {S}
     _require_valid(builder.handle, "event service builder")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_event_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_event_h}(_IOX2_NULL)
@@ -140,10 +140,10 @@ function create(builder::EventServiceBuilder)
     check_ok(ret, Iceoryx2FFI.iox2_event_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    return PortFactoryEvent(handle_ref[], storage, builder.keepalive)
+    return PortFactoryEvent{S}(handle_ref[], storage, builder.keepalive)
 end
 
-function create(builder::EventServiceBuilder, specifier::AttributeSpecifier)
+function create(builder::EventServiceBuilder{S}, specifier::AttributeSpecifier) where {S}
     _require_valid(builder.handle, "event service builder")
     _require_valid(unsafe_handle(specifier), "attribute specifier")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_event_t}()
@@ -157,10 +157,10 @@ function create(builder::EventServiceBuilder, specifier::AttributeSpecifier)
     check_ok(ret, Iceoryx2FFI.iox2_event_open_or_create_error_e)
     builder.handle = _IOX2_NULL
     _finalize_service_builder_variant(builder)
-    return PortFactoryEvent(handle_ref[], storage, builder.keepalive)
+    return PortFactoryEvent{S}(handle_ref[], storage, builder.keepalive)
 end
 
-function create(f::Function, builder::EventServiceBuilder)
+function create(f::Function, builder::EventServiceBuilder{S}) where {S}
     factory = create(builder)
     try
         return f(factory)
@@ -169,7 +169,7 @@ function create(f::Function, builder::EventServiceBuilder)
     end
 end
 
-function create(f::Function, builder::EventServiceBuilder, specifier::AttributeSpecifier)
+function create(f::Function, builder::EventServiceBuilder{S}, specifier::AttributeSpecifier) where {S}
     factory = create(builder, specifier)
     try
         return f(factory)
@@ -178,19 +178,19 @@ function create(f::Function, builder::EventServiceBuilder, specifier::AttributeS
     end
 end
 
-open_or_create_with_attributes(builder::EventServiceBuilder, verifier::AttributeVerifier) = open_or_create(builder, verifier)
-open_or_create_with_attributes(f::Function, builder::EventServiceBuilder, verifier::AttributeVerifier) = open_or_create(f, builder, verifier)
-open_with_attributes(builder::EventServiceBuilder, verifier::AttributeVerifier) = open(builder, verifier)
-open_with_attributes(f::Function, builder::EventServiceBuilder, verifier::AttributeVerifier) = open(f, builder, verifier)
-create_with_attributes(builder::EventServiceBuilder, specifier::AttributeSpecifier) = create(builder, specifier)
-create_with_attributes(f::Function, builder::EventServiceBuilder, specifier::AttributeSpecifier) = create(f, builder, specifier)
+open_or_create_with_attributes(builder::EventServiceBuilder{S}, verifier::AttributeVerifier) where {S} = open_or_create(builder, verifier)
+open_or_create_with_attributes(f::Function, builder::EventServiceBuilder{S}, verifier::AttributeVerifier) where {S} = open_or_create(f, builder, verifier)
+open_with_attributes(builder::EventServiceBuilder{S}, verifier::AttributeVerifier) where {S} = open(builder, verifier)
+open_with_attributes(f::Function, builder::EventServiceBuilder{S}, verifier::AttributeVerifier) where {S} = open(f, builder, verifier)
+create_with_attributes(builder::EventServiceBuilder{S}, specifier::AttributeSpecifier) where {S} = create(builder, specifier)
+create_with_attributes(f::Function, builder::EventServiceBuilder{S}, specifier::AttributeSpecifier) where {S} = create(f, builder, specifier)
 
-mutable struct NotifierBuilder
+mutable struct NotifierBuilder{S}
     handle::Iceoryx2FFI.iox2_port_factory_notifier_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_notifier_builder_t}
-    keepalive::PortFactoryEvent
-    function NotifierBuilder(handle, storage, keepalive)
-        obj = new(handle, storage, keepalive)
+    keepalive::PortFactoryEvent{S}
+    function NotifierBuilder{S}(handle, storage, keepalive) where {S}
+        obj = new{S}(handle, storage, keepalive)
         finalizer(_finalize_notifier_builder, obj)
         return obj
     end
@@ -202,11 +202,11 @@ function _finalize_notifier_builder(builder::NotifierBuilder)
     return nothing
 end
 
-function notifier_builder(factory::PortFactoryEvent)
+function notifier_builder(factory::PortFactoryEvent{S}) where {S}
     _require_valid(factory.handle, "event port factory")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_notifier_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_event_notifier_builder(Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle), storage)
-    return NotifierBuilder(handle, storage, factory)
+    return NotifierBuilder{S}(handle, storage, factory)
 end
 
 function default_event_id!(builder::NotifierBuilder, id::EventId)
@@ -221,12 +221,12 @@ function default_event_id!(builder::NotifierBuilder, id::EventId)
     return builder
 end
 
-mutable struct ListenerBuilder
+mutable struct ListenerBuilder{S}
     handle::Iceoryx2FFI.iox2_port_factory_listener_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_listener_builder_t}
-    keepalive::PortFactoryEvent
-    function ListenerBuilder(handle, storage, keepalive)
-        obj = new(handle, storage, keepalive)
+    keepalive::PortFactoryEvent{S}
+    function ListenerBuilder{S}(handle, storage, keepalive) where {S}
+        obj = new{S}(handle, storage, keepalive)
         finalizer(_finalize_listener_builder, obj)
         return obj
     end
@@ -238,19 +238,19 @@ function _finalize_listener_builder(builder::ListenerBuilder)
     return nothing
 end
 
-function listener_builder(factory::PortFactoryEvent)
+function listener_builder(factory::PortFactoryEvent{S}) where {S}
     _require_valid(factory.handle, "event port factory")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_listener_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_event_listener_builder(Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle), storage)
-    return ListenerBuilder(handle, storage, factory)
+    return ListenerBuilder{S}(handle, storage, factory)
 end
 
-mutable struct Notifier
+mutable struct Notifier{S}
     handle::Iceoryx2FFI.iox2_notifier_h
     storage::_StorageRef{Iceoryx2FFI.iox2_notifier_t}
-    keepalive::PortFactoryEvent
-    function Notifier(handle, storage, keepalive)
-        obj = new(handle, storage, keepalive)
+    keepalive::PortFactoryEvent{S}
+    function Notifier{S}(handle, storage, keepalive) where {S}
+        obj = new{S}(handle, storage, keepalive)
         finalizer(_finalize_notifier, obj)
         return obj
     end
@@ -265,17 +265,17 @@ function _finalize_notifier(notifier::Notifier)
     return nothing
 end
 
-function create(builder::NotifierBuilder)
+function create(builder::NotifierBuilder{S}) where {S}
     _require_valid(builder.handle, "notifier builder")
     storage = Ref{Iceoryx2FFI.iox2_notifier_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_notifier_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_notifier_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_notifier_create_error_e)
     _finalize_notifier_builder(builder)
-    return Notifier(handle_ref[], storage, builder.keepalive)
+    return Notifier{S}(handle_ref[], storage, builder.keepalive)
 end
 
-function create(f::Function, builder::NotifierBuilder)
+function create(f::Function, builder::NotifierBuilder{S}) where {S}
     notifier = create(builder)
     try
         return f(notifier)
@@ -296,12 +296,12 @@ function deadline(notifier::Notifier)
     return has_deadline ? (seconds[], nanos[]) : nothing
 end
 
-mutable struct Listener
+mutable struct Listener{S}
     handle::Iceoryx2FFI.iox2_listener_h
     storage::_StorageRef{Iceoryx2FFI.iox2_listener_t}
-    keepalive::PortFactoryEvent
-    function Listener(handle, storage, keepalive)
-        obj = new(handle, storage, keepalive)
+    keepalive::PortFactoryEvent{S}
+    function Listener{S}(handle, storage, keepalive) where {S}
+        obj = new{S}(handle, storage, keepalive)
         finalizer(_finalize_listener, obj)
         return obj
     end
@@ -316,17 +316,17 @@ function _finalize_listener(listener::Listener)
     return nothing
 end
 
-function create(builder::ListenerBuilder)
+function create(builder::ListenerBuilder{S}) where {S}
     _require_valid(builder.handle, "listener builder")
     storage = Ref{Iceoryx2FFI.iox2_listener_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_listener_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_listener_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_listener_create_error_e)
     _finalize_listener_builder(builder)
-    return Listener(handle_ref[], storage, builder.keepalive)
+    return Listener{S}(handle_ref[], storage, builder.keepalive)
 end
 
-function create(f::Function, builder::ListenerBuilder)
+function create(f::Function, builder::ListenerBuilder{S}) where {S}
     listener = create(builder)
     try
         return f(listener)
@@ -483,4 +483,3 @@ function blocking_wait_one(listener::Listener)
     check_ok(ret, Iceoryx2FFI.iox2_listener_wait_error_e)
     return has_received[] ? EventId(event_id[]) : nothing
 end
-

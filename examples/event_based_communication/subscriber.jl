@@ -6,11 +6,11 @@ const DEADLINE_SECONDS = 2
 
 function main()
     set_log_level_from_env_or(:info)
-    node = create(NodeBuilder(); service_type = :ipc)
+    node = create(NodeBuilder(ServiceType.IPC))
 
     subscriber = create_custom_subscriber(node, "My/Funk/ServiceName")
 
-    waitset = create(WaitsetBuilder(); service_type = :ipc)
+    waitset = create(WaitsetBuilder(ServiceType.IPC))
     subscriber_guard = attach_deadline(waitset, file_descriptor(subscriber.listener), DEADLINE_SECONDS, 0)
 
     on_event = function (attachment_id)

@@ -6,11 +6,11 @@
     payload_resp_alloc(resp::Iceoryx2.Response{UInt64}) = @allocated Iceoryx2.payload(resp)
     unsafe_payload_ptr_alloc(sample::Iceoryx2.Sample{UInt64}) = @allocated Iceoryx2.unsafe_payload_ptr(sample)
     unsafe_payload_mut_ptr_alloc(sample::Iceoryx2.SampleMut{UInt64}) = @allocated Iceoryx2.unsafe_payload_mut_ptr(sample)
-    send_copy_alloc(pub::Iceoryx2.Publisher{UInt64,Nothing}, data::Vector{UInt64}) =
+    send_copy_alloc(pub::Iceoryx2.Publisher{S,UInt64,Nothing}, data::Vector{UInt64}) where {S} =
         @allocated Iceoryx2.send_copy(pub, data)
-    loan_slice_alloc(pub::Iceoryx2.Publisher{UInt64,Nothing}, sample::Iceoryx2.SampleMut{UInt64,Nothing}) =
+    loan_slice_alloc(pub::Iceoryx2.Publisher{S,UInt64,Nothing}, sample::Iceoryx2.SampleMut{UInt64,Nothing}) where {S} =
         @allocated Iceoryx2.loan_slice!(pub, sample, 1)
-    try_loan_slice_alloc(pub::Iceoryx2.Publisher{UInt64,Nothing}, sample::Iceoryx2.SampleMut{UInt64,Nothing}) =
+    try_loan_slice_alloc(pub::Iceoryx2.Publisher{S,UInt64,Nothing}, sample::Iceoryx2.SampleMut{UInt64,Nothing}) where {S} =
         @allocated Iceoryx2.try_loan_slice_uninit!(pub, sample, 1)
     send_alloc(sample::Iceoryx2.SampleMut{UInt64,Nothing}) = @allocated Iceoryx2.send!(sample)
     write_payload_alloc(sample::Iceoryx2.SampleMut{UInt64}, value::UInt64) = @allocated Iceoryx2.write_payload!(sample, value)
@@ -43,13 +43,13 @@
     user_header_response_mut_alloc(resp::Iceoryx2.ResponseMut) = @allocated Iceoryx2.user_header(resp)
     user_header_response_mut_mut_alloc(resp::Iceoryx2.ResponseMut) = @allocated Iceoryx2.user_header_mut(resp)
     loan_request_alloc(
-        client::Iceoryx2.Client{UInt64,UInt64,Nothing,Nothing},
+        client::Iceoryx2.Client{S,UInt64,UInt64,Nothing,Nothing},
         req::Iceoryx2.RequestMut{UInt64,UInt64,Nothing,Nothing},
-    ) = @allocated Iceoryx2.loan_request!(client, req, 1)
+    ) where {S} = @allocated Iceoryx2.loan_request!(client, req, 1)
     try_loan_request_alloc(
-        client::Iceoryx2.Client{UInt64,UInt64,Nothing,Nothing},
+        client::Iceoryx2.Client{S,UInt64,UInt64,Nothing,Nothing},
         req::Iceoryx2.RequestMut{UInt64,UInt64,Nothing,Nothing},
-    ) = @allocated Iceoryx2.try_loan_slice_uninit!(client, req, 1)
+    ) where {S} = @allocated Iceoryx2.try_loan_slice_uninit!(client, req, 1)
     send_request_alloc(
         req::Iceoryx2.RequestMut{UInt64,UInt64,Nothing,Nothing},
         pending::Iceoryx2.PendingResponse{UInt64,Nothing,Nothing},
@@ -69,27 +69,27 @@
         @allocated Iceoryx2.has_missed_deadline(id, guard)
     waitset_once_alloc(waitset::Iceoryx2.Waitset, handler::Iceoryx2.WaitsetHandler) =
         @allocated Iceoryx2.wait_and_process_once(waitset, 0, 0, handler)
-    function receive_with_retry!(sub::Iceoryx2.Subscriber{T,UH}, sample::Iceoryx2.Sample{T,UH}) where {T,UH}
+    function receive_with_retry!(sub::Iceoryx2.Subscriber{S,T,UH}, sample::Iceoryx2.Sample{T,UH}) where {S,T,UH}
         for _ in 1:1000
             Iceoryx2.receive!(sub, sample) && return sample
         end
         error("timed out waiting for sample")
     end
-    receive_alloc(sub::Iceoryx2.Subscriber{T,UH}, sample::Iceoryx2.Sample{T,UH}) where {T,UH} =
+    receive_alloc(sub::Iceoryx2.Subscriber{S,T,UH}, sample::Iceoryx2.Sample{T,UH}) where {S,T,UH} =
         @allocated receive_with_retry!(sub, sample)
     function receive_with_retry!(
-        server::Iceoryx2.Server{Req,Resp,ReqH,RespH},
+        server::Iceoryx2.Server{S,Req,Resp,ReqH,RespH},
         req::Iceoryx2.ActiveRequest{Req,Resp,ReqH,RespH},
-    ) where {Req,Resp,ReqH,RespH}
+    ) where {S,Req,Resp,ReqH,RespH}
         for _ in 1:1000
             Iceoryx2.receive!(server, req) && return req
         end
         error("timed out waiting for request")
     end
     receive_request_alloc(
-        server::Iceoryx2.Server{Req,Resp,ReqH,RespH},
+        server::Iceoryx2.Server{S,Req,Resp,ReqH,RespH},
         req::Iceoryx2.ActiveRequest{Req,Resp,ReqH,RespH},
-    ) where {Req,Resp,ReqH,RespH} = @allocated receive_with_retry!(server, req)
+    ) where {S,Req,Resp,ReqH,RespH} = @allocated receive_with_retry!(server, req)
     function receive_with_retry!(
         pending::Iceoryx2.PendingResponse{Resp,ReqH,RespH},
         resp::Iceoryx2.Response{Resp,RespH},
@@ -111,7 +111,7 @@
 
     builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(builder, "iceoryx2_julia_alloc_hotpath")
-    node = Iceoryx2.create(builder; service_type=:ipc)
+    node = Iceoryx2.create(builder)
 
     svc_builder = Iceoryx2.service_builder(node, "iceoryx2_julia_alloc_pubsub")
     pubsub_builder = Iceoryx2.publish_subscribe(svc_builder, UInt64)
@@ -202,7 +202,7 @@
     close(pending)
 
     waitset_builder = Iceoryx2.WaitsetBuilder()
-    waitset = Iceoryx2.create(waitset_builder; service_type=:ipc)
+    waitset = Iceoryx2.create(waitset_builder)
     guard = Iceoryx2.attach_interval(waitset, 0, 10_000_000)
     attachment = Iceoryx2.attachment_id(guard)
 

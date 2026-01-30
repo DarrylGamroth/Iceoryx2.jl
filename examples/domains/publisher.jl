@@ -23,7 +23,7 @@ function main()
 
     builder = NodeBuilder()
     config!(builder, cfg)
-    node = create(builder; service_type = :ipc)
+    node = create(builder)
 
     service = open_or_create(publish_subscribe(service_builder(node, service_name), TransmissionData))
     publisher = create(publisher_builder(service))

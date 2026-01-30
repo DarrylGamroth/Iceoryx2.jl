@@ -32,7 +32,7 @@ function main()
 
     builder = NodeBuilder()
     name!(builder, "central daemon")
-    node = create(builder; service_type = :ipc)
+    node = create(builder)
 
     pubsub_1 = open_or_create(publish_subscribe(service_builder(node, service_name_1), UInt64))
     event_builder_1 = event(service_builder(node, service_name_1))
@@ -50,7 +50,7 @@ function main()
     notifier_dead_event!(event_builder_2, Int(PubSubEvent.ProcessDied))
     event_2 = open_or_create(event_builder_2)
 
-    waitset = create(WaitsetBuilder(); service_type = :ipc)
+    waitset = create(WaitsetBuilder(ServiceType.IPC))
     _cycle_guard = attach_interval(waitset, 0, CYCLE_MILLIS * 1_000_000)
 
     println("Central daemon up and running.")

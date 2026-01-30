@@ -45,7 +45,7 @@ function build_pubsub_factory(node::Iceoryx2.Node, name::AbstractString, additio
     return Iceoryx2.open_or_create(builder)
 end
 
-function wait_for_sample(sub::Iceoryx2.Subscriber{UInt8}, sample::Iceoryx2.Sample{UInt8})
+function wait_for_sample(sub::Iceoryx2.Subscriber, sample::Iceoryx2.Sample{UInt8})
     while true
         Iceoryx2.receive!(sub, sample) || continue
         Iceoryx2.close(sample)
@@ -65,18 +65,18 @@ function perform_benchmark(
     iterations::Int,
     payload_size::Int,
     send_copy::Bool,
-    service_type::Symbol,
+    service_type::Iceoryx2.ServiceType,
     additional_publishers::Int,
     additional_subscribers::Int,
 )
-    node_builder = Iceoryx2.NodeBuilder()
-    node = Iceoryx2.create(node_builder; service_type)
+    node_builder = Iceoryx2.NodeBuilder(service_type)
+    node = Iceoryx2.create(node_builder)
 
     factory_a2b = build_pubsub_factory(node, "a2b", additional_publishers, additional_subscribers)
     factory_b2a = build_pubsub_factory(node, "b2a", additional_publishers, additional_subscribers)
 
-    extra_publishers = Iceoryx2.Publisher{UInt8}[]
-    extra_subscribers = Iceoryx2.Subscriber{UInt8}[]
+    extra_publishers = Iceoryx2.Publisher[]
+    extra_subscribers = Iceoryx2.Subscriber[]
 
     for _ in 1:additional_publishers
         push!(extra_publishers, Iceoryx2.create(Iceoryx2.publisher_builder(factory_a2b)))

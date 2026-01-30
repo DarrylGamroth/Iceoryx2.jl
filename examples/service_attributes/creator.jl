@@ -4,7 +4,7 @@ const CYCLE_SECONDS = 1
 
 function main()
     set_log_level_from_env_or(:info)
-    node = create(NodeBuilder(); service_type = :ipc)
+    node = create(NodeBuilder(ServiceType.IPC))
 
     specifier = AttributeSpecifier()
     define!(specifier, "dds_service_mapping", "my_funky_service_name")

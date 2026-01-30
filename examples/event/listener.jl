@@ -4,7 +4,7 @@ const CYCLE_SECONDS = 1
 
 function main()
     set_log_level_from_env_or(:info)
-    node = create(NodeBuilder(); service_type = :ipc)
+    node = create(NodeBuilder(ServiceType.IPC))
 
     service = open_or_create(event(service_builder(node, "MyEventName")))
     listener = create(listener_builder(service))

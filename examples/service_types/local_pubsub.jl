@@ -10,9 +10,9 @@ function main()
     keep_running = Atomic{Bool}(true)
 
     background = @spawn begin
-        builder = NodeBuilder()
+        builder = NodeBuilder(ServiceType.LOCAL)
         name!(builder, "threadnode")
-        node = create(builder; service_type = :local)
+        node = create(builder)
 
         builder_service = publish_subscribe(service_builder(node, "Service-Variants-Example"), UInt64)
         service = open_or_create(builder_service)
@@ -40,9 +40,9 @@ function main()
         end
     end
 
-    builder = NodeBuilder()
+    builder = NodeBuilder(ServiceType.LOCAL)
     name!(builder, "mainnode")
-    node = create(builder; service_type = :local)
+    node = create(builder)
 
     builder_service = publish_subscribe(service_builder(node, "Service-Variants-Example"), UInt64)
     service = open_or_create(builder_service)

@@ -3,9 +3,11 @@ abstract type AbstractNodeListHandler end
 mutable struct NodeListHandler{T} <: AbstractNodeListHandler
     on_list::T
     ref::Base.RefValue{NodeListHandler{T}}
+    callback::Iceoryx2FFI.iox2_node_list_callback
     function NodeListHandler{T}(on_list::T) where {T}
         ref = Ref{NodeListHandler{T}}()
-        obj = new{T}(on_list, ref)
+        obj = new{T}(on_list, ref, C_NULL)
+        obj.callback = _node_list_cfunction(obj)
         return _init_handler_ref!(obj)
     end
 end
@@ -20,8 +22,8 @@ function _node_list_wrapper(
     node_id_str::Cstring,
     node_name_ptr::Iceoryx2FFI.iox2_node_name_ptr,
     config_ptr::Iceoryx2FFI.iox2_config_ptr,
-    handler::AbstractNodeListHandler,
-)
+    handler::T,
+) where {T<:AbstractNodeListHandler}
     return _callback_progression(
         on_node_list(handler)(state, NodeIdView(node_id_ptr), node_id_str, NodeNameView(node_name_ptr), ConfigView(config_ptr)),
     )
@@ -42,9 +44,10 @@ function _node_list_cfunction(::T) where {T<:AbstractNodeListHandler}
     )
 end
 
-function list_nodes(
-    handler::AbstractNodeListHandler;
-    service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e} = :ipc,
+@inline function _list_nodes(
+    handler,
+    callback;
+    service_type::ServiceType = ServiceType.IPC,
     config::Union{Config, ConfigView, Nothing} = nothing,
 )
     handler_ref = _handler_ref(handler)
@@ -52,7 +55,7 @@ function list_nodes(
         ret = Iceoryx2FFI.iox2_node_list(
             _service_type(service_type),
             _config_ptr_from_arg(config),
-            _node_list_cfunction(handler),
+            callback,
             handler_ref,
         )
         check_ok(ret, Iceoryx2FFI.iox2_node_list_failure_e)
@@ -61,20 +64,36 @@ function list_nodes(
 end
 
 function list_nodes(
+    handler::NodeListHandler;
+    service_type::ServiceType = ServiceType.IPC,
+    config::Union{Config, ConfigView, Nothing} = nothing,
+)
+    return _list_nodes(handler, handler.callback; service_type, config)
+end
+
+function list_nodes(
+    handler::AbstractNodeListHandler;
+    service_type::ServiceType = ServiceType.IPC,
+    config::Union{Config, ConfigView, Nothing} = nothing,
+)
+    return _list_nodes(handler, _node_list_cfunction(handler); service_type, config)
+end
+
+function list_nodes(
     f::Function;
-    service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e} = :ipc,
+    service_type::ServiceType = ServiceType.IPC,
     config::Union{Config, ConfigView, Nothing} = nothing,
 )
     return list_nodes(NodeListHandler(f); service_type, config)
 end
 
-function list_nodes(factory::PortFactoryEvent, handler::AbstractNodeListHandler)
+@inline function _list_nodes(factory::PortFactoryEvent{S}, handler, callback) where {S}
     _require_valid(factory.handle, "event port factory")
     handler_ref = _handler_ref(handler)
     GC.@preserve handler_ref begin
         ret = Iceoryx2FFI.iox2_port_factory_event_nodes(
             Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle),
-            _node_list_cfunction(handler),
+            callback,
             handler_ref,
         )
         check_ok(ret, Iceoryx2FFI.iox2_node_list_failure_e)
@@ -82,6 +101,14 @@ function list_nodes(factory::PortFactoryEvent, handler::AbstractNodeListHandler)
     return nothing
 end
 
-function list_nodes(f::Function, factory::PortFactoryEvent)
+function list_nodes(factory::PortFactoryEvent{S}, handler::NodeListHandler) where {S}
+    return _list_nodes(factory, handler, handler.callback)
+end
+
+function list_nodes(factory::PortFactoryEvent{S}, handler::AbstractNodeListHandler) where {S}
+    return _list_nodes(factory, handler, _node_list_cfunction(handler))
+end
+
+function list_nodes(f::Function, factory::PortFactoryEvent{S}) where {S}
     return list_nodes(factory, NodeListHandler(f))
 end

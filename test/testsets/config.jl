@@ -39,7 +39,7 @@
 
     node_builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(node_builder, unique_node_name())
-    node = Iceoryx2.create(node_builder; service_type=:ipc)
+    node = Iceoryx2.create(node_builder)
 
     service_name = unique_service_name()
     svc_builder = Iceoryx2.service_builder(node, service_name)
@@ -48,7 +48,7 @@
     pub = Iceoryx2.create(Iceoryx2.publisher_builder(factory))
     sub = Iceoryx2.create(Iceoryx2.subscriber_builder(factory))
 
-    exists, details = Iceoryx2.service_details(service_name; service_type=:ipc, messaging_pattern=:publish_subscribe)
+    exists, details = Iceoryx2.service_details(service_name; service_type=Iceoryx2.ServiceType.IPC, messaging_pattern=:publish_subscribe)
     @test exists
     @test Iceoryx2.messaging_pattern(details) == Iceoryx2.Iceoryx2FFI.iox2_messaging_pattern_e_PUBLISH_SUBSCRIBE
     attrs = Iceoryx2.attributes(details)

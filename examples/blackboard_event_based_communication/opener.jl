@@ -5,7 +5,7 @@ const INTERESTING_KEY = UInt32(1)
 
 function main()
     set_log_level_from_env_or(:info)
-    node = create(NodeBuilder(); service_type = :ipc)
+    node = create(NodeBuilder(ServiceType.IPC))
 
     service = Iceoryx2.open(blackboard_opener(service_builder(node, "My/Funk/ServiceName"), UInt32))
     event_service = open_or_create(event(service_builder(node, "My/Funk/ServiceName")))

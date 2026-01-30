@@ -3,6 +3,7 @@
 module BenchUtils
 
 using Base.Threads
+import Iceoryx2
 
 export SpinBarrier, wait_barrier, has_flag, parse_int, parse_string, parse_service_types, service_type_label, default_warmup
 
@@ -65,14 +66,14 @@ function parse_service_types(args::Vector{String}; default_ipc::Bool = true)
     bench_ipc = has_flag(args, ["--bench-ipc"])
     bench_local = has_flag(args, ["--bench-local"])
 
-    types = Symbol[]
+    types = Iceoryx2.ServiceType[]
     if bench_all
-        push!(types, :ipc, :local)
+        push!(types, Iceoryx2.ServiceType.IPC, Iceoryx2.ServiceType.LOCAL)
     else
-        bench_ipc && push!(types, :ipc)
-        bench_local && push!(types, :local)
+        bench_ipc && push!(types, Iceoryx2.ServiceType.IPC)
+        bench_local && push!(types, Iceoryx2.ServiceType.LOCAL)
         if isempty(types)
-            default_ipc && push!(types, :ipc)
+            default_ipc && push!(types, Iceoryx2.ServiceType.IPC)
         end
     end
 
@@ -84,10 +85,10 @@ function default_warmup(iterations::Integer; max_warmup::Integer = 10_000)
     return min(Int(max_warmup), max(0, Int(iterations ÷ 10)))
 end
 
-function service_type_label(service_type::Symbol)
-    if service_type === :ipc
+function service_type_label(service_type::Iceoryx2.ServiceType)
+    if service_type === Iceoryx2.ServiceType.IPC
         return "iceoryx2::service::ipc::Service"
-    elseif service_type === :local
+    elseif service_type === Iceoryx2.ServiceType.LOCAL
         return "iceoryx2::service::local::Service"
     end
     return string(service_type)

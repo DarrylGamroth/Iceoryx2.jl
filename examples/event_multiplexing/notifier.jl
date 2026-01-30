@@ -22,7 +22,7 @@ function main()
         error("Could not parse event ID: $(event_id_str)")
     end
 
-    node = create(NodeBuilder(); service_type = :ipc)
+    node = create(NodeBuilder(ServiceType.IPC))
     service = open_or_create(event(service_builder(node, service_name)))
     notifier = create(notifier_builder(service))
 

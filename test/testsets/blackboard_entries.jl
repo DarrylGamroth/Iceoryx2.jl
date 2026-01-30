@@ -1,7 +1,7 @@
 @testset "BlackboardEntries" begin
     node_builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(node_builder, unique_node_name())
-    node = Iceoryx2.create(node_builder; service_type=:ipc)
+    node = Iceoryx2.create(node_builder)
 
     service_builder = Iceoryx2.service_builder(node, unique_service_name())
     bb_builder = Iceoryx2.blackboard_creator(service_builder, UInt64)

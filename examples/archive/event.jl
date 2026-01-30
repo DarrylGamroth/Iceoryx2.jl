@@ -6,7 +6,7 @@ function main()
     node_builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(node_builder, "iox2_julia_event_node")
 
-    Iceoryx2.create(node_builder; service_type = :ipc) do node
+    Iceoryx2.create(node_builder) do node
         service_builder = Iceoryx2.service_builder(node, "iox2_julia_event_service")
         event_builder = Iceoryx2.event(service_builder)
 

@@ -2,7 +2,7 @@ import Iceoryx2
 Base.exit_on_sigint(false)
 using Iceoryx2: ActiveRequest, AttributeSpecifier, AttributeVerifier, EntryHandle, EntryHandleMut, EntryValueUninit,
     EventId, Listener, Node, NodeBuilder, Notifier, PendingResponse, Publisher, RequestMut, Response, ResponseMut,
-    Sample, SampleMut, Server, Subscriber, WaitsetBuilder, add!, allocation_strategy!, attach_deadline, attach_interval,
+    Sample, SampleMut, Server, ServiceType, Subscriber, WaitsetBuilder, add!, allocation_strategy!, attach_deadline, attach_interval,
     attach_notification, attributes, blackboard_creator, blackboard_opener, client_builder, config!, config_from_ptr,
     create, create_with_attributes, deadline, deadline!, default_event_id!, define!, enable_safe_overflow!, event,
     file_descriptor, global_config, global_prefix!, has_event_from, has_missed_deadline, history_size!, id,

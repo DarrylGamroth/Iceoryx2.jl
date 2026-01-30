@@ -6,7 +6,7 @@ const CYCLE_SECONDS = 1
 
 function main()
     set_log_level_from_env_or(:info)
-    node = create(NodeBuilder(); service_type = :ipc)
+    node = create(NodeBuilder(ServiceType.IPC))
 
     key_0 = BlackboardKey(Int32(0), Int32(-4), Int32(4))
     key_1 = BlackboardKey(Int32(1), Int32(-4), Int32(4))

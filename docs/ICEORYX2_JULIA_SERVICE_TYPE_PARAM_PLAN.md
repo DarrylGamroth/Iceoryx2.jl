@@ -30,8 +30,8 @@ through Node → ServiceBuilder → PortFactory → Port APIs, matching the stat
 - `Waitset{S}` only if it is semantically tied to a service type; otherwise keep untyped and accept `ServiceType` at create.
 
 ## API surface changes
-- `create(::NodeBuilder; service_type=ServiceType.IPC)`
-- `create(::WaitsetBuilder; service_type=ServiceType.IPC)`
+- `create(::NodeBuilder{S})` (service type is in the builder type parameter)
+- `create(::WaitsetBuilder{S})` (service type is in the builder type parameter)
 - `list_nodes(; service_type=ServiceType.IPC)`
 - `service_does_exist`, `service_details`, `list_services`, config helpers, etc. accept `ServiceType`.
 - Remove `Union{Symbol, Iceoryx2FFI.iox2_service_type_e}` from all signatures.
@@ -71,3 +71,6 @@ through Node → ServiceBuilder → PortFactory → Port APIs, matching the stat
 ## Notes
 - If `Waitset` should be service-typed for parity with C++/Rust, we can introduce `Waitset{S}`; otherwise, keep `Waitset` untyped and accept `ServiceType` at creation to minimize propagation.
 - This is a breaking API change; consider a release note and migration guide.
+
+## Status
+- Completed (2026-01-30)

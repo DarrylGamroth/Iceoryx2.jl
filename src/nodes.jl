@@ -29,9 +29,9 @@ function wait(node::Node, seconds::Real)
     return wait(node, secs, nanos)
 end
 
-function id(node::Node; service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e} = :ipc)
+function id(node::Node{S}) where {S}
     _require_valid(unsafe_handle(node), "node")
-    ptr = Iceoryx2FFI.iox2_node_id(Ref{Iceoryx2FFI.iox2_node_h}(unsafe_handle(node)), _service_type(service_type))
+    ptr = Iceoryx2FFI.iox2_node_id(Ref{Iceoryx2FFI.iox2_node_h}(unsafe_handle(node)), _service_type(S))
     handle_ref = Ref{Iceoryx2FFI.iox2_node_id_h}(_IOX2_NULL)
     Iceoryx2FFI.iox2_node_id_clone_from_ptr(C_NULL, ptr, handle_ref)
     return NodeId(handle_ref[])
@@ -68,7 +68,7 @@ end
 
 function remove_stale_resources(
     node_id::NodeId;
-    service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e} = :ipc,
+    service_type::ServiceType = ServiceType.IPC,
     config::Union{Config, ConfigRef, Nothing} = nothing,
 )
     _require_valid(unsafe_handle(node_id), "node id")
