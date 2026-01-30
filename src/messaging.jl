@@ -760,8 +760,27 @@ function loan_slice_uninit!(publisher::Publisher{T,UH}, sample::SampleMut{T,UH},
     return sample
 end
 
+function try_loan_slice_uninit!(publisher::Publisher{T,UH}, sample::SampleMut{T,UH}, n::Integer) where {T,UH}
+    _require_valid(publisher.handle, "publisher")
+    _require_inactive(sample, "sample")
+    sample.handle_ref[] = _IOX2_NULL
+    ret = Iceoryx2FFI.iox2_publisher_loan_slice_uninit(
+        Ref{Iceoryx2FFI.iox2_publisher_h}(publisher.handle),
+        sample.storage,
+        sample.handle_ref,
+        Iceoryx2FFI.c_size_t(n),
+    )
+    ret == Iceoryx2FFI.iox2_loan_error_e_EXCEEDS_MAX_LOANED_SAMPLES && return false
+    check_ok(ret, Iceoryx2FFI.iox2_loan_error_e)
+    return true
+end
+
 @inline function loan_uninit!(publisher::Publisher{T,UH}, sample::SampleMut{T,UH}) where {T,UH}
     return loan_slice_uninit!(publisher, sample, 1)
+end
+
+@inline function try_loan_uninit!(publisher::Publisher{T,UH}, sample::SampleMut{T,UH}) where {T,UH}
+    return try_loan_slice_uninit!(publisher, sample, 1)
 end
 
 function loan!(publisher::Publisher{T,UH}, sample::SampleMut{T,UH}) where {T,UH}
@@ -800,7 +819,7 @@ end
     return sample
 end
 
-@inline function _write_from_fn!(slice::Slice{T}, f::Function) where {T}
+@inline function _write_from_fn!(f::Function, slice::Slice{T}) where {T}
     @inbounds for idx in 1:slice.len
         unsafe_store!(slice.ptr, f(idx - 1), idx)
     end
@@ -808,7 +827,7 @@ end
 end
 
 function write_from_fn!(f::Function, sample::SampleMut{T,UH}) where {T,UH}
-    _write_from_fn!(payload_mut(sample), f)
+    _write_from_fn!(f, payload_mut(sample))
     return sample
 end
 
@@ -1562,8 +1581,31 @@ function loan_slice_uninit!(
     return request
 end
 
+function try_loan_slice_uninit!(
+    client::Client{Req,Resp,ReqH,RespH},
+    request::RequestMut{Req,Resp,ReqH,RespH},
+    n::Integer,
+) where {Req,Resp,ReqH,RespH}
+    _require_valid(client.handle, "client")
+    _require_inactive(request, "request")
+    request.handle_ref[] = _IOX2_NULL
+    ret = Iceoryx2FFI.iox2_client_loan_slice_uninit(
+        Ref{Iceoryx2FFI.iox2_client_h}(client.handle),
+        request.storage,
+        request.handle_ref,
+        Iceoryx2FFI.c_size_t(n),
+    )
+    ret == Iceoryx2FFI.iox2_loan_error_e_EXCEEDS_MAX_LOANED_SAMPLES && return false
+    check_ok(ret, Iceoryx2FFI.iox2_loan_error_e)
+    return true
+end
+
 @inline function loan_uninit!(client::Client{Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
     return loan_slice_uninit!(client, request, 1)
+end
+
+@inline function try_loan_uninit!(client::Client{Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
+    return try_loan_slice_uninit!(client, request, 1)
 end
 
 @inline function loan!(client::Client{Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
@@ -2018,8 +2060,30 @@ function loan_slice_uninit!(
     return resp
 end
 
+function try_loan_slice_uninit!(
+    req::ActiveRequest{Req,Resp,ReqH,RespH},
+    resp::ResponseMut{Resp,RespH},
+    n::Integer,
+) where {Req,Resp,ReqH,RespH}
+    _require_inactive(resp, "response")
+    resp.handle_ref[] = _IOX2_NULL
+    ret = Iceoryx2FFI.iox2_active_request_loan_slice_uninit(
+        req.handle_ref,
+        resp.storage,
+        resp.handle_ref,
+        Iceoryx2FFI.c_size_t(n),
+    )
+    ret == Iceoryx2FFI.iox2_loan_error_e_EXCEEDS_MAX_LOANED_SAMPLES && return false
+    check_ok(ret, Iceoryx2FFI.iox2_loan_error_e)
+    return true
+end
+
 @inline function loan_uninit!(req::ActiveRequest{Req,Resp,ReqH,RespH}, resp::ResponseMut{Resp,RespH}) where {Req,Resp,ReqH,RespH}
     return loan_slice_uninit!(req, resp, 1)
+end
+
+@inline function try_loan_uninit!(req::ActiveRequest{Req,Resp,ReqH,RespH}, resp::ResponseMut{Resp,RespH}) where {Req,Resp,ReqH,RespH}
+    return try_loan_slice_uninit!(req, resp, 1)
 end
 
 @inline function loan!(req::ActiveRequest{Req,Resp,ReqH,RespH}, resp::ResponseMut{Resp,RespH}) where {Req,Resp,ReqH,RespH}

@@ -10,6 +10,8 @@
         @allocated Iceoryx2.send_copy(pub, data)
     loan_slice_alloc(pub::Iceoryx2.Publisher{UInt64,Nothing}, sample::Iceoryx2.SampleMut{UInt64,Nothing}) =
         @allocated Iceoryx2.loan_slice!(pub, sample, 1)
+    try_loan_slice_alloc(pub::Iceoryx2.Publisher{UInt64,Nothing}, sample::Iceoryx2.SampleMut{UInt64,Nothing}) =
+        @allocated Iceoryx2.try_loan_slice_uninit!(pub, sample, 1)
     send_alloc(sample::Iceoryx2.SampleMut{UInt64,Nothing}) = @allocated Iceoryx2.send!(sample)
     write_payload_alloc(sample::Iceoryx2.SampleMut{UInt64}, value::UInt64) = @allocated Iceoryx2.write_payload!(sample, value)
     unsafe_payload_req_mut_ptr_alloc(req::Iceoryx2.RequestMut{UInt64,UInt64}) =
@@ -44,6 +46,10 @@
         client::Iceoryx2.Client{UInt64,UInt64,Nothing,Nothing},
         req::Iceoryx2.RequestMut{UInt64,UInt64,Nothing,Nothing},
     ) = @allocated Iceoryx2.loan_request!(client, req, 1)
+    try_loan_request_alloc(
+        client::Iceoryx2.Client{UInt64,UInt64,Nothing,Nothing},
+        req::Iceoryx2.RequestMut{UInt64,UInt64,Nothing,Nothing},
+    ) = @allocated Iceoryx2.try_loan_slice_uninit!(client, req, 1)
     send_request_alloc(
         req::Iceoryx2.RequestMut{UInt64,UInt64,Nothing,Nothing},
         pending::Iceoryx2.PendingResponse{UInt64,Nothing,Nothing},
@@ -52,6 +58,10 @@
         req::Iceoryx2.ActiveRequest{UInt64,UInt64,Nothing,Nothing},
         resp::Iceoryx2.ResponseMut{UInt64,Nothing},
     ) = @allocated Iceoryx2.loan_response!(req, resp, 1)
+    try_loan_response_alloc(
+        req::Iceoryx2.ActiveRequest{UInt64,UInt64,Nothing,Nothing},
+        resp::Iceoryx2.ResponseMut{UInt64,Nothing},
+    ) = @allocated Iceoryx2.try_loan_slice_uninit!(req, resp, 1)
     send_response_alloc(resp::Iceoryx2.ResponseMut{UInt64,Nothing}) = @allocated Iceoryx2.send!(resp)
     has_event_alloc(id::Iceoryx2.WaitsetAttachmentId, guard::Iceoryx2.WaitsetGuard) =
         @allocated Iceoryx2.has_event_from(id, guard)
@@ -127,6 +137,8 @@
     @test header_sample_alloc(sample) == 0
     close(sample)
 
+    @test try_loan_slice_alloc(pub, loaned) == 0
+    close(loaned)
     @test loan_slice_alloc(pub, loaned) == 0
     Iceoryx2.payload_mut(loaned)
     @test payload_mut_alloc(loaned) == 0
@@ -147,6 +159,8 @@
     resp = Iceoryx2.Response(pending)
     response_mut = Iceoryx2.ResponseMut(active)
 
+    @test try_loan_request_alloc(client, req) == 0
+    close(req)
     @test loan_request_alloc(client, req) == 0
     Iceoryx2.payload_mut(req)
     @test payload_req_alloc(req) == 0
@@ -162,6 +176,8 @@
         @test payload_active_alloc(active) == 0
         @test unsafe_payload_active_ptr_alloc(active) == 0
         @test header_active_alloc(active) == 0
+        @test try_loan_response_alloc(active, response_mut) == 0
+        close(response_mut)
         @test loan_response_alloc(active, response_mut) == 0
         Iceoryx2.payload_mut(response_mut)
         @test unsafe_payload_resp_mut_ptr_alloc(response_mut) == 0
