@@ -39,15 +39,20 @@ end
     end
 end
 
+@inline function _init_handler_ref!(obj)
+    getfield(obj, :ref)[] = obj
+    return obj
+end
+
 abstract type AbstractNodeListHandler end
 
 mutable struct NodeListHandler{T} <: AbstractNodeListHandler
     on_list::T
     ref::Base.RefValue{NodeListHandler{T}}
     function NodeListHandler{T}(on_list::T) where {T}
-        obj = new{T}(on_list, Ref{NodeListHandler{T}}())
-        obj.ref[] = obj
-        return obj
+        ref = Ref{NodeListHandler{T}}()
+        obj = new{T}(on_list, ref)
+        return _init_handler_ref!(obj)
     end
 end
 
@@ -133,9 +138,9 @@ mutable struct AttributeValueHandler{T} <: AbstractAttributeValueHandler
     on_value::T
     ref::Base.RefValue{AttributeValueHandler{T}}
     function AttributeValueHandler{T}(on_value::T) where {T}
-        obj = new{T}(on_value, Ref{AttributeValueHandler{T}}())
-        obj.ref[] = obj
-        return obj
+        ref = Ref{AttributeValueHandler{T}}()
+        obj = new{T}(on_value, ref)
+        return _init_handler_ref!(obj)
     end
 end
 
@@ -163,9 +168,9 @@ mutable struct AttributeValuePtrHandler{T} <: AbstractAttributeValuePtrHandler
     on_value::T
     ref::Base.RefValue{AttributeValuePtrHandler{T}}
     function AttributeValuePtrHandler{T}(on_value::T) where {T}
-        obj = new{T}(on_value, Ref{AttributeValuePtrHandler{T}}())
-        obj.ref[] = obj
-        return obj
+        ref = Ref{AttributeValuePtrHandler{T}}()
+        obj = new{T}(on_value, ref)
+        return _init_handler_ref!(obj)
     end
 end
 
