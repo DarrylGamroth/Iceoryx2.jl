@@ -28,9 +28,12 @@ function main()
                     println("received request with ", length(payload(active_request)), " bytes ...")
                     required_size = min(UInt64(1_000_000), counter * counter)
                     loan_slice_uninit!(active_request, response, required_size)
-                    write_from_fn!(response) do byte_idx
-                        return UInt8((UInt64(byte_idx) + counter) % MAX_VALUE)
-                    end
+                    slice = payload_mut(response)
+                    map!(
+                        idx -> UInt8((UInt64(idx - 1) + counter) % MAX_VALUE),
+                        slice,
+                        Base.OneTo(length(slice)),
+                    )
                     println("send response with ", length(payload_mut(response)), " bytes")
                     send!(response)
                 finally

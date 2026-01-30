@@ -813,18 +813,6 @@ end
     return sample
 end
 
-@inline function _write_from_fn!(f::Function, slice::Slice{T}) where {T}
-    @inbounds for idx in 1:slice.len
-        unsafe_store!(slice.ptr, f(idx - 1), idx)
-    end
-    return slice
-end
-
-function write_from_fn!(f::Function, sample::SampleMut{T,UH}) where {T,UH}
-    _write_from_fn!(f, payload_mut(sample))
-    return sample
-end
-
 @inline function send!(sample::SampleMut)
     ret = Iceoryx2FFI.iox2_sample_mut_send(sample.handle_ref[], C_NULL)
     check_ok(ret, Iceoryx2FFI.iox2_send_error_e)
@@ -1429,11 +1417,6 @@ end
     return request
 end
 
-function write_from_fn!(f::Function, request::RequestMut{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
-    _write_from_fn!(payload_mut(request), f)
-    return request
-end
-
 @inline function unsafe_user_header_mut_ptr(request::RequestMut, ::Type{T}) where {T}
     _require_isbits(T)
     ptr_ref = Ref{Ptr{Cvoid}}()
@@ -1968,11 +1951,6 @@ end
 @inline function write_payload!(resp::ResponseMut{RespT,RespH}, value::RespT) where {RespT,RespH}
     slice = payload_mut(resp)
     unsafe_store!(slice.ptr, value, 1)
-    return resp
-end
-
-function write_from_fn!(f::Function, resp::ResponseMut{RespT,RespH}) where {RespT,RespH}
-    _write_from_fn!(payload_mut(resp), f)
     return resp
 end
 
@@ -2993,6 +2971,12 @@ end
         ptr_ref,
     )
     return Ptr{V}(ptr_ref[])
+end
+
+@inline function value!(value::EntryValueUninit{K,V}, data::V) where {K,V}
+    ptr = value_mut(value)
+    unsafe_store!(ptr, data)
+    return value
 end
 
 function update!(value::EntryValueUninit{K,V}, entry::EntryHandleMut{K,V}) where {K,V}

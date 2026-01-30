@@ -14,4 +14,4 @@ using Iceoryx2: ActiveRequest, AttributeSpecifier, AttributeVerifier, EntryHandl
     server_builder, service_builder, set_log_level_from_env_or, static_config, subscriber_builder,
     subscriber_max_buffer_size!, timed_wait_one, to_owned, try_reader_entry!, try_wait_all, try_wait_one,
     try_writer_entry!, update_connections!, user_header, user_header_mut, value_mut, wait_and_process, writer_builder,
-    writer_entry!, write_from_fn!, write_payload!, update!
+    writer_entry!, write_payload!, update!

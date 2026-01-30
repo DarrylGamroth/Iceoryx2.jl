@@ -79,6 +79,13 @@ slice = Iceoryx2.payload_mut(sample)
 slice[1] = 0xdeadbeef
 ```
 
+For dynamic payloads, fill the slice without allocations using `map!` (or `broadcast!`) over indices:
+
+```julia
+slice = Iceoryx2.payload_mut(sample)
+map!(i -> some_value(i - 1), slice, Base.OneTo(length(slice)))
+```
+
 Do not store the pointer or slice past the lifetime of the owning handle.
 
 For scalar payloads, preallocate a mutable sample and use `loan_uninit!` + `write_payload!`:
@@ -115,6 +122,18 @@ Reusable wrappers (`Sample`, `SampleMut`, `RequestMut`, `Response`, `ResponseMut
 hold preallocated storage and only borrow/release a C handle per call. After each `receive!`, `send!`,
 `update!`, or `discard!`, the wrapper must be `close`d before reuse. These objects are not thread-safe;
 use one instance per task or guard with external synchronization.
+
+## Blackboard uninitialized updates
+
+For uninitialized blackboard updates, use `loan_uninit!` and the `value!` helper to write the value
+without exposing raw pointers:
+
+```julia
+uninit = Iceoryx2.EntryValueUninit(entry_mut)
+Iceoryx2.loan_uninit!(entry_mut, uninit)
+Iceoryx2.value!(uninit, UInt64(77))
+Iceoryx2.update!(uninit, entry_mut)
+```
 
 ## Attribute scratch buffers
 

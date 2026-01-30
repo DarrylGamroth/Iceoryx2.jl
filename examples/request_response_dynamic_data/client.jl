@@ -24,9 +24,12 @@ function main()
         while true
             required_size = min(UInt64(1_000_000), counter * counter)
             loan_slice_uninit!(client, request, required_size)
-            write_from_fn!(request) do byte_idx
-                return UInt8((UInt64(byte_idx) + counter) % MAX_VALUE)
-            end
+            slice = payload_mut(request)
+            map!(
+                idx -> UInt8((UInt64(idx - 1) + counter) % MAX_VALUE),
+                slice,
+                Base.OneTo(length(slice)),
+            )
             send!(request, pending)
             println("send request $(counter) with $(required_size) bytes ...")
 

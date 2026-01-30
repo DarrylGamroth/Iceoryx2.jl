@@ -23,9 +23,12 @@ function main()
             sleep(CYCLE_SECONDS)
             required_size = (counter + 1) * (counter + 1)
             loan_slice_uninit!(publisher, sample, required_size)
-            write_from_fn!(sample) do byte_idx
-                return UInt8((UInt64(byte_idx) + counter) % MAX_VALUE)
-            end
+            slice = payload_mut(sample)
+            map!(
+                idx -> UInt8((UInt64(idx - 1) + counter) % MAX_VALUE),
+                slice,
+                Base.OneTo(length(slice)),
+            )
             send!(sample)
 
             println("Send sample $(counter) with $(required_size) bytes...")
