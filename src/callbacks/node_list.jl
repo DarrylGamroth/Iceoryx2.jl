@@ -72,3 +72,16 @@ function list_nodes(factory::PortFactoryEvent, handler::AbstractNodeListHandler)
     _require_valid(factory.handle, "event port factory")
     handler_ref = _handler_ref(handler)
     GC.@preserve handler_ref begin
+        ret = Iceoryx2FFI.iox2_port_factory_event_nodes(
+            Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle),
+            _node_list_cfunction(handler),
+            handler_ref,
+        )
+        check_ok(ret, Iceoryx2FFI.iox2_node_list_failure_e)
+    end
+    return nothing
+end
+
+function list_nodes(f::Function, factory::PortFactoryEvent)
+    return list_nodes(factory, NodeListHandler(f))
+end
