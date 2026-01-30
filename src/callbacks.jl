@@ -115,32 +115,64 @@ abstract type AbstractAttributeValueHandler end
 
 mutable struct AttributeValueHandler{T} <: AbstractAttributeValueHandler
     on_value::T
+    ref::Base.RefValue{AttributeValueHandler{T}}
+    function AttributeValueHandler{T}(on_value::T) where {T}
+        obj = new{T}(on_value, Ref{AttributeValueHandler{T}}())
+        obj.ref[] = obj
+        return obj
+    end
 end
 
+AttributeValueHandler(on_value) = AttributeValueHandler{typeof(on_value)}(on_value)
+
 on_attribute_value(h::AttributeValueHandler) = h.on_value
+@inline _handler_ref(h::AttributeValueHandler) = h.ref
+@inline _handler_ref(h::AbstractAttributeValueHandler) = Ref(h)
 
 function _attribute_value_wrapper(value::Cstring, handler::AbstractAttributeValueHandler)
     return _callback_progression(on_attribute_value(handler)(unsafe_string(value)))
 end
 
-function _attribute_value_cfunction(::T) where {T<:AbstractAttributeValueHandler}
-    @cfunction(_attribute_value_wrapper, Iceoryx2FFI.iox2_callback_progression_e, (Cstring, Ref{T}))
+@generated function _attribute_value_cfunction(::Type{T}) where {T<:AbstractAttributeValueHandler}
+    quote
+        @cfunction(
+            _attribute_value_wrapper,
+            Iceoryx2FFI.iox2_callback_progression_e,
+            (Cstring, Ref{$T}),
+        )
+    end
 end
 
 abstract type AbstractAttributeValuePtrHandler end
 
 mutable struct AttributeValuePtrHandler{T} <: AbstractAttributeValuePtrHandler
     on_value::T
+    ref::Base.RefValue{AttributeValuePtrHandler{T}}
+    function AttributeValuePtrHandler{T}(on_value::T) where {T}
+        obj = new{T}(on_value, Ref{AttributeValuePtrHandler{T}}())
+        obj.ref[] = obj
+        return obj
+    end
 end
 
+AttributeValuePtrHandler(on_value) = AttributeValuePtrHandler{typeof(on_value)}(on_value)
+
 on_attribute_value_ptr(h::AttributeValuePtrHandler) = h.on_value
+@inline _handler_ref(h::AttributeValuePtrHandler) = h.ref
+@inline _handler_ref(h::AbstractAttributeValuePtrHandler) = Ref(h)
 
 function _attribute_value_ptr_wrapper(value::Cstring, handler::AbstractAttributeValuePtrHandler)
     return _callback_progression(on_attribute_value_ptr(handler)(value))
 end
 
-function _attribute_value_ptr_cfunction(::T) where {T<:AbstractAttributeValuePtrHandler}
-    @cfunction(_attribute_value_ptr_wrapper, Iceoryx2FFI.iox2_callback_progression_e, (Cstring, Ref{T}))
+@generated function _attribute_value_ptr_cfunction(::Type{T}) where {T<:AbstractAttributeValuePtrHandler}
+    quote
+        @cfunction(
+            _attribute_value_ptr_wrapper,
+            Iceoryx2FFI.iox2_callback_progression_e,
+            (Cstring, Ref{$T}),
+        )
+    end
 end
 
 @inline function _attribute_set_ptr(attrs::AttributeSet)
@@ -158,12 +190,12 @@ function each_attribute_value(
     handler::AbstractAttributeValueHandler,
 )
     key_str = String(key)
-    handler_ref = Ref(handler)
+    handler_ref = _handler_ref(handler)
     GC.@preserve handler_ref key_str begin
         Iceoryx2FFI.iox2_attribute_set_iter_key_values(
             _attribute_set_ptr(attrs),
             Base.unsafe_convert(Cstring, key_str),
-            _attribute_value_cfunction(handler_ref[]),
+            _attribute_value_cfunction(typeof(handler)),
             handler_ref,
         )
     end
@@ -180,12 +212,12 @@ function each_attribute_value_ptr(
     handler::AbstractAttributeValuePtrHandler,
 )
     key_str = String(key)
-    handler_ref = Ref(handler)
+    handler_ref = _handler_ref(handler)
     GC.@preserve handler_ref key_str begin
         Iceoryx2FFI.iox2_attribute_set_iter_key_values(
             _attribute_set_ptr(attrs),
             Base.unsafe_convert(Cstring, key_str),
-            _attribute_value_ptr_cfunction(handler_ref[]),
+            _attribute_value_ptr_cfunction(typeof(handler)),
             handler_ref,
         )
     end

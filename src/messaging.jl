@@ -66,6 +66,38 @@ end
 Slice{T}(ptr::Ptr{T}, len::Integer) where {T} = Slice{T,Nothing}(ptr, Int(len), nothing)
 Slice{T}(ptr::Ptr{T}, len::Integer, owner) where {T} = Slice{T,typeof(owner)}(ptr, Int(len), owner)
 
+mutable struct HeaderSlot{S,H,Tag}
+    storage::Base.RefValue{S}
+    handle_ref::Base.RefValue{H}
+    function HeaderSlot{S,H,Tag}() where {S,H,Tag}
+        new(Ref{S}(), Ref{H}(_IOX2_NULL))
+    end
+end
+
+@inline function _drop_header!(slot::HeaderSlot{S,H,Val{:pub}}) where {S,H}
+    if slot.handle_ref[] != _IOX2_NULL
+        Iceoryx2FFI.iox2_publish_subscribe_header_drop(slot.handle_ref[])
+        slot.handle_ref[] = _IOX2_NULL
+    end
+    return nothing
+end
+
+@inline function _drop_header!(slot::HeaderSlot{S,H,Val{:req}}) where {S,H}
+    if slot.handle_ref[] != _IOX2_NULL
+        Iceoryx2FFI.iox2_request_header_drop(slot.handle_ref[])
+        slot.handle_ref[] = _IOX2_NULL
+    end
+    return nothing
+end
+
+@inline function _drop_header!(slot::HeaderSlot{S,H,Val{:resp}}) where {S,H}
+    if slot.handle_ref[] != _IOX2_NULL
+        Iceoryx2FFI.iox2_response_header_drop(slot.handle_ref[])
+        slot.handle_ref[] = _IOX2_NULL
+    end
+    return nothing
+end
+
 Base.length(slice::Slice) = slice.len
 Base.size(slice::Slice) = (slice.len,)
 Base.axes(slice::Slice) = (Base.OneTo(slice.len),)
@@ -521,20 +553,34 @@ end
 mutable struct Sample{T,UH}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_sample_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_sample_t}
-    function Sample{T,UH}(handle_ref, storage) where {T,UH}
-        obj = new{T,UH}(handle_ref, storage)
+    header_slot::HeaderSlot{
+        Iceoryx2FFI.iox2_publish_subscribe_header_t,
+        Iceoryx2FFI.iox2_publish_subscribe_header_h,
+        Val{:pub},
+    }
+    function Sample{T,UH}(handle_ref, storage, header_slot) where {T,UH}
+        obj = new{T,UH}(handle_ref, storage, header_slot)
         finalizer(_finalize_sample, obj)
         return obj
     end
 end
 
 function Sample{T,UH}() where {T,UH}
-    return Sample{T,UH}(Ref{Iceoryx2FFI.iox2_sample_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_sample_t}())
+    return Sample{T,UH}(
+        Ref{Iceoryx2FFI.iox2_sample_h}(_IOX2_NULL),
+        Ref{Iceoryx2FFI.iox2_sample_t}(),
+        HeaderSlot{
+            Iceoryx2FFI.iox2_publish_subscribe_header_t,
+            Iceoryx2FFI.iox2_publish_subscribe_header_h,
+            Val{:pub},
+        }(),
+    )
 end
 
 Sample(subscriber::Subscriber{T,UH}) where {T,UH} = Sample{T,UH}()
 
 function _finalize_sample(sample::Sample)
+    _drop_header!(sample.header_slot)
     if sample.handle_ref[] != _IOX2_NULL
         Iceoryx2FFI.iox2_sample_drop(sample.handle_ref[])
         sample.handle_ref[] = _IOX2_NULL
@@ -555,10 +601,12 @@ end
 
 @inline function header(sample::Sample)
     _require_valid(sample.handle_ref[], "sample")
-    handle_ref = Ref{Iceoryx2FFI.iox2_publish_subscribe_header_h}(_IOX2_NULL)
-    Iceoryx2FFI.iox2_sample_header(sample.handle_ref, C_NULL, handle_ref)
-    handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire sample header"))
-    return PublishSubscribeHeader(handle_ref[])
+    slot = sample.header_slot
+    _drop_header!(slot)
+    Iceoryx2FFI.iox2_sample_header(sample.handle_ref, slot.storage, slot.handle_ref)
+    slot.handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire sample header"))
+    header_ref = Base.unsafe_convert(Iceoryx2FFI.iox2_publish_subscribe_header_h_ref, slot.handle_ref)
+    return PublishSubscribeHeaderRef(header_ref)
 end
 
 @inline function unsafe_user_header_ptr(sample::Sample, ::Type{T}) where {T}
@@ -586,15 +634,28 @@ end
 mutable struct SampleMut{T,UH}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_sample_mut_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_sample_mut_t}
-    function SampleMut{T,UH}(handle_ref, storage) where {T,UH}
-        obj = new{T,UH}(handle_ref, storage)
+    header_slot::HeaderSlot{
+        Iceoryx2FFI.iox2_publish_subscribe_header_t,
+        Iceoryx2FFI.iox2_publish_subscribe_header_h,
+        Val{:pub},
+    }
+    function SampleMut{T,UH}(handle_ref, storage, header_slot) where {T,UH}
+        obj = new{T,UH}(handle_ref, storage, header_slot)
         finalizer(_finalize_sample_mut, obj)
         return obj
     end
 end
 
 function SampleMut{T,UH}() where {T,UH}
-    return SampleMut{T,UH}(Ref{Iceoryx2FFI.iox2_sample_mut_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_sample_mut_t}())
+    return SampleMut{T,UH}(
+        Ref{Iceoryx2FFI.iox2_sample_mut_h}(_IOX2_NULL),
+        Ref{Iceoryx2FFI.iox2_sample_mut_t}(),
+        HeaderSlot{
+            Iceoryx2FFI.iox2_publish_subscribe_header_t,
+            Iceoryx2FFI.iox2_publish_subscribe_header_h,
+            Val{:pub},
+        }(),
+    )
 end
 
 SampleMut(publisher::Publisher{T,UH}) where {T,UH} = SampleMut{T,UH}()
@@ -602,6 +663,7 @@ SampleMut(publisher::Publisher{T,UH}) where {T,UH} = SampleMut{T,UH}()
 @inline _slice_mutable(::Type{<:SampleMut}) = true
 
 function _finalize_sample_mut(sample::SampleMut)
+    _drop_header!(sample.header_slot)
     if sample.handle_ref[] != _IOX2_NULL
         Iceoryx2FFI.iox2_sample_mut_drop(sample.handle_ref[])
         sample.handle_ref[] = _IOX2_NULL
@@ -622,10 +684,12 @@ end
 
 @inline function header(sample::SampleMut)
     _require_valid(sample.handle_ref[], "sample")
-    handle_ref = Ref{Iceoryx2FFI.iox2_publish_subscribe_header_h}(_IOX2_NULL)
-    Iceoryx2FFI.iox2_sample_mut_header(sample.handle_ref, C_NULL, handle_ref)
-    handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire sample header"))
-    return PublishSubscribeHeader(handle_ref[])
+    slot = sample.header_slot
+    _drop_header!(slot)
+    Iceoryx2FFI.iox2_sample_mut_header(sample.handle_ref, slot.storage, slot.handle_ref)
+    slot.handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire sample header"))
+    header_ref = Base.unsafe_convert(Iceoryx2FFI.iox2_publish_subscribe_header_h_ref, slot.handle_ref)
+    return PublishSubscribeHeaderRef(header_ref)
 end
 
 @inline function unsafe_user_header_mut_ptr(sample::SampleMut, ::Type{T}) where {T}
@@ -659,20 +723,24 @@ end
     return Slice{UH}(ptr, 1, sample)
 end
 
-@inline function publisher_id(header::PublishSubscribeHeader)
+@inline _pubsub_header_ref(header::PublishSubscribeHeader) =
+    Ref{Iceoryx2FFI.iox2_publish_subscribe_header_h}(unsafe_handle(header))
+@inline _pubsub_header_ref(header::PublishSubscribeHeaderRef) = unsafe_handle(header)
+
+@inline function publisher_id(header::Union{PublishSubscribeHeader, PublishSubscribeHeaderRef})
     handle_ref = Ref{Iceoryx2FFI.iox2_unique_publisher_id_h}(_IOX2_NULL)
     Iceoryx2FFI.iox2_publish_subscribe_header_publisher_id(
-        Ref{Iceoryx2FFI.iox2_publish_subscribe_header_h}(unsafe_handle(header)),
+        _pubsub_header_ref(header),
         C_NULL,
         handle_ref,
     )
     return UniquePublisherId(handle_ref[])
 end
 
-@inline function number_of_elements(header::PublishSubscribeHeader)
+@inline function number_of_elements(header::Union{PublishSubscribeHeader, PublishSubscribeHeaderRef})
     return Int(
         Iceoryx2FFI.iox2_publish_subscribe_header_number_of_elements(
-            Ref{Iceoryx2FFI.iox2_publish_subscribe_header_h}(unsafe_handle(header)),
+            _pubsub_header_ref(header),
         ),
     )
 end
@@ -747,6 +815,7 @@ end
 @inline function send!(sample::SampleMut)
     ret = Iceoryx2FFI.iox2_sample_mut_send(sample.handle_ref[], C_NULL)
     check_ok(ret, Iceoryx2FFI.iox2_send_error_e)
+    _drop_header!(sample.header_slot)
     sample.handle_ref[] = _IOX2_NULL
     return nothing
 end
@@ -1280,15 +1349,28 @@ end
 mutable struct RequestMut{Req,Resp,ReqH,RespH}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_request_mut_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_request_mut_t}
-    function RequestMut{Req,Resp,ReqH,RespH}(handle_ref, storage) where {Req,Resp,ReqH,RespH}
-        obj = new{Req,Resp,ReqH,RespH}(handle_ref, storage)
+    header_slot::HeaderSlot{
+        Iceoryx2FFI.iox2_request_header_t,
+        Iceoryx2FFI.iox2_request_header_h,
+        Val{:req},
+    }
+    function RequestMut{Req,Resp,ReqH,RespH}(handle_ref, storage, header_slot) where {Req,Resp,ReqH,RespH}
+        obj = new{Req,Resp,ReqH,RespH}(handle_ref, storage, header_slot)
         finalizer(_finalize_request_mut, obj)
         return obj
     end
 end
 
 function RequestMut{Req,Resp,ReqH,RespH}() where {Req,Resp,ReqH,RespH}
-    return RequestMut{Req,Resp,ReqH,RespH}(Ref{Iceoryx2FFI.iox2_request_mut_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_request_mut_t}())
+    return RequestMut{Req,Resp,ReqH,RespH}(
+        Ref{Iceoryx2FFI.iox2_request_mut_h}(_IOX2_NULL),
+        Ref{Iceoryx2FFI.iox2_request_mut_t}(),
+        HeaderSlot{
+            Iceoryx2FFI.iox2_request_header_t,
+            Iceoryx2FFI.iox2_request_header_h,
+            Val{:req},
+        }(),
+    )
 end
 
 RequestMut(client::Client{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH} =
@@ -1297,6 +1379,7 @@ RequestMut(client::Client{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH} =
 @inline _slice_mutable(::Type{<:RequestMut}) = true
 
 function _finalize_request_mut(request::RequestMut)
+    _drop_header!(request.header_slot)
     if request.handle_ref[] != _IOX2_NULL
         Iceoryx2FFI.iox2_request_mut_drop(request.handle_ref[])
         request.handle_ref[] = _IOX2_NULL
@@ -1317,10 +1400,12 @@ end
 
 @inline function header(request::RequestMut)
     _require_valid(request.handle_ref[], "request")
-    handle_ref = Ref{Iceoryx2FFI.iox2_request_header_h}(_IOX2_NULL)
-    Iceoryx2FFI.iox2_request_mut_header(request.handle_ref, C_NULL, handle_ref)
-    handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire request header"))
-    return RequestHeader(handle_ref[])
+    slot = request.header_slot
+    _drop_header!(slot)
+    Iceoryx2FFI.iox2_request_mut_header(request.handle_ref, slot.storage, slot.handle_ref)
+    slot.handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire request header"))
+    header_ref = Base.unsafe_convert(Iceoryx2FFI.iox2_request_header_h_ref, slot.handle_ref)
+    return RequestHeaderRef(header_ref)
 end
 
 @inline function write_payload!(request::RequestMut{Req,Resp,ReqH,RespH}, value::Req) where {Req,Resp,ReqH,RespH}
@@ -1365,20 +1450,24 @@ end
     return Slice{ReqH}(ptr, 1, request)
 end
 
-@inline function client_id(header::RequestHeader)
+@inline _request_header_ref(header::RequestHeader) =
+    Ref{Iceoryx2FFI.iox2_request_header_h}(unsafe_handle(header))
+@inline _request_header_ref(header::RequestHeaderRef) = unsafe_handle(header)
+
+@inline function client_id(header::Union{RequestHeader, RequestHeaderRef})
     handle_ref = Ref{Iceoryx2FFI.iox2_unique_client_id_h}(_IOX2_NULL)
     Iceoryx2FFI.iox2_request_header_client_id(
-        Ref{Iceoryx2FFI.iox2_request_header_h}(unsafe_handle(header)),
+        _request_header_ref(header),
         C_NULL,
         handle_ref,
     )
     return UniqueClientId(handle_ref[])
 end
 
-@inline function number_of_elements(header::RequestHeader)
+@inline function number_of_elements(header::Union{RequestHeader, RequestHeaderRef})
     return Int(
         Iceoryx2FFI.iox2_request_header_number_of_elements(
-            Ref{Iceoryx2FFI.iox2_request_header_h}(unsafe_handle(header)),
+            _request_header_ref(header),
         ),
     )
 end
@@ -1387,21 +1476,35 @@ end
 mutable struct PendingResponse{Resp,ReqH,RespH}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_pending_response_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_pending_response_t}
-    function PendingResponse{Resp,ReqH,RespH}(handle_ref, storage) where {Resp,ReqH,RespH}
-        obj = new{Resp,ReqH,RespH}(handle_ref, storage)
+    header_slot::HeaderSlot{
+        Iceoryx2FFI.iox2_request_header_t,
+        Iceoryx2FFI.iox2_request_header_h,
+        Val{:req},
+    }
+    function PendingResponse{Resp,ReqH,RespH}(handle_ref, storage, header_slot) where {Resp,ReqH,RespH}
+        obj = new{Resp,ReqH,RespH}(handle_ref, storage, header_slot)
         finalizer(_finalize_pending_response, obj)
         return obj
     end
 end
 
 function PendingResponse{Resp,ReqH,RespH}() where {Resp,ReqH,RespH}
-    return PendingResponse{Resp,ReqH,RespH}(Ref{Iceoryx2FFI.iox2_pending_response_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_pending_response_t}())
+    return PendingResponse{Resp,ReqH,RespH}(
+        Ref{Iceoryx2FFI.iox2_pending_response_h}(_IOX2_NULL),
+        Ref{Iceoryx2FFI.iox2_pending_response_t}(),
+        HeaderSlot{
+            Iceoryx2FFI.iox2_request_header_t,
+            Iceoryx2FFI.iox2_request_header_h,
+            Val{:req},
+        }(),
+    )
 end
 
 PendingResponse(client::Client{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH} =
     PendingResponse{Resp,ReqH,RespH}()
 
 function _finalize_pending_response(pending::PendingResponse)
+    _drop_header!(pending.header_slot)
     if pending.handle_ref[] != _IOX2_NULL
         Iceoryx2FFI.iox2_pending_response_drop(pending.handle_ref[])
         pending.handle_ref[] = _IOX2_NULL
@@ -1411,10 +1514,12 @@ end
 
 @inline function header(pending::PendingResponse)
     _require_valid(pending.handle_ref[], "pending response")
-    handle_ref = Ref{Iceoryx2FFI.iox2_request_header_h}(_IOX2_NULL)
-    Iceoryx2FFI.iox2_pending_response_header(pending.handle_ref, C_NULL, handle_ref)
-    handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire request header"))
-    return RequestHeader(handle_ref[])
+    slot = pending.header_slot
+    _drop_header!(slot)
+    Iceoryx2FFI.iox2_pending_response_header(pending.handle_ref, slot.storage, slot.handle_ref)
+    slot.handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire request header"))
+    header_ref = Base.unsafe_convert(Iceoryx2FFI.iox2_request_header_h_ref, slot.handle_ref)
+    return RequestHeaderRef(header_ref)
 end
 
 @inline function unsafe_user_header_ptr(pending::PendingResponse, ::Type{T}) where {T}
@@ -1504,6 +1609,7 @@ function send!(request::RequestMut{Req,Resp,ReqH,RespH}, pending::PendingRespons
     pending.handle_ref[] = _IOX2_NULL
     ret = Iceoryx2FFI.iox2_request_mut_send(request.handle_ref[], pending.storage, pending.handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_send_error_e)
+    _drop_header!(request.header_slot)
     request.handle_ref[] = _IOX2_NULL
     return pending
 end
@@ -1554,20 +1660,34 @@ end
 mutable struct Response{Resp,RespH}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_response_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_response_t}
-    function Response{Resp,RespH}(handle_ref, storage) where {Resp,RespH}
-        obj = new{Resp,RespH}(handle_ref, storage)
+    header_slot::HeaderSlot{
+        Iceoryx2FFI.iox2_response_header_t,
+        Iceoryx2FFI.iox2_response_header_h,
+        Val{:resp},
+    }
+    function Response{Resp,RespH}(handle_ref, storage, header_slot) where {Resp,RespH}
+        obj = new{Resp,RespH}(handle_ref, storage, header_slot)
         finalizer(_finalize_response, obj)
         return obj
     end
 end
 
 function Response{Resp,RespH}() where {Resp,RespH}
-    return Response{Resp,RespH}(Ref{Iceoryx2FFI.iox2_response_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_response_t}())
+    return Response{Resp,RespH}(
+        Ref{Iceoryx2FFI.iox2_response_h}(_IOX2_NULL),
+        Ref{Iceoryx2FFI.iox2_response_t}(),
+        HeaderSlot{
+            Iceoryx2FFI.iox2_response_header_t,
+            Iceoryx2FFI.iox2_response_header_h,
+            Val{:resp},
+        }(),
+    )
 end
 
 Response(pending::PendingResponse{Resp,ReqH,RespH}) where {Resp,ReqH,RespH} = Response{Resp,RespH}()
 
 function _finalize_response(resp::Response)
+    _drop_header!(resp.header_slot)
     if resp.handle_ref[] != _IOX2_NULL
         Iceoryx2FFI.iox2_response_drop(resp.handle_ref[])
         resp.handle_ref[] = _IOX2_NULL
@@ -1588,10 +1708,12 @@ end
 
 @inline function header(resp::Response)
     _require_valid(resp.handle_ref[], "response")
-    handle_ref = Ref{Iceoryx2FFI.iox2_response_header_h}(_IOX2_NULL)
-    Iceoryx2FFI.iox2_response_header(resp.handle_ref, C_NULL, handle_ref)
-    handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire response header"))
-    return ResponseHeader(handle_ref[])
+    slot = resp.header_slot
+    _drop_header!(slot)
+    Iceoryx2FFI.iox2_response_header(resp.handle_ref, slot.storage, slot.handle_ref)
+    slot.handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire response header"))
+    header_ref = Base.unsafe_convert(Iceoryx2FFI.iox2_response_header_h_ref, slot.handle_ref)
+    return ResponseHeaderRef(header_ref)
 end
 
 @inline function unsafe_user_header_ptr(resp::Response, ::Type{T}) where {T}
@@ -1615,20 +1737,24 @@ end
     return Slice{RespH}(ptr, 1, resp)
 end
 
-@inline function server_id(header::ResponseHeader)
+@inline _response_header_ref(header::ResponseHeader) =
+    Ref{Iceoryx2FFI.iox2_response_header_h}(unsafe_handle(header))
+@inline _response_header_ref(header::ResponseHeaderRef) = unsafe_handle(header)
+
+@inline function server_id(header::Union{ResponseHeader, ResponseHeaderRef})
     handle_ref = Ref{Iceoryx2FFI.iox2_unique_server_id_h}(_IOX2_NULL)
     Iceoryx2FFI.iox2_response_header_server_id(
-        Ref{Iceoryx2FFI.iox2_response_header_h}(unsafe_handle(header)),
+        _response_header_ref(header),
         C_NULL,
         handle_ref,
     )
     return UniqueServerId(handle_ref[])
 end
 
-@inline function number_of_elements(header::ResponseHeader)
+@inline function number_of_elements(header::Union{ResponseHeader, ResponseHeaderRef})
     return Int(
         Iceoryx2FFI.iox2_response_header_number_of_elements(
-            Ref{Iceoryx2FFI.iox2_response_header_h}(unsafe_handle(header)),
+            _response_header_ref(header),
         ),
     )
 end
@@ -1661,21 +1787,35 @@ end
 mutable struct ActiveRequest{Req,Resp,ReqH,RespH}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_active_request_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_active_request_t}
-    function ActiveRequest{Req,Resp,ReqH,RespH}(handle_ref, storage) where {Req,Resp,ReqH,RespH}
-        obj = new{Req,Resp,ReqH,RespH}(handle_ref, storage)
+    header_slot::HeaderSlot{
+        Iceoryx2FFI.iox2_request_header_t,
+        Iceoryx2FFI.iox2_request_header_h,
+        Val{:req},
+    }
+    function ActiveRequest{Req,Resp,ReqH,RespH}(handle_ref, storage, header_slot) where {Req,Resp,ReqH,RespH}
+        obj = new{Req,Resp,ReqH,RespH}(handle_ref, storage, header_slot)
         finalizer(_finalize_active_request, obj)
         return obj
     end
 end
 
 function ActiveRequest{Req,Resp,ReqH,RespH}() where {Req,Resp,ReqH,RespH}
-    return ActiveRequest{Req,Resp,ReqH,RespH}(Ref{Iceoryx2FFI.iox2_active_request_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_active_request_t}())
+    return ActiveRequest{Req,Resp,ReqH,RespH}(
+        Ref{Iceoryx2FFI.iox2_active_request_h}(_IOX2_NULL),
+        Ref{Iceoryx2FFI.iox2_active_request_t}(),
+        HeaderSlot{
+            Iceoryx2FFI.iox2_request_header_t,
+            Iceoryx2FFI.iox2_request_header_h,
+            Val{:req},
+        }(),
+    )
 end
 
 ActiveRequest(server::Server{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH} =
     ActiveRequest{Req,Resp,ReqH,RespH}()
 
 function _finalize_active_request(req::ActiveRequest)
+    _drop_header!(req.header_slot)
     if req.handle_ref[] != _IOX2_NULL
         Iceoryx2FFI.iox2_active_request_drop(req.handle_ref[])
         req.handle_ref[] = _IOX2_NULL
@@ -1696,10 +1836,12 @@ end
 
 @inline function header(req::ActiveRequest)
     _require_valid(req.handle_ref[], "active request")
-    handle_ref = Ref{Iceoryx2FFI.iox2_request_header_h}(_IOX2_NULL)
-    Iceoryx2FFI.iox2_active_request_header(req.handle_ref, C_NULL, handle_ref)
-    handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire request header"))
-    return RequestHeader(handle_ref[])
+    slot = req.header_slot
+    _drop_header!(slot)
+    Iceoryx2FFI.iox2_active_request_header(req.handle_ref, slot.storage, slot.handle_ref)
+    slot.handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire request header"))
+    header_ref = Base.unsafe_convert(Iceoryx2FFI.iox2_request_header_h_ref, slot.handle_ref)
+    return RequestHeaderRef(header_ref)
 end
 
 @inline function unsafe_user_header_ptr(req::ActiveRequest, ::Type{T}) where {T}
@@ -1727,15 +1869,28 @@ end
 mutable struct ResponseMut{Resp,RespH}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_response_mut_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_response_mut_t}
-    function ResponseMut{Resp,RespH}(handle_ref, storage) where {Resp,RespH}
-        obj = new{Resp,RespH}(handle_ref, storage)
+    header_slot::HeaderSlot{
+        Iceoryx2FFI.iox2_response_header_t,
+        Iceoryx2FFI.iox2_response_header_h,
+        Val{:resp},
+    }
+    function ResponseMut{Resp,RespH}(handle_ref, storage, header_slot) where {Resp,RespH}
+        obj = new{Resp,RespH}(handle_ref, storage, header_slot)
         finalizer(_finalize_response_mut, obj)
         return obj
     end
 end
 
 function ResponseMut{Resp,RespH}() where {Resp,RespH}
-    return ResponseMut{Resp,RespH}(Ref{Iceoryx2FFI.iox2_response_mut_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_response_mut_t}())
+    return ResponseMut{Resp,RespH}(
+        Ref{Iceoryx2FFI.iox2_response_mut_h}(_IOX2_NULL),
+        Ref{Iceoryx2FFI.iox2_response_mut_t}(),
+        HeaderSlot{
+            Iceoryx2FFI.iox2_response_header_t,
+            Iceoryx2FFI.iox2_response_header_h,
+            Val{:resp},
+        }(),
+    )
 end
 
 ResponseMut(req::ActiveRequest{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH} = ResponseMut{Resp,RespH}()
@@ -1743,6 +1898,7 @@ ResponseMut(req::ActiveRequest{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
 @inline _slice_mutable(::Type{<:ResponseMut}) = true
 
 function _finalize_response_mut(resp::ResponseMut)
+    _drop_header!(resp.header_slot)
     if resp.handle_ref[] != _IOX2_NULL
         Iceoryx2FFI.iox2_response_mut_drop(resp.handle_ref[])
         resp.handle_ref[] = _IOX2_NULL
@@ -1763,10 +1919,12 @@ end
 
 @inline function header(resp::ResponseMut)
     _require_valid(resp.handle_ref[], "response")
-    handle_ref = Ref{Iceoryx2FFI.iox2_response_header_h}(_IOX2_NULL)
-    Iceoryx2FFI.iox2_response_mut_header(resp.handle_ref, C_NULL, handle_ref)
-    handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire response header"))
-    return ResponseHeader(handle_ref[])
+    slot = resp.header_slot
+    _drop_header!(slot)
+    Iceoryx2FFI.iox2_response_mut_header(resp.handle_ref, slot.storage, slot.handle_ref)
+    slot.handle_ref[] != _IOX2_NULL || throw(ErrorException("failed to acquire response header"))
+    header_ref = Base.unsafe_convert(Iceoryx2FFI.iox2_response_header_h_ref, slot.handle_ref)
+    return ResponseHeaderRef(header_ref)
 end
 
 @inline function write_payload!(resp::ResponseMut{RespT,RespH}, value::RespT) where {RespT,RespH}
@@ -1911,6 +2069,7 @@ end
 function send!(resp::ResponseMut)
     ret = Iceoryx2FFI.iox2_response_mut_send(resp.handle_ref[])
     check_ok(ret, Iceoryx2FFI.iox2_send_error_e)
+    _drop_header!(resp.header_slot)
     resp.handle_ref[] = _IOX2_NULL
     return nothing
 end
@@ -3103,6 +3262,10 @@ function Base.close(obj::ResponseMut)
     _finalize_response_mut(obj)
     return nothing
 end
+
+Base.close(::PublishSubscribeHeaderRef) = nothing
+Base.close(::RequestHeaderRef) = nothing
+Base.close(::ResponseHeaderRef) = nothing
 
 function Base.close(obj::PortFactoryEvent)
     _finalize_port_factory_event(obj)

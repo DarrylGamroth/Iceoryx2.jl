@@ -23,6 +23,23 @@
         @allocated Iceoryx2.unsafe_payload_mut_ptr(resp)
     write_payload_resp_alloc(resp::Iceoryx2.ResponseMut{UInt64}, value::UInt64) =
         @allocated Iceoryx2.write_payload!(resp, value)
+    header_sample_alloc(sample::Iceoryx2.Sample) = @allocated Iceoryx2.header(sample)
+    header_sample_mut_alloc(sample::Iceoryx2.SampleMut) = @allocated Iceoryx2.header(sample)
+    header_request_alloc(req::Iceoryx2.RequestMut) = @allocated Iceoryx2.header(req)
+    header_pending_alloc(pending::Iceoryx2.PendingResponse) = @allocated Iceoryx2.header(pending)
+    header_active_alloc(req::Iceoryx2.ActiveRequest) = @allocated Iceoryx2.header(req)
+    header_response_alloc(resp::Iceoryx2.Response) = @allocated Iceoryx2.header(resp)
+    header_response_mut_alloc(resp::Iceoryx2.ResponseMut) = @allocated Iceoryx2.header(resp)
+    user_header_sample_alloc(sample::Iceoryx2.Sample) = @allocated Iceoryx2.user_header(sample)
+    user_header_sample_mut_alloc(sample::Iceoryx2.SampleMut) = @allocated Iceoryx2.user_header(sample)
+    user_header_sample_mut_mut_alloc(sample::Iceoryx2.SampleMut) = @allocated Iceoryx2.user_header_mut(sample)
+    user_header_request_alloc(req::Iceoryx2.RequestMut) = @allocated Iceoryx2.user_header(req)
+    user_header_request_mut_alloc(req::Iceoryx2.RequestMut) = @allocated Iceoryx2.user_header_mut(req)
+    user_header_pending_alloc(pending::Iceoryx2.PendingResponse) = @allocated Iceoryx2.user_header(pending)
+    user_header_active_alloc(req::Iceoryx2.ActiveRequest) = @allocated Iceoryx2.user_header(req)
+    user_header_response_alloc(resp::Iceoryx2.Response) = @allocated Iceoryx2.user_header(resp)
+    user_header_response_mut_alloc(resp::Iceoryx2.ResponseMut) = @allocated Iceoryx2.user_header(resp)
+    user_header_response_mut_mut_alloc(resp::Iceoryx2.ResponseMut) = @allocated Iceoryx2.user_header_mut(resp)
     loan_request_alloc(
         client::Iceoryx2.Client{UInt64,UInt64,Nothing,Nothing},
         req::Iceoryx2.RequestMut{UInt64,UInt64,Nothing,Nothing},
@@ -76,6 +93,11 @@
         pending::Iceoryx2.PendingResponse{Resp,ReqH,RespH},
         resp::Iceoryx2.Response{Resp,RespH},
     ) where {Resp,ReqH,RespH} = @allocated receive_with_retry!(pending, resp)
+    each_attr_value_ptr_alloc(
+        attrs::Union{Iceoryx2.AttributeSet, Iceoryx2.AttributeSetView},
+        key::String,
+        handler::Iceoryx2.AbstractAttributeValuePtrHandler,
+    ) = @allocated Iceoryx2.each_attribute_value_ptr(attrs, key, handler)
 
     builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(builder, "iceoryx2_julia_alloc_hotpath")
@@ -102,6 +124,7 @@
     @test unsafe_payload_ptr_alloc(sample) == 0
     @test @allocated(length(slice)) == 0
     @test @allocated(slice[1]) == 0
+    @test header_sample_alloc(sample) == 0
     close(sample)
 
     @test loan_slice_alloc(pub, loaned) == 0
@@ -109,6 +132,7 @@
     @test payload_mut_alloc(loaned) == 0
     @test unsafe_payload_mut_ptr_alloc(loaned) == 0
     @test write_payload_alloc(loaned, UInt64(7)) == 0
+    @test header_sample_mut_alloc(loaned) == 0
     @test send_alloc(loaned) == 0
     close(loaned)
 
@@ -137,10 +161,12 @@
         Iceoryx2.payload(active)
         @test payload_active_alloc(active) == 0
         @test unsafe_payload_active_ptr_alloc(active) == 0
+        @test header_active_alloc(active) == 0
         @test loan_response_alloc(active, response_mut) == 0
         Iceoryx2.payload_mut(response_mut)
         @test unsafe_payload_resp_mut_ptr_alloc(response_mut) == 0
         @test write_payload_resp_alloc(response_mut, UInt64(2)) == 0
+        @test header_response_mut_alloc(response_mut) == 0
         @test send_response_alloc(response_mut) == 0
     finally
         close(active)
@@ -153,6 +179,7 @@
         Iceoryx2.payload(resp)
         @test payload_resp_alloc(resp) == 0
         @test unsafe_payload_resp_ptr_alloc(resp) == 0
+        @test header_response_alloc(resp) == 0
     finally
         close(resp)
     end
@@ -216,6 +243,81 @@
     close(bb_reader)
     close(bb_writer)
     close(bb_factory)
+
+    pubsub_hdr_builder = Iceoryx2.publish_subscribe(
+        Iceoryx2.service_builder(node, unique_service_name()),
+        UInt64,
+    )
+    pubsub_hdr_builder = Iceoryx2.user_header(pubsub_hdr_builder, UInt16)
+    pubsub_hdr_factory = Iceoryx2.open_or_create(pubsub_hdr_builder)
+    pubsub_hdr_pub = Iceoryx2.create(Iceoryx2.publisher_builder(pubsub_hdr_factory))
+    pubsub_hdr_sub = Iceoryx2.create(Iceoryx2.subscriber_builder(pubsub_hdr_factory))
+    sample_hdr = Iceoryx2.Sample(pubsub_hdr_sub)
+    loaned_hdr = Iceoryx2.SampleMut(pubsub_hdr_pub)
+    Iceoryx2.send_copy(pubsub_hdr_pub, UInt64[7])
+    sleep(0.01)
+    receive_with_retry!(pubsub_hdr_sub, sample_hdr)
+    @test user_header_sample_alloc(sample_hdr) == 0
+    close(sample_hdr)
+    Iceoryx2.loan_slice!(pubsub_hdr_pub, loaned_hdr, 1)
+    @test user_header_sample_mut_alloc(loaned_hdr) == 0
+    @test user_header_sample_mut_mut_alloc(loaned_hdr) == 0
+    close(loaned_hdr)
+    close(pubsub_hdr_sub)
+    close(pubsub_hdr_pub)
+    close(pubsub_hdr_factory)
+
+    rr_hdr_builder = Iceoryx2.request_response(
+        Iceoryx2.service_builder(node, unique_service_name()),
+        UInt64,
+        UInt64,
+    )
+    rr_hdr_builder = Iceoryx2.request_user_header(rr_hdr_builder, UInt32)
+    rr_hdr_builder = Iceoryx2.response_user_header(rr_hdr_builder, UInt16)
+    rr_hdr_factory = Iceoryx2.open_or_create(rr_hdr_builder)
+    rr_hdr_client = Iceoryx2.create(Iceoryx2.client_builder(rr_hdr_factory))
+    rr_hdr_server = Iceoryx2.create(Iceoryx2.server_builder(rr_hdr_factory))
+    req_hdr = Iceoryx2.RequestMut(rr_hdr_client)
+    pending_hdr = Iceoryx2.PendingResponse(rr_hdr_client)
+    active_hdr = Iceoryx2.ActiveRequest(rr_hdr_server)
+    resp_hdr = Iceoryx2.Response(pending_hdr)
+    resp_mut_hdr = Iceoryx2.ResponseMut(active_hdr)
+    Iceoryx2.loan_request!(rr_hdr_client, req_hdr, 1)
+    @test header_request_alloc(req_hdr) == 0
+    @test user_header_request_alloc(req_hdr) == 0
+    @test user_header_request_mut_alloc(req_hdr) == 0
+    Iceoryx2.send!(req_hdr, pending_hdr)
+    @test header_pending_alloc(pending_hdr) == 0
+    @test user_header_pending_alloc(pending_hdr) == 0
+    sleep(0.01)
+    receive_with_retry!(rr_hdr_server, active_hdr)
+    @test header_active_alloc(active_hdr) == 0
+    @test user_header_active_alloc(active_hdr) == 0
+    Iceoryx2.loan_response!(active_hdr, resp_mut_hdr, 1)
+    @test header_response_mut_alloc(resp_mut_hdr) == 0
+    @test user_header_response_mut_alloc(resp_mut_hdr) == 0
+    @test user_header_response_mut_mut_alloc(resp_mut_hdr) == 0
+    Iceoryx2.send!(resp_mut_hdr)
+    sleep(0.01)
+    receive_with_retry!(pending_hdr, resp_hdr)
+    @test header_response_alloc(resp_hdr) == 0
+    @test user_header_response_alloc(resp_hdr) == 0
+    close(resp_hdr)
+    close(active_hdr)
+    close(pending_hdr)
+    close(rr_hdr_server)
+    close(rr_hdr_client)
+    close(rr_hdr_factory)
+
+    specifier = Iceoryx2.AttributeSpecifier()
+    Iceoryx2.define!(specifier, "mode", "fast")
+    attrs = Iceoryx2.attributes(specifier)
+    struct AttrPtrHandler end
+    (::AttrPtrHandler)(::Cstring) = true
+    attr_handler = Iceoryx2.AttributeValuePtrHandler(AttrPtrHandler())
+    Iceoryx2.each_attribute_value_ptr(attrs, "mode", attr_handler)
+    @test each_attr_value_ptr_alloc(attrs, "mode", attr_handler) == 0
+    close(specifier)
 
     close(attachment)
     close(guard)
