@@ -10,4 +10,11 @@
 
     @test @inferred(Iceoryx2._callback_progression(:continue)) == Iceoryx2.Iceoryx2FFI.iox2_callback_progression_e_CONTINUE
     @test @allocated(Iceoryx2._callback_progression(:continue)) == 0
+
+    struct NodeAllocHandler end
+    (::NodeAllocHandler)(::Any, ::Any, ::Cstring, ::Any, ::Any) = true
+    node_handler = Iceoryx2.NodeListHandler(NodeAllocHandler())
+    list_nodes_alloc(handler::Iceoryx2.AbstractNodeListHandler) =
+        @allocated Iceoryx2.list_nodes(handler; service_type=:ipc)
+    @test list_nodes_alloc(node_handler) > 0
 end
