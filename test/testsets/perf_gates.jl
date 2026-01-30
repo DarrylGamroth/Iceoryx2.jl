@@ -16,5 +16,6 @@
     node_handler = Iceoryx2.NodeListHandler(NodeAllocHandler())
     list_nodes_alloc(handler::Iceoryx2.AbstractNodeListHandler) =
         @allocated Iceoryx2.list_nodes(handler; service_type=:ipc)
-    @test list_nodes_alloc(node_handler) > 0
+    Iceoryx2.list_nodes(node_handler; service_type=:ipc)
+    @test list_nodes_alloc(node_handler) == 0
 end

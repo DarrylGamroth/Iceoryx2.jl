@@ -35,9 +35,19 @@ abstract type AbstractNodeListHandler end
 
 mutable struct NodeListHandler{T} <: AbstractNodeListHandler
     on_list::T
+    ref::Base.RefValue{NodeListHandler{T}}
+    function NodeListHandler{T}(on_list::T) where {T}
+        obj = new{T}(on_list, Ref{NodeListHandler{T}}())
+        obj.ref[] = obj
+        return obj
+    end
 end
 
+NodeListHandler(on_list) = NodeListHandler{typeof(on_list)}(on_list)
+
 on_node_list(h::NodeListHandler) = h.on_list
+@inline _handler_ref(h::NodeListHandler) = h.ref
+@inline _handler_ref(h::AbstractNodeListHandler) = Ref(h)
 
 function _node_list_wrapper(
     state::Iceoryx2FFI.iox2_node_state_e,
@@ -72,12 +82,12 @@ function list_nodes(
     service_type::Union{Symbol, Iceoryx2FFI.iox2_service_type_e} = :ipc,
     config::Union{Config, ConfigView, Nothing} = nothing,
 )
-    handler_ref = Ref(handler)
+    handler_ref = _handler_ref(handler)
     GC.@preserve handler_ref begin
         ret = Iceoryx2FFI.iox2_node_list(
             _service_type(service_type),
             _config_ptr_from_arg(config),
-            _node_list_cfunction(handler_ref[]),
+            _node_list_cfunction(handler),
             handler_ref,
         )
         check_ok(ret, Iceoryx2FFI.iox2_node_list_failure_e)
@@ -95,11 +105,11 @@ end
 
 function list_nodes(factory::PortFactoryEvent, handler::AbstractNodeListHandler)
     _require_valid(factory.handle, "event port factory")
-    handler_ref = Ref(handler)
+    handler_ref = _handler_ref(handler)
     GC.@preserve handler_ref begin
         ret = Iceoryx2FFI.iox2_port_factory_event_nodes(
             Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle),
-            _node_list_cfunction(handler_ref[]),
+            _node_list_cfunction(handler),
             handler_ref,
         )
         check_ok(ret, Iceoryx2FFI.iox2_node_list_failure_e)
@@ -123,7 +133,9 @@ mutable struct AttributeValueHandler{T} <: AbstractAttributeValueHandler
     end
 end
 
-AttributeValueHandler(on_value) = AttributeValueHandler{typeof(on_value)}(on_value)
+function AttributeValueHandler(on_value::T) where {T}
+    AttributeValueHandler{T}(on_value)
+end
 
 on_attribute_value(h::AttributeValueHandler) = h.on_value
 @inline _handler_ref(h::AttributeValueHandler) = h.ref
@@ -133,14 +145,12 @@ function _attribute_value_wrapper(value::Cstring, handler::AbstractAttributeValu
     return _callback_progression(on_attribute_value(handler)(unsafe_string(value)))
 end
 
-@generated function _attribute_value_cfunction(::Type{T}) where {T<:AbstractAttributeValueHandler}
-    quote
-        @cfunction(
-            _attribute_value_wrapper,
-            Iceoryx2FFI.iox2_callback_progression_e,
-            (Cstring, Ref{$T}),
-        )
-    end
+function _attribute_value_cfunction(::T) where {T<:AbstractAttributeValueHandler}
+    @cfunction(
+        _attribute_value_wrapper,
+        Iceoryx2FFI.iox2_callback_progression_e,
+        (Cstring, Ref{T}),
+    )
 end
 
 abstract type AbstractAttributeValuePtrHandler end
@@ -155,7 +165,9 @@ mutable struct AttributeValuePtrHandler{T} <: AbstractAttributeValuePtrHandler
     end
 end
 
-AttributeValuePtrHandler(on_value) = AttributeValuePtrHandler{typeof(on_value)}(on_value)
+function AttributeValuePtrHandler(on_value::T) where {T}
+    AttributeValuePtrHandler{T}(on_value)
+end
 
 on_attribute_value_ptr(h::AttributeValuePtrHandler) = h.on_value
 @inline _handler_ref(h::AttributeValuePtrHandler) = h.ref
@@ -165,14 +177,12 @@ function _attribute_value_ptr_wrapper(value::Cstring, handler::AbstractAttribute
     return _callback_progression(on_attribute_value_ptr(handler)(value))
 end
 
-@generated function _attribute_value_ptr_cfunction(::Type{T}) where {T<:AbstractAttributeValuePtrHandler}
-    quote
-        @cfunction(
-            _attribute_value_ptr_wrapper,
-            Iceoryx2FFI.iox2_callback_progression_e,
-            (Cstring, Ref{$T}),
-        )
-    end
+function _attribute_value_ptr_cfunction(::T) where {T<:AbstractAttributeValuePtrHandler}
+    @cfunction(
+        _attribute_value_ptr_wrapper,
+        Iceoryx2FFI.iox2_callback_progression_e,
+        (Cstring, Ref{T}),
+    )
 end
 
 @inline function _attribute_set_ptr(attrs::AttributeSet)
@@ -195,7 +205,7 @@ function each_attribute_value(
         Iceoryx2FFI.iox2_attribute_set_iter_key_values(
             _attribute_set_ptr(attrs),
             Base.unsafe_convert(Cstring, key_str),
-            _attribute_value_cfunction(typeof(handler)),
+            _attribute_value_cfunction(handler),
             handler_ref,
         )
     end
@@ -217,7 +227,7 @@ function each_attribute_value_ptr(
         Iceoryx2FFI.iox2_attribute_set_iter_key_values(
             _attribute_set_ptr(attrs),
             Base.unsafe_convert(Cstring, key_str),
-            _attribute_value_ptr_cfunction(typeof(handler)),
+            _attribute_value_ptr_cfunction(handler),
             handler_ref,
         )
     end
