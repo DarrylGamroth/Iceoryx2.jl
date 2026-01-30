@@ -156,7 +156,7 @@ end
         @test slice[idx] == 0x00
     end
     for idx in 1:payload_len
-        unsafe_store!(slice.ptr, UInt8(idx), idx)
+        slice[idx] = UInt8(idx)
     end
     Iceoryx2.send!(sample_mut)
 

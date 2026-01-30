@@ -57,8 +57,7 @@
     Iceoryx2.writer_entry!(writer, entry_mut, UInt64(1))
     uninit = Iceoryx2.EntryValueUninit(entry_mut)
     Iceoryx2.loan_uninit!(entry_mut, uninit)
-    ptr = Iceoryx2.value_mut(uninit)
-    unsafe_store!(ptr, UInt64(77))
+    Iceoryx2.value!(uninit, UInt64(77))
     Iceoryx2.update!(uninit, entry_mut)
     close(entry_mut)
 

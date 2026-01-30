@@ -37,7 +37,7 @@ function main()
             println("Write new value for key 0: $(counter)...")
 
             loan_uninit!(entry_1, value_uninit)
-            unsafe_store!(value_mut(value_uninit), initial_value * counter)
+            value!(value_uninit, initial_value * counter)
             update!(value_uninit, entry_1)
             println("Write new value for key 1: $(initial_value * counter)...\n")
         end
