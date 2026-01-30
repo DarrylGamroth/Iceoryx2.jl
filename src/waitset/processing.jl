@@ -234,3 +234,20 @@ end
 end
 
 @inline function Base.isless(lhs::WaitsetAttachmentId, rhs::WaitsetAttachmentIdRef)
+    return Iceoryx2FFI.iox2_waitset_attachment_id_less(
+        Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(lhs)),
+        Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(rhs)),
+    )
+end
+
+function debug_string(id::WaitsetAttachmentId)
+    len = Iceoryx2FFI.iox2_waitset_attachment_id_debug_len(Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(id)))
+    buf = Vector{UInt8}(undef, Int(len))
+    ok = Iceoryx2FFI.iox2_waitset_attachment_id_debug(
+        Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(id)),
+        pointer(buf),
+        Iceoryx2FFI.c_size_t(len),
+    )
+    ok || return ""
+    return unsafe_string(pointer(buf))
+end
