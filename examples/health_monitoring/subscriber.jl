@@ -58,7 +58,7 @@ function main()
 
     builder = NodeBuilder()
     name!(builder, "subscriber")
-    node = create(builder)
+    node = create(builder, ServiceType.IPC)
 
     service_1 = open_service(node, service_name_1)
     service_2 = open_service(node, service_name_2)

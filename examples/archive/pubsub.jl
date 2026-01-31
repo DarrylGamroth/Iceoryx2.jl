@@ -6,7 +6,7 @@ function main()
     node_builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(node_builder, "iox2_julia_pubsub_node")
 
-    Iceoryx2.create(node_builder) do node
+    Iceoryx2.create(node_builder, ServiceType.IPC) do node
         service_builder = Iceoryx2.service_builder(node, "iox2_julia_pubsub_service")
         pubsub_builder = Iceoryx2.publish_subscribe(service_builder, UInt64)
 

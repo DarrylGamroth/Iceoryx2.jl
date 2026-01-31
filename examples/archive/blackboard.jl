@@ -6,7 +6,7 @@ function main()
     node_builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(node_builder, "iox2_julia_blackboard_node")
 
-    Iceoryx2.create(node_builder) do node
+    Iceoryx2.create(node_builder, ServiceType.IPC) do node
         service_builder = Iceoryx2.service_builder(node, "iox2_julia_blackboard_service")
         bb_builder = Iceoryx2.blackboard_creator(service_builder, UInt64)
         Iceoryx2.add!(bb_builder, UInt64(1), UInt64(0))

@@ -23,7 +23,7 @@ function main()
 
     builder = NodeBuilder()
     config!(builder, cfg)
-    node = create(builder)
+    node = create(builder, ServiceType.IPC)
 
     service = open_or_create(publish_subscribe(service_builder(node, service_name), TransmissionData))
     subscriber = create(subscriber_builder(service))

@@ -10,7 +10,7 @@ function main()
 
     builder = NodeBuilder()
     name!(builder, "publisher 1")
-    node = create(builder)
+    node = create(builder, ServiceType.IPC)
 
     service = open_service(node, service_name)
 

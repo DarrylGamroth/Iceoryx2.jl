@@ -32,7 +32,7 @@ function main()
 
     builder = NodeBuilder()
     name!(builder, "central daemon")
-    node = create(builder)
+    node = create(builder, ServiceType.IPC)
 
     pubsub_1 = open_or_create(publish_subscribe(service_builder(node, service_name_1), UInt64))
     event_builder_1 = event(service_builder(node, service_name_1))

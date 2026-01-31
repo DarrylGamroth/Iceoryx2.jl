@@ -12,6 +12,7 @@ through Node → ServiceBuilder → PortFactory → Port APIs, matching the stat
 - Define `ServiceType` as a Julia `@enum` matching the C ABI values.
 - Remove `Symbol`-based conversion helpers and replace with `ServiceType` values in API signatures.
 - Make `Node` and service-related types parametric on `ServiceType`.
+- Keep `NodeBuilder` untyped; pass the `ServiceType` to `create` so the resulting `Node{S}` is statically typed.
 - Ensure service type is preserved from Node → ServiceBuilder → pattern builders → factories → ports.
 - Update examples, tests, benchmarks, docs to use `ServiceType` instead of `:ipc`/`:local`.
 

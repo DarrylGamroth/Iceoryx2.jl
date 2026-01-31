@@ -6,6 +6,7 @@
 - Use `create(f, builder)` or `open_or_create(f, builder)` to scope ownership with `do` blocks.
 - Handles are **consumed** by some calls (e.g. `send!(sample)`); the wrapper invalidates the handle after transfer.
 - Finalizers exist as a safety net but are not deterministic. For low-latency use, always call `close`.
+- Migration note: `NodeBuilder` no longer takes `ServiceType`; pass it to `create(builder, ServiceType.IPC)` instead.
 
 ## Configuration
 
