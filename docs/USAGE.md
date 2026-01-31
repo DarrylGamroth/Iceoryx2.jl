@@ -18,7 +18,7 @@ Iceoryx2.global_prefix!(config, "demo")
 
 builder = Iceoryx2.NodeBuilder()
 Iceoryx2.config!(builder, config)
-node = Iceoryx2.create(builder)
+node = Iceoryx2.create(builder, Iceoryx2.ServiceType.IPC)
 
 # ... use node ...
 

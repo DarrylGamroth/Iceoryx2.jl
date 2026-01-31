@@ -49,8 +49,8 @@ function perform_benchmark(
     additional_notifiers::Int,
     additional_listeners::Int,
 )
-    node_builder = Iceoryx2.NodeBuilder(service_type)
-    node = Iceoryx2.create(node_builder)
+    node_builder = Iceoryx2.NodeBuilder()
+    node = Iceoryx2.create(node_builder, service_type)
 
     factory_a2b = build_event_factory(node, "a2b", additional_notifiers, additional_listeners, max_event_id)
     factory_b2a = build_event_factory(node, "b2a", additional_notifiers, additional_listeners, max_event_id)

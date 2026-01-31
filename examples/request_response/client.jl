@@ -6,7 +6,7 @@ const CYCLE_SECONDS = 1
 
 function main()
     set_log_level_from_env_or(:info)
-    node = create(NodeBuilder(ServiceType.IPC))
+    node = create(NodeBuilder(), ServiceType.IPC)
 
     builder = request_response(service_builder(node, "My/Funk/ServiceName"), UInt64, TransmissionData)
     service = open_or_create(builder)

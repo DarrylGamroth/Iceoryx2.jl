@@ -15,7 +15,7 @@ function main()
     service_name_1 = parse_arg(ARGS, "-s", "--service1", "fuu")
     service_name_2 = parse_arg(ARGS, "-t", "--service2", "bar")
 
-    node = create(NodeBuilder(ServiceType.IPC))
+    node = create(NodeBuilder(), ServiceType.IPC)
 
     service_1 = open_or_create(event(service_builder(node, service_name_1)))
     service_2 = open_or_create(event(service_builder(node, service_name_2)))

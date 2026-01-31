@@ -1,4 +1,4 @@
-mutable struct NodeBuilder{S}
+mutable struct NodeBuilder
     handle::Iceoryx2FFI.iox2_node_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_node_builder_t}
     name_handle::Iceoryx2FFI.iox2_node_name_h
@@ -7,8 +7,8 @@ mutable struct NodeBuilder{S}
     config_keepalive::Union{Config,Nothing}
     signal_handling_mode::Iceoryx2FFI.iox2_signal_handling_mode_e
     has_signal_handling_mode::Bool
-    function NodeBuilder{S}(handle, storage, name_handle, config_ptr, config_storage, config_keepalive, signal_handling_mode, has_signal_handling_mode) where {S}
-        obj = new{S}(handle, storage, name_handle, config_ptr, config_storage, config_keepalive, signal_handling_mode, has_signal_handling_mode)
+    function NodeBuilder(handle, storage, name_handle, config_ptr, config_storage, config_keepalive, signal_handling_mode, has_signal_handling_mode)
+        obj = new(handle, storage, name_handle, config_ptr, config_storage, config_keepalive, signal_handling_mode, has_signal_handling_mode)
         finalizer(_finalize_node_builder, obj)
         return obj
     end
@@ -30,11 +30,11 @@ function _finalize_node_builder(builder::NodeBuilder)
     return nothing
 end
 
-function NodeBuilder(service_type::ServiceType = ServiceType.IPC)
+function NodeBuilder()
     storage = Ref{Iceoryx2FFI.iox2_node_builder_t}()
     handle = Iceoryx2FFI.iox2_node_builder_new(storage)
     config_storage = Ref{Iceoryx2FFI.iox2_config_h}(_IOX2_NULL)
-    return NodeBuilder{service_type}(
+    return NodeBuilder(
         handle,
         storage,
         _IOX2_NULL,
@@ -110,7 +110,7 @@ function signal_handling_mode!(builder::NodeBuilder, mode::Iceoryx2FFI.iox2_sign
     return builder
 end
 
-function create(builder::NodeBuilder{S}) where {S}
+function create(builder::NodeBuilder, service_type::ServiceType = ServiceType.IPC)
     _require_valid(builder.handle, "node builder")
     if builder.name_handle != _IOX2_NULL
         ptr = _node_name_ptr(builder.name_handle)
@@ -127,15 +127,15 @@ function create(builder::NodeBuilder{S}) where {S}
         builder.has_signal_handling_mode = false
     end
     handle_ref = Ref{Iceoryx2FFI.iox2_node_h}(_IOX2_NULL)
-    ret = Iceoryx2FFI.iox2_node_builder_create(builder.handle, C_NULL, _service_type(S), handle_ref)
+    ret = Iceoryx2FFI.iox2_node_builder_create(builder.handle, C_NULL, _service_type(service_type), handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_node_creation_failure_e)
     builder.handle = _IOX2_NULL
     builder.storage = nothing
-    return Node{S}(handle_ref[])
+    return Node{service_type}(handle_ref[])
 end
 
-function create(f::Function, builder::NodeBuilder{S}) where {S}
-    node = create(builder)
+function create(f::Function, builder::NodeBuilder, service_type::ServiceType = ServiceType.IPC)
+    node = create(builder, service_type)
     try
         return f(node)
     finally

@@ -30,7 +30,7 @@ through Node → ServiceBuilder → PortFactory → Port APIs, matching the stat
 - `Waitset{S}` only if it is semantically tied to a service type; otherwise keep untyped and accept `ServiceType` at create.
 
 ## API surface changes
-- `create(::NodeBuilder{S})` (service type is in the builder type parameter)
+- `create(::NodeBuilder, ::ServiceType)` (service type is provided at creation)
 - `create(::WaitsetBuilder{S})` (service type is in the builder type parameter)
 - `list_nodes(; service_type=ServiceType.IPC)`
 - `service_does_exist`, `service_details`, `list_services`, config helpers, etc. accept `ServiceType`.

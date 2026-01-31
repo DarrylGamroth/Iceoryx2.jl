@@ -6,7 +6,7 @@ const DEADLINE_SECONDS = 2
 
 function main()
     set_log_level_from_env_or(:info)
-    node = create(NodeBuilder(ServiceType.IPC))
+    node = create(NodeBuilder(), ServiceType.IPC)
 
     subscriber = create_custom_subscriber(node, "My/Funk/ServiceName")
 

@@ -1,5 +1,5 @@
 @testset "NodeBuilder" begin
-    builder = Iceoryx2.NodeBuilder(Iceoryx2.ServiceType.IPC)
+    builder = Iceoryx2.NodeBuilder()
     @test isvalid(builder)
 
     Iceoryx2.name!(builder, "iceoryx2_julia_test_node")
@@ -8,7 +8,7 @@
 
     Iceoryx2.config!(builder, config)
 
-    node = Iceoryx2.create(builder)
+    node = Iceoryx2.create(builder, Iceoryx2.ServiceType.IPC)
     @test !isvalid(builder)
     @test isvalid(node)
 

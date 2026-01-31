@@ -5,7 +5,7 @@ const MAX_VALUE = UInt64(0xff)
 
 function main()
     set_log_level_from_env_or(:info)
-    node = create(NodeBuilder(ServiceType.IPC))
+    node = create(NodeBuilder(), ServiceType.IPC)
 
     builder = publish_subscribe(service_builder(node, "Service With Dynamic Data"), AbstractVector{UInt8})
     service = open_or_create(builder)

@@ -69,8 +69,8 @@ function perform_benchmark(
     additional_publishers::Int,
     additional_subscribers::Int,
 )
-    node_builder = Iceoryx2.NodeBuilder(service_type)
-    node = Iceoryx2.create(node_builder)
+    node_builder = Iceoryx2.NodeBuilder()
+    node = Iceoryx2.create(node_builder, service_type)
 
     factory_a2b = build_pubsub_factory(node, "a2b", additional_publishers, additional_subscribers)
     factory_b2a = build_pubsub_factory(node, "b2a", additional_publishers, additional_subscribers)

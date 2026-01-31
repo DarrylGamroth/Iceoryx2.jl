@@ -50,8 +50,8 @@ function perform_request_benchmark(
     additional_servers::Int,
     additional_clients::Int,
 )
-    node_builder = Iceoryx2.NodeBuilder(service_type)
-    node = Iceoryx2.create(node_builder)
+    node_builder = Iceoryx2.NodeBuilder()
+    node = Iceoryx2.create(node_builder, service_type)
 
     factory_a2b = build_rr_factory(node, "a2b", additional_servers, additional_clients)
     factory_b2a = build_rr_factory(node, "b2a", additional_servers, additional_clients)
@@ -149,8 +149,8 @@ function perform_response_stream_benchmark(
     additional_servers::Int,
     additional_clients::Int,
 )
-    node_builder = Iceoryx2.NodeBuilder(service_type)
-    node = Iceoryx2.create(node_builder)
+    node_builder = Iceoryx2.NodeBuilder()
+    node = Iceoryx2.create(node_builder, service_type)
 
     factory_a2b = build_rr_factory(node, "a2b", additional_servers, additional_clients)
     factory_b2a = build_rr_factory(node, "b2a", additional_servers, additional_clients)
