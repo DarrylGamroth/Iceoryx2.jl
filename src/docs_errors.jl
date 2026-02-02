@@ -6,84 +6,438 @@
 Validate a C error code and throw the corresponding `*Error` exception on
 failure. `T` is the C enum type for the error category.
 """
-@doc check_ok
+check_ok
 
-const _ERROR_DOCS = Dict(
-    :AttributeDefinitionError => "Error thrown when defining attributes fails.",
-    :AttributeVerificationError => "Error thrown when attribute verification fails.",
-    :BlackboardCreateError => "Error thrown when blackboard creation fails.",
-    :BlackboardOpenError => "Error thrown when blackboard open fails.",
-    :ClientCreateError => "Error thrown when creating a client fails.",
-    :ConfigCreationError => "Error thrown when creating a config fails.",
-    :EntryHandleError => "Error thrown when acquiring a reader entry fails.",
-    :EntryHandleMutError => "Error thrown when acquiring a writer entry fails.",
-    :EventOpenOrCreateError => "Error thrown when opening or creating an event service fails.",
-    :ListenerCreateError => "Error thrown when creating a listener fails.",
-    :ListenerWaitError => "Error thrown when waiting on a listener fails.",
-    :LoanError => "Error thrown when a loan operation fails.",
-    :NotifierCreateError => "Error thrown when creating a notifier fails.",
-    :NotifierNotifyError => "Error thrown when notifying fails.",
-    :PubSubOpenOrCreateError => "Error thrown when opening or creating a pub/sub service fails.",
-    :PublisherCreateError => "Error thrown when creating a publisher fails.",
-    :ReaderCreateError => "Error thrown when creating a reader fails.",
-    :ReceiveError => "Error thrown when receiving fails.",
-    :RequestResponseOpenOrCreateError => "Error thrown when opening or creating a request/response service fails.",
-    :RequestSendError => "Error thrown when sending a request fails.",
-    :SemanticStringError => "Error thrown when semantic string validation fails.",
-    :SendError => "Error thrown when sending a sample fails.",
-    :ServerCreateError => "Error thrown when creating a server fails.",
-    :ServiceDetailsError => "Error thrown when fetching service details fails.",
-    :ServiceListError => "Error thrown when listing services fails.",
-    :SubscriberCreateError => "Error thrown when creating a subscriber fails.",
-    :TypeDetailError => "Error thrown when setting type details fails.",
-    :WaitsetAttachmentError => "Error thrown when attaching to a waitset fails.",
-    :WaitsetCreateError => "Error thrown when creating a waitset fails.",
-    :WaitsetRunError => "Error thrown when running a waitset fails.",
-    :WriterCreateError => "Error thrown when creating a writer fails.",
-)
+"""
+    AttributeDefinitionError
 
-for (name, text) in _ERROR_DOCS
-    if isdefined(@__MODULE__, name)
-        @doc text getfield(@__MODULE__, name)
-    end
-end
+Error thrown when defining attributes fails.
+"""
+AttributeDefinitionError
 
-const _ERROR_ENUM_DOCS = Dict(
-    :iox2_attribute_definition_error_e => "C error enum for attribute definition.",
-    :iox2_attribute_verification_error_e => "C error enum for attribute verification.",
-    :iox2_blackboard_create_error_e => "C error enum for blackboard creation.",
-    :iox2_blackboard_open_error_e => "C error enum for blackboard open.",
-    :iox2_client_create_error_e => "C error enum for client creation.",
-    :iox2_config_creation_error_e => "C error enum for config creation.",
-    :iox2_entry_handle_error_e => "C error enum for reader entry errors.",
-    :iox2_entry_handle_mut_error_e => "C error enum for writer entry errors.",
-    :iox2_event_open_or_create_error_e => "C error enum for event open/create.",
-    :iox2_listener_create_error_e => "C error enum for listener creation.",
-    :iox2_listener_wait_error_e => "C error enum for listener wait.",
-    :iox2_loan_error_e => "C error enum for loan operations.",
-    :iox2_notifier_create_error_e => "C error enum for notifier creation.",
-    :iox2_notifier_notify_error_e => "C error enum for notifier notify.",
-    :iox2_pub_sub_open_or_create_error_e => "C error enum for pub/sub open/create.",
-    :iox2_publisher_create_error_e => "C error enum for publisher creation.",
-    :iox2_reader_create_error_e => "C error enum for reader creation.",
-    :iox2_receive_error_e => "C error enum for receive errors.",
-    :iox2_request_response_open_or_create_error_e => "C error enum for request/response open/create.",
-    :iox2_request_send_error_e => "C error enum for request send errors.",
-    :iox2_semantic_string_error_e => "C error enum for semantic string errors.",
-    :iox2_send_error_e => "C error enum for send errors.",
-    :iox2_server_create_error_e => "C error enum for server creation.",
-    :iox2_service_details_error_e => "C error enum for service details.",
-    :iox2_service_list_error_e => "C error enum for service listing.",
-    :iox2_subscriber_create_error_e => "C error enum for subscriber creation.",
-    :iox2_type_detail_error_e => "C error enum for type detail errors.",
-    :iox2_waitset_attachment_error_e => "C error enum for waitset attachment.",
-    :iox2_waitset_create_error_e => "C error enum for waitset creation.",
-    :iox2_waitset_run_error_e => "C error enum for waitset run.",
-    :iox2_writer_create_error_e => "C error enum for writer creation.",
-)
+"""
+    AttributeVerificationError
 
-for (name, text) in _ERROR_ENUM_DOCS
-    if isdefined(Iceoryx2FFI, name)
-        @doc text getfield(Iceoryx2FFI, name)
-    end
-end
+Error thrown when attribute verification fails.
+"""
+AttributeVerificationError
+
+"""
+    BlackboardCreateError
+
+Error thrown when blackboard creation fails.
+"""
+BlackboardCreateError
+
+"""
+    BlackboardOpenError
+
+Error thrown when opening a blackboard fails.
+"""
+BlackboardOpenError
+
+"""
+    ClientCreateError
+
+Error thrown when creating a client fails.
+"""
+ClientCreateError
+
+"""
+    ConfigCreationError
+
+Error thrown when creating a config fails.
+"""
+ConfigCreationError
+
+"""
+    EntryHandleError
+
+Error thrown when acquiring a reader entry fails.
+"""
+EntryHandleError
+
+"""
+    EntryHandleMutError
+
+Error thrown when acquiring a writer entry fails.
+"""
+EntryHandleMutError
+
+"""
+    EventOpenOrCreateError
+
+Error thrown when opening or creating an event service fails.
+"""
+EventOpenOrCreateError
+
+"""
+    ListenerCreateError
+
+Error thrown when creating a listener fails.
+"""
+ListenerCreateError
+
+"""
+    ListenerWaitError
+
+Error thrown when waiting on a listener fails.
+"""
+ListenerWaitError
+
+"""
+    LoanError
+
+Error thrown when a loan operation fails.
+"""
+LoanError
+
+"""
+    NotifierCreateError
+
+Error thrown when creating a notifier fails.
+"""
+NotifierCreateError
+
+"""
+    NotifierNotifyError
+
+Error thrown when notifying fails.
+"""
+NotifierNotifyError
+
+"""
+    PubSubOpenOrCreateError
+
+Error thrown when opening or creating a pub/sub service fails.
+"""
+PubSubOpenOrCreateError
+
+"""
+    PublisherCreateError
+
+Error thrown when creating a publisher fails.
+"""
+PublisherCreateError
+
+"""
+    ReaderCreateError
+
+Error thrown when creating a reader fails.
+"""
+ReaderCreateError
+
+"""
+    ReceiveError
+
+Error thrown when receiving fails.
+"""
+ReceiveError
+
+"""
+    RequestResponseOpenOrCreateError
+
+Error thrown when opening or creating a request/response service fails.
+"""
+RequestResponseOpenOrCreateError
+
+"""
+    RequestSendError
+
+Error thrown when sending a request fails.
+"""
+RequestSendError
+
+"""
+    SemanticStringError
+
+Error thrown when semantic string validation fails.
+"""
+SemanticStringError
+
+"""
+    SendError
+
+Error thrown when sending a sample fails.
+"""
+SendError
+
+"""
+    ServerCreateError
+
+Error thrown when creating a server fails.
+"""
+ServerCreateError
+
+"""
+    ServiceDetailsError
+
+Error thrown when fetching service details fails.
+"""
+ServiceDetailsError
+
+"""
+    ServiceListError
+
+Error thrown when listing services fails.
+"""
+ServiceListError
+
+"""
+    SubscriberCreateError
+
+Error thrown when creating a subscriber fails.
+"""
+SubscriberCreateError
+
+"""
+    TypeDetailError
+
+Error thrown when setting type details fails.
+"""
+TypeDetailError
+
+"""
+    WaitsetAttachmentError
+
+Error thrown when attaching to a waitset fails.
+"""
+WaitsetAttachmentError
+
+"""
+    WaitsetCreateError
+
+Error thrown when creating a waitset fails.
+"""
+WaitsetCreateError
+
+"""
+    WaitsetRunError
+
+Error thrown when running a waitset fails.
+"""
+WaitsetRunError
+
+"""
+    WriterCreateError
+
+Error thrown when creating a writer fails.
+"""
+WriterCreateError
+
+"""
+    Iceoryx2FFI.iox2_attribute_definition_error_e
+
+C error enum for attribute definition.
+"""
+Iceoryx2FFI.iox2_attribute_definition_error_e
+
+"""
+    Iceoryx2FFI.iox2_attribute_verification_error_e
+
+C error enum for attribute verification.
+"""
+Iceoryx2FFI.iox2_attribute_verification_error_e
+
+"""
+    Iceoryx2FFI.iox2_blackboard_create_error_e
+
+C error enum for blackboard creation.
+"""
+Iceoryx2FFI.iox2_blackboard_create_error_e
+
+"""
+    Iceoryx2FFI.iox2_blackboard_open_error_e
+
+C error enum for blackboard open.
+"""
+Iceoryx2FFI.iox2_blackboard_open_error_e
+
+"""
+    Iceoryx2FFI.iox2_client_create_error_e
+
+C error enum for client creation.
+"""
+Iceoryx2FFI.iox2_client_create_error_e
+
+"""
+    Iceoryx2FFI.iox2_config_creation_error_e
+
+C error enum for config creation.
+"""
+Iceoryx2FFI.iox2_config_creation_error_e
+
+"""
+    Iceoryx2FFI.iox2_entry_handle_error_e
+
+C error enum for reader entry errors.
+"""
+Iceoryx2FFI.iox2_entry_handle_error_e
+
+"""
+    Iceoryx2FFI.iox2_entry_handle_mut_error_e
+
+C error enum for writer entry errors.
+"""
+Iceoryx2FFI.iox2_entry_handle_mut_error_e
+
+"""
+    Iceoryx2FFI.iox2_event_open_or_create_error_e
+
+C error enum for event open/create.
+"""
+Iceoryx2FFI.iox2_event_open_or_create_error_e
+
+"""
+    Iceoryx2FFI.iox2_listener_create_error_e
+
+C error enum for listener creation.
+"""
+Iceoryx2FFI.iox2_listener_create_error_e
+
+"""
+    Iceoryx2FFI.iox2_listener_wait_error_e
+
+C error enum for listener wait.
+"""
+Iceoryx2FFI.iox2_listener_wait_error_e
+
+"""
+    Iceoryx2FFI.iox2_loan_error_e
+
+C error enum for loan operations.
+"""
+Iceoryx2FFI.iox2_loan_error_e
+
+"""
+    Iceoryx2FFI.iox2_notifier_create_error_e
+
+C error enum for notifier creation.
+"""
+Iceoryx2FFI.iox2_notifier_create_error_e
+
+"""
+    Iceoryx2FFI.iox2_notifier_notify_error_e
+
+C error enum for notifier notify.
+"""
+Iceoryx2FFI.iox2_notifier_notify_error_e
+
+"""
+    Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e
+
+C error enum for pub/sub open/create.
+"""
+Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e
+
+"""
+    Iceoryx2FFI.iox2_publisher_create_error_e
+
+C error enum for publisher creation.
+"""
+Iceoryx2FFI.iox2_publisher_create_error_e
+
+"""
+    Iceoryx2FFI.iox2_reader_create_error_e
+
+C error enum for reader creation.
+"""
+Iceoryx2FFI.iox2_reader_create_error_e
+
+"""
+    Iceoryx2FFI.iox2_receive_error_e
+
+C error enum for receive errors.
+"""
+Iceoryx2FFI.iox2_receive_error_e
+
+"""
+    Iceoryx2FFI.iox2_request_response_open_or_create_error_e
+
+C error enum for request/response open/create.
+"""
+Iceoryx2FFI.iox2_request_response_open_or_create_error_e
+
+"""
+    Iceoryx2FFI.iox2_request_send_error_e
+
+C error enum for request send errors.
+"""
+Iceoryx2FFI.iox2_request_send_error_e
+
+"""
+    Iceoryx2FFI.iox2_semantic_string_error_e
+
+C error enum for semantic string errors.
+"""
+Iceoryx2FFI.iox2_semantic_string_error_e
+
+"""
+    Iceoryx2FFI.iox2_send_error_e
+
+C error enum for send errors.
+"""
+Iceoryx2FFI.iox2_send_error_e
+
+"""
+    Iceoryx2FFI.iox2_server_create_error_e
+
+C error enum for server creation.
+"""
+Iceoryx2FFI.iox2_server_create_error_e
+
+"""
+    Iceoryx2FFI.iox2_service_details_error_e
+
+C error enum for service details.
+"""
+Iceoryx2FFI.iox2_service_details_error_e
+
+"""
+    Iceoryx2FFI.iox2_service_list_error_e
+
+C error enum for service listing.
+"""
+Iceoryx2FFI.iox2_service_list_error_e
+
+"""
+    Iceoryx2FFI.iox2_subscriber_create_error_e
+
+C error enum for subscriber creation.
+"""
+Iceoryx2FFI.iox2_subscriber_create_error_e
+
+"""
+    Iceoryx2FFI.iox2_type_detail_error_e
+
+C error enum for type detail errors.
+"""
+Iceoryx2FFI.iox2_type_detail_error_e
+
+"""
+    Iceoryx2FFI.iox2_waitset_attachment_error_e
+
+C error enum for waitset attachment.
+"""
+Iceoryx2FFI.iox2_waitset_attachment_error_e
+
+"""
+    Iceoryx2FFI.iox2_waitset_create_error_e
+
+C error enum for waitset creation.
+"""
+Iceoryx2FFI.iox2_waitset_create_error_e
+
+"""
+    Iceoryx2FFI.iox2_waitset_run_error_e
+
+C error enum for waitset run.
+"""
+Iceoryx2FFI.iox2_waitset_run_error_e
+
+"""
+    Iceoryx2FFI.iox2_writer_create_error_e
+
+C error enum for writer creation.
+"""
+Iceoryx2FFI.iox2_writer_create_error_e
