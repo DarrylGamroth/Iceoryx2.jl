@@ -16,7 +16,7 @@ function main()
     global_prefix!(cfg, domain)
 
     println("Services running in domain \"$(domain)\":")
-    list_services(; config = cfg) do cfg_view
+    list_services(service_type=ServiceType.IPC, config=cfg) do cfg_view
         println("Service: ", name(cfg_view), " (pattern=", messaging_pattern(cfg_view), ")")
         return :continue
     end

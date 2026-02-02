@@ -111,7 +111,7 @@
 
     builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(builder, "iceoryx2_julia_alloc_hotpath")
-    node = Iceoryx2.create(builder)
+    node = Iceoryx2.create(builder, Iceoryx2.ServiceType.IPC)
 
     svc_builder = Iceoryx2.service_builder(node, "iceoryx2_julia_alloc_pubsub")
     pubsub_builder = Iceoryx2.publish_subscribe(svc_builder, UInt64)
@@ -201,7 +201,7 @@
     end
     close(pending)
 
-    waitset_builder = Iceoryx2.WaitsetBuilder()
+    waitset_builder = Iceoryx2.WaitsetBuilder(Iceoryx2.ServiceType.IPC)
     waitset = Iceoryx2.create(waitset_builder)
     guard = Iceoryx2.attach_interval(waitset, 0, 10_000_000)
     attachment = Iceoryx2.attachment_id(guard)

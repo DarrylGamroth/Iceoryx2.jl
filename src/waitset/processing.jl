@@ -27,8 +27,6 @@ WaitsetHandler(on_event::T, ::Type{S}) where {S,T} = WaitsetHandler{S}(on_event)
 
 WaitsetHandler(on_event::T, waitset::Waitset{S}) where {S,T} = WaitsetHandler{S}(on_event)
 
-WaitsetHandler(on_event::T) where {T} = WaitsetHandler{ServiceType.IPC}(on_event)
-
 on_waitset_event(h::WaitsetHandler) = h.on_event
 
 @inline function _waitset_attachment_cleanup!(attachment::WaitsetAttachmentId)

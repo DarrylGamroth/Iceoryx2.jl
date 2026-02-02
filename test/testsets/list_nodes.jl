@@ -1,7 +1,7 @@
 @testset "ListNodes" begin
     builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(builder, "iceoryx2_julia_test_node_list")
-    node = Iceoryx2.create(builder)
+    node = Iceoryx2.create(builder, Iceoryx2.ServiceType.IPC)
 
     count = Ref(0)
     Iceoryx2.list_nodes(service_type=Iceoryx2.ServiceType.IPC) do _state, _node_id, _node_id_str, _node_name, _config

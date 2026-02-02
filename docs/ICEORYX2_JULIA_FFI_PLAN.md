@@ -103,7 +103,7 @@ Hot path refers to any API that is called per message/event or inside tight loop
 ## Phase 6: Builder & Factory API
 - Implement builder types matching the C++ API shape:
   - `NodeBuilder()`, `name!(builder, name)`, `config!(builder, config)`
-  - `create(builder)` (service type is encoded in `NodeBuilder`)
+  - `create(builder, service_type)`
 - Ensure builders are consumable and cleaned:
   - On `create`, mark builder invalid.
   - Add a finalizer to release if user never calls `create`.
@@ -137,7 +137,7 @@ Hot path refers to any API that is called per message/event or inside tight loop
   - `GC.@preserve` around `ccall` to keep closure alive.
 - Maintain a callback registry/context struct to keep closures alive; use `FunctionWrappers.jl` and `let` blocks to avoid capture-induced allocations and type instability.
 - Provide Julia-idiomatic iteration:
-  - `list_nodes(config) do state ... end`
+  - `list_nodes(service_type=ServiceType.IPC, config=global_config()) do state ... end`
   - Optional `collect` variants that return arrays.
 - Outputs:
   - Callback helpers: `src/callbacks.jl`

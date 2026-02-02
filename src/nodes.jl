@@ -73,7 +73,7 @@ end
 
 function remove_stale_resources(
     node_id::NodeId;
-    service_type::ServiceType = ServiceType.IPC,
+    service_type::ServiceType,
     config::Union{Config, ConfigRef, Nothing} = nothing,
 )
     _require_valid(unsafe_handle(node_id), "node id")

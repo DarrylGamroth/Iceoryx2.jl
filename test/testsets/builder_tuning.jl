@@ -1,7 +1,7 @@
 @testset "BuilderTuning" begin
     node_builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(node_builder, unique_node_name())
-    node = Iceoryx2.create(node_builder)
+    node = Iceoryx2.create(node_builder, Iceoryx2.ServiceType.IPC)
 
     pubsub_builder = Iceoryx2.publish_subscribe(Iceoryx2.service_builder(node, unique_service_name()), UInt64)
     Iceoryx2.payload_alignment!(pubsub_builder, Base.datatype_alignment(UInt64))

@@ -4,7 +4,7 @@
 
     node_builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(node_builder, unique_node_name())
-    node = Iceoryx2.create(node_builder)
+    node = Iceoryx2.create(node_builder, Iceoryx2.ServiceType.IPC)
 
     svc_builder = Iceoryx2.service_builder(node, service_name)
     bb_builder = Iceoryx2.blackboard_creator(svc_builder, UInt64)

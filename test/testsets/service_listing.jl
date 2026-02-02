@@ -1,7 +1,7 @@
 @testset "ServiceListing" begin
     builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(builder, "iceoryx2_julia_test_node_service_list")
-    node = Iceoryx2.create(builder)
+    node = Iceoryx2.create(builder, Iceoryx2.ServiceType.IPC)
 
     service_name = "iceoryx2_julia_test_service_list"
     svc_builder = Iceoryx2.service_builder(node, service_name)

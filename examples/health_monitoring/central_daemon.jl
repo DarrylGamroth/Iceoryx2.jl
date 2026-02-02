@@ -8,7 +8,7 @@ const DEADLINE_SERVICE_2_MILLIS = 2000
 const NODE_DEAD = Iceoryx2.Iceoryx2FFI.iox2_node_state_e_DEAD
 
 function find_and_cleanup_dead_nodes()
-    list_nodes(; config = global_config()) do state, node_id_view, _node_id_str, node_name, _cfg
+    list_nodes(service_type=ServiceType.IPC, config=global_config()) do state, node_id_view, _node_id_str, node_name, _cfg
         if state == NODE_DEAD
             print("detected dead node: ")
             if isvalid(node_name)
@@ -16,7 +16,7 @@ function find_and_cleanup_dead_nodes()
             end
             println()
             node_id = to_owned(node_id_view)
-            remove_stale_resources(node_id)
+            remove_stale_resources(node_id; service_type=ServiceType.IPC)
             close(node_id)
         end
         return :continue

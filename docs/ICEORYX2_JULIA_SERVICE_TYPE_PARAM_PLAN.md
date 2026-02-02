@@ -33,7 +33,7 @@ through Node → ServiceBuilder → PortFactory → Port APIs, matching the stat
 ## API surface changes
 - `create(::NodeBuilder, ::ServiceType)` (service type is provided at creation)
 - `create(::WaitsetBuilder{S})` (service type is in the builder type parameter)
-- `list_nodes(; service_type=ServiceType.IPC)`
+- `list_nodes(; service_type::ServiceType)`
 - `service_does_exist`, `service_details`, `list_services`, config helpers, etc. accept `ServiceType`.
 - Remove `Union{Symbol, Iceoryx2FFI.iox2_service_type_e}` from all signatures.
 

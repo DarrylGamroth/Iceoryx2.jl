@@ -166,7 +166,7 @@ end
 
 function service_does_exist(
     service_name::Union{ServiceName, ServiceNameView};
-    service_type::ServiceType = ServiceType.IPC,
+    service_type::ServiceType,
     messaging_pattern::Union{Symbol, Iceoryx2FFI.iox2_messaging_pattern_e} = :publish_subscribe,
     config::Union{Config, ConfigView, Nothing} = nothing,
 )
@@ -184,7 +184,7 @@ end
 
 function service_does_exist(
     service_name::AbstractString;
-    service_type::ServiceType = ServiceType.IPC,
+    service_type::ServiceType,
     messaging_pattern::Union{Symbol, Iceoryx2FFI.iox2_messaging_pattern_e} = :publish_subscribe,
     config::Union{Config, ConfigView, Nothing} = nothing,
 )
@@ -198,7 +198,7 @@ end
 
 function service_details(
     service_name::Union{ServiceName, ServiceNameView};
-    service_type::ServiceType = ServiceType.IPC,
+    service_type::ServiceType,
     messaging_pattern::Union{Symbol, Iceoryx2FFI.iox2_messaging_pattern_e} = :publish_subscribe,
     config::Union{Config, ConfigView, Nothing} = nothing,
 )
@@ -218,7 +218,7 @@ end
 
 function service_details(
     service_name::AbstractString;
-    service_type::ServiceType = ServiceType.IPC,
+    service_type::ServiceType,
     messaging_pattern::Union{Symbol, Iceoryx2FFI.iox2_messaging_pattern_e} = :publish_subscribe,
     config::Union{Config, ConfigView, Nothing} = nothing,
 )
@@ -252,7 +252,7 @@ end
 
 function list_services(
     handler::AbstractServiceListHandler;
-    service_type::ServiceType = ServiceType.IPC,
+    service_type::ServiceType,
     config::Union{Config, ConfigView, Nothing} = nothing,
 )
     handler_ref = Ref(handler)
@@ -270,7 +270,7 @@ end
 
 function list_services(
     f::Function;
-    service_type::ServiceType = ServiceType.IPC,
+    service_type::ServiceType,
     config::Union{Config, ConfigView, Nothing} = nothing,
 )
     return list_services(ServiceListHandler(f); service_type, config)

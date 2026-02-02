@@ -13,7 +13,7 @@ end
 
 @inline _signal_handling_mode(value) = throw(ArgumentError("unsupported signal handling mode: $value"))
 
-function WaitsetBuilder(service_type::ServiceType = ServiceType.IPC)
+function WaitsetBuilder(service_type::ServiceType)
     handle_ref = Ref{Iceoryx2FFI.iox2_waitset_builder_h}(_IOX2_NULL)
     Iceoryx2FFI.iox2_waitset_builder_new(C_NULL, handle_ref)
     return WaitsetBuilder{service_type}(handle_ref[])

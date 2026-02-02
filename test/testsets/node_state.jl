@@ -2,7 +2,7 @@
     node_name = unique_node_name()
     builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(builder, node_name)
-    node = Iceoryx2.create(builder)
+    node = Iceoryx2.create(builder, Iceoryx2.ServiceType.IPC)
     target = string(Iceoryx2.name(node))
 
     found = Ref(false)
@@ -21,7 +21,7 @@
 
     node_id = Iceoryx2.id(node)
     close(node)
-    result = Iceoryx2.remove_stale_resources(node_id)
+    result = Iceoryx2.remove_stale_resources(node_id; service_type=Iceoryx2.ServiceType.IPC)
     @test result isa Bool
     close(node_id)
 end

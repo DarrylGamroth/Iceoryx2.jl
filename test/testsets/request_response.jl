@@ -1,7 +1,7 @@
 @testset "RequestResponse" begin
     builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(builder, "iceoryx2_julia_test_node_rr")
-    node = Iceoryx2.create(builder)
+    node = Iceoryx2.create(builder, Iceoryx2.ServiceType.IPC)
 
     svc_builder_hdr = Iceoryx2.service_builder(node, "iceoryx2_julia_test_service_rr_hdr")
     rr_hdr_builder = Iceoryx2.request_response(svc_builder_hdr, UInt64, UInt64)
@@ -120,7 +120,7 @@ end
 @testset "RequestResponseTuplePayload" begin
     builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(builder, "iceoryx2_julia_test_node_rr_tuple")
-    node = Iceoryx2.create(builder)
+    node = Iceoryx2.create(builder, Iceoryx2.ServiceType.IPC)
 
     svc_builder = Iceoryx2.service_builder(node, unique_service_name())
     rr_builder = Iceoryx2.request_response(

@@ -7,6 +7,9 @@
 - Handles are **consumed** by some calls (e.g. `send!(sample)`); the wrapper invalidates the handle after transfer.
 - Finalizers exist as a safety net but are not deterministic. For low-latency use, always call `close`.
 - Migration note: `NodeBuilder` no longer takes `ServiceType`; pass it to `create(builder, ServiceType.IPC)` instead.
+- Migration note: `list_nodes`, `list_services`, `service_does_exist`, `service_details`, and `remove_stale_resources`
+  now require an explicit `service_type` keyword (no default).
+- Migration note: `WaitsetBuilder` now requires an explicit `ServiceType` argument.
 
 ## Configuration
 

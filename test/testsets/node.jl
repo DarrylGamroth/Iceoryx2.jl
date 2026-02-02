@@ -2,13 +2,13 @@
     node_name = unique_node_name()
     builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(builder, node_name)
-    node = Iceoryx2.create(builder)
+    node = Iceoryx2.create(builder, Iceoryx2.ServiceType.IPC)
     @test string(Iceoryx2.name(node)) == node_name
     Iceoryx2.wait(node, 0, 1)
 
     builder2 = Iceoryx2.NodeBuilder()
     Iceoryx2.signal_handling_mode!(builder2, Iceoryx2.Iceoryx2FFI.iox2_signal_handling_mode_e_DISABLED)
-    node2 = Iceoryx2.create(builder2)
+    node2 = Iceoryx2.create(builder2, Iceoryx2.ServiceType.IPC)
     @test Iceoryx2.signal_handling_mode(node2) == Iceoryx2.Iceoryx2FFI.iox2_signal_handling_mode_e_DISABLED
 
     id1 = Iceoryx2.id(node)

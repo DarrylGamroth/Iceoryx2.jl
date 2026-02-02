@@ -110,7 +110,7 @@ function signal_handling_mode!(builder::NodeBuilder, mode::Iceoryx2FFI.iox2_sign
     return builder
 end
 
-function create(builder::NodeBuilder, service_type::ServiceType = ServiceType.IPC)
+function create(builder::NodeBuilder, service_type::ServiceType)
     _require_valid(builder.handle, "node builder")
     if builder.name_handle != _IOX2_NULL
         ptr = _node_name_ptr(builder.name_handle)
@@ -134,7 +134,7 @@ function create(builder::NodeBuilder, service_type::ServiceType = ServiceType.IP
     return Node{service_type}(handle_ref[])
 end
 
-function create(f::Function, builder::NodeBuilder, service_type::ServiceType = ServiceType.IPC)
+function create(f::Function, builder::NodeBuilder, service_type::ServiceType)
     node = create(builder, service_type)
     try
         return f(node)

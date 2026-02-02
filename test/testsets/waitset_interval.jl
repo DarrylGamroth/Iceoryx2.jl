@@ -1,5 +1,5 @@
 @testset "WaitsetInterval" begin
-    builder = Iceoryx2.WaitsetBuilder()
+    builder = Iceoryx2.WaitsetBuilder(Iceoryx2.ServiceType.IPC)
     waitset = Iceoryx2.create(builder)
     guard = Iceoryx2.attach_interval(waitset, 0, 10_000_000)
 

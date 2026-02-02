@@ -47,7 +47,7 @@ end
 @inline function _list_nodes(
     handler,
     callback;
-    service_type::ServiceType = ServiceType.IPC,
+    service_type::ServiceType,
     config::Union{Config, ConfigView, Nothing} = nothing,
 )
     handler_ref = _handler_ref(handler)
@@ -65,7 +65,7 @@ end
 
 function list_nodes(
     handler::NodeListHandler;
-    service_type::ServiceType = ServiceType.IPC,
+    service_type::ServiceType,
     config::Union{Config, ConfigView, Nothing} = nothing,
 )
     return _list_nodes(handler, handler.callback; service_type, config)
@@ -73,7 +73,7 @@ end
 
 function list_nodes(
     handler::AbstractNodeListHandler;
-    service_type::ServiceType = ServiceType.IPC,
+    service_type::ServiceType,
     config::Union{Config, ConfigView, Nothing} = nothing,
 )
     return _list_nodes(handler, _node_list_cfunction(handler); service_type, config)
@@ -81,7 +81,7 @@ end
 
 function list_nodes(
     f::Function;
-    service_type::ServiceType = ServiceType.IPC,
+    service_type::ServiceType,
     config::Union{Config, ConfigView, Nothing} = nothing,
 )
     return list_nodes(NodeListHandler(f); service_type, config)
