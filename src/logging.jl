@@ -68,7 +68,7 @@ end
 
 Emit an iceoryx2 log message with the given level and origin string.
 """
-@inline function log(level::Union{Symbol, Iceoryx2FFI.iox2_log_level_e}, origin::AbstractString, message::AbstractString)
+function log(level::Union{Symbol, Iceoryx2FFI.iox2_log_level_e}, origin::AbstractString, message::AbstractString)
     origin_str = String(origin)
     message_str = String(message)
     GC.@preserve origin_str message_str begin

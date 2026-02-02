@@ -192,7 +192,7 @@ end
 
 Copy the attribute key into a new `String`.
 """
-@inline function key(attr::AttributeRef)
+function key(attr::AttributeRef)
     len = Int(Iceoryx2FFI.iox2_attribute_key_len(unsafe_handle(attr)))
     buffer = Vector{UInt8}(undef, len + 1)
     GC.@preserve buffer begin
@@ -211,7 +211,7 @@ end
 
 Read the attribute key into a reusable buffer without allocating a `String`.
 """
-@inline function key_view!(buffer::Vector{UInt8}, attr::AttributeRef)
+function key_view!(buffer::Vector{UInt8}, attr::AttributeRef)
     len = Int(Iceoryx2FFI.iox2_attribute_key_len(unsafe_handle(attr)))
     length(buffer) < len + 1 && resize!(buffer, len + 1)
     GC.@preserve buffer begin
@@ -225,7 +225,7 @@ Read the attribute key into a reusable buffer without allocating a `String`.
     return StringView(buffer)
 end
 
-@inline function key_view!(scratch::AttributeScratch, attr::AttributeRef)
+function key_view!(scratch::AttributeScratch, attr::AttributeRef)
     return key_view!(scratch.key_buffer, attr)
 end
 
@@ -234,7 +234,7 @@ end
 
 Copy the attribute value into a new `String`.
 """
-@inline function value(attr::AttributeRef)
+function value(attr::AttributeRef)
     len = Int(Iceoryx2FFI.iox2_attribute_value_len(unsafe_handle(attr)))
     buffer = Vector{UInt8}(undef, len + 1)
     GC.@preserve buffer begin
@@ -253,7 +253,7 @@ end
 
 Read the attribute value into a reusable buffer without allocating a `String`.
 """
-@inline function value_view!(buffer::Vector{UInt8}, attr::AttributeRef)
+function value_view!(buffer::Vector{UInt8}, attr::AttributeRef)
     len = Int(Iceoryx2FFI.iox2_attribute_value_len(unsafe_handle(attr)))
     length(buffer) < len + 1 && resize!(buffer, len + 1)
     GC.@preserve buffer begin
@@ -267,7 +267,7 @@ Read the attribute value into a reusable buffer without allocating a `String`.
     return StringView(buffer)
 end
 
-@inline function value_view!(scratch::AttributeScratch, attr::AttributeRef)
+function value_view!(scratch::AttributeScratch, attr::AttributeRef)
     return value_view!(scratch.value_buffer, attr)
 end
 
@@ -332,13 +332,13 @@ function key_value_view!(scratch::AttributeScratch, attrs::Union{AttributeSet, A
     return key_value_view!(scratch.key_value_buffer, attrs, key, index)
 end
 
-@inline function _string_from_buffer(buffer::Vector{UInt8})
+function _string_from_buffer(buffer::Vector{UInt8})
     idx = findfirst(==(0x00), buffer)
     len = idx === nothing ? length(buffer) : idx - 1
     return unsafe_string(pointer(buffer), len)
 end
 
-@inline function _string_view_from_buffer!(buffer::Vector{UInt8})
+function _string_view_from_buffer!(buffer::Vector{UInt8})
     idx = findfirst(==(0x00), buffer)
     len = idx === nothing ? length(buffer) : idx - 1
     resize!(buffer, len)
