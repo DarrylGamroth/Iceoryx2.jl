@@ -120,6 +120,11 @@ end
 
 ### builder tuning setters generated in src/generated/wrappers.jl
 
+"""
+    PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}
+
+Factory for clients and servers bound to a request/response service.
+"""
 mutable struct PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_port_factory_request_response_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_request_response_t}
@@ -140,6 +145,11 @@ function _finalize_port_factory_request_response(factory::PortFactoryRequestResp
     return nothing
 end
 
+"""
+    open_or_create(builder::RequestResponseServiceBuilder[, verifier])
+
+Open an existing request/response service or create it if missing.
+"""
 function open_or_create(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request_response service builder")
     _require_isbits(Req)
@@ -172,6 +182,11 @@ function open_or_create(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,R
     return PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
 
+"""
+    open(builder::RequestResponseServiceBuilder[, verifier])
+
+Open an existing request/response service.
+"""
 function open(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request_response service builder")
     _require_isbits(Req)
@@ -204,6 +219,11 @@ function open(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}, ver
     return PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
 
+"""
+    create(builder::RequestResponseServiceBuilder[, specifier])
+
+Create a new request/response service.
+"""
 function create(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request_response service builder")
     _require_isbits(Req)
@@ -297,6 +317,11 @@ open_with_attributes(f::Function, builder::RequestResponseServiceBuilder{S,Req,R
 create_with_attributes(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}, specifier::AttributeSpecifier) where {S,Req,Resp,ReqH,RespH} = create(builder, specifier)
 create_with_attributes(f::Function, builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}, specifier::AttributeSpecifier) where {S,Req,Resp,ReqH,RespH} = create(f, builder, specifier)
 
+"""
+    ClientBuilder{S,Req,Resp,ReqH,RespH}
+
+Builder for `Client`.
+"""
 mutable struct ClientBuilder{S,Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_port_factory_client_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_client_builder_t}
@@ -314,6 +339,11 @@ function _finalize_client_builder(builder::ClientBuilder)
     return nothing
 end
 
+"""
+    client_builder(factory::PortFactoryRequestResponse) -> ClientBuilder
+
+Create a client builder from a request/response factory.
+"""
 function client_builder(factory::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     _require_valid(factory.handle, "request_response port factory")
     _require_isbits(Req)
@@ -323,6 +353,11 @@ function client_builder(factory::PortFactoryRequestResponse{S,Req,Resp,ReqH,Resp
     return ClientBuilder{S,Req,Resp,ReqH,RespH}(handle, storage, factory)
 end
 
+"""
+    ServerBuilder{S,Req,Resp,ReqH,RespH}
+
+Builder for `Server`.
+"""
 mutable struct ServerBuilder{S,Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_port_factory_server_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_server_builder_t}
@@ -340,6 +375,11 @@ function _finalize_server_builder(builder::ServerBuilder)
     return nothing
 end
 
+"""
+    server_builder(factory::PortFactoryRequestResponse) -> ServerBuilder
+
+Create a server builder from a request/response factory.
+"""
 function server_builder(factory::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     _require_valid(factory.handle, "request_response port factory")
     _require_isbits(Req)
@@ -387,6 +427,11 @@ function initial_max_slice_len!(builder::ServerBuilder, value::Integer)
     return builder
 end
 
+"""
+    Client{S,Req,Resp,ReqH,RespH}
+
+Request/response client used to send requests and receive responses.
+"""
 mutable struct Client{S,Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_client_h
     storage::_StorageRef{Iceoryx2FFI.iox2_client_t}
@@ -407,6 +452,11 @@ function _finalize_client(client::Client)
     return nothing
 end
 
+"""
+    create(builder::ClientBuilder) -> Client
+
+Create a client and consume the builder.
+"""
 function create(builder::ClientBuilder{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "client builder")
     storage = Ref{Iceoryx2FFI.iox2_client_t}()
@@ -426,6 +476,11 @@ function create(f::Function, builder::ClientBuilder{S,Req,Resp,ReqH,RespH}) wher
     end
 end
 
+"""
+    Server{S,Req,Resp,ReqH,RespH}
+
+Request/response server used to receive requests and send responses.
+"""
 mutable struct Server{S,Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_server_h
     storage::_StorageRef{Iceoryx2FFI.iox2_server_t}
@@ -446,6 +501,11 @@ function _finalize_server(server::Server)
     return nothing
 end
 
+"""
+    create(builder::ServerBuilder) -> Server
+
+Create a server and consume the builder.
+"""
 function create(builder::ServerBuilder{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "server builder")
     storage = Ref{Iceoryx2FFI.iox2_server_t}()
@@ -465,6 +525,11 @@ function create(f::Function, builder::ServerBuilder{S,Req,Resp,ReqH,RespH}) wher
     end
 end
 
+"""
+    RequestMut{Req,Resp,ReqH,RespH}
+
+Reusable mutable request buffer for clients.
+"""
 mutable struct RequestMut{Req,Resp,ReqH,RespH}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_request_mut_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_request_mut_t}
@@ -506,6 +571,11 @@ function _finalize_request_mut(request::RequestMut)
     return nothing
 end
 
+"""
+    payload_mut(request::RequestMut) -> Slice
+
+Return a zero-copy mutable view of the request payload.
+"""
 @inline function payload_mut(request::RequestMut{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
     ptr_ref = Ref{Ptr{Cvoid}}()
     len_ref = Ref{Iceoryx2FFI.c_size_t}()
@@ -517,6 +587,11 @@ end
     return payload_mut(request).ptr
 end
 
+"""
+    header(request::RequestMut) -> RequestHeaderRef
+
+Return a view of the request header.
+"""
 @inline function header(request::RequestMut)
     _require_valid(request.handle_ref[], "request")
     slot = request.header_slot
@@ -540,6 +615,14 @@ end
     return Ptr{T}(ptr_ref[])
 end
 
+"""
+    user_header(request::RequestMut)
+    user_header(request::RequestMut, ::Type{ReqH})
+    user_header_mut(request::RequestMut)
+    user_header_mut(request::RequestMut, ::Type{ReqH})
+
+Return a zero-copy (mutable) view of the request user header.
+"""
 @inline function user_header(request::RequestMut{Req,Resp,Nothing,RespH}) where {Req,Resp,RespH}
     throw(ArgumentError("request has no user header type; call user_header(request, ::Type) instead"))
 end
@@ -587,6 +670,11 @@ end
 end
 
 
+"""
+    PendingResponse{Resp,ReqH,RespH}
+
+Handle for pending responses after sending a request.
+"""
 mutable struct PendingResponse{Resp,ReqH,RespH}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_pending_response_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_pending_response_t}
@@ -626,6 +714,11 @@ function _finalize_pending_response(pending::PendingResponse)
     return nothing
 end
 
+"""
+    header(pending::PendingResponse) -> RequestHeaderRef
+
+Return a view of the request header stored in a pending response.
+"""
 @inline function header(pending::PendingResponse)
     _require_valid(pending.handle_ref[], "pending response")
     slot = pending.header_slot
@@ -643,6 +736,12 @@ end
     return Ptr{T}(ptr_ref[])
 end
 
+"""
+    user_header(pending::PendingResponse)
+    user_header(pending::PendingResponse, ::Type{ReqH})
+
+Return a view of the request user header stored in a pending response.
+"""
 @inline function user_header(pending::PendingResponse{Resp,Nothing,RespH}) where {Resp,RespH}
     throw(ArgumentError("pending response has no user header type; call user_header(pending, ::Type) instead"))
 end
@@ -658,6 +757,14 @@ end
 end
 
 
+"""
+    loan_slice_uninit!(client, request, n)
+    loan_uninit!(client, request)
+    loan!(client, request)
+    loan_slice!(client, request, n)
+
+Loan request payloads into a reusable `RequestMut`.
+"""
 function loan_slice_uninit!(
     client::Client{S,Req,Resp,ReqH,RespH},
     request::RequestMut{Req,Resp,ReqH,RespH},
@@ -733,6 +840,11 @@ function loan_slice_uninit!(f::Function, client::Client{S,Req,Resp,ReqH,RespH}, 
     end
 end
 
+"""
+    loan_request!(client, request, n)
+
+Alias for `loan_slice!` used for request/response naming.
+"""
 function loan_request!(client::Client{S,Req,Resp,ReqH,RespH}, request::RequestMut{Req,Resp,ReqH,RespH}, n::Integer) where {S,Req,Resp,ReqH,RespH}
     return loan_slice_uninit!(client, request, n)
 end
@@ -741,6 +853,11 @@ function loan_request!(f::Function, client::Client{S,Req,Resp,ReqH,RespH}, reque
     return loan_slice_uninit!(f, client, request, n)
 end
 
+"""
+    send!(request, pending)
+
+Send a request and populate `pending` for receiving responses.
+"""
 function send!(request::RequestMut{Req,Resp,ReqH,RespH}, pending::PendingResponse{Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
     _require_inactive(pending, "pending response")
     pending.handle_ref[] = _IOX2_NULL
@@ -751,6 +868,12 @@ function send!(request::RequestMut{Req,Resp,ReqH,RespH}, pending::PendingRespons
     return pending
 end
 
+"""
+    send_copy!(client, pending, value)
+    send_copy!(client, pending, data::AbstractVector)
+
+Send a request by copying from a value or buffer.
+"""
 function send_copy!(
     client::Client{S,Req,Resp,ReqH,RespH},
     data::Ptr{Req},
@@ -794,6 +917,11 @@ function send_copy!(
     end
 end
 
+"""
+    Response{Resp,RespH}
+
+Reusable response buffer owned by a client.
+"""
 mutable struct Response{Resp,RespH}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_response_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_response_t}
@@ -832,6 +960,11 @@ function _finalize_response(resp::Response)
     return nothing
 end
 
+"""
+    payload(resp::Response) -> Slice
+
+Return a zero-copy view of the response payload.
+"""
 @inline function payload(resp::Response{RespT,RespH}) where {RespT,RespH}
     ptr_ref = Ref{Ptr{Cvoid}}()
     len_ref = Ref{Iceoryx2FFI.c_size_t}()
@@ -843,6 +976,11 @@ end
     return payload(resp).ptr
 end
 
+"""
+    header(resp::Response) -> ResponseHeaderRef
+
+Return a view of the response header.
+"""
 @inline function header(resp::Response)
     _require_valid(resp.handle_ref[], "response")
     slot = resp.header_slot
@@ -860,6 +998,12 @@ end
     return Ptr{T}(ptr_ref[])
 end
 
+"""
+    user_header(resp::Response)
+    user_header(resp::Response, ::Type{RespH})
+
+Return a view of the response user header.
+"""
 @inline function user_header(resp::Response{RespT,Nothing}) where {RespT}
     throw(ArgumentError("response has no user header type; call user_header(response, ::Type) instead"))
 end
@@ -897,6 +1041,11 @@ end
 end
 
 
+"""
+    receive!(pending, resp) -> Bool
+
+Receive a response into the reusable buffer. Returns `true` on success.
+"""
 function receive!(pending::PendingResponse{Resp,ReqH,RespH}, resp::Response{Resp,RespH}) where {Resp,ReqH,RespH}
     _require_valid(pending.handle_ref[], "pending response")
     _require_inactive(resp, "response")
@@ -910,6 +1059,11 @@ function receive!(pending::PendingResponse{Resp,ReqH,RespH}, resp::Response{Resp
     return resp.handle_ref[] != _IOX2_NULL
 end
 
+"""
+    receive!(f::Function, pending, resp)
+
+Receive into `resp`, call `f(resp)`, and always `close(resp)` afterward.
+"""
 function receive!(f::Function, pending::PendingResponse{Resp,ReqH,RespH}, resp::Response{Resp,RespH}) where {Resp,ReqH,RespH}
     if receive!(pending, resp)
         try
@@ -921,6 +1075,11 @@ function receive!(f::Function, pending::PendingResponse{Resp,ReqH,RespH}, resp::
     return nothing
 end
 
+"""
+    ActiveRequest{Req,Resp,ReqH,RespH}
+
+Reusable request buffer owned by a server.
+"""
 mutable struct ActiveRequest{Req,Resp,ReqH,RespH}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_active_request_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_active_request_t}
@@ -960,6 +1119,11 @@ function _finalize_active_request(req::ActiveRequest)
     return nothing
 end
 
+"""
+    payload(req::ActiveRequest) -> Slice
+
+Return a zero-copy view of the request payload.
+"""
 @inline function payload(req::ActiveRequest{ReqT,RespT,ReqH,RespH}) where {ReqT,RespT,ReqH,RespH}
     ptr_ref = Ref{Ptr{Cvoid}}()
     len_ref = Ref{Iceoryx2FFI.c_size_t}()
@@ -971,6 +1135,11 @@ end
     return payload(req).ptr
 end
 
+"""
+    header(req::ActiveRequest) -> RequestHeaderRef
+
+Return a view of the request header.
+"""
 @inline function header(req::ActiveRequest)
     _require_valid(req.handle_ref[], "active request")
     slot = req.header_slot
@@ -988,6 +1157,12 @@ end
     return Ptr{T}(ptr_ref[])
 end
 
+"""
+    user_header(req::ActiveRequest)
+    user_header(req::ActiveRequest, ::Type{ReqH})
+
+Return a view of the request user header.
+"""
 @inline function user_header(req::ActiveRequest{ReqT,RespT,Nothing,RespH}) where {ReqT,RespT,RespH}
     throw(ArgumentError("active request has no user header type; call user_header(request, ::Type) instead"))
 end
@@ -1003,6 +1178,11 @@ end
 end
 
 
+"""
+    ResponseMut{Resp,RespH}
+
+Reusable mutable response buffer owned by a server.
+"""
 mutable struct ResponseMut{Resp,RespH}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_response_mut_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_response_mut_t}
@@ -1043,6 +1223,11 @@ function _finalize_response_mut(resp::ResponseMut)
     return nothing
 end
 
+"""
+    payload_mut(resp::ResponseMut) -> Slice
+
+Return a zero-copy mutable view of the response payload.
+"""
 @inline function payload_mut(resp::ResponseMut{RespT,RespH}) where {RespT,RespH}
     ptr_ref = Ref{Ptr{Cvoid}}()
     len_ref = Ref{Iceoryx2FFI.c_size_t}()
@@ -1054,6 +1239,11 @@ end
     return payload_mut(resp).ptr
 end
 
+"""
+    header(resp::ResponseMut) -> ResponseHeaderRef
+
+Return a view of the response header.
+"""
 @inline function header(resp::ResponseMut)
     _require_valid(resp.handle_ref[], "response")
     slot = resp.header_slot
@@ -1077,6 +1267,14 @@ end
     return Ptr{T}(ptr_ref[])
 end
 
+"""
+    user_header(resp::ResponseMut)
+    user_header(resp::ResponseMut, ::Type{RespH})
+    user_header_mut(resp::ResponseMut)
+    user_header_mut(resp::ResponseMut, ::Type{RespH})
+
+Return a zero-copy (mutable) view of the response user header.
+"""
 @inline function user_header(resp::ResponseMut{RespT,Nothing}) where {RespT}
     throw(ArgumentError("response has no user header type; call user_header(response, ::Type) instead"))
 end
@@ -1102,6 +1300,11 @@ end
 end
 
 
+"""
+    receive!(server, req) -> Bool
+
+Receive an active request into the reusable buffer. Returns `true` on success.
+"""
 function receive!(server::Server{S,Req,Resp,ReqH,RespH}, req::ActiveRequest{Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     _require_valid(server.handle, "server")
     _require_inactive(req, "active request")
@@ -1115,6 +1318,11 @@ function receive!(server::Server{S,Req,Resp,ReqH,RespH}, req::ActiveRequest{Req,
     return req.handle_ref[] != _IOX2_NULL
 end
 
+"""
+    receive!(f::Function, server, req)
+
+Receive into `req`, call `f(req)`, and always `close(req)` afterward.
+"""
 function receive!(f::Function, server::Server{S,Req,Resp,ReqH,RespH}, req::ActiveRequest{Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     if receive!(server, req)
         try
@@ -1133,6 +1341,15 @@ function has_requests(server::Server)
     return result[]
 end
 
+"""
+    loan_slice_uninit!(req, resp, n)
+    loan_uninit!(req, resp)
+    loan!(req, resp)
+    loan_slice!(req, resp, n)
+    loan_response!(req, resp, n)
+
+Loan response payloads into a reusable `ResponseMut`.
+"""
 function loan_slice_uninit!(
     req::ActiveRequest{Req,Resp,ReqH,RespH},
     resp::ResponseMut{Resp,RespH},
@@ -1214,12 +1431,24 @@ function loan_response!(f::Function, req::ActiveRequest{Req,Resp,ReqH,RespH}, re
     return loan_slice_uninit!(f, req, resp, n)
 end
 
+"""
+    send_copy(req, data, n)
+    send_copy(req, data::AbstractVector)
+    send!(resp::ResponseMut)
+
+Send responses by copying or by sending a loaned response.
+"""
 function send_copy(req::ActiveRequest{Req,Resp,ReqH,RespH}, data::Ptr{Resp}, n::Integer) where {Req,Resp,ReqH,RespH}
     ret = Iceoryx2FFI.iox2_active_request_send_copy(req.handle_ref, data, Iceoryx2FFI.c_size_t(sizeof(Resp)), Iceoryx2FFI.c_size_t(n))
     check_ok(ret, Iceoryx2FFI.iox2_send_error_e)
     return nothing
 end
 
+"""
+    send!(resp::ResponseMut)
+
+Send a loaned response and invalidate its handle.
+"""
 function send!(resp::ResponseMut)
     ret = Iceoryx2FFI.iox2_response_mut_send(resp.handle_ref[])
     check_ok(ret, Iceoryx2FFI.iox2_send_error_e)

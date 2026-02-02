@@ -1,3 +1,8 @@
+"""
+    PortFactoryBlackboard{S,K}
+
+Factory for readers and writers bound to a blackboard service.
+"""
 mutable struct PortFactoryBlackboard{S,K}
     handle::Iceoryx2FFI.iox2_port_factory_blackboard_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_blackboard_t}
@@ -20,6 +25,11 @@ function _finalize_port_factory_blackboard(factory::PortFactoryBlackboard)
     return nothing
 end
 
+"""
+    create(builder::BlackboardCreatorBuilder) -> PortFactoryBlackboard
+
+Create a new blackboard service.
+"""
 function create(builder::BlackboardCreatorBuilder{S,K}) where {S,K}
     _require_valid(builder.handle, "blackboard creator")
     _require_isbits(K)
@@ -43,6 +53,11 @@ function create(f::Function, builder::BlackboardCreatorBuilder{S,K}) where {S,K}
     end
 end
 
+"""
+    open(builder::BlackboardOpenerBuilder) -> PortFactoryBlackboard
+
+Open an existing blackboard service.
+"""
 function open(builder::BlackboardOpenerBuilder{S,K}) where {S,K}
     _require_valid(builder.handle, "blackboard opener")
     _require_isbits(K)
@@ -110,6 +125,11 @@ end
 
 ### builder tuning setters generated in src/generated/wrappers.jl
 
+"""
+    add!(builder::BlackboardCreatorBuilder, key, value)
+
+Add a key/value entry to a blackboard being created.
+"""
 function add!(builder::BlackboardCreatorBuilder{S,K}, key::K, value::V) where {S,K,V}
     _require_valid(builder.handle, "blackboard creator")
     _require_isbits(K)
@@ -139,6 +159,11 @@ function add_with_default!(builder::BlackboardCreatorBuilder{S,K}, key::K, ::Typ
     return add!(builder, key, zero(V))
 end
 
+"""
+    WriterBuilder{S,K}
+
+Builder for `Writer{S,K}`.
+"""
 mutable struct WriterBuilder{S,K}
     handle::Iceoryx2FFI.iox2_port_factory_writer_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_writer_builder_t}
@@ -156,6 +181,11 @@ function _finalize_writer_builder(builder::WriterBuilder)
     return nothing
 end
 
+"""
+    writer_builder(factory::PortFactoryBlackboard) -> WriterBuilder
+
+Create a writer builder from a blackboard factory.
+"""
 function writer_builder(factory::PortFactoryBlackboard{S,K}) where {S,K}
     _require_valid(factory.handle, "blackboard port factory")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_writer_builder_t}()
@@ -163,6 +193,11 @@ function writer_builder(factory::PortFactoryBlackboard{S,K}) where {S,K}
     return WriterBuilder{S,K}(handle, storage, factory)
 end
 
+"""
+    ReaderBuilder{S,K}
+
+Builder for `Reader{S,K}`.
+"""
 mutable struct ReaderBuilder{S,K}
     handle::Iceoryx2FFI.iox2_port_factory_reader_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_reader_builder_t}
@@ -180,6 +215,11 @@ function _finalize_reader_builder(builder::ReaderBuilder)
     return nothing
 end
 
+"""
+    reader_builder(factory::PortFactoryBlackboard) -> ReaderBuilder
+
+Create a reader builder from a blackboard factory.
+"""
 function reader_builder(factory::PortFactoryBlackboard{S,K}) where {S,K}
     _require_valid(factory.handle, "blackboard port factory")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_reader_builder_t}()
@@ -187,6 +227,11 @@ function reader_builder(factory::PortFactoryBlackboard{S,K}) where {S,K}
     return ReaderBuilder{S,K}(handle, storage, factory)
 end
 
+"""
+    Writer{S,K}
+
+Writer for blackboard entries.
+"""
 mutable struct Writer{S,K}
     handle::Iceoryx2FFI.iox2_writer_h
     storage::_StorageRef{Iceoryx2FFI.iox2_writer_t}
@@ -207,6 +252,11 @@ function _finalize_writer(writer::Writer)
     return nothing
 end
 
+"""
+    create(builder::WriterBuilder) -> Writer
+
+Create a writer and consume the builder.
+"""
 function create(builder::WriterBuilder{S,K}) where {S,K}
     _require_valid(builder.handle, "writer builder")
     storage = Ref{Iceoryx2FFI.iox2_writer_t}()
@@ -217,6 +267,11 @@ function create(builder::WriterBuilder{S,K}) where {S,K}
     return Writer{S,K}(handle_ref[], storage, builder.keepalive)
 end
 
+"""
+    create(f::Function, builder::WriterBuilder)
+
+Create a writer, call `f(writer)`, and close it in a `finally` block.
+"""
 function create(f::Function, builder::WriterBuilder{S,K}) where {S,K}
     writer = create(builder)
     try
@@ -226,6 +281,11 @@ function create(f::Function, builder::WriterBuilder{S,K}) where {S,K}
     end
 end
 
+"""
+    Reader{S,K}
+
+Reader for blackboard entries.
+"""
 mutable struct Reader{S,K}
     handle::Iceoryx2FFI.iox2_reader_h
     storage::_StorageRef{Iceoryx2FFI.iox2_reader_t}
@@ -246,6 +306,11 @@ function _finalize_reader(reader::Reader)
     return nothing
 end
 
+"""
+    create(builder::ReaderBuilder) -> Reader
+
+Create a reader and consume the builder.
+"""
 function create(builder::ReaderBuilder{S,K}) where {S,K}
     _require_valid(builder.handle, "reader builder")
     storage = Ref{Iceoryx2FFI.iox2_reader_t}()
@@ -256,6 +321,11 @@ function create(builder::ReaderBuilder{S,K}) where {S,K}
     return Reader{S,K}(handle_ref[], storage, builder.keepalive)
 end
 
+"""
+    create(f::Function, builder::ReaderBuilder)
+
+Create a reader, call `f(reader)`, and close it in a `finally` block.
+"""
 function create(f::Function, builder::ReaderBuilder{S,K}) where {S,K}
     reader = create(builder)
     try
@@ -265,6 +335,11 @@ function create(f::Function, builder::ReaderBuilder{S,K}) where {S,K}
     end
 end
 
+"""
+    EntryHandle{S,K,V}
+
+Handle for reading a specific key/value entry.
+"""
 mutable struct EntryHandle{S,K,V}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_entry_handle_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_entry_handle_t}
@@ -290,6 +365,11 @@ function _finalize_entry_handle(entry::EntryHandle)
     return nothing
 end
 
+"""
+    EntryHandleMut{S,K,V}
+
+Handle for updating a specific key/value entry.
+"""
 mutable struct EntryHandleMut{S,K,V}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_entry_handle_mut_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_entry_handle_mut_t}
@@ -315,6 +395,11 @@ function _finalize_entry_handle_mut(entry::EntryHandleMut)
     return nothing
 end
 
+"""
+    EntryValueUninit{S,K,V}
+
+Temporary value slot for uninitialized blackboard updates.
+"""
 mutable struct EntryValueUninit{S,K,V}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_entry_value_uninit_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_entry_value_uninit_t}
@@ -343,6 +428,11 @@ function _finalize_entry_value_uninit(value::EntryValueUninit)
     return nothing
 end
 
+"""
+    loan_uninit!(entry, value)
+
+Loan an uninitialized value slot for the entry.
+"""
 function loan_uninit!(entry::EntryHandleMut{S,K,V}, value::EntryValueUninit{S,K,V}) where {S,K,V}
     _require_valid(entry.handle_ref[], "entry handle mut")
     _require_inactive(value, "entry value")
@@ -373,12 +463,22 @@ end
     return Ptr{V}(ptr_ref[])
 end
 
+"""
+    value!(value::EntryValueUninit, data)
+
+Write data into the uninitialized value slot.
+"""
 @inline function value!(value::EntryValueUninit{S,K,V}, data::V) where {S,K,V}
     ptr = value_mut(value)
     unsafe_store!(ptr, data)
     return value
 end
 
+"""
+    update!(value, entry) -> EntryHandleMut
+
+Commit an uninitialized value slot into the blackboard entry.
+"""
 function update!(value::EntryValueUninit{S,K,V}, entry::EntryHandleMut{S,K,V}) where {S,K,V}
     _require_inactive(entry, "entry handle mut")
     entry.handle_ref[] = _IOX2_NULL
@@ -388,6 +488,11 @@ function update!(value::EntryValueUninit{S,K,V}, entry::EntryHandleMut{S,K,V}) w
     return entry
 end
 
+"""
+    discard!(value, entry) -> EntryHandleMut
+
+Discard an uninitialized value slot without updating the entry.
+"""
 function discard!(value::EntryValueUninit{S,K,V}, entry::EntryHandleMut{S,K,V}) where {S,K,V}
     _require_inactive(entry, "entry handle mut")
     entry.handle_ref[] = _IOX2_NULL
@@ -397,6 +502,11 @@ function discard!(value::EntryValueUninit{S,K,V}, entry::EntryHandleMut{S,K,V}) 
     return entry
 end
 
+"""
+    reader_entry!(reader, entry, key) -> EntryHandle
+
+Acquire a reader entry handle for a given key.
+"""
 function reader_entry!(reader::Reader{S,K}, entry::EntryHandle{S,K,V}, key::K) where {S,K,V}
     _require_valid(reader.handle, "reader")
     _require_isbits(K)
@@ -469,6 +579,11 @@ function try_reader_entry!(f::Function, reader::Reader{S,K}, entry::EntryHandle{
     end
 end
 
+"""
+    writer_entry!(writer, entry, key) -> EntryHandleMut
+
+Acquire a writer entry handle for a given key.
+"""
 function writer_entry!(writer::Writer{S,K}, entry::EntryHandleMut{S,K,V}, key::K) where {S,K,V}
     _require_valid(writer.handle, "writer")
     _require_isbits(K)
@@ -574,6 +689,11 @@ function get!(entry::EntryHandle{S,K,V}, value_ref::Base.RefValue{V}) where {S,K
     return generation_ref[]
 end
 
+"""
+    get(entry::EntryHandle) -> (value, generation)
+
+Fetch the current value and generation for an entry.
+"""
 function get(entry::EntryHandle{S,K,V}) where {S,K,V}
     value_ref = Ref{V}()
     generation_ref = Ref{UInt64}(0)
@@ -588,6 +708,11 @@ end
     )
 end
 
+"""
+    update!(entry::EntryHandleMut, value)
+
+Update a blackboard entry with the provided value.
+"""
 function update!(entry::EntryHandleMut{S,K,V}, value_ref::Base.RefValue{V}) where {S,K,V}
     size = Iceoryx2FFI.c_size_t(sizeof(V))
     alignment = Iceoryx2FFI.c_size_t(Base.datatype_alignment(V))

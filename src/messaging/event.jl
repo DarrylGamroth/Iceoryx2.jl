@@ -2,6 +2,11 @@
 
 ### builder tuning setters generated in src/generated/wrappers.jl
 
+"""
+    PortFactoryEvent{S}
+
+Factory for notifiers and listeners bound to an event service.
+"""
 mutable struct PortFactoryEvent{S}
     handle::Iceoryx2FFI.iox2_port_factory_event_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_event_t}
@@ -40,6 +45,11 @@ end
 
 ### port factory view accessors generated in src/generated/wrappers.jl
 
+"""
+    open_or_create(builder::EventServiceBuilder[, verifier]) -> PortFactoryEvent
+
+Open an existing event service or create it if missing.
+"""
 function open_or_create(builder::EventServiceBuilder{S}) where {S}
     _require_valid(builder.handle, "event service builder")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_event_t}()
@@ -86,6 +96,11 @@ function open_or_create(f::Function, builder::EventServiceBuilder{S}, verifier::
     end
 end
 
+"""
+    open(builder::EventServiceBuilder[, verifier]) -> PortFactoryEvent
+
+Open an existing event service.
+"""
 function open(builder::EventServiceBuilder{S}) where {S}
     _require_valid(builder.handle, "event service builder")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_event_t}()
@@ -132,6 +147,11 @@ function open(f::Function, builder::EventServiceBuilder{S}, verifier::AttributeV
     end
 end
 
+"""
+    create(builder::EventServiceBuilder[, specifier]) -> PortFactoryEvent
+
+Create a new event service.
+"""
 function create(builder::EventServiceBuilder{S}) where {S}
     _require_valid(builder.handle, "event service builder")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_event_t}()
@@ -185,6 +205,11 @@ open_with_attributes(f::Function, builder::EventServiceBuilder{S}, verifier::Att
 create_with_attributes(builder::EventServiceBuilder{S}, specifier::AttributeSpecifier) where {S} = create(builder, specifier)
 create_with_attributes(f::Function, builder::EventServiceBuilder{S}, specifier::AttributeSpecifier) where {S} = create(f, builder, specifier)
 
+"""
+    NotifierBuilder{S}
+
+Builder for `Notifier{S}`.
+"""
 mutable struct NotifierBuilder{S}
     handle::Iceoryx2FFI.iox2_port_factory_notifier_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_notifier_builder_t}
@@ -209,6 +234,11 @@ function notifier_builder(factory::PortFactoryEvent{S}) where {S}
     return NotifierBuilder{S}(handle, storage, factory)
 end
 
+"""
+    default_event_id!(builder::NotifierBuilder, id::EventId)
+
+Set the default event ID used by the notifier.
+"""
 function default_event_id!(builder::NotifierBuilder, id::EventId)
     _require_valid(builder.handle, "notifier builder")
     id_ref = Ref(id.raw)
@@ -221,6 +251,11 @@ function default_event_id!(builder::NotifierBuilder, id::EventId)
     return builder
 end
 
+"""
+    ListenerBuilder{S}
+
+Builder for `Listener{S}`.
+"""
 mutable struct ListenerBuilder{S}
     handle::Iceoryx2FFI.iox2_port_factory_listener_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_listener_builder_t}
@@ -245,6 +280,11 @@ function listener_builder(factory::PortFactoryEvent{S}) where {S}
     return ListenerBuilder{S}(handle, storage, factory)
 end
 
+"""
+    Notifier{S}
+
+Send event notifications to listeners.
+"""
 mutable struct Notifier{S}
     handle::Iceoryx2FFI.iox2_notifier_h
     storage::_StorageRef{Iceoryx2FFI.iox2_notifier_t}
@@ -265,6 +305,11 @@ function _finalize_notifier(notifier::Notifier)
     return nothing
 end
 
+"""
+    create(builder::NotifierBuilder) -> Notifier
+
+Create a notifier and consume the builder.
+"""
 function create(builder::NotifierBuilder{S}) where {S}
     _require_valid(builder.handle, "notifier builder")
     storage = Ref{Iceoryx2FFI.iox2_notifier_t}()
@@ -275,6 +320,11 @@ function create(builder::NotifierBuilder{S}) where {S}
     return Notifier{S}(handle_ref[], storage, builder.keepalive)
 end
 
+"""
+    create(f::Function, builder::NotifierBuilder)
+
+Create a notifier, call `f(notifier)`, and close it in a `finally` block.
+"""
 function create(f::Function, builder::NotifierBuilder{S}) where {S}
     notifier = create(builder)
     try
@@ -284,6 +334,11 @@ function create(f::Function, builder::NotifierBuilder{S}) where {S}
     end
 end
 
+"""
+    deadline(notifier::Notifier) -> Union{Nothing,Tuple{UInt64,UInt32}}
+
+Return the notifier deadline as `(seconds, nanoseconds)` or `nothing`.
+"""
 function deadline(notifier::Notifier)
     _require_valid(notifier.handle, "notifier")
     seconds = Ref{UInt64}(0)
@@ -296,6 +351,11 @@ function deadline(notifier::Notifier)
     return has_deadline ? (seconds[], nanos[]) : nothing
 end
 
+"""
+    Listener{S}
+
+Receive event notifications from notifiers.
+"""
 mutable struct Listener{S}
     handle::Iceoryx2FFI.iox2_listener_h
     storage::_StorageRef{Iceoryx2FFI.iox2_listener_t}
@@ -316,6 +376,11 @@ function _finalize_listener(listener::Listener)
     return nothing
 end
 
+"""
+    create(builder::ListenerBuilder) -> Listener
+
+Create a listener and consume the builder.
+"""
 function create(builder::ListenerBuilder{S}) where {S}
     _require_valid(builder.handle, "listener builder")
     storage = Ref{Iceoryx2FFI.iox2_listener_t}()
@@ -326,6 +391,11 @@ function create(builder::ListenerBuilder{S}) where {S}
     return Listener{S}(handle_ref[], storage, builder.keepalive)
 end
 
+"""
+    create(f::Function, builder::ListenerBuilder)
+
+Create a listener, call `f(listener)`, and close it in a `finally` block.
+"""
 function create(f::Function, builder::ListenerBuilder{S}) where {S}
     listener = create(builder)
     try
@@ -335,6 +405,11 @@ function create(f::Function, builder::ListenerBuilder{S}) where {S}
     end
 end
 
+"""
+    deadline(listener::Listener) -> Union{Nothing,Tuple{UInt64,UInt32}}
+
+Return the listener deadline as `(seconds, nanoseconds)` or `nothing`.
+"""
 function deadline(listener::Listener)
     _require_valid(listener.handle, "listener")
     seconds = Ref{UInt64}(0)
@@ -347,6 +422,12 @@ function deadline(listener::Listener)
     return has_deadline ? (seconds[], nanos[]) : nothing
 end
 
+"""
+    notify!(notifier::Notifier)
+    notify!(notifier::Notifier, id::EventId)
+
+Send a notification, optionally with a custom event ID.
+"""
 function notify!(notifier::Notifier)
     count = Ref{Iceoryx2FFI.c_size_t}()
     ret = Iceoryx2FFI.iox2_notifier_notify(Ref{Iceoryx2FFI.iox2_notifier_h}(notifier.handle), count)
@@ -370,8 +451,18 @@ end
 
 @inline notify_with_custom_event_id!(notifier::Notifier, id::EventId) = notify!(notifier, id)
 
+"""
+    AbstractListenerWaitHandler
+
+Abstract callback handler for listener wait APIs.
+"""
 abstract type AbstractListenerWaitHandler end
 
+"""
+    ListenerWaitHandler(f)
+
+Wrap a callable `f(event_id)` for listener wait APIs.
+"""
 mutable struct ListenerWaitHandler{T} <: AbstractListenerWaitHandler
     on_event::T
 end
@@ -387,6 +478,11 @@ function _listener_wait_all_cfunction(::T) where {T<:AbstractListenerWaitHandler
     @cfunction(_listener_wait_all_wrapper, Cvoid, (Ptr{Iceoryx2FFI.iox2_event_id_t}, Ref{T}))
 end
 
+"""
+    try_wait_all(listener, handler) -> Bool
+
+Poll for events and invoke the handler for each available event.
+"""
 function try_wait_all(listener::Listener, handler::AbstractListenerWaitHandler)
     _require_valid(listener.handle, "listener")
     handler_ref = Ref(handler)
@@ -405,6 +501,11 @@ function try_wait_all(f::Function, listener::Listener)
     return try_wait_all(listener, ListenerWaitHandler(f))
 end
 
+"""
+    timed_wait_all(listener, seconds, nanoseconds, handler) -> Bool
+
+Wait with timeout and invoke the handler for each available event.
+"""
 function timed_wait_all(listener::Listener, seconds::Integer, nanoseconds::Integer, handler::AbstractListenerWaitHandler)
     _require_valid(listener.handle, "listener")
     handler_ref = Ref(handler)
@@ -425,6 +526,11 @@ function timed_wait_all(f::Function, listener::Listener, seconds::Integer, nanos
     return timed_wait_all(listener, seconds, nanoseconds, ListenerWaitHandler(f))
 end
 
+"""
+    blocking_wait_all(listener, handler) -> Bool
+
+Block and invoke the handler for each available event.
+"""
 function blocking_wait_all(listener::Listener, handler::AbstractListenerWaitHandler)
     _require_valid(listener.handle, "listener")
     handler_ref = Ref(handler)
@@ -443,6 +549,11 @@ function blocking_wait_all(f::Function, listener::Listener)
     return blocking_wait_all(listener, ListenerWaitHandler(f))
 end
 
+"""
+    try_wait_one(listener::Listener) -> Union{Nothing,EventId}
+
+Poll for a single event ID.
+"""
 function try_wait_one(listener::Listener)
     _require_valid(listener.handle, "listener")
     event_id = Ref{Iceoryx2FFI.iox2_event_id_t}()
@@ -456,6 +567,11 @@ function try_wait_one(listener::Listener)
     return has_received[] ? EventId(event_id[]) : nothing
 end
 
+"""
+    timed_wait_one(listener::Listener, seconds, nanoseconds) -> Union{Nothing,EventId}
+
+Wait with timeout for a single event ID.
+"""
 function timed_wait_one(listener::Listener, seconds::Integer, nanoseconds::Integer)
     _require_valid(listener.handle, "listener")
     event_id = Ref{Iceoryx2FFI.iox2_event_id_t}()
@@ -471,6 +587,11 @@ function timed_wait_one(listener::Listener, seconds::Integer, nanoseconds::Integ
     return has_received[] ? EventId(event_id[]) : nothing
 end
 
+"""
+    blocking_wait_one(listener::Listener) -> Union{Nothing,EventId}
+
+Block until a single event ID is available.
+"""
 function blocking_wait_one(listener::Listener)
     _require_valid(listener.handle, "listener")
     event_id = Ref{Iceoryx2FFI.iox2_event_id_t}()

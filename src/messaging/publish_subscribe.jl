@@ -22,6 +22,11 @@ function _set_payload_type!(
     return builder
 end
 
+"""
+    payload_alignment!(builder::PubSubServiceBuilder, alignment)
+
+Override payload alignment for the publish/subscribe service.
+"""
 function payload_alignment!(builder::PubSubServiceBuilder, alignment::Integer)
     alignment > 0 || throw(ArgumentError("payload alignment must be positive, got $alignment"))
     Iceoryx2FFI.iox2_service_builder_pub_sub_set_payload_alignment(
@@ -31,6 +36,11 @@ function payload_alignment!(builder::PubSubServiceBuilder, alignment::Integer)
     return builder
 end
 
+"""
+    user_header(builder::PubSubServiceBuilder, ::Type{UH}) -> PubSubServiceBuilder
+
+Set the user header type for the service builder.
+"""
 function user_header(builder::PubSubServiceBuilder{S,T,Nothing}, ::Type{UH}) where {S,T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
     variant = _variant_type(UH)
@@ -61,6 +71,12 @@ end
 
 ### builder tuning setters generated in src/generated/wrappers.jl
 
+"""
+    PortFactoryPubSub{S,T,UH}
+
+Factory for publishers and subscribers bound to a publish/subscribe service.
+Created via `open`, `create`, or `open_or_create`.
+"""
 mutable struct PortFactoryPubSub{S,T,UH}
     handle::Iceoryx2FFI.iox2_port_factory_pub_sub_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_pub_sub_t}
@@ -81,6 +97,11 @@ function _finalize_port_factory_pub_sub(factory::PortFactoryPubSub)
     return nothing
 end
 
+"""
+    open_or_create(builder::PubSubServiceBuilder[, verifier]) -> PortFactoryPubSub
+
+Open an existing publish/subscribe service or create it if missing.
+"""
 function open_or_create(builder::PubSubServiceBuilder{S,T,UH}) where {S,T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
     _require_isbits(T)
@@ -111,6 +132,11 @@ function open_or_create(builder::PubSubServiceBuilder{S,T,UH}, verifier::Attribu
     return PortFactoryPubSub{S,T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
+"""
+    open(builder::PubSubServiceBuilder[, verifier]) -> PortFactoryPubSub
+
+Open an existing publish/subscribe service.
+"""
 function open(builder::PubSubServiceBuilder{S,T,UH}) where {S,T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
     _require_isbits(T)
@@ -141,6 +167,11 @@ function open(builder::PubSubServiceBuilder{S,T,UH}, verifier::AttributeVerifier
     return PortFactoryPubSub{S,T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
+"""
+    create(builder::PubSubServiceBuilder[, specifier]) -> PortFactoryPubSub
+
+Create a new publish/subscribe service.
+"""
 function create(builder::PubSubServiceBuilder{S,T,UH}) where {S,T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
     _require_isbits(T)
@@ -232,6 +263,11 @@ open_with_attributes(f::Function, builder::PubSubServiceBuilder{S,T,UH}, verifie
 create_with_attributes(builder::PubSubServiceBuilder{S,T,UH}, specifier::AttributeSpecifier) where {S,T,UH} = create(builder, specifier)
 create_with_attributes(f::Function, builder::PubSubServiceBuilder{S,T,UH}, specifier::AttributeSpecifier) where {S,T,UH} = create(f, builder, specifier)
 
+"""
+    PublisherBuilder{S,T,UH}
+
+Builder for `Publisher{S,T,UH}` created from a publish/subscribe factory.
+"""
 mutable struct PublisherBuilder{S,T,UH}
     handle::Iceoryx2FFI.iox2_port_factory_publisher_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_publisher_builder_t}
@@ -249,6 +285,11 @@ function _finalize_publisher_builder(builder::PublisherBuilder)
     return nothing
 end
 
+"""
+    publisher_builder(factory::PortFactoryPubSub) -> PublisherBuilder
+
+Create a publisher builder from a publish/subscribe factory.
+"""
 function publisher_builder(factory::PortFactoryPubSub{S,T,UH}) where {S,T,UH}
     _require_valid(factory.handle, "publish_subscribe port factory")
     _require_isbits(T)
@@ -268,6 +309,11 @@ function allocation_strategy!(builder::PublisherBuilder, value::Union{Symbol,Ice
     return builder
 end
 
+"""
+    SubscriberBuilder{S,T,UH}
+
+Builder for `Subscriber{S,T,UH}` created from a publish/subscribe factory.
+"""
 mutable struct SubscriberBuilder{S,T,UH}
     handle::Iceoryx2FFI.iox2_port_factory_subscriber_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_subscriber_builder_t}
@@ -285,6 +331,11 @@ function _finalize_subscriber_builder(builder::SubscriberBuilder)
     return nothing
 end
 
+"""
+    subscriber_builder(factory::PortFactoryPubSub) -> SubscriberBuilder
+
+Create a subscriber builder from a publish/subscribe factory.
+"""
 function subscriber_builder(factory::PortFactoryPubSub{S,T,UH}) where {S,T,UH}
     _require_valid(factory.handle, "publish_subscribe port factory")
     _require_isbits(T)
@@ -293,6 +344,11 @@ function subscriber_builder(factory::PortFactoryPubSub{S,T,UH}) where {S,T,UH}
     return SubscriberBuilder{S,T,UH}(handle, storage, factory)
 end
 
+"""
+    Publisher{S,T,UH}
+
+Publish samples for a publish/subscribe service.
+"""
 mutable struct Publisher{S,T,UH}
     handle::Iceoryx2FFI.iox2_publisher_h
     storage::_StorageRef{Iceoryx2FFI.iox2_publisher_t}
@@ -313,6 +369,11 @@ function _finalize_publisher(pub::Publisher)
     return nothing
 end
 
+"""
+    create(builder::PublisherBuilder) -> Publisher
+
+Create a publisher and consume the builder.
+"""
 function create(builder::PublisherBuilder{S,T,UH}) where {S,T,UH}
     _require_valid(builder.handle, "publisher builder")
     storage = Ref{Iceoryx2FFI.iox2_publisher_t}()
@@ -323,6 +384,11 @@ function create(builder::PublisherBuilder{S,T,UH}) where {S,T,UH}
     return Publisher{S,T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
+"""
+    create(f::Function, builder::PublisherBuilder)
+
+Create a publisher, call `f(pub)`, and close it in a `finally` block.
+"""
 function create(f::Function, builder::PublisherBuilder{S,T,UH}) where {S,T,UH}
     pub = create(builder)
     try
@@ -332,6 +398,11 @@ function create(f::Function, builder::PublisherBuilder{S,T,UH}) where {S,T,UH}
     end
 end
 
+"""
+    Subscriber{S,T,UH}
+
+Receive samples for a publish/subscribe service.
+"""
 mutable struct Subscriber{S,T,UH}
     handle::Iceoryx2FFI.iox2_subscriber_h
     storage::_StorageRef{Iceoryx2FFI.iox2_subscriber_t}
@@ -352,6 +423,11 @@ function _finalize_subscriber(sub::Subscriber)
     return nothing
 end
 
+"""
+    create(builder::SubscriberBuilder) -> Subscriber
+
+Create a subscriber and consume the builder.
+"""
 function create(builder::SubscriberBuilder{S,T,UH}) where {S,T,UH}
     _require_valid(builder.handle, "subscriber builder")
     storage = Ref{Iceoryx2FFI.iox2_subscriber_t}()
@@ -362,6 +438,11 @@ function create(builder::SubscriberBuilder{S,T,UH}) where {S,T,UH}
     return Subscriber{S,T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
+"""
+    create(f::Function, builder::SubscriberBuilder)
+
+Create a subscriber, call `f(sub)`, and close it in a `finally` block.
+"""
 function create(f::Function, builder::SubscriberBuilder{S,T,UH}) where {S,T,UH}
     sub = create(builder)
     try
@@ -371,6 +452,12 @@ function create(f::Function, builder::SubscriberBuilder{S,T,UH}) where {S,T,UH}
     end
 end
 
+"""
+    Sample{T,UH}
+
+Reusable receive buffer for publish/subscribe. Call `receive!` to populate and
+`close` when done to release the loan.
+"""
 mutable struct Sample{T,UH}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_sample_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_sample_t}
@@ -386,6 +473,11 @@ mutable struct Sample{T,UH}
     end
 end
 
+"""
+    Sample{T,UH}() -> Sample
+
+Create an empty reusable sample buffer.
+"""
 function Sample{T,UH}() where {T,UH}
     return Sample{T,UH}(
         Ref{Iceoryx2FFI.iox2_sample_h}(_IOX2_NULL),
@@ -409,6 +501,11 @@ function _finalize_sample(sample::Sample)
     return nothing
 end
 
+"""
+    payload(sample::Sample) -> Slice
+
+Return a zero-copy view of the sample payload.
+"""
 @inline function payload(sample::Sample{T,UH}) where {T,UH}
     ptr_ref = Ref{Ptr{Cvoid}}()
     len_ref = Ref{Iceoryx2FFI.c_size_t}()
@@ -416,10 +513,20 @@ end
     return Slice{T}(Ptr{T}(ptr_ref[]), Int(len_ref[]), sample)
 end
 
+"""
+    unsafe_payload_ptr(sample::Sample) -> Ptr
+
+Return a raw pointer to the payload (unsafe).
+"""
 @inline function unsafe_payload_ptr(sample::Sample{T,UH}) where {T,UH}
     return payload(sample).ptr
 end
 
+"""
+    header(sample::Sample) -> PublishSubscribeHeaderRef
+
+Return a view of the publish/subscribe header.
+"""
 @inline function header(sample::Sample)
     _require_valid(sample.handle_ref[], "sample")
     slot = sample.header_slot
@@ -437,6 +544,12 @@ end
     return Ptr{T}(ptr_ref[])
 end
 
+"""
+    user_header(sample::Sample)
+    user_header(sample::Sample, ::Type{UH})
+
+Return a zero-copy view of the user header if present.
+"""
 @inline function user_header(sample::Sample{T,Nothing}) where {T}
     throw(ArgumentError("sample has no user header type; call user_header(sample, ::Type) instead"))
 end
@@ -452,6 +565,12 @@ end
 end
 
 
+"""
+    SampleMut{T,UH}
+
+Reusable mutable sample for publishers. Call `loan*` to acquire and `send!` to
+publish.
+"""
 mutable struct SampleMut{T,UH}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_sample_mut_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_sample_mut_t}
@@ -467,6 +586,11 @@ mutable struct SampleMut{T,UH}
     end
 end
 
+"""
+    SampleMut{T,UH}() -> SampleMut
+
+Create an empty mutable sample buffer for publishing.
+"""
 function SampleMut{T,UH}() where {T,UH}
     return SampleMut{T,UH}(
         Ref{Iceoryx2FFI.iox2_sample_mut_h}(_IOX2_NULL),
@@ -492,6 +616,11 @@ function _finalize_sample_mut(sample::SampleMut)
     return nothing
 end
 
+"""
+    payload_mut(sample::SampleMut) -> Slice
+
+Return a zero-copy mutable view of the payload.
+"""
 @inline function payload_mut(sample::SampleMut{T,UH}) where {T,UH}
     ptr_ref = Ref{Ptr{Cvoid}}()
     len_ref = Ref{Iceoryx2FFI.c_size_t}()
@@ -499,10 +628,20 @@ end
     return Slice{T}(Ptr{T}(ptr_ref[]), Int(len_ref[]), sample)
 end
 
+"""
+    unsafe_payload_mut_ptr(sample::SampleMut) -> Ptr
+
+Return a raw mutable pointer to the payload (unsafe).
+"""
 @inline function unsafe_payload_mut_ptr(sample::SampleMut{T,UH}) where {T,UH}
     return payload_mut(sample).ptr
 end
 
+"""
+    header(sample::SampleMut) -> PublishSubscribeHeaderRef
+
+Return a view of the publish/subscribe header.
+"""
 @inline function header(sample::SampleMut)
     _require_valid(sample.handle_ref[], "sample")
     slot = sample.header_slot
@@ -524,6 +663,14 @@ end
     throw(ArgumentError("sample has no user header type; call user_header(sample, ::Type) instead"))
 end
 
+"""
+    user_header(sample::SampleMut)
+    user_header(sample::SampleMut, ::Type{UH})
+    user_header_mut(sample::SampleMut)
+    user_header_mut(sample::SampleMut, ::Type{UH})
+
+Return a zero-copy (mutable) view of the user header.
+"""
 @inline function user_header(sample::SampleMut{T,UH}) where {T,UH}
     ptr = unsafe_user_header_mut_ptr(sample, UH)
     return Slice{UH}(ptr, 1, sample)
@@ -567,6 +714,11 @@ end
 end
 
 
+"""
+    loan_slice_uninit!(publisher, sample, n)
+
+Loan an uninitialized slice of length `n` into `sample`.
+"""
 function loan_slice_uninit!(publisher::Publisher{S,T,UH}, sample::SampleMut{T,UH}, n::Integer) where {S,T,UH}
     _require_valid(publisher.handle, "publisher")
     _require_inactive(sample, "sample")
@@ -581,6 +733,11 @@ function loan_slice_uninit!(publisher::Publisher{S,T,UH}, sample::SampleMut{T,UH
     return sample
 end
 
+"""
+    try_loan_slice_uninit!(publisher, sample, n) -> Bool
+
+Try to loan an uninitialized slice. Returns `false` if no loan is available.
+"""
 function try_loan_slice_uninit!(publisher::Publisher{S,T,UH}, sample::SampleMut{T,UH}, n::Integer) where {S,T,UH}
     _require_valid(publisher.handle, "publisher")
     _require_inactive(sample, "sample")
@@ -596,20 +753,40 @@ function try_loan_slice_uninit!(publisher::Publisher{S,T,UH}, sample::SampleMut{
     return true
 end
 
+"""
+    loan_uninit!(publisher, sample)
+
+Loan an uninitialized single sample into `sample`.
+"""
 @inline function loan_uninit!(publisher::Publisher{S,T,UH}, sample::SampleMut{T,UH}) where {S,T,UH}
     return loan_slice_uninit!(publisher, sample, 1)
 end
 
+"""
+    try_loan_uninit!(publisher, sample) -> Bool
+
+Try to loan an uninitialized sample. Returns `false` if no loan is available.
+"""
 @inline function try_loan_uninit!(publisher::Publisher{S,T,UH}, sample::SampleMut{T,UH}) where {S,T,UH}
     return try_loan_slice_uninit!(publisher, sample, 1)
 end
 
+"""
+    loan!(publisher, sample)
+
+Loan a sample and default-initialize the payload with `zero(T)`.
+"""
 function loan!(publisher::Publisher{S,T,UH}, sample::SampleMut{T,UH}) where {S,T,UH}
     loan_slice_uninit!(publisher, sample, 1)
     fill!(payload_mut(sample), _default_value(T))
     return sample
 end
 
+"""
+    loan_slice!(publisher, sample, n)
+
+Loan a slice and default-initialize the payload with `zero(T)`.
+"""
 function loan_slice!(publisher::Publisher{S,T,UH}, sample::SampleMut{T,UH}, n::Integer) where {S,T,UH}
     loan_slice_uninit!(publisher, sample, n)
     fill!(payload_mut(sample), _default_value(T))
@@ -640,6 +817,11 @@ end
     return sample
 end
 
+"""
+    send!(sample::SampleMut)
+
+Send a loaned sample and invalidate its handle.
+"""
 @inline function send!(sample::SampleMut)
     ret = Iceoryx2FFI.iox2_sample_mut_send(sample.handle_ref[], C_NULL)
     check_ok(ret, Iceoryx2FFI.iox2_send_error_e)
@@ -648,6 +830,13 @@ end
     return nothing
 end
 
+"""
+    send_copy(publisher, data, n)
+    send_copy(publisher, data::AbstractVector)
+    send_copy(publisher, value::T)
+
+Send by copying from an existing buffer or value.
+"""
 function send_copy(publisher::Publisher{S,T,UH}, data::Ptr{T}, n::Integer) where {S,T,UH}
     _require_valid(publisher.handle, "publisher")
     recipients = Ref{Iceoryx2FFI.c_size_t}()
@@ -671,6 +860,11 @@ function send_copy(publisher::Publisher{S,T,UH}, value::T) where {S,T,UH}
     end
 end
 
+"""
+    update_connections!(publisher::Publisher)
+
+Update internal connection state (used by some event-based examples).
+"""
 function update_connections!(publisher::Publisher)
     _require_valid(publisher.handle, "publisher")
     ret = Iceoryx2FFI.iox2_publisher_update_connections(Ref{Iceoryx2FFI.iox2_publisher_h}(publisher.handle))
@@ -678,6 +872,11 @@ function update_connections!(publisher::Publisher)
     return nothing
 end
 
+"""
+    receive!(subscriber, sample) -> Bool
+
+Receive a sample into the reusable buffer. Returns `true` on success.
+"""
 function receive!(subscriber::Subscriber{S,T,UH}, sample::Sample{T,UH}) where {S,T,UH}
     _require_valid(subscriber.handle, "subscriber")
     _require_inactive(sample, "sample")
@@ -691,6 +890,11 @@ function receive!(subscriber::Subscriber{S,T,UH}, sample::Sample{T,UH}) where {S
     return sample.handle_ref[] != _IOX2_NULL
 end
 
+"""
+    receive!(f::Function, subscriber, sample)
+
+Receive into `sample`, call `f(sample)`, and always `close(sample)` afterward.
+"""
 function receive!(f::Function, subscriber::Subscriber{S,T,UH}, sample::Sample{T,UH}) where {S,T,UH}
     if receive!(subscriber, sample)
         try
