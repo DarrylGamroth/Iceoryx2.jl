@@ -24,15 +24,15 @@ function file_descriptor(listener::Listener)
     return FileDescriptorView(ptr)
 end
 
-function attach_notification(waitset::Waitset, fd::Union{FileDescriptor, FileDescriptorView})
+function attach_notification(waitset::Waitset{S}, fd::Union{FileDescriptor, FileDescriptorView}) where {S}
     _require_valid(unsafe_handle(waitset), "waitset")
     guard_ref = Ref{Iceoryx2FFI.iox2_waitset_guard_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_waitset_attach_notification(Ref{Iceoryx2FFI.iox2_waitset_h}(unsafe_handle(waitset)), _file_descriptor_ptr(fd), C_NULL, guard_ref)
     check_ok(ret, Iceoryx2FFI.iox2_waitset_attachment_error_e)
-    return WaitsetGuard(guard_ref[])
+    return WaitsetGuard{S}(guard_ref[])
 end
 
-function attach_deadline(waitset::Waitset, fd::Union{FileDescriptor, FileDescriptorView}, seconds::Integer, nanoseconds::Integer)
+function attach_deadline(waitset::Waitset{S}, fd::Union{FileDescriptor, FileDescriptorView}, seconds::Integer, nanoseconds::Integer) where {S}
     _require_valid(unsafe_handle(waitset), "waitset")
     guard_ref = Ref{Iceoryx2FFI.iox2_waitset_guard_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_waitset_attach_deadline(
@@ -44,10 +44,10 @@ function attach_deadline(waitset::Waitset, fd::Union{FileDescriptor, FileDescrip
         guard_ref,
     )
     check_ok(ret, Iceoryx2FFI.iox2_waitset_attachment_error_e)
-    return WaitsetGuard(guard_ref[])
+    return WaitsetGuard{S}(guard_ref[])
 end
 
-function attach_interval(waitset::Waitset, seconds::Integer, nanoseconds::Integer)
+function attach_interval(waitset::Waitset{S}, seconds::Integer, nanoseconds::Integer) where {S}
     _require_valid(unsafe_handle(waitset), "waitset")
     guard_ref = Ref{Iceoryx2FFI.iox2_waitset_guard_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_waitset_attach_interval(
@@ -58,5 +58,5 @@ function attach_interval(waitset::Waitset, seconds::Integer, nanoseconds::Intege
         guard_ref,
     )
     check_ok(ret, Iceoryx2FFI.iox2_waitset_attachment_error_e)
-    return WaitsetGuard(guard_ref[])
+    return WaitsetGuard{S}(guard_ref[])
 end

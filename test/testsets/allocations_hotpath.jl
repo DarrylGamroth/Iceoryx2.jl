@@ -63,11 +63,11 @@
         resp::Iceoryx2.ResponseMut{UInt64,Nothing},
     ) = @allocated Iceoryx2.try_loan_slice_uninit!(req, resp, 1)
     send_response_alloc(resp::Iceoryx2.ResponseMut{UInt64,Nothing}) = @allocated Iceoryx2.send!(resp)
-    has_event_alloc(id::Iceoryx2.WaitsetAttachmentId, guard::Iceoryx2.WaitsetGuard) =
+    has_event_alloc(id::Iceoryx2.WaitsetAttachmentId{S}, guard::Iceoryx2.WaitsetGuard{S}) where {S} =
         @allocated Iceoryx2.has_event_from(id, guard)
-    missed_deadline_alloc(id::Iceoryx2.WaitsetAttachmentId, guard::Iceoryx2.WaitsetGuard) =
+    missed_deadline_alloc(id::Iceoryx2.WaitsetAttachmentId{S}, guard::Iceoryx2.WaitsetGuard{S}) where {S} =
         @allocated Iceoryx2.has_missed_deadline(id, guard)
-    waitset_once_alloc(waitset::Iceoryx2.Waitset, handler::Iceoryx2.WaitsetHandler) =
+    waitset_once_alloc(waitset::Iceoryx2.Waitset{S}, handler::Iceoryx2.WaitsetHandler{S}) where {S} =
         @allocated Iceoryx2.wait_and_process_once(waitset, 0, 0, handler)
     function receive_with_retry!(sub::Iceoryx2.Subscriber{S,T,UH}, sample::Iceoryx2.Sample{T,UH}) where {S,T,UH}
         for _ in 1:1000
@@ -212,8 +212,8 @@
     @test missed_deadline_alloc(attachment, guard) == 0
 
     struct WaitsetCallback end
-    (::WaitsetCallback)(::Iceoryx2.WaitsetAttachmentId) = :stop
-    handler = Iceoryx2.WaitsetHandler(WaitsetCallback())
+    (::WaitsetCallback)(::Iceoryx2.WaitsetAttachmentId{S}) where {S} = :stop
+    handler = Iceoryx2.WaitsetHandler(WaitsetCallback(), waitset)
     Iceoryx2.wait_and_process_once(waitset, 0, 0, handler)
     @test waitset_once_alloc(waitset, handler) == 0
 

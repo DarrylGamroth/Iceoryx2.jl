@@ -496,58 +496,6 @@ function Base.close(obj::UniqueWriterId)
     return nothing
 end
 
-mutable struct WaitsetAttachmentId
-    handle::Iceoryx2FFI.iox2_waitset_attachment_id_h
-    function WaitsetAttachmentId(handle::Iceoryx2FFI.iox2_waitset_attachment_id_h)
-        obj = new(handle)
-        finalizer(_finalize_WaitsetAttachmentId, obj)
-        return obj
-    end
-end
-
-@inline unsafe_handle(obj::WaitsetAttachmentId) = obj.handle
-@inline Base.isvalid(obj::WaitsetAttachmentId) = obj.handle != _IOX2_NULL
-@inline invalidate!(obj::WaitsetAttachmentId) = (obj.handle = _IOX2_NULL)
-
-function _finalize_WaitsetAttachmentId(obj::WaitsetAttachmentId)
-    if obj.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_waitset_attachment_id_drop(obj.handle)
-        obj.handle = _IOX2_NULL
-    end
-    return nothing
-end
-
-function Base.close(obj::WaitsetAttachmentId)
-    _finalize_WaitsetAttachmentId(obj)
-    return nothing
-end
-
-mutable struct WaitsetGuard
-    handle::Iceoryx2FFI.iox2_waitset_guard_h
-    function WaitsetGuard(handle::Iceoryx2FFI.iox2_waitset_guard_h)
-        obj = new(handle)
-        finalizer(_finalize_WaitsetGuard, obj)
-        return obj
-    end
-end
-
-@inline unsafe_handle(obj::WaitsetGuard) = obj.handle
-@inline Base.isvalid(obj::WaitsetGuard) = obj.handle != _IOX2_NULL
-@inline invalidate!(obj::WaitsetGuard) = (obj.handle = _IOX2_NULL)
-
-function _finalize_WaitsetGuard(obj::WaitsetGuard)
-    if obj.handle != _IOX2_NULL
-        Iceoryx2FFI.iox2_waitset_guard_drop(obj.handle)
-        obj.handle = _IOX2_NULL
-    end
-    return nothing
-end
-
-function Base.close(obj::WaitsetGuard)
-    _finalize_WaitsetGuard(obj)
-    return nothing
-end
-
 struct ActiveRequestRef
     handle::Iceoryx2FFI.iox2_active_request_h_ref
 end

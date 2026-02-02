@@ -66,6 +66,8 @@ ignore_owning = Set([
     "entry_value_uninit",
     "waitset",
     "waitset_builder",
+    "waitset_attachment_id",
+    "waitset_guard",
 ])
 
 ffi_text = read(ffi_path, String)
