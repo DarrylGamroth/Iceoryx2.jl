@@ -3,6 +3,8 @@ struct CustomHeader
     timestamp::UInt64
 end
 
+Iceoryx2.type_name(::Type{CustomHeader}) = "CustomHeader"
+
 function Base.show(io::IO, value::CustomHeader)
     print(io, "CustomHeader { version: ", value.version, ", timestamp: ", value.timestamp, " }")
 end

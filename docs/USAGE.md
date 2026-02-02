@@ -54,6 +54,11 @@ isbitstype(MyPayload) # true
 
 The service builder checks `isbits` and throws if the payload type is not eligible for zero-copy.
 Pub/sub and request/response factories are typed when you create the builder.
+For non-primitive payloads and headers, you must also define a stable cross-language type name:
+
+```julia
+Iceoryx2.type_name(::Type{MyPayload}) = "MyPayload"
+```
 
 If you need to override the computed alignment, use the alignment setters on the builder:
 

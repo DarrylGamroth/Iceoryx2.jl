@@ -17,6 +17,8 @@ struct ComplexDataType
     vec_of_complex_data::StaticVector{ComplexData, COMPLEX_CAPACITY}
 end
 
+Iceoryx2.type_name(::Type{ComplexDataType}) = "ComplexDataType"
+
 Base.zero(::Type{ComplexData}) = ComplexData(static_string(Val(4), ""), static_vector_from_value(UInt64, Val(4), 0, 0))
 Base.zero(::Type{ComplexDataType}) = ComplexDataType(0, static_string(Val(8), ""), static_vector_from_value(UInt64, Val(4), 0, 0), static_vector_from_value(ComplexData, Val(COMPLEX_CAPACITY), 0, zero(ComplexData)))
 

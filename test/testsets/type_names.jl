@@ -18,9 +18,18 @@
     Iceoryx2.type_name(::Type{TypeNameTestPayload}) = "TypeNameTestPayload"
     @test Iceoryx2.type_name(TypeNameTestPayload) == "TypeNameTestPayload"
 
+    Iceoryx2.type_name(::Type{Tuple{UInt32,Float64}}) = "Tuple_u32_f64"
+    Iceoryx2.type_name(::Type{Tuple{UInt16,UInt8}}) = "Tuple_u16_u8"
+
     name, name_len, size, alignment = Iceoryx2._type_details(TypeNameTestPayload)
     @test name == "TypeNameTestPayload"
     @test name_len == Iceoryx2.Iceoryx2FFI.c_size_t(length(codeunits("TypeNameTestPayload")))
     @test size == Iceoryx2.Iceoryx2FFI.c_size_t(sizeof(TypeNameTestPayload))
     @test alignment == Iceoryx2.Iceoryx2FFI.c_size_t(Base.datatype_alignment(TypeNameTestPayload))
+
+    struct TypeNameMissing
+        value::UInt8
+    end
+
+    @test_throws ArgumentError Iceoryx2.type_name(TypeNameMissing)
 end

@@ -188,6 +188,7 @@ end
         a::UInt32
         b::Float64
     end
+    Iceoryx2.type_name(::Type{TestHeader}) = "TestHeader"
 
     builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(builder, "iceoryx2_julia_test_node_pubsub_struct_slice")

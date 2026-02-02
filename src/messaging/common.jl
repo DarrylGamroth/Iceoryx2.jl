@@ -41,7 +41,7 @@ type_name(::Type{Float64}) = "f64"
 type_name(::Type{Nothing}) = "()"
 
 function type_name(::Type{T}) where {T}
-    return string(nameof(T))
+    throw(ArgumentError("type_name(::Type{$T}) is not defined; define Iceoryx2.type_name(::Type{$T}) = \"...\" for cross-language compatibility"))
 end
 
 @inline function _type_details(::Type{T}) where {T}
