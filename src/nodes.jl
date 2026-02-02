@@ -18,8 +18,13 @@ function wait(node::Node, seconds::Integer, nanoseconds::Integer)
         UInt64(seconds),
         UInt32(nanoseconds),
     )
-    check_ok(ret, Iceoryx2FFI.iox2_node_wait_failure_e)
-    return nothing
+    ret == _IOX2_OK && return true
+    code = Iceoryx2FFI.iox2_node_wait_failure_e(ret)
+    if code == Iceoryx2FFI.iox2_node_wait_failure_e_INTERRUPT ||
+       code == Iceoryx2FFI.iox2_node_wait_failure_e_TERMINATION_REQUEST
+        return false
+    end
+    throw(NodeWaitFailure(code))
 end
 
 function wait(node::Node, seconds::Real)

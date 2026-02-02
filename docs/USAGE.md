@@ -163,8 +163,10 @@ The C++/Rust APIs use `Duration` values. In Julia we keep the low-level
 `(seconds, nanoseconds)` arguments for allocation-free hot paths:
 
 ```julia
-# 1 second
-Iceoryx2.wait(node, 1, 0)
+# 1 second (returns false on SIGINT/SIGTERM)
+while Iceoryx2.wait(node, 1, 0)
+    # do work
+end
 
 # 250 milliseconds
 Iceoryx2.attach_interval(waitset, 0, 250_000_000)

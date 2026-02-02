@@ -30,16 +30,18 @@ type_name(::Type{UInt8}) = "u8"
 type_name(::Type{UInt16}) = "u16"
 type_name(::Type{UInt32}) = "u32"
 type_name(::Type{UInt64}) = "u64"
+type_name(::Type{UInt128}) = "u128"
 type_name(::Type{Int8}) = "i8"
 type_name(::Type{Int16}) = "i16"
 type_name(::Type{Int32}) = "i32"
 type_name(::Type{Int64}) = "i64"
+type_name(::Type{Int128}) = "i128"
 type_name(::Type{Float32}) = "f32"
 type_name(::Type{Float64}) = "f64"
 type_name(::Type{Nothing}) = "()"
 
 function type_name(::Type{T}) where {T}
-    return string(T)
+    return string(nameof(T))
 end
 
 @inline function _type_details(::Type{T}) where {T}
@@ -170,4 +172,3 @@ EventId(value::Integer) = EventId(Iceoryx2FFI.iox2_event_id_t(Iceoryx2FFI.c_size
 
 @inline value(id::EventId) = id.raw.value
 @inline Base.Int(id::EventId) = Int(id.raw.value)
-
