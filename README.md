@@ -1,5 +1,8 @@
 # Iceoryx2.jl
 
+![CI](https://github.com/DarrylGamroth/Iceoryx2.jl/actions/workflows/ci.yml/badge.svg)
+[![codecov](https://codecov.io/gh/DarrylGamroth/Iceoryx2.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/DarrylGamroth/Iceoryx2.jl)
+
 ## Quick start
 
 ```julia
