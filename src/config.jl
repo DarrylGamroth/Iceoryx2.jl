@@ -41,6 +41,11 @@ end
     return String(data)
 end
 
+"""
+    default_config() -> Config
+
+Create a new mutable configuration with default values.
+"""
 function default_config()
     handle_ref = Ref{Iceoryx2FFI.iox2_config_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_config_default(C_NULL, handle_ref)
@@ -58,6 +63,11 @@ end
     return unsafe_handle(config)
 end
 
+"""
+    config_from_file(path::AbstractString) -> Config
+
+Load a configuration from a TOML file.
+"""
 function config_from_file(path::AbstractString)
     file = String(path)
     handle_ref = Ref{Iceoryx2FFI.iox2_config_h}(_IOX2_NULL)
@@ -68,54 +78,114 @@ function config_from_file(path::AbstractString)
     return Config(handle_ref[])
 end
 
+"""
+    config_from_ptr(config::ConfigView) -> Config
+
+Clone a dynamic config from a view pointer.
+"""
 function config_from_ptr(config::ConfigView)
     handle_ref = Ref{Iceoryx2FFI.iox2_config_h}(_IOX2_NULL)
     Iceoryx2FFI.iox2_config_from_ptr(unsafe_handle(config), C_NULL, handle_ref)
     return Config(handle_ref[])
 end
 
+"""
+    config_clone(config::Config) -> Config
+
+Clone a dynamic config handle.
+"""
 function config_clone(config::Config)
     handle_ref = Ref{Iceoryx2FFI.iox2_config_h}(_IOX2_NULL)
     Iceoryx2FFI.iox2_config_clone(_config_h_ref(config), C_NULL, handle_ref)
     return Config(handle_ref[])
 end
 
+"""
+    global_config() -> ConfigView
+
+Return a view of the global config (not owned by Julia).
+"""
 @inline function global_config()
     return ConfigView(Iceoryx2FFI.iox2_config_global_config())
 end
 
+"""
+    config_view(config::Config) -> ConfigView
+
+Return a view of a dynamic config handle.
+"""
 @inline function config_view(config::Config)
     return ConfigView(Iceoryx2FFI.iox2_cast_config_ptr(unsafe_handle(config)))
 end
 
+"""
+    node_config(node::Node) -> ConfigView
+
+Return a view of the config associated with a node.
+"""
 @inline function node_config(node::Node)
     return ConfigView(Iceoryx2FFI.iox2_node_config(Ref{Iceoryx2FFI.iox2_node_h}(unsafe_handle(node))))
 end
 
+"""
+    StaticConfig
+
+Immutable snapshot of static config values.
+"""
 struct StaticConfig
     raw::Iceoryx2FFI.iox2_static_config_t
 end
 
+"""
+    StaticConfigDetails
+
+Static configuration details for a service.
+"""
 struct StaticConfigDetails
     raw::Iceoryx2FFI.iox2_static_config_details_t
 end
 
+"""
+    StaticConfigEvent
+
+Static config for the event messaging pattern.
+"""
 struct StaticConfigEvent
     raw::Iceoryx2FFI.iox2_static_config_event_t
 end
 
+"""
+    StaticConfigPublishSubscribe
+
+Static config for publish/subscribe services.
+"""
 struct StaticConfigPublishSubscribe
     raw::Iceoryx2FFI.iox2_static_config_publish_subscribe_t
 end
 
+"""
+    StaticConfigRequestResponse
+
+Static config for request/response services.
+"""
 struct StaticConfigRequestResponse
     raw::Iceoryx2FFI.iox2_static_config_request_response_t
 end
 
+"""
+    StaticConfigBlackboard
+
+Static config for blackboard services.
+"""
 struct StaticConfigBlackboard
     raw::Iceoryx2FFI.iox2_static_config_blackboard_t
 end
 
+"""
+    TypeDetail
+
+Static type details (name/size/alignment) stored in static config.
+"""
 struct TypeDetail
     raw::Iceoryx2FFI.iox2_type_detail_t
 end
@@ -164,6 +234,16 @@ end
     return unsafe_handle(name)
 end
 
+"""
+    service_does_exist(
+        name;
+        service_type,
+        messaging_pattern=:publish_subscribe,
+        config=nothing,
+    ) -> Bool
+
+Check whether a service exists for the given name and pattern.
+"""
 function service_does_exist(
     service_name::Union{ServiceName, ServiceNameView};
     service_type::ServiceType,
@@ -196,6 +276,16 @@ function service_does_exist(
     end
 end
 
+"""
+    service_details(
+        name;
+        service_type,
+        messaging_pattern=:publish_subscribe,
+        config=nothing,
+    ) -> (exists::Bool, details::StaticConfigDetails)
+
+Fetch static service details if the service exists.
+"""
 function service_details(
     service_name::Union{ServiceName, ServiceNameView};
     service_type::ServiceType,
@@ -250,6 +340,13 @@ function _service_list_cfunction(::T) where {T<:AbstractServiceListHandler}
     )
 end
 
+"""
+    list_services(handler; service_type, config=nothing)
+    list_services(f::Function; service_type, config=nothing)
+
+Iterate over services visible for the given service type. The callback receives
+`StaticConfigDetails` or a config view, depending on the handler variant.
+"""
 function list_services(
     handler::AbstractServiceListHandler;
     service_type::ServiceType,
@@ -503,6 +600,12 @@ function list_notifiers(f::Function, factory::PortFactoryEvent{S}) where {S}
 end
 
 
+"""
+    list_clients(factory, handler)
+    list_clients(f::Function, factory)
+
+Iterate over client details for a request/response service.
+"""
 function list_clients(factory::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}, handler::AbstractClientDetailsHandler) where {S,Req,Resp,ReqH,RespH}
     handler_ref = Ref(handler)
     GC.@preserve handler_ref begin
@@ -519,6 +622,12 @@ function list_clients(f::Function, factory::PortFactoryRequestResponse{S,Req,Res
     return list_clients(factory, ClientDetailsHandler(f))
 end
 
+"""
+    list_servers(factory, handler)
+    list_servers(f::Function, factory)
+
+Iterate over server details for a request/response service.
+"""
 function list_servers(factory::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}, handler::AbstractServerDetailsHandler) where {S,Req,Resp,ReqH,RespH}
     handler_ref = Ref(handler)
     GC.@preserve handler_ref begin
@@ -535,8 +644,18 @@ function list_servers(f::Function, factory::PortFactoryRequestResponse{S,Req,Res
     return list_servers(factory, ServerDetailsHandler(f))
 end
 
+"""
+    AbstractBlackboardKeyHandler{K}
+
+Abstract callback handler for `list_keys`.
+"""
 abstract type AbstractBlackboardKeyHandler{K} end
 
+"""
+    BlackboardKeyHandler{K}(f)
+
+Wrap a callable `f(key)` for blackboard key iteration.
+"""
 mutable struct BlackboardKeyHandler{K, T} <: AbstractBlackboardKeyHandler{K}
     on_key::T
 end
@@ -554,6 +673,12 @@ function _blackboard_key_cfunction(::T) where {T<:AbstractBlackboardKeyHandler}
     @cfunction(_blackboard_key_wrapper, Iceoryx2FFI.iox2_callback_progression_e, (Ptr{Cvoid}, Ref{T}))
 end
 
+"""
+    list_keys(factory, ::Type{K}, handler)
+    list_keys(f::Function, factory, ::Type{K})
+
+Iterate over keys present in a blackboard.
+"""
 function list_keys(factory::PortFactoryBlackboard{S,K}, ::Type{K}, handler::AbstractBlackboardKeyHandler{K}) where {S,K}
     _require_isbits(K)
     handler_ref = Ref(handler)
@@ -572,6 +697,12 @@ function list_keys(f::Function, factory::PortFactoryBlackboard{S,K}, ::Type{K}) 
 end
 
 
+"""
+    list_readers(factory, handler)
+    list_readers(f::Function, factory)
+
+Iterate over reader details for a blackboard.
+"""
 function list_readers(factory::PortFactoryBlackboard{S,K}, handler::AbstractReaderDetailsHandler) where {S,K}
     handler_ref = Ref(handler)
     GC.@preserve handler_ref begin
@@ -588,6 +719,12 @@ function list_readers(f::Function, factory::PortFactoryBlackboard{S,K}) where {S
     return list_readers(factory, ReaderDetailsHandler(f))
 end
 
+"""
+    list_writers(factory, handler)
+    list_writers(f::Function, factory)
+
+Iterate over writer details for a blackboard.
+"""
 function list_writers(factory::PortFactoryBlackboard{S,K}, handler::AbstractWriterDetailsHandler) where {S,K}
     handler_ref = Ref(handler)
     GC.@preserve handler_ref begin

@@ -40,6 +40,16 @@ type_name(::Type{Float32}) = "f32"
 type_name(::Type{Float64}) = "f64"
 type_name(::Type{Nothing}) = "()"
 
+"""
+    type_name(::Type{T}) -> String
+
+Return the cross-language type name used in iceoryx2 static config. For custom
+payloads/headers/keys you must define:
+
+```julia
+Iceoryx2.type_name(::Type{MyType}) = "MyType"
+```
+"""
 function type_name(::Type{T}) where {T}
     throw(ArgumentError("type_name(::Type{$T}) is not defined; define Iceoryx2.type_name(::Type{$T}) = \"...\" for cross-language compatibility"))
 end
@@ -52,6 +62,12 @@ end
         Iceoryx2FFI.c_size_t(Base.datatype_alignment(T))
 end
 
+"""
+    Slice{T,O} <: AbstractVector{T}
+
+Allocation-free view into shared memory payloads. The slice is valid only while
+its owning handle is alive. Access is bounds-checked by default.
+"""
 struct Slice{T,O} <: AbstractVector{T}
     ptr::Ptr{T}
     len::Int

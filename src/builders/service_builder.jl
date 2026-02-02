@@ -1,3 +1,9 @@
+"""
+    ServiceBuilder{S}
+
+Builder for service variants (publish/subscribe, request/response, event,
+blackboard) scoped to service type `S`. Construct with `service_builder`.
+"""
 mutable struct ServiceBuilder{S}
     handle::Iceoryx2FFI.iox2_service_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_service_builder_t}
@@ -15,6 +21,14 @@ function _finalize_service_builder(builder::ServiceBuilder)
     return nothing
 end
 
+"""
+    service_builder(node::Node{S}, name::ServiceName)
+    service_builder(node::Node{S}, name::ServiceNameView)
+    service_builder(node::Node{S}, name::AbstractString)
+
+Create a service builder tied to `node` and a service name. Passing a
+`ServiceName` transfers ownership to the builder.
+"""
 function service_builder(node::Node{S}, name::ServiceName) where {S}
     _require_valid(unsafe_handle(node), "node")
     storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()

@@ -1,3 +1,9 @@
+"""
+    EventServiceBuilder{S}
+
+Service builder for the event messaging pattern scoped to service type `S`.
+Create via `event(service_builder(...))`.
+"""
 mutable struct EventServiceBuilder{S}
     handle::Iceoryx2FFI.iox2_service_builder_event_h
     storage::_StorageRef{Iceoryx2FFI.iox2_service_builder_t}
@@ -9,6 +15,12 @@ mutable struct EventServiceBuilder{S}
     end
 end
 
+"""
+    PubSubServiceBuilder{S,T,UH}
+
+Service builder for publish/subscribe with payload type `T` and optional user
+header `UH`.
+"""
 mutable struct PubSubServiceBuilder{S,T,UH}
     handle::Iceoryx2FFI.iox2_service_builder_pub_sub_h
     storage::_StorageRef{Iceoryx2FFI.iox2_service_builder_t}
@@ -20,6 +32,12 @@ mutable struct PubSubServiceBuilder{S,T,UH}
     end
 end
 
+"""
+    RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}
+
+Service builder for request/response with request/response payload and optional
+header types.
+"""
 mutable struct RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}
     handle::Iceoryx2FFI.iox2_service_builder_request_response_h
     storage::_StorageRef{Iceoryx2FFI.iox2_service_builder_t}
@@ -39,6 +57,11 @@ function _blackboard_key_eq_cmp_cfunction(::Type{K}) where {K}
     @cfunction(_blackboard_key_eq_cmp, Bool, (Ref{K}, Ref{K}))
 end
 
+"""
+    BlackboardCreatorBuilder{S,K}
+
+Service builder for creating a blackboard with key type `K`.
+"""
 mutable struct BlackboardCreatorBuilder{S,K}
     handle::Iceoryx2FFI.iox2_service_builder_blackboard_creator_h
     storage::_StorageRef{Iceoryx2FFI.iox2_service_builder_t}
@@ -51,6 +74,11 @@ mutable struct BlackboardCreatorBuilder{S,K}
     end
 end
 
+"""
+    BlackboardOpenerBuilder{S,K}
+
+Service builder for opening an existing blackboard with key type `K`.
+"""
 mutable struct BlackboardOpenerBuilder{S,K}
     handle::Iceoryx2FFI.iox2_service_builder_blackboard_opener_h
     storage::_StorageRef{Iceoryx2FFI.iox2_service_builder_t}
@@ -88,6 +116,11 @@ function _finalize_service_builder_variant(builder::RequestResponseServiceBuilde
     return nothing
 end
 
+"""
+    event(builder::ServiceBuilder{S}) -> EventServiceBuilder{S}
+
+Convert a `ServiceBuilder` into an event service builder.
+"""
 function event(builder::ServiceBuilder{S}) where {S}
     _require_valid(builder.handle, "service builder")
     handle = Iceoryx2FFI.iox2_service_builder_event(builder.handle)
@@ -97,6 +130,12 @@ function event(builder::ServiceBuilder{S}) where {S}
     return EventServiceBuilder{S}(handle, storage, builder.keepalive)
 end
 
+"""
+    publish_subscribe(builder::ServiceBuilder{S}, ::Type{T}) -> PubSubServiceBuilder{S,...}
+
+Convert a `ServiceBuilder` into a publish/subscribe builder with payload type
+`T`. For dynamic payloads, pass an `AbstractVector{T}` type.
+"""
 function publish_subscribe(
     builder::ServiceBuilder{S},
     ::Type{T}
@@ -113,6 +152,12 @@ function publish_subscribe(
     return pub_builder
 end
 
+"""
+    request_response(builder::ServiceBuilder{S}, ::Type{Req}, ::Type{Resp})
+
+Convert a `ServiceBuilder` into a request/response builder with request and
+response payload types.
+"""
 function request_response(
     builder::ServiceBuilder{S},
     ::Type{Req},
@@ -133,6 +178,11 @@ function request_response(
     return rr_builder
 end
 
+"""
+    blackboard_creator(builder::ServiceBuilder{S}, ::Type{K})
+
+Convert a `ServiceBuilder` into a blackboard creator builder with key type `K`.
+"""
 function blackboard_creator(builder::ServiceBuilder{S}, ::Type{K}) where {S,K}
     _require_valid(builder.handle, "service builder")
     handle = Iceoryx2FFI.iox2_service_builder_blackboard_creator(builder.handle)
@@ -145,6 +195,11 @@ function blackboard_creator(builder::ServiceBuilder{S}, ::Type{K}) where {S,K}
     return bb_builder
 end
 
+"""
+    blackboard_opener(builder::ServiceBuilder{S}, ::Type{K})
+
+Convert a `ServiceBuilder` into a blackboard opener builder with key type `K`.
+"""
 function blackboard_opener(builder::ServiceBuilder{S}, ::Type{K}) where {S,K}
     _require_valid(builder.handle, "service builder")
     handle = Iceoryx2FFI.iox2_service_builder_blackboard_opener(builder.handle)

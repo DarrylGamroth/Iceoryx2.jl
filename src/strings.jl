@@ -24,6 +24,12 @@ end
     return Iceoryx2FFI.iox2_cast_service_name_ptr(handle)
 end
 
+"""
+    NodeName(value::AbstractString)
+
+Create a semantic node name owned by Julia. The resulting handle is consumed
+by `name!(::NodeBuilder, ...)` and must be closed if not transferred.
+"""
 function NodeName(value::AbstractString)
     str = String(value)
     handle_ref = Ref{Iceoryx2FFI.iox2_node_name_h}(_IOX2_NULL)
@@ -35,6 +41,12 @@ function NodeName(value::AbstractString)
     return NodeName(handle_ref[])
 end
 
+"""
+    ServiceName(value::AbstractString)
+
+Create a semantic service name owned by Julia. The resulting handle is consumed
+by `service_builder` and must be closed if not transferred.
+"""
 function ServiceName(value::AbstractString)
     str = String(value)
     handle_ref = Ref{Iceoryx2FFI.iox2_service_name_h}(_IOX2_NULL)
@@ -46,6 +58,15 @@ function ServiceName(value::AbstractString)
     return ServiceName(handle_ref[])
 end
 
+"""
+    string(name::NodeName)
+    string(name::ServiceName)
+    string(name::NodeNameView)
+    string(name::ServiceNameView)
+
+Convert a semantic name handle into a Julia `String` by copying the underlying
+UTF-8 bytes.
+"""
 @inline Base.string(name::NodeName) = _node_name_string(_node_name_ptr(unsafe_handle(name)))
 @inline Base.string(name::ServiceName) = _service_name_string(_service_name_ptr(unsafe_handle(name)))
 

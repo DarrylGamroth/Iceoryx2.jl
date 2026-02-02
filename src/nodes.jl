@@ -1,16 +1,33 @@
 # Node helpers.
 
+"""
+    name(node::Node) -> NodeNameView
+
+Return a view of the node name. The view is valid while the node is alive.
+Use `string(name(node))` to allocate a `String`.
+"""
 @inline function name(node::Node)
     _require_valid(unsafe_handle(node), "node")
     ptr = Iceoryx2FFI.iox2_node_name(Ref{Iceoryx2FFI.iox2_node_h}(unsafe_handle(node)))
     return NodeNameView(ptr)
 end
 
+"""
+    signal_handling_mode(node::Node)
+
+Return the node's signal handling mode.
+"""
 @inline function signal_handling_mode(node::Node)
     _require_valid(unsafe_handle(node), "node")
     return Iceoryx2FFI.iox2_node_signal_handling_mode(Ref{Iceoryx2FFI.iox2_node_h}(unsafe_handle(node)))
 end
 
+"""
+    wait(node::Node, seconds::Integer, nanoseconds::Integer) -> Bool
+
+Block until the timeout expires or a termination/interrupt is observed.
+Returns `true` on timeout, `false` on interrupt/termination.
+"""
 function wait(node::Node, seconds::Integer, nanoseconds::Integer)
     _require_valid(unsafe_handle(node), "node")
     ret = Iceoryx2FFI.iox2_node_wait(
@@ -27,6 +44,11 @@ function wait(node::Node, seconds::Integer, nanoseconds::Integer)
     throw(NodeWaitFailure(code))
 end
 
+"""
+    wait(node::Node, seconds::Real) -> Bool
+
+Convenience overload taking seconds as a real value.
+"""
 function wait(node::Node, seconds::Real)
     seconds < 0 && throw(ArgumentError("wait duration must be non-negative, got $seconds"))
     secs = floor(Int, seconds)
@@ -34,6 +56,11 @@ function wait(node::Node, seconds::Real)
     return wait(node, secs, nanos)
 end
 
+"""
+    id(node::Node{S}) -> NodeId
+
+Return an owned node ID for the given node.
+"""
 function id(node::Node{S}) where {S}
     _require_valid(unsafe_handle(node), "node")
     ptr = Iceoryx2FFI.iox2_node_id(Ref{Iceoryx2FFI.iox2_node_h}(unsafe_handle(node)), _service_type(S))
@@ -42,6 +69,11 @@ function id(node::Node{S}) where {S}
     return NodeId(handle_ref[])
 end
 
+"""
+    to_owned(node_id::NodeIdView) -> NodeId
+
+Clone a `NodeIdView` into an owned `NodeId`.
+"""
 function to_owned(node_id::NodeIdView)
     handle_ref = Ref{Iceoryx2FFI.iox2_node_id_h}(_IOX2_NULL)
     Iceoryx2FFI.iox2_node_id_clone_from_ptr(C_NULL, unsafe_handle(node_id), handle_ref)
@@ -60,6 +92,11 @@ end
     return Iceoryx2FFI.iox2_node_id_pid(Ref{Iceoryx2FFI.iox2_node_id_h}(unsafe_handle(node_id)))
 end
 
+"""
+    creation_time(node_id::NodeId) -> (seconds, nanoseconds)
+
+Return the creation timestamp of the node ID.
+"""
 function creation_time(node_id::NodeId)
     seconds = Ref{UInt64}(0)
     nanos = Ref{UInt32}(0)
@@ -71,6 +108,12 @@ function creation_time(node_id::NodeId)
     return seconds[], nanos[]
 end
 
+"""
+    remove_stale_resources(node_id::NodeId; service_type, config=nothing) -> Bool
+
+Remove stale resources belonging to a dead node. Returns `true` when cleanup
+succeeds.
+"""
 function remove_stale_resources(
     node_id::NodeId;
     service_type::ServiceType,

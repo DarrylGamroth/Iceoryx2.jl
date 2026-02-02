@@ -1,5 +1,16 @@
+"""
+    AbstractNodeListHandler
+
+Abstract callback handler for `list_nodes`.
+"""
 abstract type AbstractNodeListHandler end
 
+"""
+    NodeListHandler(f)
+
+Wrap a callable `f(state, node_id_view, node_id_cstr, node_name_view, config_view)`
+for use with `list_nodes`.
+"""
 mutable struct NodeListHandler{T} <: AbstractNodeListHandler
     on_list::T
     ref::Base.RefValue{NodeListHandler{T}}
@@ -63,6 +74,13 @@ end
     return nothing
 end
 
+"""
+    list_nodes(handler; service_type, config=nothing)
+    list_nodes(f::Function; service_type, config=nothing)
+
+Iterate over nodes for the given service type. The callback controls iteration
+by returning `true`/`false` or `:continue`/`:stop`.
+"""
 function list_nodes(
     handler::NodeListHandler;
     service_type::ServiceType,
@@ -101,6 +119,12 @@ end
     return nothing
 end
 
+"""
+    list_nodes(factory::PortFactoryEvent, handler)
+    list_nodes(factory::PortFactoryEvent, f::Function)
+
+List nodes that are visible through an event port factory.
+"""
 function list_nodes(factory::PortFactoryEvent{S}, handler::NodeListHandler) where {S}
     return _list_nodes(factory, handler, handler.callback)
 end

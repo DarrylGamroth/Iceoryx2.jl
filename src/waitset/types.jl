@@ -1,5 +1,10 @@
 # Waitset guard and attachment types with service-typed ownership.
 
+"""
+    WaitsetAttachmentId{S}
+
+Opaque attachment identifier used with waitset guards for event queries.
+"""
 mutable struct WaitsetAttachmentId{S}
     handle::Iceoryx2FFI.iox2_waitset_attachment_id_h
     function WaitsetAttachmentId{S}(handle::Iceoryx2FFI.iox2_waitset_attachment_id_h) where {S}
@@ -26,6 +31,11 @@ function Base.close(obj::WaitsetAttachmentId)
     return nothing
 end
 
+"""
+    WaitsetGuard{S}
+
+Guard object used to attach to a `Waitset{S}` and signal events.
+"""
 mutable struct WaitsetGuard{S}
     handle::Iceoryx2FFI.iox2_waitset_guard_h
     function WaitsetGuard{S}(handle::Iceoryx2FFI.iox2_waitset_guard_h) where {S}

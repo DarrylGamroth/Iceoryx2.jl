@@ -1,5 +1,11 @@
 # Service type and core typed handles.
 
+"""
+    ServiceType
+
+Service backend used for discovery and transport. Use `ServiceType.IPC` for
+inter-process communication and `ServiceType.LOCAL` for process-local services.
+"""
 @enum ServiceType::UInt32 begin
     LOCAL = UInt32(Iceoryx2FFI.iox2_service_type_e_LOCAL)
     IPC = UInt32(Iceoryx2FFI.iox2_service_type_e_IPC)
@@ -16,6 +22,15 @@ end
     return getfield(ServiceType, name)
 end
 
+"""
+    Node{S}
+
+Handle to an iceoryx2 node for service type `S`.
+
+Nodes own native resources and must be released with `close(node)` when no
+longer needed. `S` is a `ServiceType` value baked into the type for
+compile-time dispatch.
+"""
 mutable struct Node{S}
     handle::Iceoryx2FFI.iox2_node_h
     function Node{S}(handle::Iceoryx2FFI.iox2_node_h) where {S}
@@ -42,6 +57,12 @@ function Base.close(obj::Node)
     return nothing
 end
 
+"""
+    Waitset{S}
+
+Waitset for service type `S`. Use `WaitsetBuilder(service_type)` to configure
+and create a waitset, then call `wait_and_process*` to run callbacks.
+"""
 mutable struct Waitset{S}
     handle::Iceoryx2FFI.iox2_waitset_h
     function Waitset{S}(handle::Iceoryx2FFI.iox2_waitset_h) where {S}
@@ -68,6 +89,12 @@ function Base.close(obj::Waitset)
     return nothing
 end
 
+"""
+    WaitsetBuilder{S}
+
+Builder for `Waitset{S}`. Construct with `WaitsetBuilder(service_type)` and
+configure signal handling before calling `create`.
+"""
 mutable struct WaitsetBuilder{S}
     handle::Iceoryx2FFI.iox2_waitset_builder_h
     function WaitsetBuilder{S}(handle::Iceoryx2FFI.iox2_waitset_builder_h) where {S}

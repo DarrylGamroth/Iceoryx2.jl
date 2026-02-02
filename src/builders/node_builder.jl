@@ -1,3 +1,10 @@
+"""
+    NodeBuilder
+
+Builder for `Node{S}`. Configure name, config, and signal handling, then call
+`create(builder, service_type)` to obtain a node. Builders are consumable;
+`create` invalidates the builder.
+"""
 mutable struct NodeBuilder
     handle::Iceoryx2FFI.iox2_node_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_node_builder_t}
@@ -30,6 +37,11 @@ function _finalize_node_builder(builder::NodeBuilder)
     return nothing
 end
 
+"""
+    NodeBuilder()
+
+Create a new node builder with default settings.
+"""
 function NodeBuilder()
     storage = Ref{Iceoryx2FFI.iox2_node_builder_t}()
     handle = Iceoryx2FFI.iox2_node_builder_new(storage)
@@ -67,6 +79,14 @@ function _clear_node_builder_config!(builder::NodeBuilder)
     return nothing
 end
 
+"""
+    name!(builder::NodeBuilder, name::NodeName)
+    name!(builder::NodeBuilder, name::NodeNameView)
+    name!(builder::NodeBuilder, name::AbstractString)
+
+Set the node name used when creating the node. Passing a `NodeName` transfers
+ownership to the builder.
+"""
 function name!(builder::NodeBuilder, name::NodeName)
     _require_valid(builder.handle, "node builder")
     _clear_node_builder_name!(builder)
@@ -86,6 +106,13 @@ function name!(builder::NodeBuilder, name::AbstractString)
     return name!(builder, NodeName(name))
 end
 
+"""
+    config!(builder::NodeBuilder, config::Config)
+    config!(builder::NodeBuilder, config::ConfigRef)
+
+Attach a configuration to the builder. For `Config`, a clone is stored to keep
+the config alive until `create`.
+"""
 function config!(builder::NodeBuilder, config::Config)
     _require_valid(builder.handle, "node builder")
     _clear_node_builder_config!(builder)
@@ -103,6 +130,11 @@ function config!(builder::NodeBuilder, config::ConfigRef)
     return builder
 end
 
+"""
+    signal_handling_mode!(builder::NodeBuilder, mode)
+
+Set the signal handling mode applied at `create`.
+"""
 function signal_handling_mode!(builder::NodeBuilder, mode::Iceoryx2FFI.iox2_signal_handling_mode_e)
     _require_valid(builder.handle, "node builder")
     builder.signal_handling_mode = mode
@@ -110,6 +142,11 @@ function signal_handling_mode!(builder::NodeBuilder, mode::Iceoryx2FFI.iox2_sign
     return builder
 end
 
+"""
+    create(builder::NodeBuilder, service_type::ServiceType) -> Node{service_type}
+
+Create a node for the requested service type and consume the builder.
+"""
 function create(builder::NodeBuilder, service_type::ServiceType)
     _require_valid(builder.handle, "node builder")
     if builder.name_handle != _IOX2_NULL
@@ -134,6 +171,12 @@ function create(builder::NodeBuilder, service_type::ServiceType)
     return Node{service_type}(handle_ref[])
 end
 
+"""
+    create(f::Function, builder::NodeBuilder, service_type::ServiceType)
+
+Create a node, call `f(node)`, and close the node in a `finally` block.
+Intended for `do`-block usage.
+"""
 function create(f::Function, builder::NodeBuilder, service_type::ServiceType)
     node = create(builder, service_type)
     try

@@ -1,8 +1,19 @@
+"""
+    AbstractWaitsetHandler
+
+Abstract callback handler for waitset processing.
+"""
 abstract type AbstractWaitsetHandler end
 
 on_waitset_event(::AbstractWaitsetHandler) =
     throw(ArgumentError("Waitset handler must implement on_waitset_event(handler)"))
 
+"""
+    WaitsetHandler(f, waitset)
+    WaitsetHandler(f, ::Type{S})
+
+Wrap a callable `f(attachment_id)` for use with `wait_and_process*`.
+"""
 mutable struct WaitsetHandler{S,T} <: AbstractWaitsetHandler
     on_event::T
     attachment::WaitsetAttachmentId{S}
@@ -56,6 +67,11 @@ end
     return unsafe_load(handler.result_ptr)
 end
 
+"""
+    wait_and_process_once(waitset, handler) -> iox2_waitset_run_result_e
+
+Wait for one event and process it with `handler`.
+"""
 function wait_and_process_once(waitset::Waitset{S}, handler::WaitsetHandler{S}) where {S}
     _require_valid(unsafe_handle(waitset), "waitset")
     handler_ref = handler.ref
@@ -71,6 +87,11 @@ function wait_and_process_once(waitset::Waitset{S}, handler::WaitsetHandler{S}) 
     return _waitset_run_result(handler)
 end
 
+"""
+    wait_and_process_once(f::Function, waitset::Waitset)
+
+`do`-block variant for a single wait-and-process iteration.
+"""
 function wait_and_process_once(f::Function, waitset::Waitset{S}) where {S}
     return wait_and_process_once(waitset, WaitsetHandler{S}(f))
 end
@@ -79,6 +100,11 @@ function wait_and_process_once(waitset::Waitset{S}, handler::AbstractWaitsetHand
     return wait_and_process_once(waitset, WaitsetHandler{S}(on_waitset_event(handler)))
 end
 
+"""
+    wait_and_process_once(waitset, seconds, nanoseconds, handler)
+
+Wait with timeout and process at most one event.
+"""
 function wait_and_process_once(waitset::Waitset{S}, seconds::Integer, nanoseconds::Integer, handler::WaitsetHandler{S}) where {S}
     _require_valid(unsafe_handle(waitset), "waitset")
     handler_ref = handler.ref
@@ -96,6 +122,11 @@ function wait_and_process_once(waitset::Waitset{S}, seconds::Integer, nanosecond
     return _waitset_run_result(handler)
 end
 
+"""
+    wait_and_process_once(f::Function, waitset::Waitset, seconds, nanoseconds)
+
+`do`-block variant with timeout.
+"""
 function wait_and_process_once(f::Function, waitset::Waitset{S}, seconds::Integer, nanoseconds::Integer) where {S}
     return wait_and_process_once(waitset, seconds, nanoseconds, WaitsetHandler{S}(f))
 end
@@ -104,6 +135,11 @@ function wait_and_process_once(waitset::Waitset{S}, seconds::Integer, nanosecond
     return wait_and_process_once(waitset, seconds, nanoseconds, WaitsetHandler{S}(on_waitset_event(handler)))
 end
 
+"""
+    wait_and_process(waitset, handler) -> iox2_waitset_run_result_e
+
+Block and process events until the waitset run result indicates termination.
+"""
 function wait_and_process(waitset::Waitset{S}, handler::WaitsetHandler{S}) where {S}
     _require_valid(unsafe_handle(waitset), "waitset")
     handler_ref = handler.ref
@@ -119,6 +155,11 @@ function wait_and_process(waitset::Waitset{S}, handler::WaitsetHandler{S}) where
     return _waitset_run_result(handler)
 end
 
+"""
+    wait_and_process(f::Function, waitset::Waitset)
+
+`do`-block variant for `wait_and_process`.
+"""
 function wait_and_process(f::Function, waitset::Waitset{S}) where {S}
     return wait_and_process(waitset, WaitsetHandler{S}(f))
 end
@@ -127,6 +168,11 @@ function wait_and_process(waitset::Waitset{S}, handler::AbstractWaitsetHandler) 
     return wait_and_process(waitset, WaitsetHandler{S}(on_waitset_event(handler)))
 end
 
+"""
+    attachment_id(guard::WaitsetGuard) -> WaitsetAttachmentId
+
+Create an attachment ID from a guard for querying events.
+"""
 function attachment_id(guard::WaitsetGuard{S}) where {S}
     _require_valid(unsafe_handle(guard), "waitset guard")
     handle_ref = Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(_IOX2_NULL)
@@ -134,6 +180,11 @@ function attachment_id(guard::WaitsetGuard{S}) where {S}
     return WaitsetAttachmentId{S}(handle_ref[])
 end
 
+"""
+    has_event_from(id, guard) -> Bool
+
+Return whether `guard` signaled the attachment.
+"""
 @inline function has_event_from(id::Union{WaitsetAttachmentId{S}, WaitsetAttachmentIdRef}, guard::WaitsetGuard{S}) where {S}
     return Iceoryx2FFI.iox2_waitset_attachment_id_has_event_from(
         Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(id)),
@@ -141,6 +192,11 @@ end
     )
 end
 
+"""
+    has_missed_deadline(id, guard) -> Bool
+
+Return whether the attachment missed its deadline.
+"""
 @inline function has_missed_deadline(id::Union{WaitsetAttachmentId{S}, WaitsetAttachmentIdRef}, guard::WaitsetGuard{S}) where {S}
     return Iceoryx2FFI.iox2_waitset_attachment_id_has_missed_deadline(
         Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(id)),

@@ -2,12 +2,23 @@
 
 import StringViews: StringView
 
+"""
+    AttributeScratch
+
+Reusable buffers for allocation-free attribute access. Use with
+`with_attribute_scratch` and the `*_view!` APIs.
+"""
 struct AttributeScratch
     key_buffer::Vector{UInt8}
     value_buffer::Vector{UInt8}
     key_value_buffer::Vector{UInt8}
 end
 
+"""
+    AttributeScratch() -> AttributeScratch
+
+Create scratch buffers sized for maximum attribute key/value length.
+"""
 function AttributeScratch()
     key_len = Int(Iceoryx2FFI.IOX2_ATTRIBUTE_KEY_LENGTH)
     value_len = Int(Iceoryx2FFI.IOX2_ATTRIBUTE_VALUE_LENGTH)
@@ -18,6 +29,11 @@ function AttributeScratch()
     )
 end
 
+"""
+    with_attribute_scratch(f::Function)
+
+Create a scratch buffer and pass it to `f(scratch)`.
+"""
 function with_attribute_scratch(f::Function)
     scratch = AttributeScratch()
     return f(scratch)
@@ -28,6 +44,11 @@ end
     return nothing
 end
 
+"""
+    AttributeSpecifier() -> AttributeSpecifier
+
+Create an attribute specifier for defining service attributes.
+"""
 function AttributeSpecifier()
     handle_ref = Ref{Iceoryx2FFI.iox2_attribute_specifier_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_attribute_specifier_new(C_NULL, handle_ref)
@@ -35,6 +56,11 @@ function AttributeSpecifier()
     return AttributeSpecifier(handle_ref[])
 end
 
+"""
+    AttributeVerifier() -> AttributeVerifier
+
+Create an attribute verifier for matching service attributes.
+"""
 function AttributeVerifier()
     handle_ref = Ref{Iceoryx2FFI.iox2_attribute_verifier_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_attribute_verifier_new(C_NULL, handle_ref)
@@ -42,6 +68,11 @@ function AttributeVerifier()
     return AttributeVerifier(handle_ref[])
 end
 
+"""
+    define!(specifier::AttributeSpecifier, key, value)
+
+Add a key/value attribute to the specifier.
+"""
 function define!(specifier::AttributeSpecifier, key::AbstractString, value::AbstractString)
     _ensure_valid_attribute(unsafe_handle(specifier), "attribute specifier")
     key_str = String(key)
@@ -57,6 +88,11 @@ function define!(specifier::AttributeSpecifier, key::AbstractString, value::Abst
     return specifier
 end
 
+"""
+    require!(verifier::AttributeVerifier, key, value)
+
+Require a key/value attribute when opening a service.
+"""
 function require!(verifier::AttributeVerifier, key::AbstractString, value::AbstractString)
     _ensure_valid_attribute(unsafe_handle(verifier), "attribute verifier")
     key_str = String(key)
@@ -72,6 +108,11 @@ function require!(verifier::AttributeVerifier, key::AbstractString, value::Abstr
     return verifier
 end
 
+"""
+    require_key!(verifier::AttributeVerifier, key)
+
+Require a key to be present (any value).
+"""
 function require_key!(verifier::AttributeVerifier, key::AbstractString)
     _ensure_valid_attribute(unsafe_handle(verifier), "attribute verifier")
     key_str = String(key)
@@ -85,6 +126,12 @@ function require_key!(verifier::AttributeVerifier, key::AbstractString)
     return verifier
 end
 
+"""
+    attributes(specifier::AttributeSpecifier) -> AttributeSetView
+    attributes(verifier::AttributeVerifier) -> AttributeSetView
+
+Return a view of attributes held by the specifier or verifier.
+"""
 @inline function attributes(specifier::AttributeSpecifier)
     _ensure_valid_attribute(unsafe_handle(specifier), "attribute specifier")
     ptr = Iceoryx2FFI.iox2_attribute_specifier_attributes(Ref{Iceoryx2FFI.iox2_attribute_specifier_h}(unsafe_handle(specifier)))
@@ -97,6 +144,12 @@ end
     return AttributeSetView(ptr)
 end
 
+"""
+    verify_requirements(verifier, attrs) -> Union{Nothing,String}
+
+Return `nothing` when requirements are satisfied; otherwise return a string
+describing the failure.
+"""
 function verify_requirements(verifier::AttributeVerifier, attrs::Union{AttributeSet, AttributeSetView})
     _ensure_valid_attribute(unsafe_handle(verifier), "attribute verifier")
     buf_len = Int(Iceoryx2FFI.IOX2_ATTRIBUTE_KEY_LENGTH)
@@ -113,10 +166,20 @@ function verify_requirements(verifier::AttributeVerifier, attrs::Union{Attribute
     return _string_from_buffer(buffer)
 end
 
+"""
+    number_of_attributes(attrs) -> Int
+
+Return the number of attributes in the set.
+"""
 @inline function number_of_attributes(attrs::Union{AttributeSet, AttributeSetView})
     return Int(Iceoryx2FFI.iox2_attribute_set_number_of_attributes(_attribute_set_ptr(attrs)))
 end
 
+"""
+    getindex(attrs, index) -> AttributeRef
+
+Return the attribute at the given index (1-based).
+"""
 function Base.getindex(attrs::Union{AttributeSet, AttributeSetView}, index::Integer)
     count = number_of_attributes(attrs)
     1 <= index <= count || throw(BoundsError(attrs, index))
@@ -124,6 +187,11 @@ function Base.getindex(attrs::Union{AttributeSet, AttributeSetView}, index::Inte
     return AttributeRef(handle)
 end
 
+"""
+    key(attr::AttributeRef) -> String
+
+Copy the attribute key into a new `String`.
+"""
 @inline function key(attr::AttributeRef)
     len = Int(Iceoryx2FFI.iox2_attribute_key_len(unsafe_handle(attr)))
     buffer = Vector{UInt8}(undef, len + 1)
@@ -137,6 +205,12 @@ end
     return unsafe_string(pointer(buffer), len)
 end
 
+"""
+    key_view!(buffer, attr) -> StringView
+    key_view!(scratch::AttributeScratch, attr) -> StringView
+
+Read the attribute key into a reusable buffer without allocating a `String`.
+"""
 @inline function key_view!(buffer::Vector{UInt8}, attr::AttributeRef)
     len = Int(Iceoryx2FFI.iox2_attribute_key_len(unsafe_handle(attr)))
     length(buffer) < len + 1 && resize!(buffer, len + 1)
@@ -155,6 +229,11 @@ end
     return key_view!(scratch.key_buffer, attr)
 end
 
+"""
+    value(attr::AttributeRef) -> String
+
+Copy the attribute value into a new `String`.
+"""
 @inline function value(attr::AttributeRef)
     len = Int(Iceoryx2FFI.iox2_attribute_value_len(unsafe_handle(attr)))
     buffer = Vector{UInt8}(undef, len + 1)
@@ -168,6 +247,12 @@ end
     return unsafe_string(pointer(buffer), len)
 end
 
+"""
+    value_view!(buffer, attr) -> StringView
+    value_view!(scratch::AttributeScratch, attr) -> StringView
+
+Read the attribute value into a reusable buffer without allocating a `String`.
+"""
 @inline function value_view!(buffer::Vector{UInt8}, attr::AttributeRef)
     len = Int(Iceoryx2FFI.iox2_attribute_value_len(unsafe_handle(attr)))
     length(buffer) < len + 1 && resize!(buffer, len + 1)
@@ -186,6 +271,11 @@ end
     return value_view!(scratch.value_buffer, attr)
 end
 
+"""
+    number_of_key_values(attrs, key) -> Int
+
+Return the number of values associated with the given key.
+"""
 function number_of_key_values(attrs::Union{AttributeSet, AttributeSetView}, key::AbstractString)
     key_str = String(key)
     GC.@preserve key_str begin
