@@ -184,7 +184,7 @@ Hot path refers to any API that is called per message/event or inside tight loop
 - Add performance gates for hot-path APIs: `@inferred`, `@allocated == 0`, and small `BenchmarkTools` baselines in CI.
 - Tests are organized under `test/testsets` and included from `test/runtests.jl`.
 - Coverage script: `scripts/coverage_symbols.jl` compares C header functions to `Iceoryx2FFI` wrappers.
-- Perf gates: `test/testsets/perf_gates.jl` adds `@inferred` and `@allocated` checks for hot-path primitives.
+- Perf gates: `test/perf_gates.jl` adds `@inferred` and `@allocated` checks for hot-path primitives.
 - Benchmark scaffolding: `scripts/bench_hotpath.jl` provides `BenchmarkTools` baselines for hot-path primitives.
 - Status: Completed (2026-01-27)
   - Update (2026-01-27): added testsets mirroring iceoryx2-cxx coverage (attributes, enum conversion, logging, node/service names, node state, event/blackboard services, unique IDs, waitset notification, config basics).
