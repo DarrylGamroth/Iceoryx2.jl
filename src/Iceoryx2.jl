@@ -6,6 +6,7 @@ using .Iceoryx2FFI
 include("generated/handles.jl")
 include("service_types.jl")
 include("generated/errors.jl")
+include("docs_errors.jl")
 include("strings.jl")
 include("storage.jl")
 include("builders.jl")
