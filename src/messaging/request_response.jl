@@ -535,8 +535,7 @@ mutable struct RequestMut{Req,Resp,ReqH,RespH}
     storage::Base.RefValue{Iceoryx2FFI.iox2_request_mut_t}
     header_slot::HeaderSlot{
         Iceoryx2FFI.iox2_request_header_t,
-        Iceoryx2FFI.iox2_request_header_h,
-        Val{:req},
+        Iceoryx2FFI.iox2_request_header_h
     }
     function RequestMut{Req,Resp,ReqH,RespH}(handle_ref, storage, header_slot) where {Req,Resp,ReqH,RespH}
         obj = new{Req,Resp,ReqH,RespH}(handle_ref, storage, header_slot)
@@ -551,8 +550,7 @@ function RequestMut{Req,Resp,ReqH,RespH}() where {Req,Resp,ReqH,RespH}
         Ref{Iceoryx2FFI.iox2_request_mut_t}(),
         HeaderSlot{
             Iceoryx2FFI.iox2_request_header_t,
-            Iceoryx2FFI.iox2_request_header_h,
-            Val{:req},
+            Iceoryx2FFI.iox2_request_header_h
         }(),
     )
 end
@@ -680,8 +678,7 @@ mutable struct PendingResponse{Resp,ReqH,RespH}
     storage::Base.RefValue{Iceoryx2FFI.iox2_pending_response_t}
     header_slot::HeaderSlot{
         Iceoryx2FFI.iox2_request_header_t,
-        Iceoryx2FFI.iox2_request_header_h,
-        Val{:req},
+        Iceoryx2FFI.iox2_request_header_h
     }
     function PendingResponse{Resp,ReqH,RespH}(handle_ref, storage, header_slot) where {Resp,ReqH,RespH}
         obj = new{Resp,ReqH,RespH}(handle_ref, storage, header_slot)
@@ -696,8 +693,7 @@ function PendingResponse{Resp,ReqH,RespH}() where {Resp,ReqH,RespH}
         Ref{Iceoryx2FFI.iox2_pending_response_t}(),
         HeaderSlot{
             Iceoryx2FFI.iox2_request_header_t,
-            Iceoryx2FFI.iox2_request_header_h,
-            Val{:req},
+            Iceoryx2FFI.iox2_request_header_h
         }(),
     )
 end
@@ -927,8 +923,7 @@ mutable struct Response{Resp,RespH}
     storage::Base.RefValue{Iceoryx2FFI.iox2_response_t}
     header_slot::HeaderSlot{
         Iceoryx2FFI.iox2_response_header_t,
-        Iceoryx2FFI.iox2_response_header_h,
-        Val{:resp},
+        Iceoryx2FFI.iox2_response_header_h
     }
     function Response{Resp,RespH}(handle_ref, storage, header_slot) where {Resp,RespH}
         obj = new{Resp,RespH}(handle_ref, storage, header_slot)
@@ -943,8 +938,7 @@ function Response{Resp,RespH}() where {Resp,RespH}
         Ref{Iceoryx2FFI.iox2_response_t}(),
         HeaderSlot{
             Iceoryx2FFI.iox2_response_header_t,
-            Iceoryx2FFI.iox2_response_header_h,
-            Val{:resp},
+            Iceoryx2FFI.iox2_response_header_h
         }(),
     )
 end
@@ -1085,8 +1079,7 @@ mutable struct ActiveRequest{Req,Resp,ReqH,RespH}
     storage::Base.RefValue{Iceoryx2FFI.iox2_active_request_t}
     header_slot::HeaderSlot{
         Iceoryx2FFI.iox2_request_header_t,
-        Iceoryx2FFI.iox2_request_header_h,
-        Val{:req},
+        Iceoryx2FFI.iox2_request_header_h
     }
     function ActiveRequest{Req,Resp,ReqH,RespH}(handle_ref, storage, header_slot) where {Req,Resp,ReqH,RespH}
         obj = new{Req,Resp,ReqH,RespH}(handle_ref, storage, header_slot)
@@ -1101,8 +1094,7 @@ function ActiveRequest{Req,Resp,ReqH,RespH}() where {Req,Resp,ReqH,RespH}
         Ref{Iceoryx2FFI.iox2_active_request_t}(),
         HeaderSlot{
             Iceoryx2FFI.iox2_request_header_t,
-            Iceoryx2FFI.iox2_request_header_h,
-            Val{:req},
+            Iceoryx2FFI.iox2_request_header_h
         }(),
     )
 end
@@ -1188,8 +1180,7 @@ mutable struct ResponseMut{Resp,RespH}
     storage::Base.RefValue{Iceoryx2FFI.iox2_response_mut_t}
     header_slot::HeaderSlot{
         Iceoryx2FFI.iox2_response_header_t,
-        Iceoryx2FFI.iox2_response_header_h,
-        Val{:resp},
+        Iceoryx2FFI.iox2_response_header_h
     }
     function ResponseMut{Resp,RespH}(handle_ref, storage, header_slot) where {Resp,RespH}
         obj = new{Resp,RespH}(handle_ref, storage, header_slot)
@@ -1204,8 +1195,7 @@ function ResponseMut{Resp,RespH}() where {Resp,RespH}
         Ref{Iceoryx2FFI.iox2_response_mut_t}(),
         HeaderSlot{
             Iceoryx2FFI.iox2_response_header_t,
-            Iceoryx2FFI.iox2_response_header_h,
-            Val{:resp},
+            Iceoryx2FFI.iox2_response_header_h
         }(),
     )
 end

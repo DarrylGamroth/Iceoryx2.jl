@@ -77,15 +77,15 @@ end
 Slice{T}(ptr::Ptr{T}, len::Integer) where {T} = Slice{T,Nothing}(ptr, Int(len), nothing)
 Slice{T}(ptr::Ptr{T}, len::Integer, owner) where {T} = Slice{T,typeof(owner)}(ptr, Int(len), owner)
 
-mutable struct HeaderSlot{S,H,Tag}
+mutable struct HeaderSlot{S,H}
     storage::Base.RefValue{S}
     handle_ref::Base.RefValue{H}
-    function HeaderSlot{S,H,Tag}() where {S,H,Tag}
+    function HeaderSlot{S,H}() where {S,H}
         new(Ref{S}(), Ref{H}(_IOX2_NULL))
     end
 end
 
-@inline function _drop_header!(slot::HeaderSlot{S,H,Val{:pub}}) where {S,H}
+@inline function _drop_header!(slot::HeaderSlot{Iceoryx2FFI.iox2_publish_subscribe_header_t,H}) where {H}
     if slot.handle_ref[] != _IOX2_NULL
         Iceoryx2FFI.iox2_publish_subscribe_header_drop(slot.handle_ref[])
         slot.handle_ref[] = _IOX2_NULL
@@ -93,7 +93,7 @@ end
     return nothing
 end
 
-@inline function _drop_header!(slot::HeaderSlot{S,H,Val{:req}}) where {S,H}
+@inline function _drop_header!(slot::HeaderSlot{Iceoryx2FFI.iox2_request_header_t,H}) where {H}
     if slot.handle_ref[] != _IOX2_NULL
         Iceoryx2FFI.iox2_request_header_drop(slot.handle_ref[])
         slot.handle_ref[] = _IOX2_NULL
@@ -101,7 +101,7 @@ end
     return nothing
 end
 
-@inline function _drop_header!(slot::HeaderSlot{S,H,Val{:resp}}) where {S,H}
+@inline function _drop_header!(slot::HeaderSlot{Iceoryx2FFI.iox2_response_header_t,H}) where {H}
     if slot.handle_ref[] != _IOX2_NULL
         Iceoryx2FFI.iox2_response_header_drop(slot.handle_ref[])
         slot.handle_ref[] = _IOX2_NULL

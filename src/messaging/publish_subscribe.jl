@@ -464,7 +464,6 @@ mutable struct Sample{T,UH}
     header_slot::HeaderSlot{
         Iceoryx2FFI.iox2_publish_subscribe_header_t,
         Iceoryx2FFI.iox2_publish_subscribe_header_h,
-        Val{:pub},
     }
     function Sample{T,UH}(handle_ref, storage, header_slot) where {T,UH}
         obj = new{T,UH}(handle_ref, storage, header_slot)
@@ -485,7 +484,6 @@ function Sample{T,UH}() where {T,UH}
         HeaderSlot{
             Iceoryx2FFI.iox2_publish_subscribe_header_t,
             Iceoryx2FFI.iox2_publish_subscribe_header_h,
-            Val{:pub},
         }(),
     )
 end
@@ -577,7 +575,6 @@ mutable struct SampleMut{T,UH}
     header_slot::HeaderSlot{
         Iceoryx2FFI.iox2_publish_subscribe_header_t,
         Iceoryx2FFI.iox2_publish_subscribe_header_h,
-        Val{:pub},
     }
     function SampleMut{T,UH}(handle_ref, storage, header_slot) where {T,UH}
         obj = new{T,UH}(handle_ref, storage, header_slot)
@@ -598,7 +595,6 @@ function SampleMut{T,UH}() where {T,UH}
         HeaderSlot{
             Iceoryx2FFI.iox2_publish_subscribe_header_t,
             Iceoryx2FFI.iox2_publish_subscribe_header_h,
-            Val{:pub},
         }(),
     )
 end
