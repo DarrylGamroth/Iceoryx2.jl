@@ -26,6 +26,8 @@ mutable struct PubSubServiceBuilder{S,T,UH}
     storage::_StorageRef{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node{S}
     function PubSubServiceBuilder{S,T,UH}(handle, storage, keepalive) where {S,T,UH}
+        _require_isbits(T)
+        UH === Nothing || _require_isbits(UH)
         obj = new{S,T,UH}(handle, storage, keepalive)
         finalizer(Base.close, obj)
         return obj
@@ -43,6 +45,10 @@ mutable struct RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}
     storage::_StorageRef{Iceoryx2FFI.iox2_service_builder_t}
     keepalive::Node{S}
     function RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}(handle, storage, keepalive) where {S,Req,Resp,ReqH,RespH}
+        _require_isbits(Req)
+        _require_isbits(Resp)
+        ReqH === Nothing || _require_isbits(ReqH)
+        RespH === Nothing || _require_isbits(RespH)
         obj = new{S,Req,Resp,ReqH,RespH}(handle, storage, keepalive)
         finalizer(Base.close, obj)
         return obj

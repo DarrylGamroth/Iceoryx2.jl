@@ -1,10 +1,5 @@
 # Messaging patterns: pub/sub, request/response, event, blackboard.
 
-@inline function _require_isbits(::Type{T}) where {T}
-    isbitstype(T) || throw(ArgumentError("payload type must be isbits"))
-    return nothing
-end
-
 _variant_type(::Type{T}) where {T} = iox2_type_variant_e_FIXED_SIZE
 _variant_type(::Type{T}) where {T<:AbstractVector} = iox2_type_variant_e_DYNAMIC
 _variant_type(::Type{T}) where {T<:Tuple} = iox2_type_variant_e_FIXED_SIZE
