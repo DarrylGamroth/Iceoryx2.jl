@@ -23,7 +23,7 @@
 Hot path refers to any API that is called per message/event or inside tight loops, including:
 - `Publisher`/`Subscriber` send/receive paths and `loan!`/`loan_uninit!`/`loan_slice!` paths.
 - `Client`/`Server` request/response send/receive paths.
-- `Reader`/`Writer` entry access and payload accessors.
+- `EntryReader`/`EntryWriter` entry access and payload accessors.
 - `WaitSet` event processing (`wait_and_process*`) and callback dispatch.
 - Any `*_details`, `id`, `header`, or `payload` accessor invoked at high frequency in loops.
 
@@ -114,7 +114,7 @@ Hot path refers to any API that is called per message/event or inside tight loop
 
 ## Phase 7: Messaging Patterns & Payloads
 - Publish/Subscribe, Request/Response, Event, Blackboard all mirror C++ API:
-  - `ServiceBuilder`, `PortFactory*`, `Publisher`, `Subscriber`, `Client`, `Server`, `Reader`, `Writer`.
+  - `ServiceBuilder`, `PortFactory*`, `Publisher`, `Subscriber`, `Client`, `Server`, `EntryReader`, `EntryWriter`.
 - Typed payloads:
   - Require `isbits` structs for zero-copy payloads.
   - Use `sizeof`, `Base.datatype_alignment` to set type details.

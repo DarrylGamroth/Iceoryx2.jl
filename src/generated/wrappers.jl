@@ -56,28 +56,28 @@ end
     )
 end
 
-@inline function Base.:(==)(lhs::UniqueReaderId, rhs::UniqueReaderId)
+@inline function Base.:(==)(lhs::UniqueEntryReaderId, rhs::UniqueEntryReaderId)
     return Iceoryx2FFI.iox2_unique_reader_id_eq(
         Ref{Iceoryx2FFI.iox2_unique_reader_id_h}(unsafe_handle(lhs)),
         Ref{Iceoryx2FFI.iox2_unique_reader_id_h}(unsafe_handle(rhs)),
     )
 end
 
-@inline function Base.isless(lhs::UniqueReaderId, rhs::UniqueReaderId)
+@inline function Base.isless(lhs::UniqueEntryReaderId, rhs::UniqueEntryReaderId)
     return Iceoryx2FFI.iox2_unique_reader_id_less(
         Ref{Iceoryx2FFI.iox2_unique_reader_id_h}(unsafe_handle(lhs)),
         Ref{Iceoryx2FFI.iox2_unique_reader_id_h}(unsafe_handle(rhs)),
     )
 end
 
-@inline function Base.:(==)(lhs::UniqueWriterId, rhs::UniqueWriterId)
+@inline function Base.:(==)(lhs::UniqueEntryWriterId, rhs::UniqueEntryWriterId)
     return Iceoryx2FFI.iox2_unique_writer_id_eq(
         Ref{Iceoryx2FFI.iox2_unique_writer_id_h}(unsafe_handle(lhs)),
         Ref{Iceoryx2FFI.iox2_unique_writer_id_h}(unsafe_handle(rhs)),
     )
 end
 
-@inline function Base.isless(lhs::UniqueWriterId, rhs::UniqueWriterId)
+@inline function Base.isless(lhs::UniqueEntryWriterId, rhs::UniqueEntryWriterId)
     return Iceoryx2FFI.iox2_unique_writer_id_less(
         Ref{Iceoryx2FFI.iox2_unique_writer_id_h}(unsafe_handle(lhs)),
         Ref{Iceoryx2FFI.iox2_unique_writer_id_h}(unsafe_handle(rhs)),
@@ -164,10 +164,10 @@ end
     return UniquePublisherId(handle_ref[])
 end
 
-@inline function reader_id(details::ReaderDetailsView)
+@inline function reader_id(details::EntryReaderDetailsView)
     handle_ref = Ref{Iceoryx2FFI.iox2_unique_reader_id_h}(_IOX2_NULL)
     Iceoryx2FFI.iox2_reader_details_reader_id(unsafe_handle(details), C_NULL, handle_ref)
-    return UniqueReaderId(handle_ref[])
+    return UniqueEntryReaderId(handle_ref[])
 end
 
 @inline function server_id(details::ServerDetailsView)
@@ -182,10 +182,10 @@ end
     return UniqueSubscriberId(handle_ref[])
 end
 
-@inline function writer_id(details::WriterDetailsView)
+@inline function writer_id(details::EntryWriterDetailsView)
     handle_ref = Ref{Iceoryx2FFI.iox2_unique_writer_id_h}(_IOX2_NULL)
     Iceoryx2FFI.iox2_writer_details_writer_id(unsafe_handle(details), C_NULL, handle_ref)
-    return UniqueWriterId(handle_ref[])
+    return UniqueEntryWriterId(handle_ref[])
 end
 
 function max_publishers!(builder::PubSubServiceBuilder, value::Integer)
@@ -693,18 +693,18 @@ function id(listener::Listener)
     return UniqueListenerId(handle_ref[])
 end
 
-function id(reader::Reader)
-    _require_valid(reader.handle, "reader")
+function id(reader::EntryReader)
+    _require_valid(reader.handle, "entry reader")
     handle_ref = Ref{Iceoryx2FFI.iox2_unique_reader_id_h}(_IOX2_NULL)
     Iceoryx2FFI.iox2_reader_id(Ref{Iceoryx2FFI.iox2_reader_h}(reader.handle), C_NULL, handle_ref)
-    return UniqueReaderId(handle_ref[])
+    return UniqueEntryReaderId(handle_ref[])
 end
 
-function id(writer::Writer)
-    _require_valid(writer.handle, "writer")
+function id(writer::EntryWriter)
+    _require_valid(writer.handle, "entry writer")
     handle_ref = Ref{Iceoryx2FFI.iox2_unique_writer_id_h}(_IOX2_NULL)
     Iceoryx2FFI.iox2_writer_id(Ref{Iceoryx2FFI.iox2_writer_h}(writer.handle), C_NULL, handle_ref)
-    return UniqueWriterId(handle_ref[])
+    return UniqueEntryWriterId(handle_ref[])
 end
 
 function id(client::Client)
@@ -1065,7 +1065,7 @@ end
     return NodeIdView(Iceoryx2FFI.iox2_publisher_details_node_id(unsafe_handle(details)))
 end
 
-@inline function node_id(details::ReaderDetailsView)
+@inline function node_id(details::EntryReaderDetailsView)
     return NodeIdView(Iceoryx2FFI.iox2_reader_details_node_id(unsafe_handle(details)))
 end
 
@@ -1077,7 +1077,7 @@ end
     return NodeIdView(Iceoryx2FFI.iox2_subscriber_details_node_id(unsafe_handle(details)))
 end
 
-@inline function node_id(details::WriterDetailsView)
+@inline function node_id(details::EntryWriterDetailsView)
     return NodeIdView(Iceoryx2FFI.iox2_writer_details_node_id(unsafe_handle(details)))
 end
 
@@ -1133,12 +1133,12 @@ end
     return _unique_id_bytes(unsafe_handle(id), len, Iceoryx2FFI.iox2_unique_listener_id_value)
 end
 
-@inline function bytes(id::UniqueReaderId)
+@inline function bytes(id::UniqueEntryReaderId)
     len = sizeof(Iceoryx2FFI.iox2_unique_reader_id_storage_t)
     return _unique_id_bytes(unsafe_handle(id), len, Iceoryx2FFI.iox2_unique_reader_id_value)
 end
 
-@inline function bytes(id::UniqueWriterId)
+@inline function bytes(id::UniqueEntryWriterId)
     len = sizeof(Iceoryx2FFI.iox2_unique_writer_id_storage_t)
     return _unique_id_bytes(unsafe_handle(id), len, Iceoryx2FFI.iox2_unique_writer_id_value)
 end

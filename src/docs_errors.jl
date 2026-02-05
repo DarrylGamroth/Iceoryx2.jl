@@ -121,11 +121,11 @@ Error thrown when creating a publisher fails.
 PublisherCreateError
 
 """
-    ReaderCreateError
+    EntryReaderCreateError
 
-Error thrown when creating a reader fails.
+Error thrown when creating an entry reader fails.
 """
-ReaderCreateError
+EntryReaderCreateError
 
 """
     ReceiveError
@@ -219,11 +219,11 @@ Error thrown when running a waitset fails.
 WaitsetRunError
 
 """
-    WriterCreateError
+    EntryWriterCreateError
 
-Error thrown when creating a writer fails.
+Error thrown when creating an entry writer fails.
 """
-WriterCreateError
+EntryWriterCreateError
 
 """
     Iceoryx2FFI.iox2_attribute_definition_error_e

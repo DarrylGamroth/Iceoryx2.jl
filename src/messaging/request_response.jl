@@ -131,12 +131,12 @@ mutable struct PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}
     keepalive::Node{S}
     function PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}(handle, storage, keepalive) where {S,Req,Resp,ReqH,RespH}
         obj = new{S,Req,Resp,ReqH,RespH}(handle, storage, keepalive)
-        finalizer(_finalize_port_factory_request_response, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-function _finalize_port_factory_request_response(factory::PortFactoryRequestResponse)
+function Base.close(factory::PortFactoryRequestResponse)
     if factory.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_port_factory_request_response_drop(factory.handle)
         factory.handle = _IOX2_NULL
@@ -158,8 +158,7 @@ function open_or_create(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,R
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_request_response_open_or_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
-    builder.handle = _IOX2_NULL
-    _finalize_service_builder_variant(builder)
+    close(builder)
     return PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
 
@@ -177,8 +176,7 @@ function open_or_create(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,R
         handle_ref,
     )
     check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
-    builder.handle = _IOX2_NULL
-    _finalize_service_builder_variant(builder)
+    close(builder)
     return PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
 
@@ -195,8 +193,7 @@ function open(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}) whe
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_request_response_open(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
-    builder.handle = _IOX2_NULL
-    _finalize_service_builder_variant(builder)
+    close(builder)
     return PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
 
@@ -214,8 +211,7 @@ function open(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}, ver
         handle_ref,
     )
     check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
-    builder.handle = _IOX2_NULL
-    _finalize_service_builder_variant(builder)
+    close(builder)
     return PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
 
@@ -232,8 +228,7 @@ function create(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}) w
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_request_response_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
-    builder.handle = _IOX2_NULL
-    _finalize_service_builder_variant(builder)
+    close(builder)
     return PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
 
@@ -251,8 +246,7 @@ function create(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}, s
         handle_ref,
     )
     check_ok(ret, Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
-    builder.handle = _IOX2_NULL
-    _finalize_service_builder_variant(builder)
+    close(builder)
     return PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
 
@@ -328,12 +322,12 @@ mutable struct ClientBuilder{S,Req,Resp,ReqH,RespH}
     keepalive::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}
     function ClientBuilder{S,Req,Resp,ReqH,RespH}(handle, storage, keepalive) where {S,Req,Resp,ReqH,RespH}
         obj = new{S,Req,Resp,ReqH,RespH}(handle, storage, keepalive)
-        finalizer(_finalize_client_builder, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-function _finalize_client_builder(builder::ClientBuilder)
+function Base.close(builder::ClientBuilder)
     builder.handle = _IOX2_NULL
     builder.storage = nothing
     return nothing
@@ -364,12 +358,12 @@ mutable struct ServerBuilder{S,Req,Resp,ReqH,RespH}
     keepalive::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}
     function ServerBuilder{S,Req,Resp,ReqH,RespH}(handle, storage, keepalive) where {S,Req,Resp,ReqH,RespH}
         obj = new{S,Req,Resp,ReqH,RespH}(handle, storage, keepalive)
-        finalizer(_finalize_server_builder, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-function _finalize_server_builder(builder::ServerBuilder)
+function Base.close(builder::ServerBuilder)
     builder.handle = _IOX2_NULL
     builder.storage = nothing
     return nothing
@@ -438,12 +432,12 @@ mutable struct Client{S,Req,Resp,ReqH,RespH}
     keepalive::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}
     function Client{S,Req,Resp,ReqH,RespH}(handle, storage, keepalive) where {S,Req,Resp,ReqH,RespH}
         obj = new{S,Req,Resp,ReqH,RespH}(handle, storage, keepalive)
-        finalizer(_finalize_client, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-function _finalize_client(client::Client)
+function Base.close(client::Client)
     if client.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_client_drop(client.handle)
         client.handle = _IOX2_NULL
@@ -463,7 +457,7 @@ function create(builder::ClientBuilder{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp
     handle_ref = Ref{Iceoryx2FFI.iox2_client_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_client_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_client_create_error_e)
-    _finalize_client_builder(builder)
+    close(builder)
     return Client{S,Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
 
@@ -487,12 +481,12 @@ mutable struct Server{S,Req,Resp,ReqH,RespH}
     keepalive::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}
     function Server{S,Req,Resp,ReqH,RespH}(handle, storage, keepalive) where {S,Req,Resp,ReqH,RespH}
         obj = new{S,Req,Resp,ReqH,RespH}(handle, storage, keepalive)
-        finalizer(_finalize_server, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-function _finalize_server(server::Server)
+function Base.close(server::Server)
     if server.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_server_drop(server.handle)
         server.handle = _IOX2_NULL
@@ -512,7 +506,7 @@ function create(builder::ServerBuilder{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp
     handle_ref = Ref{Iceoryx2FFI.iox2_server_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_server_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_server_create_error_e)
-    _finalize_server_builder(builder)
+    close(builder)
     return Server{S,Req,Resp,ReqH,RespH}(handle_ref[], storage, builder.keepalive)
 end
 
@@ -539,7 +533,7 @@ mutable struct RequestMut{Req,Resp,ReqH,RespH}
     }
     function RequestMut{Req,Resp,ReqH,RespH}(handle_ref, storage, header_slot) where {Req,Resp,ReqH,RespH}
         obj = new{Req,Resp,ReqH,RespH}(handle_ref, storage, header_slot)
-        finalizer(_finalize_request_mut, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
@@ -560,7 +554,7 @@ RequestMut(client::Client{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH} 
 
 @inline _slice_mutable(::Type{<:RequestMut}) = true
 
-function _finalize_request_mut(request::RequestMut)
+function Base.close(request::RequestMut)
     _drop_header!(request.header_slot)
     if request.handle_ref[] != _IOX2_NULL
         Iceoryx2FFI.iox2_request_mut_drop(request.handle_ref[])
@@ -682,7 +676,7 @@ mutable struct PendingResponse{Resp,ReqH,RespH}
     }
     function PendingResponse{Resp,ReqH,RespH}(handle_ref, storage, header_slot) where {Resp,ReqH,RespH}
         obj = new{Resp,ReqH,RespH}(handle_ref, storage, header_slot)
-        finalizer(_finalize_pending_response, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
@@ -701,7 +695,7 @@ end
 PendingResponse(client::Client{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH} =
     PendingResponse{Resp,ReqH,RespH}()
 
-function _finalize_pending_response(pending::PendingResponse)
+function Base.close(pending::PendingResponse)
     _drop_header!(pending.header_slot)
     if pending.handle_ref[] != _IOX2_NULL
         Iceoryx2FFI.iox2_pending_response_drop(pending.handle_ref[])
@@ -927,7 +921,7 @@ mutable struct Response{Resp,RespH}
     }
     function Response{Resp,RespH}(handle_ref, storage, header_slot) where {Resp,RespH}
         obj = new{Resp,RespH}(handle_ref, storage, header_slot)
-        finalizer(_finalize_response, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
@@ -945,7 +939,7 @@ end
 
 Response(pending::PendingResponse{Resp,ReqH,RespH}) where {Resp,ReqH,RespH} = Response{Resp,RespH}()
 
-function _finalize_response(resp::Response)
+function Base.close(resp::Response)
     _drop_header!(resp.header_slot)
     if resp.handle_ref[] != _IOX2_NULL
         Iceoryx2FFI.iox2_response_drop(resp.handle_ref[])
@@ -1083,7 +1077,7 @@ mutable struct ActiveRequest{Req,Resp,ReqH,RespH}
     }
     function ActiveRequest{Req,Resp,ReqH,RespH}(handle_ref, storage, header_slot) where {Req,Resp,ReqH,RespH}
         obj = new{Req,Resp,ReqH,RespH}(handle_ref, storage, header_slot)
-        finalizer(_finalize_active_request, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
@@ -1102,7 +1096,7 @@ end
 ActiveRequest(server::Server{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH} =
     ActiveRequest{Req,Resp,ReqH,RespH}()
 
-function _finalize_active_request(req::ActiveRequest)
+function Base.close(req::ActiveRequest)
     _drop_header!(req.header_slot)
     if req.handle_ref[] != _IOX2_NULL
         Iceoryx2FFI.iox2_active_request_drop(req.handle_ref[])
@@ -1184,7 +1178,7 @@ mutable struct ResponseMut{Resp,RespH}
     }
     function ResponseMut{Resp,RespH}(handle_ref, storage, header_slot) where {Resp,RespH}
         obj = new{Resp,RespH}(handle_ref, storage, header_slot)
-        finalizer(_finalize_response_mut, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
@@ -1204,7 +1198,7 @@ ResponseMut(req::ActiveRequest{Req,Resp,ReqH,RespH}) where {Req,Resp,ReqH,RespH}
 
 @inline _slice_mutable(::Type{<:ResponseMut}) = true
 
-function _finalize_response_mut(resp::ResponseMut)
+function Base.close(resp::ResponseMut)
     _drop_header!(resp.header_slot)
     if resp.handle_ref[] != _IOX2_NULL
         Iceoryx2FFI.iox2_response_mut_drop(resp.handle_ref[])

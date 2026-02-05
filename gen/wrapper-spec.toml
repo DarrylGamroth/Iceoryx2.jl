@@ -313,10 +313,10 @@ return_type = "UniquePublisherId"
 
 [[detail_id.items]]
 name = "reader_id"
-receiver_sig = "details::ReaderDetailsView"
+receiver_sig = "details::EntryReaderDetailsView"
 ffi = "iox2_reader_details_reader_id"
 handle_ref_type = "Iceoryx2FFI.iox2_unique_reader_id_h"
-return_type = "UniqueReaderId"
+return_type = "UniqueEntryReaderId"
 
 [[detail_id.items]]
 name = "server_id"
@@ -334,10 +334,10 @@ return_type = "UniqueSubscriberId"
 
 [[detail_id.items]]
 name = "writer_id"
-receiver_sig = "details::WriterDetailsView"
+receiver_sig = "details::EntryWriterDetailsView"
 ffi = "iox2_writer_details_writer_id"
 handle_ref_type = "Iceoryx2FFI.iox2_unique_writer_id_h"
-return_type = "UniqueWriterId"
+return_type = "UniqueEntryWriterId"
 
 [detail_node_id.defaults]
 handle_expr = "unsafe_handle(details)"
@@ -364,7 +364,7 @@ ffi = "iox2_publisher_details_node_id"
 
 [[detail_node_id.items]]
 name = "node_id"
-receiver_sig = "details::ReaderDetailsView"
+receiver_sig = "details::EntryReaderDetailsView"
 ffi = "iox2_reader_details_node_id"
 
 [[detail_node_id.items]]
@@ -379,7 +379,7 @@ ffi = "iox2_subscriber_details_node_id"
 
 [[detail_node_id.items]]
 name = "node_id"
-receiver_sig = "details::WriterDetailsView"
+receiver_sig = "details::EntryWriterDetailsView"
 ffi = "iox2_writer_details_node_id"
 
 [detail_size_t.defaults]
@@ -718,12 +718,12 @@ storage_type = "iox2_unique_listener_id_storage_t"
 value_fn = "iox2_unique_listener_id_value"
 
 [[unique_id_bytes.items]]
-receiver_sig = "id::UniqueReaderId"
+receiver_sig = "id::UniqueEntryReaderId"
 storage_type = "iox2_unique_reader_id_storage_t"
 value_fn = "iox2_unique_reader_id_value"
 
 [[unique_id_bytes.items]]
-receiver_sig = "id::UniqueWriterId"
+receiver_sig = "id::UniqueEntryWriterId"
 storage_type = "iox2_unique_writer_id_storage_t"
 value_fn = "iox2_unique_writer_id_value"
 
@@ -781,24 +781,24 @@ id_handle_type = "Iceoryx2FFI.iox2_unique_listener_id_h"
 return_type = "UniqueListenerId"
 
 [[unique_id_from.items]]
-receiver_sig = "reader::Reader"
+receiver_sig = "reader::EntryReader"
 handle_expr = "reader.handle"
 valid_expr = "reader.handle"
-valid_message = "reader"
+valid_message = "entry reader"
 handle_type = "Iceoryx2FFI.iox2_reader_h"
 ffi = "iox2_reader_id"
 id_handle_type = "Iceoryx2FFI.iox2_unique_reader_id_h"
-return_type = "UniqueReaderId"
+return_type = "UniqueEntryReaderId"
 
 [[unique_id_from.items]]
-receiver_sig = "writer::Writer"
+receiver_sig = "writer::EntryWriter"
 handle_expr = "writer.handle"
 valid_expr = "writer.handle"
-valid_message = "writer"
+valid_message = "entry writer"
 handle_type = "Iceoryx2FFI.iox2_writer_h"
 ffi = "iox2_writer_id"
 id_handle_type = "Iceoryx2FFI.iox2_unique_writer_id_h"
-return_type = "UniqueWriterId"
+return_type = "UniqueEntryWriterId"
 
 [[unique_id_from.items]]
 receiver_sig = "client::Client"
@@ -847,13 +847,13 @@ eq = "iox2_unique_listener_id_eq"
 less = "iox2_unique_listener_id_less"
 
 [[unique_id_eq_less.items]]
-id_type = "UniqueReaderId"
+id_type = "UniqueEntryReaderId"
 handle_type = "Iceoryx2FFI.iox2_unique_reader_id_h"
 eq = "iox2_unique_reader_id_eq"
 less = "iox2_unique_reader_id_less"
 
 [[unique_id_eq_less.items]]
-id_type = "UniqueWriterId"
+id_type = "UniqueEntryWriterId"
 handle_type = "Iceoryx2FFI.iox2_unique_writer_id_h"
 eq = "iox2_unique_writer_id_eq"
 less = "iox2_unique_writer_id_less"

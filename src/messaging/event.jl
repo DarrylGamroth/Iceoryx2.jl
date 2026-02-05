@@ -13,12 +13,12 @@ mutable struct PortFactoryEvent{S}
     keepalive::Node{S}
     function PortFactoryEvent{S}(handle, storage, keepalive) where {S}
         obj = new{S}(handle, storage, keepalive)
-        finalizer(_finalize_port_factory_event, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-function _finalize_port_factory_event(factory::PortFactoryEvent)
+function Base.close(factory::PortFactoryEvent)
     if factory.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_port_factory_event_drop(factory.handle)
         factory.handle = _IOX2_NULL
@@ -56,8 +56,7 @@ function open_or_create(builder::EventServiceBuilder{S}) where {S}
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_event_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_event_open_or_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_event_open_or_create_error_e)
-    builder.handle = _IOX2_NULL
-    _finalize_service_builder_variant(builder)
+    close(builder)
     return PortFactoryEvent{S}(handle_ref[], storage, builder.keepalive)
 end
 
@@ -73,8 +72,7 @@ function open_or_create(builder::EventServiceBuilder{S}, verifier::AttributeVeri
         handle_ref,
     )
     check_ok(ret, Iceoryx2FFI.iox2_event_open_or_create_error_e)
-    builder.handle = _IOX2_NULL
-    _finalize_service_builder_variant(builder)
+    close(builder)
     return PortFactoryEvent{S}(handle_ref[], storage, builder.keepalive)
 end
 
@@ -107,8 +105,7 @@ function open(builder::EventServiceBuilder{S}) where {S}
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_event_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_event_open(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_event_open_or_create_error_e)
-    builder.handle = _IOX2_NULL
-    _finalize_service_builder_variant(builder)
+    close(builder)
     return PortFactoryEvent{S}(handle_ref[], storage, builder.keepalive)
 end
 
@@ -124,8 +121,7 @@ function open(builder::EventServiceBuilder{S}, verifier::AttributeVerifier) wher
         handle_ref,
     )
     check_ok(ret, Iceoryx2FFI.iox2_event_open_or_create_error_e)
-    builder.handle = _IOX2_NULL
-    _finalize_service_builder_variant(builder)
+    close(builder)
     return PortFactoryEvent{S}(handle_ref[], storage, builder.keepalive)
 end
 
@@ -158,8 +154,7 @@ function create(builder::EventServiceBuilder{S}) where {S}
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_event_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_event_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_event_open_or_create_error_e)
-    builder.handle = _IOX2_NULL
-    _finalize_service_builder_variant(builder)
+    close(builder)
     return PortFactoryEvent{S}(handle_ref[], storage, builder.keepalive)
 end
 
@@ -175,8 +170,7 @@ function create(builder::EventServiceBuilder{S}, specifier::AttributeSpecifier) 
         handle_ref,
     )
     check_ok(ret, Iceoryx2FFI.iox2_event_open_or_create_error_e)
-    builder.handle = _IOX2_NULL
-    _finalize_service_builder_variant(builder)
+    close(builder)
     return PortFactoryEvent{S}(handle_ref[], storage, builder.keepalive)
 end
 
@@ -216,12 +210,12 @@ mutable struct NotifierBuilder{S}
     keepalive::PortFactoryEvent{S}
     function NotifierBuilder{S}(handle, storage, keepalive) where {S}
         obj = new{S}(handle, storage, keepalive)
-        finalizer(_finalize_notifier_builder, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-function _finalize_notifier_builder(builder::NotifierBuilder)
+function Base.close(builder::NotifierBuilder)
     builder.handle = _IOX2_NULL
     builder.storage = nothing
     return nothing
@@ -262,12 +256,12 @@ mutable struct ListenerBuilder{S}
     keepalive::PortFactoryEvent{S}
     function ListenerBuilder{S}(handle, storage, keepalive) where {S}
         obj = new{S}(handle, storage, keepalive)
-        finalizer(_finalize_listener_builder, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-function _finalize_listener_builder(builder::ListenerBuilder)
+function Base.close(builder::ListenerBuilder)
     builder.handle = _IOX2_NULL
     builder.storage = nothing
     return nothing
@@ -291,12 +285,12 @@ mutable struct Notifier{S}
     keepalive::PortFactoryEvent{S}
     function Notifier{S}(handle, storage, keepalive) where {S}
         obj = new{S}(handle, storage, keepalive)
-        finalizer(_finalize_notifier, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-function _finalize_notifier(notifier::Notifier)
+function Base.close(notifier::Notifier)
     if notifier.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_notifier_drop(notifier.handle)
         notifier.handle = _IOX2_NULL
@@ -316,7 +310,7 @@ function create(builder::NotifierBuilder{S}) where {S}
     handle_ref = Ref{Iceoryx2FFI.iox2_notifier_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_notifier_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_notifier_create_error_e)
-    _finalize_notifier_builder(builder)
+    close(builder)
     return Notifier{S}(handle_ref[], storage, builder.keepalive)
 end
 
@@ -362,12 +356,12 @@ mutable struct Listener{S}
     keepalive::PortFactoryEvent{S}
     function Listener{S}(handle, storage, keepalive) where {S}
         obj = new{S}(handle, storage, keepalive)
-        finalizer(_finalize_listener, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-function _finalize_listener(listener::Listener)
+function Base.close(listener::Listener)
     if listener.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_listener_drop(listener.handle)
         listener.handle = _IOX2_NULL
@@ -387,7 +381,7 @@ function create(builder::ListenerBuilder{S}) where {S}
     handle_ref = Ref{Iceoryx2FFI.iox2_listener_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_listener_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_listener_create_error_e)
-    _finalize_listener_builder(builder)
+    close(builder)
     return Listener{S}(handle_ref[], storage, builder.keepalive)
 end
 

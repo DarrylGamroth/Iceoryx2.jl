@@ -451,17 +451,17 @@ function Base.showerror(io::IO, err::PublisherCreateError)
     print(io, "PublisherCreateError: ", err.message, " (", err.code, ")")
 end
 
-struct ReaderCreateError <: Exception
+struct EntryReaderCreateError <: Exception
     code::Iceoryx2FFI.iox2_reader_create_error_e
     message::String
 end
 
-@noinline function ReaderCreateError(code::Iceoryx2FFI.iox2_reader_create_error_e)
-    return ReaderCreateError(code, _error_message(Iceoryx2FFI.iox2_reader_create_error_e, code))
+@noinline function EntryReaderCreateError(code::Iceoryx2FFI.iox2_reader_create_error_e)
+    return EntryReaderCreateError(code, _error_message(Iceoryx2FFI.iox2_reader_create_error_e, code))
 end
 
-function Base.showerror(io::IO, err::ReaderCreateError)
-    print(io, "ReaderCreateError: ", err.message, " (", err.code, ")")
+function Base.showerror(io::IO, err::EntryReaderCreateError)
+    print(io, "EntryReaderCreateError: ", err.message, " (", err.code, ")")
 end
 
 struct ReceiveError <: Exception
@@ -633,17 +633,17 @@ function Base.showerror(io::IO, err::WaitsetRunError)
     print(io, "WaitsetRunError: ", err.message, " (", err.code, ")")
 end
 
-struct WriterCreateError <: Exception
+struct EntryWriterCreateError <: Exception
     code::Iceoryx2FFI.iox2_writer_create_error_e
     message::String
 end
 
-@noinline function WriterCreateError(code::Iceoryx2FFI.iox2_writer_create_error_e)
-    return WriterCreateError(code, _error_message(Iceoryx2FFI.iox2_writer_create_error_e, code))
+@noinline function EntryWriterCreateError(code::Iceoryx2FFI.iox2_writer_create_error_e)
+    return EntryWriterCreateError(code, _error_message(Iceoryx2FFI.iox2_writer_create_error_e, code))
 end
 
-function Base.showerror(io::IO, err::WriterCreateError)
-    print(io, "WriterCreateError: ", err.message, " (", err.code, ")")
+function Base.showerror(io::IO, err::EntryWriterCreateError)
+    print(io, "EntryWriterCreateError: ", err.message, " (", err.code, ")")
 end
 
 @inline function check_ok(code::Cint, ::Type{Iceoryx2FFI.iox2_attribute_definition_error_e})
@@ -819,7 +819,7 @@ end
         return nothing
     end
     err = Iceoryx2FFI.iox2_reader_create_error_e(code)
-    throw(ReaderCreateError(err))
+    throw(EntryReaderCreateError(err))
 end
 
 @inline function check_ok(code::Cint, ::Type{Iceoryx2FFI.iox2_receive_error_e})
@@ -931,6 +931,6 @@ end
         return nothing
     end
     err = Iceoryx2FFI.iox2_writer_create_error_e(code)
-    throw(WriterCreateError(err))
+    throw(EntryWriterCreateError(err))
 end
 

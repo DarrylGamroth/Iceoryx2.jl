@@ -13,7 +13,7 @@ function main()
 
     reader = create(reader_builder(service))
     entry_handle = EntryHandle(reader, UInt64)
-    reader_entry!(reader, entry_handle, INTERESTING_KEY)
+    entry!(reader, entry_handle, INTERESTING_KEY)
 
     try
         while true

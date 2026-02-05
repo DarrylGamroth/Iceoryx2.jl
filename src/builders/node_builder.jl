@@ -16,12 +16,12 @@ mutable struct NodeBuilder
     has_signal_handling_mode::Bool
     function NodeBuilder(handle, storage, name_handle, config_ptr, config_storage, config_keepalive, signal_handling_mode, has_signal_handling_mode)
         obj = new(handle, storage, name_handle, config_ptr, config_storage, config_keepalive, signal_handling_mode, has_signal_handling_mode)
-        finalizer(_finalize_node_builder, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-function _finalize_node_builder(builder::NodeBuilder)
+function Base.close(builder::NodeBuilder)
     if builder.name_handle != _IOX2_NULL
         Iceoryx2FFI.iox2_node_name_drop(builder.name_handle)
         builder.name_handle = _IOX2_NULL
@@ -166,8 +166,7 @@ function create(builder::NodeBuilder, service_type::ServiceType)
     handle_ref = Ref{Iceoryx2FFI.iox2_node_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_node_builder_create(builder.handle, C_NULL, _service_type(service_type), handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_node_creation_failure_e)
-    builder.handle = _IOX2_NULL
-    builder.storage = nothing
+    close(builder)
     return Node{service_type}(handle_ref[])
 end
 

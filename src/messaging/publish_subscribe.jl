@@ -83,12 +83,12 @@ mutable struct PortFactoryPubSub{S,T,UH}
     keepalive::Node{S}
     function PortFactoryPubSub{S,T,UH}(handle, storage, keepalive) where {S,T,UH}
         obj = new{S,T,UH}(handle, storage, keepalive)
-        finalizer(_finalize_port_factory_pub_sub, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-function _finalize_port_factory_pub_sub(factory::PortFactoryPubSub)
+function Base.close(factory::PortFactoryPubSub)
     if factory.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_port_factory_pub_sub_drop(factory.handle)
         factory.handle = _IOX2_NULL
@@ -109,8 +109,7 @@ function open_or_create(builder::PubSubServiceBuilder{S,T,UH}) where {S,T,UH}
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_pub_sub_open_or_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
-    builder.handle = _IOX2_NULL
-    _finalize_service_builder_variant(builder)
+    close(builder)
     return PortFactoryPubSub{S,T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
@@ -127,8 +126,7 @@ function open_or_create(builder::PubSubServiceBuilder{S,T,UH}, verifier::Attribu
         handle_ref,
     )
     check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
-    builder.handle = _IOX2_NULL
-    _finalize_service_builder_variant(builder)
+    close(builder)
     return PortFactoryPubSub{S,T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
@@ -144,8 +142,7 @@ function open(builder::PubSubServiceBuilder{S,T,UH}) where {S,T,UH}
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_pub_sub_open(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
-    builder.handle = _IOX2_NULL
-    _finalize_service_builder_variant(builder)
+    close(builder)
     return PortFactoryPubSub{S,T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
@@ -162,8 +159,7 @@ function open(builder::PubSubServiceBuilder{S,T,UH}, verifier::AttributeVerifier
         handle_ref,
     )
     check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
-    builder.handle = _IOX2_NULL
-    _finalize_service_builder_variant(builder)
+    close(builder)
     return PortFactoryPubSub{S,T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
@@ -179,8 +175,7 @@ function create(builder::PubSubServiceBuilder{S,T,UH}) where {S,T,UH}
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_pub_sub_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
-    builder.handle = _IOX2_NULL
-    _finalize_service_builder_variant(builder)
+    close(builder)
     return PortFactoryPubSub{S,T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
@@ -197,8 +192,7 @@ function create(builder::PubSubServiceBuilder{S,T,UH}, specifier::AttributeSpeci
         handle_ref,
     )
     check_ok(ret, Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
-    builder.handle = _IOX2_NULL
-    _finalize_service_builder_variant(builder)
+    close(builder)
     return PortFactoryPubSub{S,T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
@@ -274,12 +268,12 @@ mutable struct PublisherBuilder{S,T,UH}
     keepalive::PortFactoryPubSub{S,T,UH}
     function PublisherBuilder{S,T,UH}(handle, storage, keepalive) where {S,T,UH}
         obj = new{S,T,UH}(handle, storage, keepalive)
-        finalizer(_finalize_publisher_builder, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-function _finalize_publisher_builder(builder::PublisherBuilder)
+function Base.close(builder::PublisherBuilder)
     builder.handle = _IOX2_NULL
     builder.storage = nothing
     return nothing
@@ -320,12 +314,12 @@ mutable struct SubscriberBuilder{S,T,UH}
     keepalive::PortFactoryPubSub{S,T,UH}
     function SubscriberBuilder{S,T,UH}(handle, storage, keepalive) where {S,T,UH}
         obj = new{S,T,UH}(handle, storage, keepalive)
-        finalizer(_finalize_subscriber_builder, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-function _finalize_subscriber_builder(builder::SubscriberBuilder)
+function Base.close(builder::SubscriberBuilder)
     builder.handle = _IOX2_NULL
     builder.storage = nothing
     return nothing
@@ -355,12 +349,12 @@ mutable struct Publisher{S,T,UH}
     keepalive::PortFactoryPubSub{S,T,UH}
     function Publisher{S,T,UH}(handle, storage, keepalive) where {S,T,UH}
         obj = new{S,T,UH}(handle, storage, keepalive)
-        finalizer(_finalize_publisher, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-function _finalize_publisher(pub::Publisher)
+function Base.close(pub::Publisher)
     if pub.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_publisher_drop(pub.handle)
         pub.handle = _IOX2_NULL
@@ -380,7 +374,7 @@ function create(builder::PublisherBuilder{S,T,UH}) where {S,T,UH}
     handle_ref = Ref{Iceoryx2FFI.iox2_publisher_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_publisher_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_publisher_create_error_e)
-    _finalize_publisher_builder(builder)
+    close(builder)
     return Publisher{S,T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
@@ -409,12 +403,12 @@ mutable struct Subscriber{S,T,UH}
     keepalive::PortFactoryPubSub{S,T,UH}
     function Subscriber{S,T,UH}(handle, storage, keepalive) where {S,T,UH}
         obj = new{S,T,UH}(handle, storage, keepalive)
-        finalizer(_finalize_subscriber, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-function _finalize_subscriber(sub::Subscriber)
+function Base.close(sub::Subscriber)
     if sub.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_subscriber_drop(sub.handle)
         sub.handle = _IOX2_NULL
@@ -434,7 +428,7 @@ function create(builder::SubscriberBuilder{S,T,UH}) where {S,T,UH}
     handle_ref = Ref{Iceoryx2FFI.iox2_subscriber_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_subscriber_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_subscriber_create_error_e)
-    _finalize_subscriber_builder(builder)
+    close(builder)
     return Subscriber{S,T,UH}(handle_ref[], storage, builder.keepalive)
 end
 
@@ -467,7 +461,7 @@ mutable struct Sample{T,UH}
     }
     function Sample{T,UH}(handle_ref, storage, header_slot) where {T,UH}
         obj = new{T,UH}(handle_ref, storage, header_slot)
-        finalizer(_finalize_sample, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
@@ -490,7 +484,7 @@ end
 
 Sample(subscriber::Subscriber{S,T,UH}) where {S,T,UH} = Sample{T,UH}()
 
-function _finalize_sample(sample::Sample)
+function Base.close(sample::Sample)
     _drop_header!(sample.header_slot)
     if sample.handle_ref[] != _IOX2_NULL
         Iceoryx2FFI.iox2_sample_drop(sample.handle_ref[])
@@ -578,7 +572,7 @@ mutable struct SampleMut{T,UH}
     }
     function SampleMut{T,UH}(handle_ref, storage, header_slot) where {T,UH}
         obj = new{T,UH}(handle_ref, storage, header_slot)
-        finalizer(_finalize_sample_mut, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
@@ -603,7 +597,7 @@ SampleMut(publisher::Publisher{S,T,UH}) where {S,T,UH} = SampleMut{T,UH}()
 
 @inline _slice_mutable(::Type{<:SampleMut}) = true
 
-function _finalize_sample_mut(sample::SampleMut)
+function Base.close(sample::SampleMut)
     _drop_header!(sample.header_slot)
     if sample.handle_ref[] != _IOX2_NULL
         Iceoryx2FFI.iox2_sample_mut_drop(sample.handle_ref[])

@@ -10,12 +10,12 @@ mutable struct PortFactoryBlackboard{S,K}
     values::Vector{Any}
     function PortFactoryBlackboard{S,K}(handle, storage, keepalive, values) where {S,K}
         obj = new{S,K}(handle, storage, keepalive, values)
-        finalizer(_finalize_port_factory_blackboard, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-function _finalize_port_factory_blackboard(factory::PortFactoryBlackboard)
+function Base.close(factory::PortFactoryBlackboard)
     if factory.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_port_factory_blackboard_drop(factory.handle)
         factory.handle = _IOX2_NULL
@@ -37,10 +37,9 @@ function create(builder::BlackboardCreatorBuilder{S,K}) where {S,K}
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_blackboard_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_blackboard_create_error_e)
-    builder.handle = _IOX2_NULL
     values = builder.values
     builder.values = Any[]
-    _finalize_service_builder_variant(builder)
+    close(builder)
     return PortFactoryBlackboard{S,K}(handle_ref[], storage, builder.keepalive, values)
 end
 
@@ -65,8 +64,7 @@ function open(builder::BlackboardOpenerBuilder{S,K}) where {S,K}
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_blackboard_open(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_blackboard_open_error_e)
-    builder.handle = _IOX2_NULL
-    _finalize_service_builder_variant(builder)
+    close(builder)
     return PortFactoryBlackboard{S,K}(handle_ref[], storage, builder.keepalive, Any[])
 end
 
@@ -160,29 +158,29 @@ function add_with_default!(builder::BlackboardCreatorBuilder{S,K}, key::K, ::Typ
 end
 
 """
-    WriterBuilder{S,K}
+    EntryWriterBuilder{S,K}
 
-Builder for `Writer{S,K}`.
+Builder for `EntryWriter{S,K}`.
 """
-mutable struct WriterBuilder{S,K}
+mutable struct EntryWriterBuilder{S,K}
     handle::Iceoryx2FFI.iox2_port_factory_writer_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_writer_builder_t}
     keepalive::PortFactoryBlackboard{S,K}
-    function WriterBuilder{S,K}(handle, storage, keepalive) where {S,K}
+    function EntryWriterBuilder{S,K}(handle, storage, keepalive) where {S,K}
         obj = new{S,K}(handle, storage, keepalive)
-        finalizer(_finalize_writer_builder, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-function _finalize_writer_builder(builder::WriterBuilder)
+function Base.close(builder::EntryWriterBuilder)
     builder.handle = _IOX2_NULL
     builder.storage = nothing
     return nothing
 end
 
 """
-    writer_builder(factory::PortFactoryBlackboard) -> WriterBuilder
+    writer_builder(factory::PortFactoryBlackboard) -> EntryWriterBuilder
 
 Create a writer builder from a blackboard factory.
 """
@@ -190,33 +188,33 @@ function writer_builder(factory::PortFactoryBlackboard{S,K}) where {S,K}
     _require_valid(factory.handle, "blackboard port factory")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_writer_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_blackboard_writer_builder(Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle), storage)
-    return WriterBuilder{S,K}(handle, storage, factory)
+    return EntryWriterBuilder{S,K}(handle, storage, factory)
 end
 
 """
-    ReaderBuilder{S,K}
+    EntryReaderBuilder{S,K}
 
-Builder for `Reader{S,K}`.
+Builder for `EntryReader{S,K}`.
 """
-mutable struct ReaderBuilder{S,K}
+mutable struct EntryReaderBuilder{S,K}
     handle::Iceoryx2FFI.iox2_port_factory_reader_builder_h
     storage::_StorageRef{Iceoryx2FFI.iox2_port_factory_reader_builder_t}
     keepalive::PortFactoryBlackboard{S,K}
-    function ReaderBuilder{S,K}(handle, storage, keepalive) where {S,K}
+    function EntryReaderBuilder{S,K}(handle, storage, keepalive) where {S,K}
         obj = new{S,K}(handle, storage, keepalive)
-        finalizer(_finalize_reader_builder, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-function _finalize_reader_builder(builder::ReaderBuilder)
+function Base.close(builder::EntryReaderBuilder)
     builder.handle = _IOX2_NULL
     builder.storage = nothing
     return nothing
 end
 
 """
-    reader_builder(factory::PortFactoryBlackboard) -> ReaderBuilder
+    reader_builder(factory::PortFactoryBlackboard) -> EntryReaderBuilder
 
 Create a reader builder from a blackboard factory.
 """
@@ -224,26 +222,26 @@ function reader_builder(factory::PortFactoryBlackboard{S,K}) where {S,K}
     _require_valid(factory.handle, "blackboard port factory")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_reader_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_blackboard_reader_builder(Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle), storage)
-    return ReaderBuilder{S,K}(handle, storage, factory)
+    return EntryReaderBuilder{S,K}(handle, storage, factory)
 end
 
 """
-    Writer{S,K}
+    EntryWriter{S,K}
 
-Writer for blackboard entries.
+Entry writer for blackboard entries.
 """
-mutable struct Writer{S,K}
+mutable struct EntryWriter{S,K}
     handle::Iceoryx2FFI.iox2_writer_h
     storage::_StorageRef{Iceoryx2FFI.iox2_writer_t}
     keepalive::PortFactoryBlackboard{S,K}
-    function Writer{S,K}(handle, storage, keepalive) where {S,K}
+    function EntryWriter{S,K}(handle, storage, keepalive) where {S,K}
         obj = new{S,K}(handle, storage, keepalive)
-        finalizer(_finalize_writer, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-function _finalize_writer(writer::Writer)
+function Base.close(writer::EntryWriter)
     if writer.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_writer_drop(writer.handle)
         writer.handle = _IOX2_NULL
@@ -253,26 +251,26 @@ function _finalize_writer(writer::Writer)
 end
 
 """
-    create(builder::WriterBuilder) -> Writer
+    create(builder::EntryWriterBuilder) -> EntryWriter
 
 Create a writer and consume the builder.
 """
-function create(builder::WriterBuilder{S,K}) where {S,K}
+function create(builder::EntryWriterBuilder{S,K}) where {S,K}
     _require_valid(builder.handle, "writer builder")
     storage = Ref{Iceoryx2FFI.iox2_writer_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_writer_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_writer_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_writer_create_error_e)
-    _finalize_writer_builder(builder)
-    return Writer{S,K}(handle_ref[], storage, builder.keepalive)
+    close(builder)
+    return EntryWriter{S,K}(handle_ref[], storage, builder.keepalive)
 end
 
 """
-    create(f::Function, builder::WriterBuilder)
+    create(f::Function, builder::EntryWriterBuilder)
 
 Create a writer, call `f(writer)`, and close it in a `finally` block.
 """
-function create(f::Function, builder::WriterBuilder{S,K}) where {S,K}
+function create(f::Function, builder::EntryWriterBuilder{S,K}) where {S,K}
     writer = create(builder)
     try
         return f(writer)
@@ -282,22 +280,22 @@ function create(f::Function, builder::WriterBuilder{S,K}) where {S,K}
 end
 
 """
-    Reader{S,K}
+    EntryReader{S,K}
 
-Reader for blackboard entries.
+Entry reader for blackboard entries.
 """
-mutable struct Reader{S,K}
+mutable struct EntryReader{S,K}
     handle::Iceoryx2FFI.iox2_reader_h
     storage::_StorageRef{Iceoryx2FFI.iox2_reader_t}
     keepalive::PortFactoryBlackboard{S,K}
-    function Reader{S,K}(handle, storage, keepalive) where {S,K}
+    function EntryReader{S,K}(handle, storage, keepalive) where {S,K}
         obj = new{S,K}(handle, storage, keepalive)
-        finalizer(_finalize_reader, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-function _finalize_reader(reader::Reader)
+function Base.close(reader::EntryReader)
     if reader.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_reader_drop(reader.handle)
         reader.handle = _IOX2_NULL
@@ -307,26 +305,26 @@ function _finalize_reader(reader::Reader)
 end
 
 """
-    create(builder::ReaderBuilder) -> Reader
+    create(builder::EntryReaderBuilder) -> EntryReader
 
 Create a reader and consume the builder.
 """
-function create(builder::ReaderBuilder{S,K}) where {S,K}
+function create(builder::EntryReaderBuilder{S,K}) where {S,K}
     _require_valid(builder.handle, "reader builder")
     storage = Ref{Iceoryx2FFI.iox2_reader_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_reader_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_port_factory_reader_builder_create(builder.handle, storage, handle_ref)
     check_ok(ret, Iceoryx2FFI.iox2_reader_create_error_e)
-    _finalize_reader_builder(builder)
-    return Reader{S,K}(handle_ref[], storage, builder.keepalive)
+    close(builder)
+    return EntryReader{S,K}(handle_ref[], storage, builder.keepalive)
 end
 
 """
-    create(f::Function, builder::ReaderBuilder)
+    create(f::Function, builder::EntryReaderBuilder)
 
 Create a reader, call `f(reader)`, and close it in a `finally` block.
 """
-function create(f::Function, builder::ReaderBuilder{S,K}) where {S,K}
+function create(f::Function, builder::EntryReaderBuilder{S,K}) where {S,K}
     reader = create(builder)
     try
         return f(reader)
@@ -343,21 +341,21 @@ Handle for reading a specific key/value entry.
 mutable struct EntryHandle{S,K,V}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_entry_handle_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_entry_handle_t}
-    keepalive::Reader{S,K}
+    keepalive::EntryReader{S,K}
     function EntryHandle{S,K,V}(handle_ref, storage, keepalive) where {S,K,V}
         obj = new{S,K,V}(handle_ref, storage, keepalive)
-        finalizer(_finalize_entry_handle, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-function EntryHandle{S,K,V}(reader::Reader{S,K}) where {S,K,V}
+function EntryHandle{S,K,V}(reader::EntryReader{S,K}) where {S,K,V}
     return EntryHandle{S,K,V}(Ref{Iceoryx2FFI.iox2_entry_handle_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_entry_handle_t}(), reader)
 end
 
-EntryHandle(reader::Reader{S,K}, ::Type{V}) where {S,K,V} = EntryHandle{S,K,V}(reader)
+EntryHandle(reader::EntryReader{S,K}, ::Type{V}) where {S,K,V} = EntryHandle{S,K,V}(reader)
 
-function _finalize_entry_handle(entry::EntryHandle)
+function Base.close(entry::EntryHandle)
     if entry.handle_ref[] != _IOX2_NULL
         Iceoryx2FFI.iox2_entry_handle_drop(entry.handle_ref[])
         entry.handle_ref[] = _IOX2_NULL
@@ -373,21 +371,21 @@ Handle for updating a specific key/value entry.
 mutable struct EntryHandleMut{S,K,V}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_entry_handle_mut_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_entry_handle_mut_t}
-    keepalive::Writer{S,K}
+    keepalive::EntryWriter{S,K}
     function EntryHandleMut{S,K,V}(handle_ref, storage, keepalive) where {S,K,V}
         obj = new{S,K,V}(handle_ref, storage, keepalive)
-        finalizer(_finalize_entry_handle_mut, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-function EntryHandleMut{S,K,V}(writer::Writer{S,K}) where {S,K,V}
+function EntryHandleMut{S,K,V}(writer::EntryWriter{S,K}) where {S,K,V}
     return EntryHandleMut{S,K,V}(Ref{Iceoryx2FFI.iox2_entry_handle_mut_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_entry_handle_mut_t}(), writer)
 end
 
-EntryHandleMut(writer::Writer{S,K}, ::Type{V}) where {S,K,V} = EntryHandleMut{S,K,V}(writer)
+EntryHandleMut(writer::EntryWriter{S,K}, ::Type{V}) where {S,K,V} = EntryHandleMut{S,K,V}(writer)
 
-function _finalize_entry_handle_mut(entry::EntryHandleMut)
+function Base.close(entry::EntryHandleMut)
     if entry.handle_ref[] != _IOX2_NULL
         Iceoryx2FFI.iox2_entry_handle_mut_drop(entry.handle_ref[])
         entry.handle_ref[] = _IOX2_NULL
@@ -403,24 +401,24 @@ Temporary value slot for uninitialized blackboard updates.
 mutable struct EntryValueUninit{S,K,V}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_entry_value_uninit_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_entry_value_uninit_t}
-    keepalive::Writer{S,K}
+    keepalive::EntryWriter{S,K}
     function EntryValueUninit{S,K,V}(handle_ref, storage, keepalive) where {S,K,V}
         obj = new{S,K,V}(handle_ref, storage, keepalive)
-        finalizer(_finalize_entry_value_uninit, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-function EntryValueUninit{S,K,V}(writer::Writer{S,K}) where {S,K,V}
+function EntryValueUninit{S,K,V}(writer::EntryWriter{S,K}) where {S,K,V}
     return EntryValueUninit{S,K,V}(Ref{Iceoryx2FFI.iox2_entry_value_uninit_h}(_IOX2_NULL), Ref{Iceoryx2FFI.iox2_entry_value_uninit_t}(), writer)
 end
 
-EntryValueUninit(writer::Writer{S,K}, ::Type{V}) where {S,K,V} = EntryValueUninit{S,K,V}(writer)
+EntryValueUninit(writer::EntryWriter{S,K}, ::Type{V}) where {S,K,V} = EntryValueUninit{S,K,V}(writer)
 EntryValueUninit(entry::EntryHandleMut{S,K,V}) where {S,K,V} = EntryValueUninit{S,K,V}(entry.keepalive)
 
 @inline _slice_mutable(::Type{<:EntryValueUninit}) = true
 
-function _finalize_entry_value_uninit(value::EntryValueUninit)
+function Base.close(value::EntryValueUninit)
     if value.handle_ref[] != _IOX2_NULL
         Iceoryx2FFI.iox2_entry_value_uninit_drop(value.handle_ref[])
         value.handle_ref[] = _IOX2_NULL
@@ -503,11 +501,11 @@ function discard!(value::EntryValueUninit{S,K,V}, entry::EntryHandleMut{S,K,V}) 
 end
 
 """
-    reader_entry!(reader, entry, key) -> EntryHandle
+    entry!(reader, entry, key) -> EntryHandle
 
 Acquire a reader entry handle for a given key.
 """
-function reader_entry!(reader::Reader{S,K}, entry::EntryHandle{S,K,V}, key::K) where {S,K,V}
+function entry!(reader::EntryReader{S,K}, entry::EntryHandle{S,K,V}, key::K) where {S,K,V}
     _require_valid(reader.handle, "reader")
     _require_isbits(K)
     _require_isbits(V)
@@ -532,8 +530,8 @@ function reader_entry!(reader::Reader{S,K}, entry::EntryHandle{S,K,V}, key::K) w
     return entry
 end
 
-function reader_entry!(f::Function, reader::Reader{S,K}, entry::EntryHandle{S,K,V}, key::K) where {S,K,V}
-    reader_entry!(reader, entry, key)
+function entry!(f::Function, reader::EntryReader{S,K}, entry::EntryHandle{S,K,V}, key::K) where {S,K,V}
+    entry!(reader, entry, key)
     try
         return f(entry)
     finally
@@ -541,7 +539,7 @@ function reader_entry!(f::Function, reader::Reader{S,K}, entry::EntryHandle{S,K,
     end
 end
 
-function try_reader_entry!(reader::Reader{S,K}, entry::EntryHandle{S,K,V}, key::K) where {S,K,V}
+function try_entry!(reader::EntryReader{S,K}, entry::EntryHandle{S,K,V}, key::K) where {S,K,V}
     _require_valid(reader.handle, "reader")
     _require_isbits(K)
     _require_isbits(V)
@@ -570,8 +568,8 @@ function try_reader_entry!(reader::Reader{S,K}, entry::EntryHandle{S,K,V}, key::
     return true
 end
 
-function try_reader_entry!(f::Function, reader::Reader{S,K}, entry::EntryHandle{S,K,V}, key::K) where {S,K,V}
-    try_reader_entry!(reader, entry, key) || return nothing
+function try_entry!(f::Function, reader::EntryReader{S,K}, entry::EntryHandle{S,K,V}, key::K) where {S,K,V}
+    try_entry!(reader, entry, key) || return nothing
     try
         return f(entry)
     finally
@@ -580,11 +578,11 @@ function try_reader_entry!(f::Function, reader::Reader{S,K}, entry::EntryHandle{
 end
 
 """
-    writer_entry!(writer, entry, key) -> EntryHandleMut
+    entry!(writer, entry, key) -> EntryHandleMut
 
 Acquire a writer entry handle for a given key.
 """
-function writer_entry!(writer::Writer{S,K}, entry::EntryHandleMut{S,K,V}, key::K) where {S,K,V}
+function entry!(writer::EntryWriter{S,K}, entry::EntryHandleMut{S,K,V}, key::K) where {S,K,V}
     _require_valid(writer.handle, "writer")
     _require_isbits(K)
     _require_isbits(V)
@@ -609,8 +607,8 @@ function writer_entry!(writer::Writer{S,K}, entry::EntryHandleMut{S,K,V}, key::K
     return entry
 end
 
-function writer_entry!(f::Function, writer::Writer{S,K}, entry::EntryHandleMut{S,K,V}, key::K) where {S,K,V}
-    writer_entry!(writer, entry, key)
+function entry!(f::Function, writer::EntryWriter{S,K}, entry::EntryHandleMut{S,K,V}, key::K) where {S,K,V}
+    entry!(writer, entry, key)
     try
         return f(entry)
     finally
@@ -618,7 +616,7 @@ function writer_entry!(f::Function, writer::Writer{S,K}, entry::EntryHandleMut{S
     end
 end
 
-function try_writer_entry!(writer::Writer{S,K}, entry::EntryHandleMut{S,K,V}, key::K) where {S,K,V}
+function try_entry!(writer::EntryWriter{S,K}, entry::EntryHandleMut{S,K,V}, key::K) where {S,K,V}
     _require_valid(writer.handle, "writer")
     _require_isbits(K)
     _require_isbits(V)
@@ -647,8 +645,8 @@ function try_writer_entry!(writer::Writer{S,K}, entry::EntryHandleMut{S,K,V}, ke
     return true
 end
 
-function try_writer_entry!(f::Function, writer::Writer{S,K}, entry::EntryHandleMut{S,K,V}, key::K) where {S,K,V}
-    try_writer_entry!(writer, entry, key) || return nothing
+function try_entry!(f::Function, writer::EntryWriter{S,K}, entry::EntryHandleMut{S,K,V}, key::K) where {S,K,V}
+    try_entry!(writer, entry, key) || return nothing
     try
         return f(entry)
     finally
@@ -753,122 +751,12 @@ end
 @inline Base.isvalid(obj::Notifier) = obj.handle != _IOX2_NULL
 @inline Base.isvalid(obj::Listener) = obj.handle != _IOX2_NULL
 @inline Base.isvalid(obj::PortFactoryBlackboard) = obj.handle != _IOX2_NULL
-@inline Base.isvalid(obj::Writer) = obj.handle != _IOX2_NULL
-@inline Base.isvalid(obj::Reader) = obj.handle != _IOX2_NULL
+@inline Base.isvalid(obj::EntryWriter) = obj.handle != _IOX2_NULL
+@inline Base.isvalid(obj::EntryReader) = obj.handle != _IOX2_NULL
 @inline Base.isvalid(obj::EntryHandle) = obj.handle_ref[] != _IOX2_NULL
 @inline Base.isvalid(obj::EntryHandleMut) = obj.handle_ref[] != _IOX2_NULL
 @inline Base.isvalid(obj::EntryValueUninit) = obj.handle_ref[] != _IOX2_NULL
 
-function Base.close(obj::PortFactoryPubSub)
-    _finalize_port_factory_pub_sub(obj)
-    return nothing
-end
-
-function Base.close(obj::Publisher)
-    _finalize_publisher(obj)
-    return nothing
-end
-
-function Base.close(obj::Subscriber)
-    _finalize_subscriber(obj)
-    return nothing
-end
-
-function Base.close(obj::Sample)
-    _finalize_sample(obj)
-    return nothing
-end
-
-function Base.close(obj::SampleMut)
-    _finalize_sample_mut(obj)
-    return nothing
-end
-
-function Base.close(obj::PortFactoryRequestResponse)
-    _finalize_port_factory_request_response(obj)
-    return nothing
-end
-
-function Base.close(obj::Client)
-    _finalize_client(obj)
-    return nothing
-end
-
-function Base.close(obj::Server)
-    _finalize_server(obj)
-    return nothing
-end
-
-function Base.close(obj::RequestMut)
-    _finalize_request_mut(obj)
-    return nothing
-end
-
-function Base.close(obj::PendingResponse)
-    _finalize_pending_response(obj)
-    return nothing
-end
-
-function Base.close(obj::Response)
-    _finalize_response(obj)
-    return nothing
-end
-
-function Base.close(obj::ActiveRequest)
-    _finalize_active_request(obj)
-    return nothing
-end
-
-function Base.close(obj::ResponseMut)
-    _finalize_response_mut(obj)
-    return nothing
-end
-
 Base.close(::PublishSubscribeHeaderRef) = nothing
 Base.close(::RequestHeaderRef) = nothing
 Base.close(::ResponseHeaderRef) = nothing
-
-function Base.close(obj::PortFactoryEvent)
-    _finalize_port_factory_event(obj)
-    return nothing
-end
-
-function Base.close(obj::Notifier)
-    _finalize_notifier(obj)
-    return nothing
-end
-
-function Base.close(obj::Listener)
-    _finalize_listener(obj)
-    return nothing
-end
-
-function Base.close(obj::PortFactoryBlackboard)
-    _finalize_port_factory_blackboard(obj)
-    return nothing
-end
-
-function Base.close(obj::Writer)
-    _finalize_writer(obj)
-    return nothing
-end
-
-function Base.close(obj::Reader)
-    _finalize_reader(obj)
-    return nothing
-end
-
-function Base.close(obj::EntryHandle)
-    _finalize_entry_handle(obj)
-    return nothing
-end
-
-function Base.close(obj::EntryHandleMut)
-    _finalize_entry_handle_mut(obj)
-    return nothing
-end
-
-function Base.close(obj::EntryValueUninit)
-    _finalize_entry_value_uninit(obj)
-    return nothing
-end

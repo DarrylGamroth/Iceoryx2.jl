@@ -27,7 +27,7 @@ through Node → ServiceBuilder → PortFactory → Port APIs, matching the stat
   - `PortFactoryEvent{S}`
   - `PortFactoryPubSub{S,T,UH}` / `Publisher{S,T,UH}` / `Subscriber{S,T,UH}`
   - `PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}` / `Client{S,...}` / `Server{S,...}`
-  - `PortFactoryBlackboard{S,K}` / `BlackboardWriter{S,...}` / `BlackboardReader{S,...}`
+  - `PortFactoryBlackboard{S,K}` / `EntryWriter{S,...}` / `EntryReader{S,...}`
 - `Waitset{S}` only if it is semantically tied to a service type; otherwise keep untyped and accept `ServiceType` at create.
 
 ## API surface changes

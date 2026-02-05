@@ -6,7 +6,7 @@ mutable struct AttributeSet
     handle::Iceoryx2FFI.iox2_attribute_set_h
     function AttributeSet(handle::Iceoryx2FFI.iox2_attribute_set_h)
         obj = new(handle)
-        finalizer(_finalize_AttributeSet, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
@@ -15,7 +15,7 @@ end
 @inline Base.isvalid(obj::AttributeSet) = obj.handle != _IOX2_NULL
 @inline invalidate!(obj::AttributeSet) = (obj.handle = _IOX2_NULL)
 
-function _finalize_AttributeSet(obj::AttributeSet)
+function Base.close(obj::AttributeSet)
     if obj.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_attribute_set_drop(obj.handle)
         obj.handle = _IOX2_NULL
@@ -23,16 +23,11 @@ function _finalize_AttributeSet(obj::AttributeSet)
     return nothing
 end
 
-function Base.close(obj::AttributeSet)
-    _finalize_AttributeSet(obj)
-    return nothing
-end
-
 mutable struct AttributeSpecifier
     handle::Iceoryx2FFI.iox2_attribute_specifier_h
     function AttributeSpecifier(handle::Iceoryx2FFI.iox2_attribute_specifier_h)
         obj = new(handle)
-        finalizer(_finalize_AttributeSpecifier, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
@@ -41,7 +36,7 @@ end
 @inline Base.isvalid(obj::AttributeSpecifier) = obj.handle != _IOX2_NULL
 @inline invalidate!(obj::AttributeSpecifier) = (obj.handle = _IOX2_NULL)
 
-function _finalize_AttributeSpecifier(obj::AttributeSpecifier)
+function Base.close(obj::AttributeSpecifier)
     if obj.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_attribute_specifier_drop(obj.handle)
         obj.handle = _IOX2_NULL
@@ -49,16 +44,11 @@ function _finalize_AttributeSpecifier(obj::AttributeSpecifier)
     return nothing
 end
 
-function Base.close(obj::AttributeSpecifier)
-    _finalize_AttributeSpecifier(obj)
-    return nothing
-end
-
 mutable struct AttributeVerifier
     handle::Iceoryx2FFI.iox2_attribute_verifier_h
     function AttributeVerifier(handle::Iceoryx2FFI.iox2_attribute_verifier_h)
         obj = new(handle)
-        finalizer(_finalize_AttributeVerifier, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
@@ -67,7 +57,7 @@ end
 @inline Base.isvalid(obj::AttributeVerifier) = obj.handle != _IOX2_NULL
 @inline invalidate!(obj::AttributeVerifier) = (obj.handle = _IOX2_NULL)
 
-function _finalize_AttributeVerifier(obj::AttributeVerifier)
+function Base.close(obj::AttributeVerifier)
     if obj.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_attribute_verifier_drop(obj.handle)
         obj.handle = _IOX2_NULL
@@ -75,16 +65,11 @@ function _finalize_AttributeVerifier(obj::AttributeVerifier)
     return nothing
 end
 
-function Base.close(obj::AttributeVerifier)
-    _finalize_AttributeVerifier(obj)
-    return nothing
-end
-
 mutable struct Config
     handle::Iceoryx2FFI.iox2_config_h
     function Config(handle::Iceoryx2FFI.iox2_config_h)
         obj = new(handle)
-        finalizer(_finalize_Config, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
@@ -93,7 +78,7 @@ end
 @inline Base.isvalid(obj::Config) = obj.handle != _IOX2_NULL
 @inline invalidate!(obj::Config) = (obj.handle = _IOX2_NULL)
 
-function _finalize_Config(obj::Config)
+function Base.close(obj::Config)
     if obj.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_config_drop(obj.handle)
         obj.handle = _IOX2_NULL
@@ -101,16 +86,11 @@ function _finalize_Config(obj::Config)
     return nothing
 end
 
-function Base.close(obj::Config)
-    _finalize_Config(obj)
-    return nothing
-end
-
 mutable struct FileDescriptor
     handle::Iceoryx2FFI.iox2_file_descriptor_h
     function FileDescriptor(handle::Iceoryx2FFI.iox2_file_descriptor_h)
         obj = new(handle)
-        finalizer(_finalize_FileDescriptor, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
@@ -119,7 +99,7 @@ end
 @inline Base.isvalid(obj::FileDescriptor) = obj.handle != _IOX2_NULL
 @inline invalidate!(obj::FileDescriptor) = (obj.handle = _IOX2_NULL)
 
-function _finalize_FileDescriptor(obj::FileDescriptor)
+function Base.close(obj::FileDescriptor)
     if obj.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_file_descriptor_drop(obj.handle)
         obj.handle = _IOX2_NULL
@@ -127,16 +107,11 @@ function _finalize_FileDescriptor(obj::FileDescriptor)
     return nothing
 end
 
-function Base.close(obj::FileDescriptor)
-    _finalize_FileDescriptor(obj)
-    return nothing
-end
-
 mutable struct NodeId
     handle::Iceoryx2FFI.iox2_node_id_h
     function NodeId(handle::Iceoryx2FFI.iox2_node_id_h)
         obj = new(handle)
-        finalizer(_finalize_NodeId, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
@@ -145,7 +120,7 @@ end
 @inline Base.isvalid(obj::NodeId) = obj.handle != _IOX2_NULL
 @inline invalidate!(obj::NodeId) = (obj.handle = _IOX2_NULL)
 
-function _finalize_NodeId(obj::NodeId)
+function Base.close(obj::NodeId)
     if obj.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_node_id_drop(obj.handle)
         obj.handle = _IOX2_NULL
@@ -153,16 +128,11 @@ function _finalize_NodeId(obj::NodeId)
     return nothing
 end
 
-function Base.close(obj::NodeId)
-    _finalize_NodeId(obj)
-    return nothing
-end
-
 mutable struct NodeName
     handle::Iceoryx2FFI.iox2_node_name_h
     function NodeName(handle::Iceoryx2FFI.iox2_node_name_h)
         obj = new(handle)
-        finalizer(_finalize_NodeName, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
@@ -171,7 +141,7 @@ end
 @inline Base.isvalid(obj::NodeName) = obj.handle != _IOX2_NULL
 @inline invalidate!(obj::NodeName) = (obj.handle = _IOX2_NULL)
 
-function _finalize_NodeName(obj::NodeName)
+function Base.close(obj::NodeName)
     if obj.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_node_name_drop(obj.handle)
         obj.handle = _IOX2_NULL
@@ -179,16 +149,11 @@ function _finalize_NodeName(obj::NodeName)
     return nothing
 end
 
-function Base.close(obj::NodeName)
-    _finalize_NodeName(obj)
-    return nothing
-end
-
 mutable struct PublishSubscribeHeader
     handle::Iceoryx2FFI.iox2_publish_subscribe_header_h
     function PublishSubscribeHeader(handle::Iceoryx2FFI.iox2_publish_subscribe_header_h)
         obj = new(handle)
-        finalizer(_finalize_PublishSubscribeHeader, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
@@ -197,7 +162,7 @@ end
 @inline Base.isvalid(obj::PublishSubscribeHeader) = obj.handle != _IOX2_NULL
 @inline invalidate!(obj::PublishSubscribeHeader) = (obj.handle = _IOX2_NULL)
 
-function _finalize_PublishSubscribeHeader(obj::PublishSubscribeHeader)
+function Base.close(obj::PublishSubscribeHeader)
     if obj.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_publish_subscribe_header_drop(obj.handle)
         obj.handle = _IOX2_NULL
@@ -205,16 +170,11 @@ function _finalize_PublishSubscribeHeader(obj::PublishSubscribeHeader)
     return nothing
 end
 
-function Base.close(obj::PublishSubscribeHeader)
-    _finalize_PublishSubscribeHeader(obj)
-    return nothing
-end
-
 mutable struct RequestHeader
     handle::Iceoryx2FFI.iox2_request_header_h
     function RequestHeader(handle::Iceoryx2FFI.iox2_request_header_h)
         obj = new(handle)
-        finalizer(_finalize_RequestHeader, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
@@ -223,7 +183,7 @@ end
 @inline Base.isvalid(obj::RequestHeader) = obj.handle != _IOX2_NULL
 @inline invalidate!(obj::RequestHeader) = (obj.handle = _IOX2_NULL)
 
-function _finalize_RequestHeader(obj::RequestHeader)
+function Base.close(obj::RequestHeader)
     if obj.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_request_header_drop(obj.handle)
         obj.handle = _IOX2_NULL
@@ -231,16 +191,11 @@ function _finalize_RequestHeader(obj::RequestHeader)
     return nothing
 end
 
-function Base.close(obj::RequestHeader)
-    _finalize_RequestHeader(obj)
-    return nothing
-end
-
 mutable struct ResponseHeader
     handle::Iceoryx2FFI.iox2_response_header_h
     function ResponseHeader(handle::Iceoryx2FFI.iox2_response_header_h)
         obj = new(handle)
-        finalizer(_finalize_ResponseHeader, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
@@ -249,7 +204,7 @@ end
 @inline Base.isvalid(obj::ResponseHeader) = obj.handle != _IOX2_NULL
 @inline invalidate!(obj::ResponseHeader) = (obj.handle = _IOX2_NULL)
 
-function _finalize_ResponseHeader(obj::ResponseHeader)
+function Base.close(obj::ResponseHeader)
     if obj.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_response_header_drop(obj.handle)
         obj.handle = _IOX2_NULL
@@ -257,16 +212,11 @@ function _finalize_ResponseHeader(obj::ResponseHeader)
     return nothing
 end
 
-function Base.close(obj::ResponseHeader)
-    _finalize_ResponseHeader(obj)
-    return nothing
-end
-
 mutable struct ServiceName
     handle::Iceoryx2FFI.iox2_service_name_h
     function ServiceName(handle::Iceoryx2FFI.iox2_service_name_h)
         obj = new(handle)
-        finalizer(_finalize_ServiceName, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
@@ -275,7 +225,7 @@ end
 @inline Base.isvalid(obj::ServiceName) = obj.handle != _IOX2_NULL
 @inline invalidate!(obj::ServiceName) = (obj.handle = _IOX2_NULL)
 
-function _finalize_ServiceName(obj::ServiceName)
+function Base.close(obj::ServiceName)
     if obj.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_service_name_drop(obj.handle)
         obj.handle = _IOX2_NULL
@@ -283,16 +233,11 @@ function _finalize_ServiceName(obj::ServiceName)
     return nothing
 end
 
-function Base.close(obj::ServiceName)
-    _finalize_ServiceName(obj)
-    return nothing
-end
-
 mutable struct UniqueClientId
     handle::Iceoryx2FFI.iox2_unique_client_id_h
     function UniqueClientId(handle::Iceoryx2FFI.iox2_unique_client_id_h)
         obj = new(handle)
-        finalizer(_finalize_UniqueClientId, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
@@ -301,7 +246,7 @@ end
 @inline Base.isvalid(obj::UniqueClientId) = obj.handle != _IOX2_NULL
 @inline invalidate!(obj::UniqueClientId) = (obj.handle = _IOX2_NULL)
 
-function _finalize_UniqueClientId(obj::UniqueClientId)
+function Base.close(obj::UniqueClientId)
     if obj.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_unique_client_id_drop(obj.handle)
         obj.handle = _IOX2_NULL
@@ -309,16 +254,11 @@ function _finalize_UniqueClientId(obj::UniqueClientId)
     return nothing
 end
 
-function Base.close(obj::UniqueClientId)
-    _finalize_UniqueClientId(obj)
-    return nothing
-end
-
 mutable struct UniqueListenerId
     handle::Iceoryx2FFI.iox2_unique_listener_id_h
     function UniqueListenerId(handle::Iceoryx2FFI.iox2_unique_listener_id_h)
         obj = new(handle)
-        finalizer(_finalize_UniqueListenerId, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
@@ -327,7 +267,7 @@ end
 @inline Base.isvalid(obj::UniqueListenerId) = obj.handle != _IOX2_NULL
 @inline invalidate!(obj::UniqueListenerId) = (obj.handle = _IOX2_NULL)
 
-function _finalize_UniqueListenerId(obj::UniqueListenerId)
+function Base.close(obj::UniqueListenerId)
     if obj.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_unique_listener_id_drop(obj.handle)
         obj.handle = _IOX2_NULL
@@ -335,16 +275,11 @@ function _finalize_UniqueListenerId(obj::UniqueListenerId)
     return nothing
 end
 
-function Base.close(obj::UniqueListenerId)
-    _finalize_UniqueListenerId(obj)
-    return nothing
-end
-
 mutable struct UniqueNotifierId
     handle::Iceoryx2FFI.iox2_unique_notifier_id_h
     function UniqueNotifierId(handle::Iceoryx2FFI.iox2_unique_notifier_id_h)
         obj = new(handle)
-        finalizer(_finalize_UniqueNotifierId, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
@@ -353,7 +288,7 @@ end
 @inline Base.isvalid(obj::UniqueNotifierId) = obj.handle != _IOX2_NULL
 @inline invalidate!(obj::UniqueNotifierId) = (obj.handle = _IOX2_NULL)
 
-function _finalize_UniqueNotifierId(obj::UniqueNotifierId)
+function Base.close(obj::UniqueNotifierId)
     if obj.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_unique_notifier_id_drop(obj.handle)
         obj.handle = _IOX2_NULL
@@ -361,16 +296,11 @@ function _finalize_UniqueNotifierId(obj::UniqueNotifierId)
     return nothing
 end
 
-function Base.close(obj::UniqueNotifierId)
-    _finalize_UniqueNotifierId(obj)
-    return nothing
-end
-
 mutable struct UniquePublisherId
     handle::Iceoryx2FFI.iox2_unique_publisher_id_h
     function UniquePublisherId(handle::Iceoryx2FFI.iox2_unique_publisher_id_h)
         obj = new(handle)
-        finalizer(_finalize_UniquePublisherId, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
@@ -379,7 +309,7 @@ end
 @inline Base.isvalid(obj::UniquePublisherId) = obj.handle != _IOX2_NULL
 @inline invalidate!(obj::UniquePublisherId) = (obj.handle = _IOX2_NULL)
 
-function _finalize_UniquePublisherId(obj::UniquePublisherId)
+function Base.close(obj::UniquePublisherId)
     if obj.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_unique_publisher_id_drop(obj.handle)
         obj.handle = _IOX2_NULL
@@ -387,25 +317,20 @@ function _finalize_UniquePublisherId(obj::UniquePublisherId)
     return nothing
 end
 
-function Base.close(obj::UniquePublisherId)
-    _finalize_UniquePublisherId(obj)
-    return nothing
-end
-
-mutable struct UniqueReaderId
+mutable struct UniqueEntryReaderId
     handle::Iceoryx2FFI.iox2_unique_reader_id_h
-    function UniqueReaderId(handle::Iceoryx2FFI.iox2_unique_reader_id_h)
+    function UniqueEntryReaderId(handle::Iceoryx2FFI.iox2_unique_reader_id_h)
         obj = new(handle)
-        finalizer(_finalize_UniqueReaderId, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-@inline unsafe_handle(obj::UniqueReaderId) = obj.handle
-@inline Base.isvalid(obj::UniqueReaderId) = obj.handle != _IOX2_NULL
-@inline invalidate!(obj::UniqueReaderId) = (obj.handle = _IOX2_NULL)
+@inline unsafe_handle(obj::UniqueEntryReaderId) = obj.handle
+@inline Base.isvalid(obj::UniqueEntryReaderId) = obj.handle != _IOX2_NULL
+@inline invalidate!(obj::UniqueEntryReaderId) = (obj.handle = _IOX2_NULL)
 
-function _finalize_UniqueReaderId(obj::UniqueReaderId)
+function Base.close(obj::UniqueEntryReaderId)
     if obj.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_unique_reader_id_drop(obj.handle)
         obj.handle = _IOX2_NULL
@@ -413,16 +338,11 @@ function _finalize_UniqueReaderId(obj::UniqueReaderId)
     return nothing
 end
 
-function Base.close(obj::UniqueReaderId)
-    _finalize_UniqueReaderId(obj)
-    return nothing
-end
-
 mutable struct UniqueServerId
     handle::Iceoryx2FFI.iox2_unique_server_id_h
     function UniqueServerId(handle::Iceoryx2FFI.iox2_unique_server_id_h)
         obj = new(handle)
-        finalizer(_finalize_UniqueServerId, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
@@ -431,7 +351,7 @@ end
 @inline Base.isvalid(obj::UniqueServerId) = obj.handle != _IOX2_NULL
 @inline invalidate!(obj::UniqueServerId) = (obj.handle = _IOX2_NULL)
 
-function _finalize_UniqueServerId(obj::UniqueServerId)
+function Base.close(obj::UniqueServerId)
     if obj.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_unique_server_id_drop(obj.handle)
         obj.handle = _IOX2_NULL
@@ -439,16 +359,11 @@ function _finalize_UniqueServerId(obj::UniqueServerId)
     return nothing
 end
 
-function Base.close(obj::UniqueServerId)
-    _finalize_UniqueServerId(obj)
-    return nothing
-end
-
 mutable struct UniqueSubscriberId
     handle::Iceoryx2FFI.iox2_unique_subscriber_id_h
     function UniqueSubscriberId(handle::Iceoryx2FFI.iox2_unique_subscriber_id_h)
         obj = new(handle)
-        finalizer(_finalize_UniqueSubscriberId, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
@@ -457,7 +372,7 @@ end
 @inline Base.isvalid(obj::UniqueSubscriberId) = obj.handle != _IOX2_NULL
 @inline invalidate!(obj::UniqueSubscriberId) = (obj.handle = _IOX2_NULL)
 
-function _finalize_UniqueSubscriberId(obj::UniqueSubscriberId)
+function Base.close(obj::UniqueSubscriberId)
     if obj.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_unique_subscriber_id_drop(obj.handle)
         obj.handle = _IOX2_NULL
@@ -465,34 +380,24 @@ function _finalize_UniqueSubscriberId(obj::UniqueSubscriberId)
     return nothing
 end
 
-function Base.close(obj::UniqueSubscriberId)
-    _finalize_UniqueSubscriberId(obj)
-    return nothing
-end
-
-mutable struct UniqueWriterId
+mutable struct UniqueEntryWriterId
     handle::Iceoryx2FFI.iox2_unique_writer_id_h
-    function UniqueWriterId(handle::Iceoryx2FFI.iox2_unique_writer_id_h)
+    function UniqueEntryWriterId(handle::Iceoryx2FFI.iox2_unique_writer_id_h)
         obj = new(handle)
-        finalizer(_finalize_UniqueWriterId, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-@inline unsafe_handle(obj::UniqueWriterId) = obj.handle
-@inline Base.isvalid(obj::UniqueWriterId) = obj.handle != _IOX2_NULL
-@inline invalidate!(obj::UniqueWriterId) = (obj.handle = _IOX2_NULL)
+@inline unsafe_handle(obj::UniqueEntryWriterId) = obj.handle
+@inline Base.isvalid(obj::UniqueEntryWriterId) = obj.handle != _IOX2_NULL
+@inline invalidate!(obj::UniqueEntryWriterId) = (obj.handle = _IOX2_NULL)
 
-function _finalize_UniqueWriterId(obj::UniqueWriterId)
+function Base.close(obj::UniqueEntryWriterId)
     if obj.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_unique_writer_id_drop(obj.handle)
         obj.handle = _IOX2_NULL
     end
-    return nothing
-end
-
-function Base.close(obj::UniqueWriterId)
-    _finalize_UniqueWriterId(obj)
     return nothing
 end
 
@@ -678,12 +583,12 @@ end
 @inline unsafe_handle(obj::PublisherRef) = obj.handle
 @inline Base.isvalid(obj::PublisherRef) = obj.handle != _IOX2_NULL
 
-struct ReaderRef
+struct EntryReaderRef
     handle::Iceoryx2FFI.iox2_reader_h_ref
 end
 
-@inline unsafe_handle(obj::ReaderRef) = obj.handle
-@inline Base.isvalid(obj::ReaderRef) = obj.handle != _IOX2_NULL
+@inline unsafe_handle(obj::EntryReaderRef) = obj.handle
+@inline Base.isvalid(obj::EntryReaderRef) = obj.handle != _IOX2_NULL
 
 struct RequestHeaderRef
     handle::Iceoryx2FFI.iox2_request_header_h_ref
@@ -811,12 +716,12 @@ end
 @inline unsafe_handle(obj::UniquePublisherIdRef) = obj.handle
 @inline Base.isvalid(obj::UniquePublisherIdRef) = obj.handle != _IOX2_NULL
 
-struct UniqueReaderIdRef
+struct UniqueEntryReaderIdRef
     handle::Iceoryx2FFI.iox2_unique_reader_id_h_ref
 end
 
-@inline unsafe_handle(obj::UniqueReaderIdRef) = obj.handle
-@inline Base.isvalid(obj::UniqueReaderIdRef) = obj.handle != _IOX2_NULL
+@inline unsafe_handle(obj::UniqueEntryReaderIdRef) = obj.handle
+@inline Base.isvalid(obj::UniqueEntryReaderIdRef) = obj.handle != _IOX2_NULL
 
 struct UniqueServerIdRef
     handle::Iceoryx2FFI.iox2_unique_server_id_h_ref
@@ -832,12 +737,12 @@ end
 @inline unsafe_handle(obj::UniqueSubscriberIdRef) = obj.handle
 @inline Base.isvalid(obj::UniqueSubscriberIdRef) = obj.handle != _IOX2_NULL
 
-struct UniqueWriterIdRef
+struct UniqueEntryWriterIdRef
     handle::Iceoryx2FFI.iox2_unique_writer_id_h_ref
 end
 
-@inline unsafe_handle(obj::UniqueWriterIdRef) = obj.handle
-@inline Base.isvalid(obj::UniqueWriterIdRef) = obj.handle != _IOX2_NULL
+@inline unsafe_handle(obj::UniqueEntryWriterIdRef) = obj.handle
+@inline Base.isvalid(obj::UniqueEntryWriterIdRef) = obj.handle != _IOX2_NULL
 
 struct WaitsetRef
     handle::Iceoryx2FFI.iox2_waitset_h_ref
@@ -867,12 +772,12 @@ end
 @inline unsafe_handle(obj::WaitsetGuardRef) = obj.handle
 @inline Base.isvalid(obj::WaitsetGuardRef) = obj.handle != _IOX2_NULL
 
-struct WriterRef
+struct EntryWriterRef
     handle::Iceoryx2FFI.iox2_writer_h_ref
 end
 
-@inline unsafe_handle(obj::WriterRef) = obj.handle
-@inline Base.isvalid(obj::WriterRef) = obj.handle != _IOX2_NULL
+@inline unsafe_handle(obj::EntryWriterRef) = obj.handle
+@inline Base.isvalid(obj::EntryWriterRef) = obj.handle != _IOX2_NULL
 
 struct AttributeSetView
     ptr::Iceoryx2FFI.iox2_attribute_set_ptr
@@ -937,12 +842,12 @@ end
 @inline unsafe_handle(obj::PublisherDetailsView) = obj.ptr
 @inline Base.isvalid(obj::PublisherDetailsView) = obj.ptr != _IOX2_NULL
 
-struct ReaderDetailsView
+struct EntryReaderDetailsView
     ptr::Iceoryx2FFI.iox2_reader_details_ptr
 end
 
-@inline unsafe_handle(obj::ReaderDetailsView) = obj.ptr
-@inline Base.isvalid(obj::ReaderDetailsView) = obj.ptr != _IOX2_NULL
+@inline unsafe_handle(obj::EntryReaderDetailsView) = obj.ptr
+@inline Base.isvalid(obj::EntryReaderDetailsView) = obj.ptr != _IOX2_NULL
 
 struct ServerDetailsView
     ptr::Iceoryx2FFI.iox2_server_details_ptr
@@ -965,10 +870,10 @@ end
 @inline unsafe_handle(obj::SubscriberDetailsView) = obj.ptr
 @inline Base.isvalid(obj::SubscriberDetailsView) = obj.ptr != _IOX2_NULL
 
-struct WriterDetailsView
+struct EntryWriterDetailsView
     ptr::Iceoryx2FFI.iox2_writer_details_ptr
 end
 
-@inline unsafe_handle(obj::WriterDetailsView) = obj.ptr
-@inline Base.isvalid(obj::WriterDetailsView) = obj.ptr != _IOX2_NULL
+@inline unsafe_handle(obj::EntryWriterDetailsView) = obj.ptr
+@inline Base.isvalid(obj::EntryWriterDetailsView) = obj.ptr != _IOX2_NULL
 

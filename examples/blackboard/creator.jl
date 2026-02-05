@@ -23,8 +23,8 @@ function main()
     writer = create(writer_builder(factory))
     entry_0 = EntryHandleMut(writer, Int32)
     entry_1 = EntryHandleMut(writer, Float64)
-    writer_entry!(writer, entry_0, key_0)
-    writer_entry!(writer, entry_1, key_1)
+    entry!(writer, entry_0, key_0)
+    entry!(writer, entry_1, key_1)
     value_uninit = EntryValueUninit(entry_1)
 
     counter = 0

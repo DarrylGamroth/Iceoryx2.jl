@@ -83,7 +83,7 @@ Notes:
   - Julia: `src/config.jl` (Config/ConfigView + default_config/global_config + service_* helpers), `src/generated/handles.jl` (Config handles). Most defaults and global setters are not wrapped yet.
 - `dynamic_config_blackboard.cpp`
   - C: `iox2_port_factory_blackboard_dynamic_config_list_readers`, `iox2_port_factory_blackboard_dynamic_config_list_writers`, `iox2_port_factory_blackboard_dynamic_config_number_of_readers`, `iox2_port_factory_blackboard_dynamic_config_number_of_writers`, `iox2_port_factory_blackboard_h`, `iox2_reader_details_ptr`, `iox2_writer_details_ptr`
-  - Julia: `src/config.jl` (list_readers/list_writers/number_of_*), `src/generated/handles.jl` (ReaderDetailsView/WriterDetailsView). Per-detail accessors not wrapped yet.
+  - Julia: `src/config.jl` (list_readers/list_writers/number_of_*), `src/generated/handles.jl` (EntryReaderDetailsView/EntryWriterDetailsView). Per-detail accessors not wrapped yet.
 - `dynamic_config_event.cpp`
   - C: `iox2_listener_details_ptr`, `iox2_notifier_details_ptr`, `iox2_port_factory_event_dynamic_config_list_listeners`, `iox2_port_factory_event_dynamic_config_list_notifiers`, `iox2_port_factory_event_dynamic_config_number_of_listeners`, `iox2_port_factory_event_dynamic_config_number_of_notifiers`, `iox2_port_factory_event_h`
   - Julia: `src/config.jl` (list_listeners/list_notifiers/number_of_*), `src/generated/handles.jl` (ListenerDetailsView/NotifierDetailsView). Per-detail accessors not wrapped yet.
@@ -130,7 +130,7 @@ Notes:
   - Julia: `src/generated/handles.jl` (PublisherDetailsView), `src/config.jl` (list_publishers). Per-field accessors not wrapped yet.
 - `reader_details.cpp`
   - C: `iox2_node_id_clone_from_ptr`, `iox2_node_id_h`, `iox2_reader_details_node_id`, `iox2_reader_details_ptr`, `iox2_reader_details_reader_id`, `iox2_unique_reader_id_h`
-  - Julia: `src/generated/handles.jl` (ReaderDetailsView), `src/config.jl` (list_readers). Per-field accessors not wrapped yet.
+  - Julia: `src/generated/handles.jl` (EntryReaderDetailsView), `src/config.jl` (list_readers). Per-field accessors not wrapped yet.
 - `server_details.cpp`
   - C: `iox2_node_id_clone_from_ptr`, `iox2_node_id_h`, `iox2_server_details_max_slice_len`, `iox2_server_details_node_id`, `iox2_server_details_number_of_responses`, `iox2_server_details_ptr`, `iox2_server_details_request_buffer_size`, `iox2_server_details_server_id`, `iox2_unique_server_id_h`
   - Julia: `src/generated/handles.jl` (ServerDetailsView), `src/config.jl` (list_servers). Per-field accessors not wrapped yet.
@@ -139,7 +139,7 @@ Notes:
   - Julia: `src/generated/handles.jl` (SubscriberDetailsView), `src/config.jl` (list_subscribers). Per-field accessors not wrapped yet.
 - `writer_details.cpp`
   - C: `iox2_node_id_clone_from_ptr`, `iox2_node_id_h`, `iox2_unique_writer_id_h`, `iox2_writer_details_node_id`, `iox2_writer_details_ptr`, `iox2_writer_details_writer_id`
-  - Julia: `src/generated/handles.jl` (WriterDetailsView), `src/config.jl` (list_writers). Per-field accessors not wrapped yet.
+  - Julia: `src/generated/handles.jl` (EntryWriterDetailsView), `src/config.jl` (list_writers). Per-field accessors not wrapped yet.
 
 ## logging
 - `log.cpp`

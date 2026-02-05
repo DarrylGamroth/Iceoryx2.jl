@@ -560,11 +560,11 @@ const iox2_active_request_h_ref = Ptr{iox2_active_request_h}
 Sample header used by `MessagingPattern::RequestResponse`
 """
 struct iox2_request_header_storage_t
-    data::NTuple{64, UInt8}
+    data::NTuple{48, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_request_header_storage_t}, f::Symbol)
-    f === :internal && return Ptr{NTuple{64, UInt8}}(x + 0)
+    f === :internal && return Ptr{NTuple{48, UInt8}}(x + 0)
     return getfield(x, f)
 end
 
@@ -588,12 +588,12 @@ function Base.propertynames(x::iox2_request_header_storage_t, private::Bool = fa
 end
 
 struct iox2_request_header_t
-    data::NTuple{72, UInt8}
+    data::NTuple{56, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_request_header_t}, f::Symbol)
     f === :value && return Ptr{iox2_request_header_storage_t}(x + 0)
-    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 64)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 48)
     return getfield(x, f)
 end
 
@@ -3548,11 +3548,11 @@ const iox2_response_h_ref = Ptr{iox2_response_h}
 Response header used by `MessagingPattern::RequestResponse`
 """
 struct iox2_response_header_storage_t
-    data::NTuple{56, UInt8}
+    data::NTuple{48, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_response_header_storage_t}, f::Symbol)
-    f === :internal && return Ptr{NTuple{56, UInt8}}(x + 0)
+    f === :internal && return Ptr{NTuple{48, UInt8}}(x + 0)
     return getfield(x, f)
 end
 
@@ -3576,12 +3576,12 @@ function Base.propertynames(x::iox2_response_header_storage_t, private::Bool = f
 end
 
 struct iox2_response_header_t
-    data::NTuple{64, UInt8}
+    data::NTuple{56, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_response_header_t}, f::Symbol)
     f === :value && return Ptr{iox2_response_header_storage_t}(x + 0)
-    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 56)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 48)
     return getfield(x, f)
 end
 

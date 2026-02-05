@@ -7,10 +7,26 @@ const _DROP_RE = r"^function iox2_([a-z0-9_]+)_drop\b"m
 const _ENUM_RE = r"^@cenum\s+iox2_([a-z0-9_]+)_(error|failure)_e\b"m
 const _ERRSTR_RE = r"^function iox2_([a-z0-9_]+)_(error|failure)_(string|create_error_string)\b"m
 
+const _RENAMED_TYPES = Dict(
+    "reader" => "EntryReader",
+    "writer" => "EntryWriter",
+    "reader_details" => "EntryReaderDetails",
+    "writer_details" => "EntryWriterDetails",
+    "unique_reader_id" => "UniqueEntryReaderId",
+    "unique_writer_id" => "UniqueEntryWriterId",
+)
+
+const _RENAMED_ERRORS = Dict(
+    "reader_create" => "EntryReaderCreate",
+    "writer_create" => "EntryWriterCreate",
+)
+
 function _camelcase(name::AbstractString)
     parts = split(name, '_')
     return join(uppercasefirst.(parts))
 end
+
+@inline _type_name(base::AbstractString) = get(_RENAMED_TYPES, base, _camelcase(base))
 
 function _collect_basenames(regex::Regex, text::AbstractString)
     return Set(String(m.captures[1]) for m in eachmatch(regex, text))
@@ -45,13 +61,13 @@ function generate_handles(ffi_text::AbstractString, out_path::AbstractString; ig
     println(io)
 
     for base in owning
-        tname = _camelcase(base)
+        tname = _type_name(base)
         dropfn = "iox2_$(base)_drop"
         println(io, "mutable struct $tname")
         println(io, "    handle::Iceoryx2FFI.iox2_$(base)_h")
         println(io, "    function $tname(handle::Iceoryx2FFI.iox2_$(base)_h)")
         println(io, "        obj = new(handle)")
-        println(io, "        finalizer(_finalize_$tname, obj)")
+        println(io, "        finalizer(Base.close, obj)")
         println(io, "        return obj")
         println(io, "    end")
         println(io, "end")
@@ -60,7 +76,7 @@ function generate_handles(ffi_text::AbstractString, out_path::AbstractString; ig
         println(io, "@inline Base.isvalid(obj::$tname) = obj.handle != _IOX2_NULL")
         println(io, "@inline invalidate!(obj::$tname) = (obj.handle = _IOX2_NULL)")
         println(io)
-        println(io, "function _finalize_$tname(obj::$tname)")
+        println(io, "function Base.close(obj::$tname)")
         println(io, "    if obj.handle != _IOX2_NULL")
         println(io, "        Iceoryx2FFI.$dropfn(obj.handle)")
         println(io, "        obj.handle = _IOX2_NULL")
@@ -68,15 +84,10 @@ function generate_handles(ffi_text::AbstractString, out_path::AbstractString; ig
         println(io, "    return nothing")
         println(io, "end")
         println(io)
-        println(io, "function Base.close(obj::$tname)")
-        println(io, "    _finalize_$tname(obj)")
-        println(io, "    return nothing")
-        println(io, "end")
-        println(io)
     end
 
     for base in ref_list
-        tname = _camelcase(base) * "Ref"
+        tname = _type_name(base) * "Ref"
         println(io, "struct $tname")
         println(io, "    handle::Iceoryx2FFI.iox2_$(base)_h_ref")
         println(io, "end")
@@ -87,7 +98,7 @@ function generate_handles(ffi_text::AbstractString, out_path::AbstractString; ig
     end
 
     for base in ptr_list
-        tname = _camelcase(base) * "View"
+        tname = _type_name(base) * "View"
         println(io, "struct $tname")
         println(io, "    ptr::Iceoryx2FFI.iox2_$(base)_ptr")
         println(io, "end")
@@ -129,7 +140,8 @@ function generate_errors(ffi_text::AbstractString, out_path::AbstractString)
 
     for (base, kind) in enums
         enum_type = "Iceoryx2FFI.iox2_$(base)_$(kind)_e"
-        tname = _camelcase(base) * uppercasefirst(kind)
+        base_name = get(_RENAMED_ERRORS, base, _camelcase(base))
+        tname = base_name * uppercasefirst(kind)
         println(io, "struct $tname <: Exception")
         println(io, "    code::$enum_type")
         println(io, "    message::String")
@@ -147,7 +159,8 @@ function generate_errors(ffi_text::AbstractString, out_path::AbstractString)
 
     for (base, kind) in enums
         enum_type = "Iceoryx2FFI.iox2_$(base)_$(kind)_e"
-        tname = _camelcase(base) * uppercasefirst(kind)
+        base_name = get(_RENAMED_ERRORS, base, _camelcase(base))
+        tname = base_name * uppercasefirst(kind)
         println(io, "@inline function check_ok(code::Cint, ::Type{$enum_type})")
         println(io, "    if code == _IOX2_OK")
         println(io, "        return nothing")

@@ -453,19 +453,19 @@ function _notifier_details_cfunction(::T) where {T<:AbstractNotifierDetailsHandl
     )
 end
 
-abstract type AbstractReaderDetailsHandler end
+abstract type AbstractEntryReaderDetailsHandler end
 
-mutable struct ReaderDetailsHandler{T} <: AbstractReaderDetailsHandler
+mutable struct EntryReaderDetailsHandler{T} <: AbstractEntryReaderDetailsHandler
     on_details::T
 end
 
-on_reader_details(h::ReaderDetailsHandler) = h.on_details
+on_reader_details(h::EntryReaderDetailsHandler) = h.on_details
 
-function _reader_details_wrapper(handler::AbstractReaderDetailsHandler, details_ptr::Iceoryx2FFI.iox2_reader_details_ptr)
-    return _callback_progression(on_reader_details(handler)(ReaderDetailsView(details_ptr)))
+function _reader_details_wrapper(handler::AbstractEntryReaderDetailsHandler, details_ptr::Iceoryx2FFI.iox2_reader_details_ptr)
+    return _callback_progression(on_reader_details(handler)(EntryReaderDetailsView(details_ptr)))
 end
 
-function _reader_details_cfunction(::T) where {T<:AbstractReaderDetailsHandler}
+function _reader_details_cfunction(::T) where {T<:AbstractEntryReaderDetailsHandler}
     @cfunction(
         _reader_details_wrapper,
         Iceoryx2FFI.iox2_callback_progression_e,
@@ -473,19 +473,19 @@ function _reader_details_cfunction(::T) where {T<:AbstractReaderDetailsHandler}
     )
 end
 
-abstract type AbstractWriterDetailsHandler end
+abstract type AbstractEntryWriterDetailsHandler end
 
-mutable struct WriterDetailsHandler{T} <: AbstractWriterDetailsHandler
+mutable struct EntryWriterDetailsHandler{T} <: AbstractEntryWriterDetailsHandler
     on_details::T
 end
 
-on_writer_details(h::WriterDetailsHandler) = h.on_details
+on_writer_details(h::EntryWriterDetailsHandler) = h.on_details
 
-function _writer_details_wrapper(handler::AbstractWriterDetailsHandler, details_ptr::Iceoryx2FFI.iox2_writer_details_ptr)
-    return _callback_progression(on_writer_details(handler)(WriterDetailsView(details_ptr)))
+function _writer_details_wrapper(handler::AbstractEntryWriterDetailsHandler, details_ptr::Iceoryx2FFI.iox2_writer_details_ptr)
+    return _callback_progression(on_writer_details(handler)(EntryWriterDetailsView(details_ptr)))
 end
 
-function _writer_details_cfunction(::T) where {T<:AbstractWriterDetailsHandler}
+function _writer_details_cfunction(::T) where {T<:AbstractEntryWriterDetailsHandler}
     @cfunction(
         _writer_details_wrapper,
         Iceoryx2FFI.iox2_callback_progression_e,
@@ -701,9 +701,9 @@ end
     list_readers(factory, handler)
     list_readers(f::Function, factory)
 
-Iterate over reader details for a blackboard.
+Iterate over entry reader details for a blackboard.
 """
-function list_readers(factory::PortFactoryBlackboard{S,K}, handler::AbstractReaderDetailsHandler) where {S,K}
+function list_readers(factory::PortFactoryBlackboard{S,K}, handler::AbstractEntryReaderDetailsHandler) where {S,K}
     handler_ref = Ref(handler)
     GC.@preserve handler_ref begin
         Iceoryx2FFI.iox2_port_factory_blackboard_dynamic_config_list_readers(
@@ -716,16 +716,16 @@ function list_readers(factory::PortFactoryBlackboard{S,K}, handler::AbstractRead
 end
 
 function list_readers(f::Function, factory::PortFactoryBlackboard{S,K}) where {S,K}
-    return list_readers(factory, ReaderDetailsHandler(f))
+    return list_readers(factory, EntryReaderDetailsHandler(f))
 end
 
 """
     list_writers(factory, handler)
     list_writers(f::Function, factory)
 
-Iterate over writer details for a blackboard.
+Iterate over entry writer details for a blackboard.
 """
-function list_writers(factory::PortFactoryBlackboard{S,K}, handler::AbstractWriterDetailsHandler) where {S,K}
+function list_writers(factory::PortFactoryBlackboard{S,K}, handler::AbstractEntryWriterDetailsHandler) where {S,K}
     handler_ref = Ref(handler)
     GC.@preserve handler_ref begin
         Iceoryx2FFI.iox2_port_factory_blackboard_dynamic_config_list_writers(
@@ -738,7 +738,7 @@ function list_writers(factory::PortFactoryBlackboard{S,K}, handler::AbstractWrit
 end
 
 function list_writers(f::Function, factory::PortFactoryBlackboard{S,K}) where {S,K}
-    return list_writers(factory, WriterDetailsHandler(f))
+    return list_writers(factory, EntryWriterDetailsHandler(f))
 end
 
 # === Details accessors ===

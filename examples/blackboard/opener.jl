@@ -18,8 +18,8 @@ function main()
     reader = create(reader_builder(factory))
     entry_0 = EntryHandle(reader, Int32)
     entry_1 = EntryHandle(reader, Float64)
-    reader_entry!(reader, entry_0, key_0)
-    reader_entry!(reader, entry_1, key_1)
+    entry!(reader, entry_0, key_0)
+    entry!(reader, entry_1, key_1)
 
     try
         while true

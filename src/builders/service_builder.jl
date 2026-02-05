@@ -10,12 +10,12 @@ mutable struct ServiceBuilder{S}
     keepalive::Node{S}
     function ServiceBuilder{S}(handle, storage, keepalive) where {S}
         obj = new{S}(handle, storage, keepalive)
-        finalizer(_finalize_service_builder, obj)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-function _finalize_service_builder(builder::ServiceBuilder)
+function Base.close(builder::ServiceBuilder)
     builder.handle = _IOX2_NULL
     builder.storage = nothing
     return nothing

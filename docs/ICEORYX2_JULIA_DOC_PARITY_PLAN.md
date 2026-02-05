@@ -36,7 +36,7 @@ while remaining idiomatic Julia. This is a staged checklist so we can track prog
 - [x] Event lifecycle (`notify!`, `try_wait_one`, `wait`, `deadline`).
 
 ## Stage 6: Messaging – Blackboard
-- [x] `Reader`, `Writer`, `EntryHandle`, `EntryHandleMut`, `EntryValueUninit`.
+- [x] `EntryReader`, `EntryWriter`, `EntryHandle`, `EntryHandleMut`, `EntryValueUninit`.
 - [x] `blackboard_creator`, `blackboard_opener`, `list_keys`, `add!`.
 - [x] Key/value type detail requirements and type_name notes.
 
