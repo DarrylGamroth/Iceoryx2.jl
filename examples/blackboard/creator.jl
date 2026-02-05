@@ -21,11 +21,11 @@ function main()
     println("Blackboard created.")
 
     writer = create(writer_builder(factory))
-    entry_0 = EntryHandleMut(writer, Int32)
-    entry_1 = EntryHandleMut(writer, Float64)
-    entry!(writer, entry_0, key_0)
-    entry!(writer, entry_1, key_1)
-    value_uninit = EntryValueUninit(entry_1)
+    entry_handle_mut_0 = EntryHandleMut(writer, Int32)
+    entry_handle_mut_1 = EntryHandleMut(writer, Float64)
+    entry!(writer, entry_handle_mut_0, key_0)
+    entry!(writer, entry_handle_mut_1, key_1)
+    entry_value_uninit = EntryValueUninit(entry_handle_mut_1)
 
     counter = 0
     try
@@ -33,20 +33,20 @@ function main()
             sleep(CYCLE_SECONDS)
             counter += 1
 
-            update!(entry_0, Int32(counter))
+            update!(entry_handle_mut_0, Int32(counter))
             println("Write new value for key 0: $(counter)...")
 
-            loan_uninit!(entry_1, value_uninit)
-            value!(value_uninit, INITIAL_VALUE * counter)
-            update!(value_uninit, entry_1)
+            loan_uninit!(entry_handle_mut_1, entry_value_uninit)
+            value!(entry_value_uninit, INITIAL_VALUE * counter)
+            update!(entry_value_uninit, entry_handle_mut_1)
             println("Write new value for key 1: $(INITIAL_VALUE * counter)...\n")
         end
     catch err
         err isa InterruptException || rethrow()
     finally
-        close(value_uninit)
-        close(entry_1)
-        close(entry_0)
+        close(entry_value_uninit)
+        close(entry_handle_mut_1)
+        close(entry_handle_mut_0)
         close(writer)
         close(factory)
         close(node)
