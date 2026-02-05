@@ -59,8 +59,7 @@ function user_header(builder::PubSubServiceBuilder{S,T,Nothing}, ::Type{UH}) whe
     end
     handle = builder.handle
     storage = builder.storage
-    builder.handle = _IOX2_NULL
-    builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
+    close(builder)
     return PubSubServiceBuilder{S,T,header_type}(handle, storage, builder.keepalive)
 end
 

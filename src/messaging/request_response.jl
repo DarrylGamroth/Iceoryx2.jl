@@ -80,8 +80,7 @@ function request_user_header(builder::RequestResponseServiceBuilder{S,Req,Resp,N
     end
     handle = builder.handle
     storage = builder.storage
-    builder.handle = _IOX2_NULL
-    builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
+    close(builder)
     return RequestResponseServiceBuilder{S,Req,Resp,header_type,RespH}(handle, storage, builder.keepalive)
 end
 
@@ -108,8 +107,7 @@ function response_user_header(builder::RequestResponseServiceBuilder{S,Req,Resp,
     end
     handle = builder.handle
     storage = builder.storage
-    builder.handle = _IOX2_NULL
-    builder.storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
+    close(builder)
     return RequestResponseServiceBuilder{S,Req,Resp,ReqH,header_type}(handle, storage, builder.keepalive)
 end
 

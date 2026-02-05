@@ -109,6 +109,10 @@ end
     return nothing
 end
 
+Base.close(::PublishSubscribeHeaderRef) = nothing
+Base.close(::RequestHeaderRef) = nothing
+Base.close(::ResponseHeaderRef) = nothing
+
 Base.length(slice::Slice) = slice.len
 Base.size(slice::Slice) = (slice.len,)
 Base.axes(slice::Slice) = (Base.OneTo(slice.len),)

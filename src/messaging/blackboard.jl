@@ -756,7 +756,3 @@ end
 @inline Base.isvalid(obj::EntryHandle) = obj.handle_ref[] != _IOX2_NULL
 @inline Base.isvalid(obj::EntryHandleMut) = obj.handle_ref[] != _IOX2_NULL
 @inline Base.isvalid(obj::EntryValueUninit) = obj.handle_ref[] != _IOX2_NULL
-
-Base.close(::PublishSubscribeHeaderRef) = nothing
-Base.close(::RequestHeaderRef) = nothing
-Base.close(::ResponseHeaderRef) = nothing
