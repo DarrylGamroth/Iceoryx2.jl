@@ -32,7 +32,6 @@ Create a new blackboard service.
 """
 function create(builder::BlackboardCreatorBuilder{S,K}) where {S,K}
     _require_valid(builder.handle, "blackboard creator")
-    _require_isbits(K)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_blackboard_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_blackboard_create(builder.handle, storage, handle_ref)
@@ -59,7 +58,6 @@ Open an existing blackboard service.
 """
 function open(builder::BlackboardOpenerBuilder{S,K}) where {S,K}
     _require_valid(builder.handle, "blackboard opener")
-    _require_isbits(K)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_blackboard_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_blackboard_open(builder.handle, storage, handle_ref)
@@ -343,6 +341,8 @@ mutable struct EntryHandle{S,K,V}
     storage::Base.RefValue{Iceoryx2FFI.iox2_entry_handle_t}
     keepalive::EntryReader{S,K}
     function EntryHandle{S,K,V}(handle_ref, storage, keepalive) where {S,K,V}
+        _require_isbits(K)
+        _require_isbits(V)
         obj = new{S,K,V}(handle_ref, storage, keepalive)
         finalizer(Base.close, obj)
         return obj
@@ -373,6 +373,8 @@ mutable struct EntryHandleMut{S,K,V}
     storage::Base.RefValue{Iceoryx2FFI.iox2_entry_handle_mut_t}
     keepalive::EntryWriter{S,K}
     function EntryHandleMut{S,K,V}(handle_ref, storage, keepalive) where {S,K,V}
+        _require_isbits(K)
+        _require_isbits(V)
         obj = new{S,K,V}(handle_ref, storage, keepalive)
         finalizer(Base.close, obj)
         return obj
@@ -403,6 +405,8 @@ mutable struct EntryValueUninit{S,K,V}
     storage::Base.RefValue{Iceoryx2FFI.iox2_entry_value_uninit_t}
     keepalive::EntryWriter{S,K}
     function EntryValueUninit{S,K,V}(handle_ref, storage, keepalive) where {S,K,V}
+        _require_isbits(K)
+        _require_isbits(V)
         obj = new{S,K,V}(handle_ref, storage, keepalive)
         finalizer(Base.close, obj)
         return obj
@@ -512,8 +516,6 @@ Acquire a reader entry handle for a given key.
 """
 function entry!(reader::EntryReader{S,K}, entry::EntryHandle{S,K,V}, key::K) where {S,K,V}
     _require_valid(reader.handle, "reader")
-    _require_isbits(K)
-    _require_isbits(V)
     _require_inactive(entry, "entry handle")
     entry.handle_ref[] = _IOX2_NULL
     key_ref = Ref{K}(key)
@@ -546,8 +548,6 @@ end
 
 function try_entry!(reader::EntryReader{S,K}, entry::EntryHandle{S,K,V}, key::K) where {S,K,V}
     _require_valid(reader.handle, "reader")
-    _require_isbits(K)
-    _require_isbits(V)
     _require_inactive(entry, "entry handle")
     entry.handle_ref[] = _IOX2_NULL
     key_ref = Ref{K}(key)
@@ -589,8 +589,6 @@ Acquire a writer entry handle for a given key.
 """
 function entry!(writer::EntryWriter{S,K}, entry::EntryHandleMut{S,K,V}, key::K) where {S,K,V}
     _require_valid(writer.handle, "writer")
-    _require_isbits(K)
-    _require_isbits(V)
     _require_inactive(entry, "entry handle mut")
     entry.handle_ref[] = _IOX2_NULL
     key_ref = Ref{K}(key)
@@ -623,8 +621,6 @@ end
 
 function try_entry!(writer::EntryWriter{S,K}, entry::EntryHandleMut{S,K,V}, key::K) where {S,K,V}
     _require_valid(writer.handle, "writer")
-    _require_isbits(K)
-    _require_isbits(V)
     _require_inactive(entry, "entry handle mut")
     entry.handle_ref[] = _IOX2_NULL
     key_ref = Ref{K}(key)

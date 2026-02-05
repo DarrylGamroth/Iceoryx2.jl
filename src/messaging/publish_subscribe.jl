@@ -103,7 +103,6 @@ Open an existing publish/subscribe service or create it if missing.
 """
 function open_or_create(builder::PubSubServiceBuilder{S,T,UH}) where {S,T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
-    _require_isbits(T)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_pub_sub_open_or_create(builder.handle, storage, handle_ref)
@@ -114,7 +113,6 @@ end
 
 function open_or_create(builder::PubSubServiceBuilder{S,T,UH}, verifier::AttributeVerifier) where {S,T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
-    _require_isbits(T)
     _require_valid(unsafe_handle(verifier), "attribute verifier")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(_IOX2_NULL)
@@ -136,7 +134,6 @@ Open an existing publish/subscribe service.
 """
 function open(builder::PubSubServiceBuilder{S,T,UH}) where {S,T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
-    _require_isbits(T)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_pub_sub_open(builder.handle, storage, handle_ref)
@@ -147,7 +144,6 @@ end
 
 function open(builder::PubSubServiceBuilder{S,T,UH}, verifier::AttributeVerifier) where {S,T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
-    _require_isbits(T)
     _require_valid(unsafe_handle(verifier), "attribute verifier")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(_IOX2_NULL)
@@ -169,7 +165,6 @@ Create a new publish/subscribe service.
 """
 function create(builder::PubSubServiceBuilder{S,T,UH}) where {S,T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
-    _require_isbits(T)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_pub_sub_create(builder.handle, storage, handle_ref)
@@ -180,7 +175,6 @@ end
 
 function create(builder::PubSubServiceBuilder{S,T,UH}, specifier::AttributeSpecifier) where {S,T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
-    _require_isbits(T)
     _require_valid(unsafe_handle(specifier), "attribute specifier")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(_IOX2_NULL)
@@ -285,7 +279,6 @@ Create a publisher builder from a publish/subscribe factory.
 """
 function publisher_builder(factory::PortFactoryPubSub{S,T,UH}) where {S,T,UH}
     _require_valid(factory.handle, "publish_subscribe port factory")
-    _require_isbits(T)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_publisher_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_pub_sub_publisher_builder(Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle), storage)
     return PublisherBuilder{S,T,UH}(handle, storage, factory)
@@ -331,7 +324,6 @@ Create a subscriber builder from a publish/subscribe factory.
 """
 function subscriber_builder(factory::PortFactoryPubSub{S,T,UH}) where {S,T,UH}
     _require_valid(factory.handle, "publish_subscribe port factory")
-    _require_isbits(T)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_subscriber_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_pub_sub_subscriber_builder(Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle), storage)
     return SubscriberBuilder{S,T,UH}(handle, storage, factory)
@@ -835,14 +827,12 @@ function send_copy(publisher::Publisher{S,T,UH}, data::Ptr{T}, n::Integer) where
 end
 
 function send_copy(publisher::Publisher{S,T,UH}, data::AbstractVector{T}) where {S,T,UH}
-    _require_isbits(T)
     GC.@preserve data begin
         return send_copy(publisher, pointer(data), length(data))
     end
 end
 
 function send_copy(publisher::Publisher{S,T,UH}, value::T) where {S,T,UH}
-    _require_isbits(T)
     value_ref = Ref{T}(value)
     GC.@preserve value_ref begin
         return send_copy(publisher, Base.unsafe_convert(Ptr{T}, value_ref), 1)

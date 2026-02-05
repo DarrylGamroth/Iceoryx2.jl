@@ -150,8 +150,6 @@ Open an existing request/response service or create it if missing.
 """
 function open_or_create(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request_response service builder")
-    _require_isbits(Req)
-    _require_isbits(Resp)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_request_response_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_request_response_open_or_create(builder.handle, storage, handle_ref)
@@ -162,8 +160,6 @@ end
 
 function open_or_create(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}, verifier::AttributeVerifier) where {S,Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request_response service builder")
-    _require_isbits(Req)
-    _require_isbits(Resp)
     _require_valid(unsafe_handle(verifier), "attribute verifier")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_request_response_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(_IOX2_NULL)
@@ -185,8 +181,6 @@ Open an existing request/response service.
 """
 function open(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request_response service builder")
-    _require_isbits(Req)
-    _require_isbits(Resp)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_request_response_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_request_response_open(builder.handle, storage, handle_ref)
@@ -197,8 +191,6 @@ end
 
 function open(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}, verifier::AttributeVerifier) where {S,Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request_response service builder")
-    _require_isbits(Req)
-    _require_isbits(Resp)
     _require_valid(unsafe_handle(verifier), "attribute verifier")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_request_response_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(_IOX2_NULL)
@@ -220,8 +212,6 @@ Create a new request/response service.
 """
 function create(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request_response service builder")
-    _require_isbits(Req)
-    _require_isbits(Resp)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_request_response_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_service_builder_request_response_create(builder.handle, storage, handle_ref)
@@ -232,8 +222,6 @@ end
 
 function create(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,RespH}, specifier::AttributeSpecifier) where {S,Req,Resp,ReqH,RespH}
     _require_valid(builder.handle, "request_response service builder")
-    _require_isbits(Req)
-    _require_isbits(Resp)
     _require_valid(unsafe_handle(specifier), "attribute specifier")
     storage = Ref{Iceoryx2FFI.iox2_port_factory_request_response_t}()
     handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(_IOX2_NULL)
@@ -338,8 +326,6 @@ Create a client builder from a request/response factory.
 """
 function client_builder(factory::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     _require_valid(factory.handle, "request_response port factory")
-    _require_isbits(Req)
-    _require_isbits(Resp)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_client_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_request_response_client_builder(Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle), storage)
     return ClientBuilder{S,Req,Resp,ReqH,RespH}(handle, storage, factory)
@@ -374,8 +360,6 @@ Create a server builder from a request/response factory.
 """
 function server_builder(factory::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}) where {S,Req,Resp,ReqH,RespH}
     _require_valid(factory.handle, "request_response port factory")
-    _require_isbits(Req)
-    _require_isbits(Resp)
     storage = Ref{Iceoryx2FFI.iox2_port_factory_server_builder_t}()
     handle = Iceoryx2FFI.iox2_port_factory_request_response_server_builder(Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle), storage)
     return ServerBuilder{S,Req,Resp,ReqH,RespH}(handle, storage, factory)
@@ -887,7 +871,6 @@ function send_copy!(
     data::AbstractVector{Req},
     pending::PendingResponse{Resp,ReqH,RespH},
 ) where {S,Req,Resp,ReqH,RespH}
-    _require_isbits(Req)
     GC.@preserve data begin
         return send_copy!(client, pointer(data), length(data), pending)
     end
@@ -898,7 +881,6 @@ function send_copy!(
     value::Req,
     pending::PendingResponse{Resp,ReqH,RespH},
 ) where {S,Req,Resp,ReqH,RespH}
-    _require_isbits(Req)
     value_ref = Ref{Req}(value)
     GC.@preserve value_ref begin
         return send_copy!(client, Base.unsafe_convert(Ptr{Req}, value_ref), 1, pending)
