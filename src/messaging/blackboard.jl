@@ -42,8 +42,35 @@ function create(builder::BlackboardCreatorBuilder{S,K}) where {S,K}
     return PortFactoryBlackboard{S,K}(handle_ref[], storage, builder.keepalive, values)
 end
 
+function create(builder::BlackboardCreatorBuilder{S,K}, specifier::AttributeSpecifier) where {S,K}
+    _require_valid(builder.handle, "blackboard creator")
+    _require_valid(unsafe_handle(specifier), "attribute specifier")
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_blackboard_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(_IOX2_NULL)
+    ret = Iceoryx2FFI.iox2_service_builder_blackboard_create_with_attributes(
+        builder.handle,
+        Ref{Iceoryx2FFI.iox2_attribute_specifier_h}(unsafe_handle(specifier)),
+        storage,
+        handle_ref,
+    )
+    check_ok(ret, Iceoryx2FFI.iox2_blackboard_create_error_e)
+    values = builder.values
+    builder.values = Any[]
+    close(builder)
+    return PortFactoryBlackboard{S,K}(handle_ref[], storage, builder.keepalive, values)
+end
+
 function create(f::Function, builder::BlackboardCreatorBuilder{S,K}) where {S,K}
     factory = create(builder)
+    try
+        return f(factory)
+    finally
+        close(factory)
+    end
+end
+
+function create(f::Function, builder::BlackboardCreatorBuilder{S,K}, specifier::AttributeSpecifier) where {S,K}
+    factory = create(builder, specifier)
     try
         return f(factory)
     finally
@@ -66,6 +93,22 @@ function open(builder::BlackboardOpenerBuilder{S,K}) where {S,K}
     return PortFactoryBlackboard{S,K}(handle_ref[], storage, builder.keepalive, Any[])
 end
 
+function open(builder::BlackboardOpenerBuilder{S,K}, verifier::AttributeVerifier) where {S,K}
+    _require_valid(builder.handle, "blackboard opener")
+    _require_valid(unsafe_handle(verifier), "attribute verifier")
+    storage = Ref{Iceoryx2FFI.iox2_port_factory_blackboard_t}()
+    handle_ref = Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(_IOX2_NULL)
+    ret = Iceoryx2FFI.iox2_service_builder_blackboard_open_with_attributes(
+        builder.handle,
+        Ref{Iceoryx2FFI.iox2_attribute_verifier_h}(unsafe_handle(verifier)),
+        storage,
+        handle_ref,
+    )
+    check_ok(ret, Iceoryx2FFI.iox2_blackboard_open_error_e)
+    close(builder)
+    return PortFactoryBlackboard{S,K}(handle_ref[], storage, builder.keepalive, Any[])
+end
+
 function open(f::Function, builder::BlackboardOpenerBuilder{S,K}) where {S,K}
     factory = open(builder)
     try
@@ -74,6 +117,20 @@ function open(f::Function, builder::BlackboardOpenerBuilder{S,K}) where {S,K}
         close(factory)
     end
 end
+
+function open(f::Function, builder::BlackboardOpenerBuilder{S,K}, verifier::AttributeVerifier) where {S,K}
+    factory = open(builder, verifier)
+    try
+        return f(factory)
+    finally
+        close(factory)
+    end
+end
+
+open_with_attributes(builder::BlackboardOpenerBuilder{S,K}, verifier::AttributeVerifier) where {S,K} = open(builder, verifier)
+open_with_attributes(f::Function, builder::BlackboardOpenerBuilder{S,K}, verifier::AttributeVerifier) where {S,K} = open(f, builder, verifier)
+create_with_attributes(builder::BlackboardCreatorBuilder{S,K}, specifier::AttributeSpecifier) where {S,K} = create(builder, specifier)
+create_with_attributes(f::Function, builder::BlackboardCreatorBuilder{S,K}, specifier::AttributeSpecifier) where {S,K} = create(f, builder, specifier)
 
 function _set_key_type!(builder::BlackboardCreatorBuilder{S,K}, ::Type{K}) where {S,K}
     _require_valid(builder.handle, "blackboard creator")
