@@ -3,6 +3,7 @@ include(joinpath(@__DIR__, "..", "common", "imports.jl"))
 include(joinpath(@__DIR__, "blackboard_complex_key.jl"))
 
 const CYCLE_SECONDS = 1
+const INITIAL_VALUE::Float64 = 1.1
 
 function main()
     set_log_level_from_env_or(:info)
@@ -10,12 +11,11 @@ function main()
 
     key_0 = BlackboardKey(Int32(0), Int32(-4), Int32(4))
     key_1 = BlackboardKey(Int32(1), Int32(-4), Int32(4))
-    initial_value = 1.1
 
     builder = service_builder(node, "My/Funk/ServiceName")
     bb_builder = blackboard_creator(builder, BlackboardKey)
     add!(bb_builder, key_0, Int32(3))
-    add!(bb_builder, key_1, initial_value)
+    add!(bb_builder, key_1, INITIAL_VALUE)
     factory = create(bb_builder)
 
     println("Blackboard created.")
@@ -37,9 +37,9 @@ function main()
             println("Write new value for key 0: $(counter)...")
 
             loan_uninit!(entry_1, value_uninit)
-            value!(value_uninit, initial_value * counter)
+            value!(value_uninit, INITIAL_VALUE * counter)
             update!(value_uninit, entry_1)
-            println("Write new value for key 1: $(initial_value * counter)...\n")
+            println("Write new value for key 1: $(INITIAL_VALUE * counter)...\n")
         end
     catch err
         err isa InterruptException || rethrow()

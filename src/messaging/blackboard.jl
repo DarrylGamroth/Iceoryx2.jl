@@ -452,7 +452,12 @@ function loan_uninit!(f::Function, entry::EntryHandleMut{S,K,V}, value::EntryVal
     end
 end
 
-@inline function value_mut(value::EntryValueUninit{S,K,V}) where {S,K,V}
+"""
+    unsafe_value_mut_ptr(value::EntryValueUninit) -> Ptr
+
+Return a raw pointer to the uninitialized value slot (unsafe).
+"""
+@inline function unsafe_value_mut_ptr(value::EntryValueUninit{S,K,V}) where {S,K,V}
     ptr_ref = Ref{Ptr{Cvoid}}()
     Iceoryx2FFI.iox2_entry_value_uninit_value_mut(
         value.handle_ref,
@@ -467,7 +472,7 @@ end
 Write data into the uninitialized value slot.
 """
 @inline function value!(value::EntryValueUninit{S,K,V}, data::V) where {S,K,V}
-    ptr = value_mut(value)
+    ptr = unsafe_value_mut_ptr(value)
     unsafe_store!(ptr, data)
     return value
 end
