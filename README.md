@@ -51,3 +51,11 @@ Iceoryx2.type_name(::Type{MyType}) = "MyType"
 ```bash
 julia --project -e 'using Pkg; Pkg.test()'
 ```
+
+## Generated files
+
+CI verifies the generated bindings are up to date. Regenerate with:
+
+```bash
+julia --project=gen gen/gen-bindings.jl
+```
