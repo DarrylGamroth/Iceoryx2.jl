@@ -43,7 +43,7 @@ Set the user header type for the service builder.
 """
 function user_header(builder::PubSubServiceBuilder{S,T,Nothing}, ::Type{UH}) where {S,T,UH}
     _require_valid(builder.handle, "publish_subscribe service builder")
-    variant = _variant_type(UH)
+    variant = _fixed_header_variant(UH, "user header type")
     header_type = _payload_type(UH)
     name, name_len, size, alignment = _type_details(header_type)
     GC.@preserve name begin

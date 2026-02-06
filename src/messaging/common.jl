@@ -6,6 +6,14 @@ _variant_type(::Type{T}) where {T<:Tuple} = iox2_type_variant_e_FIXED_SIZE
 _payload_type(::Type{T}) where {T} = T
 _payload_type(::Type{T}) where {T<:AbstractArray} = eltype(T)
 
+@inline function _fixed_header_variant(::Type{T}, what::AbstractString) where {T}
+    variant = _variant_type(T)
+    if variant != iox2_type_variant_e_FIXED_SIZE
+        throw(ArgumentError("$what must be fixed-size; dynamic header variants are currently unsupported"))
+    end
+    return variant
+end
+
 _allocation_strategy(value::Iceoryx2FFI.iox2_allocation_strategy_e) = value
 
 @inline function _allocation_strategy(value::Symbol)

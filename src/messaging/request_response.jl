@@ -65,7 +65,7 @@ end
 function request_user_header(builder::RequestResponseServiceBuilder{S,Req,Resp,Nothing,RespH}, ::Type{H}) where {S,Req,Resp,RespH,H}
     _require_valid(builder.handle, "request/response service builder")
     header_type = _payload_type(H)
-    variant = _variant_type(H)
+    variant = _fixed_header_variant(H, "request user header type")
     name, name_len, size, alignment = _type_details(header_type)
     GC.@preserve name begin
         ret = Iceoryx2FFI.iox2_service_builder_request_response_set_request_header_type_details(
@@ -92,7 +92,7 @@ end
 function response_user_header(builder::RequestResponseServiceBuilder{S,Req,Resp,ReqH,Nothing}, ::Type{H}) where {S,Req,Resp,ReqH,H}
     _require_valid(builder.handle, "request/response service builder")
     header_type = _payload_type(H)
-    variant = _variant_type(H)
+    variant = _fixed_header_variant(H, "response user header type")
     name, name_len, size, alignment = _type_details(header_type)
     GC.@preserve name begin
         ret = Iceoryx2FFI.iox2_service_builder_request_response_set_response_header_type_details(
