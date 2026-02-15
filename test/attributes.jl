@@ -37,6 +37,13 @@
     Iceoryx2.define!(specifier, "key_b", "value_b")
     spec_attrs = Iceoryx2.attributes(specifier)
     @test Iceoryx2.number_of_attributes(spec_attrs) == 2
+    @test length(spec_attrs) == Iceoryx2.number_of_attributes(spec_attrs)
+    @test firstindex(spec_attrs) == 1
+    @test lastindex(spec_attrs) == length(spec_attrs)
+    @test eltype(spec_attrs) == Iceoryx2.AttributeRef
+    @test eltype(typeof(spec_attrs)) == Iceoryx2.AttributeRef
+    @test collect(spec_attrs) isa Vector{Iceoryx2.AttributeRef}
+    @test length(collect(spec_attrs)) == length(spec_attrs)
     @test Set([Iceoryx2.key(spec_attrs[1]), Iceoryx2.key(spec_attrs[2])]) == Set(["key_a", "key_b"])
     @test Set([Iceoryx2.value(spec_attrs[1]), Iceoryx2.value(spec_attrs[2])]) == Set(["value_a", "value_b"])
 

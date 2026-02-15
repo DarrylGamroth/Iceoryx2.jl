@@ -175,6 +175,17 @@ Return the number of attributes in the set.
     return Int(Iceoryx2FFI.iox2_attribute_set_number_of_attributes(_attribute_set_ptr(attrs)))
 end
 
+Base.length(attrs::Union{AttributeSet, AttributeSetView}) = number_of_attributes(attrs)
+Base.firstindex(::Union{AttributeSet, AttributeSetView}) = 1
+Base.lastindex(attrs::Union{AttributeSet, AttributeSetView}) = length(attrs)
+Base.eltype(::Type{AttributeSet}) = AttributeRef
+Base.eltype(::Type{AttributeSetView}) = AttributeRef
+
+function Base.iterate(attrs::Union{AttributeSet, AttributeSetView}, state::Int = 1)
+    state > length(attrs) && return nothing
+    return attrs[state], state + 1
+end
+
 """
     getindex(attrs, index) -> AttributeRef
 
