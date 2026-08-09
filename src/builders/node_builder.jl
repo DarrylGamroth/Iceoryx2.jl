@@ -11,17 +11,19 @@ mutable struct NodeBuilder
     name_handle::Iceoryx2FFI.iox2_node_name_h
     config_ptr::Iceoryx2FFI.iox2_config_h_ref
     config_storage::Base.RefValue{Iceoryx2FFI.iox2_config_h}
-    config_keepalive::Union{Config,Nothing}
-    signal_handling_mode::Iceoryx2FFI.iox2_signal_handling_mode_e
+    config_keepalive::Union{Config, Nothing}
+    signal_handling_mode::SignalHandlingMode
     has_signal_handling_mode::Bool
-    function NodeBuilder(handle, storage, name_handle, config_ptr, config_storage, config_keepalive, signal_handling_mode, has_signal_handling_mode)
-        obj = new(handle, storage, name_handle, config_ptr, config_storage, config_keepalive, signal_handling_mode, has_signal_handling_mode)
-        finalizer(_finalize_node_builder, obj)
+    function NodeBuilder(handle, storage, name_handle, config_ptr, config_storage,
+            config_keepalive, signal_handling_mode, has_signal_handling_mode)
+        obj = new(handle, storage, name_handle, config_ptr, config_storage,
+            config_keepalive, signal_handling_mode, has_signal_handling_mode)
+        finalizer(Base.close, obj)
         return obj
     end
 end
 
-function _finalize_node_builder(builder::NodeBuilder)
+function Base.close(builder::NodeBuilder)
     if builder.name_handle != _IOX2_NULL
         Iceoryx2FFI.iox2_node_name_drop(builder.name_handle)
         builder.name_handle = _IOX2_NULL
@@ -53,8 +55,8 @@ function NodeBuilder()
         _IOX2_NULL,
         config_storage,
         nothing,
-        Iceoryx2FFI.iox2_signal_handling_mode_e_HANDLE_TERMINATION_REQUESTS,
-        false,
+        SignalHandlingModeHandleTerminationRequests,
+        false
     )
 end
 
@@ -98,7 +100,8 @@ end
 function name!(builder::NodeBuilder, name::NodeNameView)
     _require_valid(builder.handle, "node builder")
     _clear_node_builder_name!(builder)
-    Iceoryx2FFI.iox2_node_builder_set_name(Ref{Iceoryx2FFI.iox2_node_builder_h}(builder.handle), unsafe_handle(name))
+    Iceoryx2FFI.iox2_node_builder_set_name(
+        Ref{Iceoryx2FFI.iox2_node_builder_h}(builder.handle), unsafe_handle(name))
     return builder
 end
 
@@ -135,9 +138,11 @@ end
 
 Set the signal handling mode applied at `create`.
 """
-function signal_handling_mode!(builder::NodeBuilder, mode::Iceoryx2FFI.iox2_signal_handling_mode_e)
+function signal_handling_mode!(builder::NodeBuilder, mode::Union{
+        Symbol, SignalHandlingMode})
     _require_valid(builder.handle, "node builder")
-    builder.signal_handling_mode = mode
+    builder.signal_handling_mode = mode isa SignalHandlingMode ? mode :
+                                   _signal_handling_mode_enum(_signal_handling_mode(mode))
     builder.has_signal_handling_mode = true
     return builder
 end
@@ -156,18 +161,21 @@ function create(builder::NodeBuilder, service_type::ServiceType)
         builder.name_handle = _IOX2_NULL
     end
     if builder.config_ptr != _IOX2_NULL
-        Iceoryx2FFI.iox2_node_builder_set_config(Ref{Iceoryx2FFI.iox2_node_builder_h}(builder.handle), builder.config_ptr)
+        Iceoryx2FFI.iox2_node_builder_set_config(
+            Ref{Iceoryx2FFI.iox2_node_builder_h}(builder.handle), builder.config_ptr)
         _clear_node_builder_config!(builder)
     end
     if builder.has_signal_handling_mode
-        Iceoryx2FFI.iox2_node_builder_set_signal_handling_mode(Ref{Iceoryx2FFI.iox2_node_builder_h}(builder.handle), builder.signal_handling_mode)
+        Iceoryx2FFI.iox2_node_builder_set_signal_handling_mode(
+            Ref{Iceoryx2FFI.iox2_node_builder_h}(builder.handle),
+            _signal_handling_mode(builder.signal_handling_mode)
+        )
         builder.has_signal_handling_mode = false
     end
     handle_ref = Ref{Iceoryx2FFI.iox2_node_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_node_builder_create(builder.handle, C_NULL, _service_type(service_type), handle_ref)
+    close(builder)
     check_ok(ret, Iceoryx2FFI.iox2_node_creation_failure_e)
-    builder.handle = _IOX2_NULL
-    builder.storage = nothing
     return Node{service_type}(handle_ref[])
 end
 

@@ -21,7 +21,7 @@ function main()
 
     counter = UInt64(1_000_000)
 
-    waitset = create(WaitsetBuilder(ServiceType.IPC))
+    waitset = create(WaitSetBuilder(ServiceType.IPC))
     _cycle_guard = attach_interval(waitset, 0, CYCLE_MILLIS * 1_000_000)
 
     wait_and_process(waitset) do _attachment_id

@@ -5,6 +5,9 @@
 
 Validate a C error code and throw the corresponding `*Error` exception on
 failure. `T` is the C enum type for the error category.
+
+Safe exceptions expose `err.code::Symbol` and `err.raw_code::UInt32`. The raw
+C enum object is retained only inside the generated FFI/error-checking boundary.
 """
 check_ok
 
@@ -51,6 +54,13 @@ Error thrown when creating a config fails.
 ConfigCreationError
 
 """
+    ConnectionFailure
+
+Error thrown when a live port connection operation fails.
+"""
+ConnectionFailure
+
+"""
     EntryHandleError
 
 Error thrown when acquiring a reader entry fails.
@@ -91,6 +101,34 @@ ListenerWaitError
 Error thrown when a loan operation fails.
 """
 LoanError
+
+"""
+    NodeCleanupFailure
+
+Error thrown when stale node resources cannot be cleaned up.
+"""
+NodeCleanupFailure
+
+"""
+    NodeCreationFailure
+
+Error thrown when node creation fails.
+"""
+NodeCreationFailure
+
+"""
+    NodeListFailure
+
+Error thrown when node discovery fails.
+"""
+NodeListFailure
+
+"""
+    NodeWaitFailure
+
+Error thrown when a node wait operation fails.
+"""
+NodeWaitFailure
 
 """
     NotifierCreateError
@@ -184,6 +222,13 @@ Error thrown when listing services fails.
 ServiceListError
 
 """
+    ServiceRemoveError
+
+Error thrown when force-removing a stale service fails.
+"""
+ServiceRemoveError
+
+"""
     SubscriberCreateError
 
 Error thrown when creating a subscriber fails.
@@ -198,25 +243,25 @@ Error thrown when setting type details fails.
 TypeDetailError
 
 """
-    WaitsetAttachmentError
+    WaitSetAttachmentError
 
-Error thrown when attaching to a waitset fails.
+Error thrown when attaching to a WaitSet fails.
 """
-WaitsetAttachmentError
-
-"""
-    WaitsetCreateError
-
-Error thrown when creating a waitset fails.
-"""
-WaitsetCreateError
+WaitSetAttachmentError
 
 """
-    WaitsetRunError
+    WaitSetCreateError
 
-Error thrown when running a waitset fails.
+Error thrown when creating a WaitSet fails.
 """
-WaitsetRunError
+WaitSetCreateError
+
+"""
+    WaitSetRunError
+
+Error thrown when running a WaitSet fails.
+"""
+WaitSetRunError
 
 """
     WriterCreateError
@@ -268,6 +313,13 @@ C error enum for config creation.
 Iceoryx2FFI.iox2_config_creation_error_e
 
 """
+    Iceoryx2FFI.iox2_connection_failure_e
+
+C error enum for connection operations.
+"""
+Iceoryx2FFI.iox2_connection_failure_e
+
+"""
     Iceoryx2FFI.iox2_entry_handle_error_e
 
 C error enum for reader entry errors.
@@ -308,6 +360,34 @@ Iceoryx2FFI.iox2_listener_wait_error_e
 C error enum for loan operations.
 """
 Iceoryx2FFI.iox2_loan_error_e
+
+"""
+    Iceoryx2FFI.iox2_node_cleanup_failure_e
+
+C error enum for stale node cleanup.
+"""
+Iceoryx2FFI.iox2_node_cleanup_failure_e
+
+"""
+    Iceoryx2FFI.iox2_node_creation_failure_e
+
+C error enum for node creation.
+"""
+Iceoryx2FFI.iox2_node_creation_failure_e
+
+"""
+    Iceoryx2FFI.iox2_node_list_failure_e
+
+C error enum for node discovery.
+"""
+Iceoryx2FFI.iox2_node_list_failure_e
+
+"""
+    Iceoryx2FFI.iox2_node_wait_failure_e
+
+C error enum for node wait operations.
+"""
+Iceoryx2FFI.iox2_node_wait_failure_e
 
 """
     Iceoryx2FFI.iox2_notifier_create_error_e
@@ -399,6 +479,13 @@ Iceoryx2FFI.iox2_service_details_error_e
 C error enum for service listing.
 """
 Iceoryx2FFI.iox2_service_list_error_e
+
+"""
+    Iceoryx2FFI.iox2_service_remove_error_e
+
+C error enum for force-removing a stale service.
+"""
+Iceoryx2FFI.iox2_service_remove_error_e
 
 """
     Iceoryx2FFI.iox2_subscriber_create_error_e

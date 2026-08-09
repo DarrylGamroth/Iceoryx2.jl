@@ -5,7 +5,7 @@ include(joinpath(@__DIR__, "pubsub_event.jl"))
 const CYCLE_MILLIS = 100
 const DEADLINE_SERVICE_1_MILLIS = 1500
 const DEADLINE_SERVICE_2_MILLIS = 2000
-const NODE_DEAD = Iceoryx2.Iceoryx2FFI.iox2_node_state_e_DEAD
+const NODE_DEAD = NodeStateDead
 
 function find_and_cleanup_dead_nodes()
     list_nodes(service_type=ServiceType.IPC, config=global_config()) do state, node_id_view, _node_id_str, node_name, _cfg
@@ -50,7 +50,7 @@ function main()
     notifier_dead_event!(event_builder_2, Int(PubSubEvent.ProcessDied))
     event_2 = open_or_create(event_builder_2)
 
-    waitset = create(WaitsetBuilder(ServiceType.IPC))
+    waitset = create(WaitSetBuilder(ServiceType.IPC))
     _cycle_guard = attach_interval(waitset, 0, CYCLE_MILLIS * 1_000_000)
 
     println("Central daemon up and running.")

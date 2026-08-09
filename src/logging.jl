@@ -2,7 +2,16 @@
 
 using Logging
 
-@inline _log_level(value::Iceoryx2FFI.iox2_log_level_e) = value
+@enum LogLevel::UInt32 begin
+    LogLevelTrace = UInt32(Iceoryx2FFI.iox2_log_level_e_TRACE)
+    LogLevelDebug = UInt32(Iceoryx2FFI.iox2_log_level_e_DEBUG)
+    LogLevelInfo = UInt32(Iceoryx2FFI.iox2_log_level_e_INFO)
+    LogLevelWarn = UInt32(Iceoryx2FFI.iox2_log_level_e_WARN)
+    LogLevelError = UInt32(Iceoryx2FFI.iox2_log_level_e_ERROR)
+    LogLevelFatal = UInt32(Iceoryx2FFI.iox2_log_level_e_FATAL)
+end
+
+@inline _log_level(value::LogLevel) = Iceoryx2FFI.iox2_log_level_e(UInt32(value))
 
 @inline function _log_level(value::Symbol)
     if value === :trace
@@ -23,22 +32,39 @@ end
 
 @inline _log_level(value) = throw(ArgumentError("unsupported log level: $value"))
 
+@inline function _log_level_enum(value::Iceoryx2FFI.iox2_log_level_e)
+    if value == Iceoryx2FFI.iox2_log_level_e_TRACE
+        return LogLevelTrace
+    elseif value == Iceoryx2FFI.iox2_log_level_e_DEBUG
+        return LogLevelDebug
+    elseif value == Iceoryx2FFI.iox2_log_level_e_INFO
+        return LogLevelInfo
+    elseif value == Iceoryx2FFI.iox2_log_level_e_WARN
+        return LogLevelWarn
+    elseif value == Iceoryx2FFI.iox2_log_level_e_ERROR
+        return LogLevelError
+    elseif value == Iceoryx2FFI.iox2_log_level_e_FATAL
+        return LogLevelFatal
+    end
+    throw(ArgumentError("unsupported log level: $value"))
+end
+
 """
-    log_level() -> iox2_log_level_e
+    log_level() -> LogLevel
 
 Return the current iceoryx2 log level.
 """
 @inline function log_level()
-    return Iceoryx2FFI.iox2_get_log_level()
+    return _log_level_enum(Iceoryx2FFI.iox2_get_log_level())
 end
 
 """
     set_log_level(level)
 
 Set the global iceoryx2 log level. Accepts a symbol (`:info`, `:warn`, ...)
-or the C enum value.
+or a `LogLevel` value.
 """
-function set_log_level(level::Union{Symbol, Iceoryx2FFI.iox2_log_level_e})
+function set_log_level(level::Union{Symbol, LogLevel})
     Iceoryx2FFI.iox2_set_log_level(_log_level(level))
     return nothing
 end
@@ -58,7 +84,7 @@ end
 
 Set the log level from the environment, or fall back to `level` if not set.
 """
-function set_log_level_from_env_or(level::Union{Symbol, Iceoryx2FFI.iox2_log_level_e})
+function set_log_level_from_env_or(level::Union{Symbol, LogLevel})
     Iceoryx2FFI.iox2_set_log_level_from_env_or(_log_level(level))
     return nothing
 end
@@ -68,11 +94,12 @@ end
 
 Emit an iceoryx2 log message with the given level and origin string.
 """
-function log(level::Union{Symbol, Iceoryx2FFI.iox2_log_level_e}, origin::AbstractString, message::AbstractString)
+function log(level::Union{Symbol, LogLevel}, origin::AbstractString, message::AbstractString)
     origin_str = String(origin)
     message_str = String(message)
     GC.@preserve origin_str message_str begin
-        Iceoryx2FFI.iox2_log(_log_level(level), Base.unsafe_convert(Cstring, origin_str), Base.unsafe_convert(Cstring, message_str))
+        Iceoryx2FFI.iox2_log(_log_level(level), Base.unsafe_convert(Cstring, origin_str),
+            Base.unsafe_convert(Cstring, message_str))
     end
     return nothing
 end
@@ -93,7 +120,9 @@ mutable struct LogHandler{T} <: AbstractLogHandler
     on_log::T
 end
 
-log_callback(handler::LogHandler, level, origin, message) = handler.on_log(level, origin, message)
+function log_callback(handler::LogHandler, level, origin, message)
+    handler.on_log(level, origin, message)
+end
 
 """
     JuliaLoggerHandler(logger)
@@ -110,15 +139,24 @@ function log_callback(handler::JuliaLoggerHandler, level, origin, message)
 end
 
 const _LOG_HANDLER = Ref{Any}(nothing)
+const _LOG_EXCEPTION = Ref{_CallbackException}(nothing)
+
+@inline last_callback_exception(::AbstractLogHandler) = _LOG_EXCEPTION[]
+@inline last_log_exception() = _LOG_EXCEPTION[]
 
 function _log_wrapper(level::Iceoryx2FFI.iox2_log_level_e, origin::Cstring, message::Cstring)
     handler = _LOG_HANDLER[]
     handler === nothing && return nothing
-    log_callback(handler, level, unsafe_string(origin), unsafe_string(message))
+    try
+        log_callback(handler, _log_level_enum(level), unsafe_string(origin), unsafe_string(message))
+    catch err
+        _LOG_EXCEPTION[] = CapturedException(err, catch_backtrace())
+    end
     return nothing
 end
 
-const _LOG_CB = @cfunction(_log_wrapper, Cvoid, (Iceoryx2FFI.iox2_log_level_e, Cstring, Cstring))
+const _LOG_CB = @cfunction(_log_wrapper, Cvoid,
+    (Iceoryx2FFI.iox2_log_level_e, Cstring, Cstring))
 
 """
     set_logger(handler::AbstractLogHandler) -> Bool
@@ -128,6 +166,7 @@ Install a log handler callback. Returns `true` on success.
 function set_logger(handler::AbstractLogHandler)
     previous = _LOG_HANDLER[]
     _LOG_HANDLER[] = handler
+    _LOG_EXCEPTION[] = nothing
     if !Iceoryx2FFI.iox2_set_logger(_LOG_CB)
         _LOG_HANDLER[] = previous
         return false
@@ -144,14 +183,14 @@ function set_logger(f::Function)
     return set_logger(LogHandler(f))
 end
 
-function _log_to_julia(logger, level::Iceoryx2FFI.iox2_log_level_e, origin::AbstractString, message::AbstractString)
-    io_level = if level == Iceoryx2FFI.iox2_log_level_e_TRACE || level == Iceoryx2FFI.iox2_log_level_e_DEBUG
+function _log_to_julia(logger, level::LogLevel, origin::AbstractString, message::AbstractString)
+    io_level = if level == LogLevelTrace || level == LogLevelDebug
         Logging.Debug
-    elseif level == Iceoryx2FFI.iox2_log_level_e_INFO
+    elseif level == LogLevelInfo
         Logging.Info
-    elseif level == Iceoryx2FFI.iox2_log_level_e_WARN
+    elseif level == LogLevelWarn
         Logging.Warn
-    elseif level == Iceoryx2FFI.iox2_log_level_e_ERROR || level == Iceoryx2FFI.iox2_log_level_e_FATAL
+    elseif level == LogLevelError || level == LogLevelFatal
         Logging.Error
     else
         Logging.Info

@@ -5,11 +5,11 @@ include(joinpath(@__DIR__, "pubsub_event.jl"))
 
 const HISTORY_SIZE = 20
 
-struct CustomPublisher
-    publisher::Publisher{TransmissionData,Nothing}
-    listener::Listener
-    notifier::Notifier
-    sample::SampleMut{TransmissionData,Nothing}
+struct CustomPublisher{S}
+    publisher::Publisher{S, TransmissionData, Nothing}
+    listener::Listener{S}
+    notifier::Notifier{S}
+    sample::SampleMut{TransmissionData, Nothing}
 end
 
 function pubsub_event_from_id(id::EventId)
@@ -39,27 +39,39 @@ function create_custom_publisher(node::Node, service_name::AbstractString)
     return CustomPublisher(publisher, listener, notifier, sample)
 end
 
-function handle_event!(custom::CustomPublisher)
-    event_id = try_wait_one(custom.listener)
-    while event_id !== nothing
-        event = pubsub_event_from_id(event_id)
-        if event == PubSubEvent.SubscriberConnected
-            println("new subscriber connected - delivering history")
-            update_connections!(custom.publisher)
-            notify!(custom.notifier, EventId(Int(PubSubEvent.SentHistory)))
-        elseif event == PubSubEvent.SubscriberDisconnected
-            println("subscriber disconnected")
-        elseif event == PubSubEvent.ReceivedSample
-            println("subscriber has consumed sample")
-        end
-        event_id = try_wait_one(custom.listener)
+function handle_event!(custom::CustomPublisher, event_id::EventId, _count::UInt64)
+    event = pubsub_event_from_id(event_id)
+    if event == PubSubEvent.SubscriberConnected
+        println("new subscriber connected - delivering history")
+        update_connections!(custom.publisher)
+        notify!(custom.notifier, EventId(Int(PubSubEvent.SentHistory)))
+    elseif event == PubSubEvent.SubscriberDisconnected
+        println("subscriber disconnected")
+    elseif event == PubSubEvent.ReceivedSample
+        println("subscriber has consumed sample")
     end
     return nothing
 end
 
+struct CustomPublisherEventHandler{S}
+    custom::CustomPublisher{S}
+end
+
+function (handler::CustomPublisherEventHandler)(event_id::EventId, count::UInt64)
+    handle_event!(handler.custom, event_id, count)
+end
+
+function handle_event!(custom::CustomPublisher)
+    return try_wait(
+        custom.listener,
+        ListenerWaitHandler(CustomPublisherEventHandler(custom))
+    )
+end
+
 function send_sample!(custom::CustomPublisher, counter::UInt64)
     loan_uninit!(custom.publisher, custom.sample)
-    write_payload!(custom.sample, TransmissionData(Int32(counter), Int32(counter), Float64(counter) * 812.12))
+    write_payload!(custom.sample, TransmissionData(Int32(counter), Int32(counter), Float64(counter) *
+                                                                                   812.12))
     send!(custom.sample)
     notify!(custom.notifier, EventId(Int(PubSubEvent.SentSample)))
     return nothing

@@ -1,7 +1,7 @@
 @testset "UniquePortId" begin
     node_builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(node_builder, unique_node_name())
-    node = Iceoryx2.create(node_builder, Iceoryx2.ServiceType.IPC)
+    node = Iceoryx2.create(node_builder, TEST_SERVICE_TYPE)
 
     event_name = unique_service_name()
     event_builder = Iceoryx2.event(Iceoryx2.service_builder(node, event_name))
@@ -25,19 +25,30 @@
         Iceoryx2.id(publisher1),
         Iceoryx2.id(subscriber1),
         Iceoryx2.id(notifier1),
-        Iceoryx2.id(listener1),
+        Iceoryx2.id(listener1)
     ]
     for uid in ids
+        @test isbitstype(typeof(uid))
+        @test length(Iceoryx2.bytes(uid)) == 16
         @test any(!=(0x00), Iceoryx2.bytes(uid))
     end
 
     listener_id1 = Iceoryx2.id(listener1)
+    @test @inferred(Iceoryx2.id(listener1)) isa Iceoryx2.UniqueListenerId
     listener_id1b = Iceoryx2.id(listener1)
     listener_id2 = Iceoryx2.id(listener2)
     @test listener_id1 == listener_id1b
+    @test hash(listener_id1) == hash(listener_id1b)
     @test !(listener_id1 < listener_id1b)
     @test listener_id1 != listener_id2
     @test (listener_id1 < listener_id2) || (listener_id2 < listener_id1)
+
+    unique_id_alloc(port::Iceoryx2.Listener) = @allocated Iceoryx2.id(port)
+    unique_id_bytes_alloc(id::Iceoryx2.UniqueListenerId) = @allocated Iceoryx2.bytes(id)
+    Iceoryx2.id(listener1)
+    @test unique_id_alloc(listener1) == 0
+    Iceoryx2.bytes(listener_id1)
+    @test unique_id_bytes_alloc(listener_id1) == 0
 
     notifier_id1 = Iceoryx2.id(notifier1)
     notifier_id2 = Iceoryx2.id(notifier2)

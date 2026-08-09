@@ -15,12 +15,12 @@ function main()
                 Iceoryx2.create(Iceoryx2.writer_builder(factory)) do writer
                 Iceoryx2.create(Iceoryx2.reader_builder(factory)) do reader
                     entry_mut = Iceoryx2.EntryHandleMut(writer, UInt64)
-                    Iceoryx2.writer_entry!(writer, entry_mut, UInt64(1))
+                    Iceoryx2.entry!(writer, entry_mut, UInt64(1))
                     Iceoryx2.update!(entry_mut, UInt64(42))
                     close(entry_mut)
 
                     entry = Iceoryx2.EntryHandle(reader, UInt64)
-                    Iceoryx2.reader_entry!(reader, entry, UInt64(1))
+                    Iceoryx2.entry!(reader, entry, UInt64(1))
                     value, _generation = Iceoryx2.get(entry)
                     println("blackboard value: ", value)
                     close(entry)

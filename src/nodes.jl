@@ -19,7 +19,9 @@ Return the node's signal handling mode.
 """
 @inline function signal_handling_mode(node::Node)
     _require_valid(unsafe_handle(node), "node")
-    return Iceoryx2FFI.iox2_node_signal_handling_mode(Ref{Iceoryx2FFI.iox2_node_h}(unsafe_handle(node)))
+    return _signal_handling_mode_enum(
+        Iceoryx2FFI.iox2_node_signal_handling_mode(Ref{Iceoryx2FFI.iox2_node_h}(unsafe_handle(node))),
+    )
 end
 
 """
@@ -30,10 +32,11 @@ Returns `true` on timeout, `false` on interrupt/termination.
 """
 function wait(node::Node, seconds::Integer, nanoseconds::Integer)
     _require_valid(unsafe_handle(node), "node")
+    secs, nanos = _timeout_parts(seconds, nanoseconds)
     ret = Iceoryx2FFI.iox2_node_wait(
         Ref{Iceoryx2FFI.iox2_node_h}(unsafe_handle(node)),
-        UInt64(seconds),
-        UInt32(nanoseconds),
+        secs,
+        nanos
     )
     ret == _IOX2_OK && return true
     code = Iceoryx2FFI.iox2_node_wait_failure_e(ret)
@@ -50,10 +53,92 @@ end
 Convenience overload taking seconds as a real value.
 """
 function wait(node::Node, seconds::Real)
-    seconds < 0 && throw(ArgumentError("wait duration must be non-negative, got $seconds"))
-    secs = floor(Int, seconds)
-    nanos = floor(Int, (seconds - secs) * 1e9)
+    secs, nanos = _timeout_parts(seconds)
     return wait(node, secs, nanos)
+end
+
+"""
+    try_cleanup_dead_nodes(node::Node) -> CleanupState
+
+Remove stale resources for all dead nodes visible to `node`.
+"""
+function try_cleanup_dead_nodes(node::Node)
+    _require_valid(unsafe_handle(node), "node")
+    state = _cleanup_state_ref()
+    Iceoryx2FFI.iox2_node_try_cleanup_dead_nodes(
+        Ref{Iceoryx2FFI.iox2_node_h}(unsafe_handle(node)),
+        state
+    )
+    return _cleanup_state(state)
+end
+
+"""
+    blocking_cleanup_dead_nodes(node::Node, seconds[, nanoseconds]) -> CleanupState
+
+Remove stale resources for all dead nodes visible to `node`, waiting up to the
+timeout for nodes currently being cleaned by another process.
+"""
+function blocking_cleanup_dead_nodes(
+        node::Node,
+        seconds::Integer,
+        nanoseconds::Integer = 0
+)
+    _require_valid(unsafe_handle(node), "node")
+    secs, nanos = _timeout_parts(seconds, nanoseconds)
+    state = _cleanup_state_ref()
+    Iceoryx2FFI.iox2_node_blocking_cleanup_dead_nodes(
+        Ref{Iceoryx2FFI.iox2_node_h}(unsafe_handle(node)),
+        state,
+        secs,
+        nanos
+    )
+    return _cleanup_state(state)
+end
+
+"""
+    force_remove_service(node, service_name; messaging_pattern) -> Bool
+
+Remove a stale service that cannot be opened normally. No other process may be
+using the service. Return `true` when a service was removed.
+"""
+function force_remove_service(
+        node::Node,
+        service_name::Union{ServiceName, ServiceNameView};
+        messaging_pattern::Union{Symbol, MessagingPattern}
+)
+    _require_valid(unsafe_handle(node), "node")
+    removed = Ref{Bool}(false)
+    ret = GC.@preserve service_name removed begin
+        Iceoryx2FFI.iox2_node_force_remove_service(
+            Ref{Iceoryx2FFI.iox2_node_h}(unsafe_handle(node)),
+            _service_name_ptr(service_name),
+            _messaging_pattern(messaging_pattern),
+            removed
+        )
+    end
+    check_ok(ret, Iceoryx2FFI.iox2_service_remove_error_e)
+    return removed[]
+end
+
+function force_remove_service(
+        node::Node,
+        service_name::AbstractString;
+        messaging_pattern::Union{Symbol, MessagingPattern}
+)
+    name = ServiceName(service_name)
+    try
+        return force_remove_service(node, name; messaging_pattern)
+    finally
+        close(name)
+    end
+end
+
+function blocking_cleanup_dead_nodes(
+        node::Node,
+        seconds::Real
+)
+    secs, nanos = _timeout_parts(seconds)
+    return blocking_cleanup_dead_nodes(node, secs, nanos)
 end
 
 """
@@ -63,33 +148,20 @@ Return an owned node ID for the given node.
 """
 function id(node::Node{S}) where {S}
     _require_valid(unsafe_handle(node), "node")
-    ptr = Iceoryx2FFI.iox2_node_id(Ref{Iceoryx2FFI.iox2_node_h}(unsafe_handle(node)), _service_type(S))
-    handle_ref = Ref{Iceoryx2FFI.iox2_node_id_h}(_IOX2_NULL)
-    Iceoryx2FFI.iox2_node_id_clone_from_ptr(C_NULL, ptr, handle_ref)
-    return NodeId(handle_ref[])
-end
-
-"""
-    to_owned(node_id::NodeIdView) -> NodeId
-
-Clone a `NodeIdView` into an owned `NodeId`.
-"""
-function to_owned(node_id::NodeIdView)
-    handle_ref = Ref{Iceoryx2FFI.iox2_node_id_h}(_IOX2_NULL)
-    Iceoryx2FFI.iox2_node_id_clone_from_ptr(C_NULL, unsafe_handle(node_id), handle_ref)
-    return NodeId(handle_ref[])
+    ptr = Iceoryx2FFI.iox2_unique_node_id(Ref{Iceoryx2FFI.iox2_node_h}(unsafe_handle(node)), _service_type(S))
+    return _node_id_from_ptr(ptr)
 end
 
 @inline function value_high(node_id::NodeId)
-    return Iceoryx2FFI.iox2_node_id_value_high(Ref{Iceoryx2FFI.iox2_node_id_h}(unsafe_handle(node_id)))
+    return _node_id_call(Iceoryx2FFI.iox2_unique_node_id_value_high, node_id)
 end
 
 @inline function value_low(node_id::NodeId)
-    return Iceoryx2FFI.iox2_node_id_value_low(Ref{Iceoryx2FFI.iox2_node_id_h}(unsafe_handle(node_id)))
+    return _node_id_call(Iceoryx2FFI.iox2_unique_node_id_value_low, node_id)
 end
 
 @inline function pid(node_id::NodeId)
-    return Iceoryx2FFI.iox2_node_id_pid(Ref{Iceoryx2FFI.iox2_node_id_h}(unsafe_handle(node_id)))
+    return _node_id_call(Iceoryx2FFI.iox2_unique_node_id_pid, node_id)
 end
 
 """
@@ -100,11 +172,7 @@ Return the creation timestamp of the node ID.
 function creation_time(node_id::NodeId)
     seconds = Ref{UInt64}(0)
     nanos = Ref{UInt32}(0)
-    Iceoryx2FFI.iox2_node_id_creation_time(
-        Ref{Iceoryx2FFI.iox2_node_id_h}(unsafe_handle(node_id)),
-        seconds,
-        nanos,
-    )
+    _node_id_call(Iceoryx2FFI.iox2_unique_node_id_creation_time, node_id, seconds, nanos)
     return seconds[], nanos[]
 end
 
@@ -115,11 +183,10 @@ Remove stale resources belonging to a dead node. Returns `true` when cleanup
 succeeds.
 """
 function remove_stale_resources(
-    node_id::NodeId;
-    service_type::ServiceType,
-    config::Union{Config, ConfigRef, Nothing} = nothing,
+        node_id::NodeId;
+        service_type::ServiceType,
+        config::Union{Config, ConfigRef, Nothing} = nothing
 )
-    _require_valid(unsafe_handle(node_id), "node id")
     if config === nothing
         cfg = default_config()
         try
@@ -128,15 +195,22 @@ function remove_stale_resources(
             close(cfg)
         end
     end
-    success = Ref{Bool}(false)
-    ret = Iceoryx2FFI.iox2_dead_node_remove_stale_resources(
+    ret = _node_id_call(
+        (handle, type,
+            config_handle) -> Iceoryx2FFI.iox2_dead_node_try_remove_stale_resources(
+            type, handle, config_handle),
+        node_id,
         _service_type(service_type),
-        Ref{Iceoryx2FFI.iox2_node_id_h}(unsafe_handle(node_id)),
-        _config_h_ref(config),
-        success,
+        _config_h_ref(config)
     )
-    check_ok(ret, Iceoryx2FFI.iox2_node_cleanup_failure_e)
-    return success[]
+    ret == _IOX2_OK && return true
+    code = Iceoryx2FFI.iox2_node_cleanup_failure_e(ret)
+    code == Iceoryx2FFI.iox2_node_cleanup_failure_e_RESOURCES_ALREADY_CLEANED_UP &&
+        return true
+    code ==
+    Iceoryx2FFI.iox2_node_cleanup_failure_e_ANOTHER_INSTANCE_IS_CLEANING_UP_THE_NODE &&
+        return false
+    throw(NodeCleanupFailure(code))
 end
 
 @inline function Base.:(==)(lhs::NodeId, rhs::NodeId)
@@ -148,4 +222,8 @@ end
     rhs_high = value_high(rhs)
     lhs_high == rhs_high && return value_low(lhs) < value_low(rhs)
     return lhs_high < rhs_high
+end
+
+@inline function Base.hash(node_id::NodeId, seed::UInt)
+    return hash(value_low(node_id), hash(value_high(node_id), seed))
 end

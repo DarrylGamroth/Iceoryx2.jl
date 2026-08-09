@@ -1,7 +1,7 @@
-@testset "WaitsetNotification" begin
+@testset "WaitSetNotification" begin
     node_builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(node_builder, unique_node_name())
-    node = Iceoryx2.create(node_builder, Iceoryx2.ServiceType.IPC)
+    node = Iceoryx2.create(node_builder, TEST_SERVICE_TYPE)
 
     service_name = unique_service_name()
     event_builder = Iceoryx2.event(Iceoryx2.service_builder(node, service_name))
@@ -9,7 +9,7 @@
     notifier = Iceoryx2.create(Iceoryx2.notifier_builder(factory))
     listener = Iceoryx2.create(Iceoryx2.listener_builder(factory))
 
-    waitset = Iceoryx2.create(Iceoryx2.WaitsetBuilder(Iceoryx2.ServiceType.IPC))
+    waitset = Iceoryx2.create(Iceoryx2.WaitSetBuilder(TEST_SERVICE_TYPE))
     guard = Iceoryx2.attach_notification(waitset, Iceoryx2.file_descriptor(listener))
 
     Iceoryx2.notify!(notifier)

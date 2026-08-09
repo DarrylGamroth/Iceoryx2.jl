@@ -33,7 +33,7 @@ while remaining idiomatic Julia. This is a staged checklist so we can track prog
 
 ## Stage 5: Messaging – Event
 - [x] `Notifier`, `Listener`, `EventId`, `event` builders.
-- [x] Event lifecycle (`notify!`, `try_wait_one`, `wait`, `deadline`).
+- [x] Event lifecycle (`notify!`, grouped `try_wait`/`timed_wait`/`blocking_wait`, `wait`, `deadline`).
 
 ## Stage 6: Messaging – Blackboard
 - [x] `Reader`, `Writer`, `EntryHandle`, `EntryHandleMut`, `EntryValueUninit`.
@@ -41,7 +41,7 @@ while remaining idiomatic Julia. This is a staged checklist so we can track prog
 - [x] Key/value type detail requirements and type_name notes.
 
 ## Stage 7: WaitSet & FileDescriptor
-- [x] `Waitset`, `WaitsetBuilder`, `WaitsetGuard`, `WaitsetAttachmentId`.
+- [x] `WaitSet`, `WaitSetBuilder`, `WaitSetGuard`, `WaitSetAttachmentId`.
 - [x] `wait_and_process*` + callback semantics.
 - [x] File descriptor wrappers and event integration docs.
 

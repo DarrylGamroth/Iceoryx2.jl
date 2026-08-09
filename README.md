@@ -3,6 +3,9 @@
 ![CI](https://github.com/DarrylGamroth/Iceoryx2.jl/actions/workflows/ci.yml/badge.svg)
 [![codecov](https://codecov.io/gh/DarrylGamroth/Iceoryx2.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/DarrylGamroth/Iceoryx2.jl)
 
+Idiomatic, zero-copy Julia bindings for the iceoryx2 C ABI. This revision is
+pinned to `Iceoryx2_jll v0.9.999+3` and covers all 682 header functions.
+
 ## Quick start
 
 ```julia
@@ -34,6 +37,49 @@ close(service)
 close(node)
 ```
 
+## Progressive publish/subscribe
+
+The progressive API announces a byte-buffer handle once, then grows the
+immutable committed prefix visible to subscribers without sending another
+sample:
+
+```julia
+node = create(NodeBuilder(), ServiceType.IPC)
+builder = progressive_publish_subscribe(service_builder(node, "Demo/Frames"))
+service = open_or_create(builder)
+
+publisher_builder = publisher_builder(service)
+initial_max_slice_len!(publisher_builder, 4096)
+publisher = create(publisher_builder)
+subscriber = create(subscriber_builder(service))
+
+loan = ProgressiveSampleMutUninit(publisher)
+writer = ProgressiveSampleMut(publisher)
+received = ProgressiveSample(subscriber)
+
+loan_slice_uninit!(publisher, loan, 4096)
+number_of_recipients = announce!(loan, writer)
+write_from_slice!(writer, UInt8[1, 2, 3, 4])
+
+if receive!(subscriber, received)
+    current_prefix = payload(received)
+    progress = snapshot(received)
+    complete!(writer)
+    close(received)
+end
+
+close(writer) # aborts if still active
+close(loan)
+close(subscriber)
+close(publisher)
+close(service)
+close(node)
+```
+
+For external zero-copy writers, retain `unsafe_payload_mut(writer)` and advance
+the committed boundary with `unsafe_commit_until!` only after every newly
+exposed byte is initialized, CPU-visible, and immutable.
+
 ## Examples
 
 See `examples/` for publish/subscribe, request/response, event, and blackboard samples that match the upstream C++ examples.
@@ -50,4 +96,14 @@ Iceoryx2.type_name(::Type{MyType}) = "MyType"
 
 ```bash
 julia --project -e 'using Pkg; Pkg.test()'
+```
+
+## Generated files
+
+CI verifies the generated bindings are up to date. Regenerate with:
+
+```bash
+julia --startup-file=no --project=gen gen/gen-bindings.jl
+julia --startup-file=no --project=gen gen/verify_generated.jl
+julia --startup-file=no --project=. scripts/coverage_symbols.jl
 ```

@@ -2,45 +2,18 @@
 
 import StringViews: StringView
 
-"""
-    AttributeScratch
-
-Reusable buffers for allocation-free attribute access. Use with
-`with_attribute_scratch` and the `*_view!` APIs.
-"""
-struct AttributeScratch
-    key_buffer::Vector{UInt8}
-    value_buffer::Vector{UInt8}
-    key_value_buffer::Vector{UInt8}
-end
-
-"""
-    AttributeScratch() -> AttributeScratch
-
-Create scratch buffers sized for maximum attribute key/value length.
-"""
-function AttributeScratch()
-    key_len = Int(Iceoryx2FFI.IOX2_ATTRIBUTE_KEY_LENGTH)
-    value_len = Int(Iceoryx2FFI.IOX2_ATTRIBUTE_VALUE_LENGTH)
-    return AttributeScratch(
-        Vector{UInt8}(undef, key_len + 1),
-        Vector{UInt8}(undef, value_len + 1),
-        Vector{UInt8}(undef, value_len + 1),
-    )
-end
-
-"""
-    with_attribute_scratch(f::Function)
-
-Create a scratch buffer and pass it to `f(scratch)`.
-"""
-function with_attribute_scratch(f::Function)
-    scratch = AttributeScratch()
-    return f(scratch)
-end
-
 @inline function _ensure_valid_attribute(handle, what::AbstractString)
     handle != _IOX2_NULL || throw(ArgumentError("invalid $what"))
+    return nothing
+end
+
+@inline function _require_attribute_buffer(
+    buffer::AbstractVector{UInt8},
+    required::Int,
+    what::AbstractString,
+)
+    Base.require_one_based_indexing(buffer)
+    length(buffer) >= required || throw(ArgumentError("$what buffer too small: need >= $required bytes, got $(length(buffer))"))
     return nothing
 end
 
@@ -175,6 +148,17 @@ Return the number of attributes in the set.
     return Int(Iceoryx2FFI.iox2_attribute_set_number_of_attributes(_attribute_set_ptr(attrs)))
 end
 
+Base.length(attrs::Union{AttributeSet, AttributeSetView}) = number_of_attributes(attrs)
+Base.firstindex(::Union{AttributeSet, AttributeSetView}) = 1
+Base.lastindex(attrs::Union{AttributeSet, AttributeSetView}) = length(attrs)
+Base.eltype(::Type{AttributeSet}) = AttributeRef
+Base.eltype(::Type{AttributeSetView}) = AttributeRef
+
+function Base.iterate(attrs::Union{AttributeSet, AttributeSetView}, state::Int = 1)
+    state > length(attrs) && return nothing
+    return attrs[state], state + 1
+end
+
 """
     getindex(attrs, index) -> AttributeRef
 
@@ -206,27 +190,22 @@ function key(attr::AttributeRef)
 end
 
 """
-    key_view!(buffer, attr) -> StringView
-    key_view!(scratch::AttributeScratch, attr) -> StringView
+    key_view!(buffer, attr) -> AbstractString
 
-Read the attribute key into a reusable buffer without allocating a `String`.
+Read the attribute key into a reusable buffer and return an allocation-free
+string view. The returned view is valid until `buffer` is reused or mutated.
 """
-function key_view!(buffer::Vector{UInt8}, attr::AttributeRef)
+function key_view!(buffer::AbstractVector{UInt8}, attr::AttributeRef)
     len = Int(Iceoryx2FFI.iox2_attribute_key_len(unsafe_handle(attr)))
-    length(buffer) < len + 1 && resize!(buffer, len + 1)
+    _require_attribute_buffer(buffer, len + 1, "attribute key")
     GC.@preserve buffer begin
         Iceoryx2FFI.iox2_attribute_key(
             unsafe_handle(attr),
-            Ptr{Cchar}(pointer(buffer)),
+            Ptr{Cchar}(Base.unsafe_convert(Ptr{UInt8}, buffer)),
             Iceoryx2FFI.c_size_t(len + 1),
         )
     end
-    resize!(buffer, len)
-    return StringView(buffer)
-end
-
-function key_view!(scratch::AttributeScratch, attr::AttributeRef)
-    return key_view!(scratch.key_buffer, attr)
+    return SubString(StringView(buffer), 1, len)
 end
 
 """
@@ -248,27 +227,22 @@ function value(attr::AttributeRef)
 end
 
 """
-    value_view!(buffer, attr) -> StringView
-    value_view!(scratch::AttributeScratch, attr) -> StringView
+    value_view!(buffer, attr) -> AbstractString
 
-Read the attribute value into a reusable buffer without allocating a `String`.
+Read the attribute value into a reusable buffer and return an allocation-free
+string view. The returned view is valid until `buffer` is reused or mutated.
 """
-function value_view!(buffer::Vector{UInt8}, attr::AttributeRef)
+function value_view!(buffer::AbstractVector{UInt8}, attr::AttributeRef)
     len = Int(Iceoryx2FFI.iox2_attribute_value_len(unsafe_handle(attr)))
-    length(buffer) < len + 1 && resize!(buffer, len + 1)
+    _require_attribute_buffer(buffer, len + 1, "attribute value")
     GC.@preserve buffer begin
         Iceoryx2FFI.iox2_attribute_value(
             unsafe_handle(attr),
-            Ptr{Cchar}(pointer(buffer)),
+            Ptr{Cchar}(Base.unsafe_convert(Ptr{UInt8}, buffer)),
             Iceoryx2FFI.c_size_t(len + 1),
         )
     end
-    resize!(buffer, len)
-    return StringView(buffer)
-end
-
-function value_view!(scratch::AttributeScratch, attr::AttributeRef)
-    return value_view!(scratch.value_buffer, attr)
+    return SubString(StringView(buffer), 1, len)
 end
 
 """
@@ -308,28 +282,36 @@ function key_value(attrs::Union{AttributeSet, AttributeSetView}, key::AbstractSt
     return _string_from_buffer(buffer)
 end
 
-function key_value_view!(buffer::Vector{UInt8}, attrs::Union{AttributeSet, AttributeSetView}, key::AbstractString, index::Integer)
+"""
+    key_value_view!(buffer, attrs, key, index) -> (found::Bool, value)
+
+Read one attribute value for `key` into a reusable buffer. Returns a
+type-stable `(found, value)` tuple; `value` is an allocation-free string view
+valid until `buffer` is reused or mutated.
+"""
+function key_value_view!(
+    buffer::AbstractVector{UInt8},
+    attrs::Union{AttributeSet, AttributeSetView},
+    key::AbstractString,
+    index::Integer,
+)
     index < 1 && throw(BoundsError(attrs, index))
     key_str = String(key)
     buffer_len = Int(Iceoryx2FFI.IOX2_ATTRIBUTE_VALUE_LENGTH)
-    length(buffer) < buffer_len + 1 && resize!(buffer, buffer_len + 1)
+    _require_attribute_buffer(buffer, buffer_len + 1, "attribute key/value")
     has_value = Ref{Bool}(false)
     GC.@preserve key_str buffer begin
         Iceoryx2FFI.iox2_attribute_set_key_value(
             _attribute_set_ptr(attrs),
             Base.unsafe_convert(Cstring, key_str),
             Iceoryx2FFI.c_size_t(index - 1),
-            Ptr{Cchar}(pointer(buffer)),
+            Ptr{Cchar}(Base.unsafe_convert(Ptr{UInt8}, buffer)),
             Iceoryx2FFI.c_size_t(buffer_len + 1),
             has_value,
         )
     end
-    has_value[] || return nothing
-    return _string_view_from_buffer!(buffer)
-end
-
-function key_value_view!(scratch::AttributeScratch, attrs::Union{AttributeSet, AttributeSetView}, key::AbstractString, index::Integer)
-    return key_value_view!(scratch.key_value_buffer, attrs, key, index)
+    value = has_value[] ? _string_view_from_buffer(buffer) : SubString(StringView(buffer), 1, 0)
+    return has_value[], value
 end
 
 function _string_from_buffer(buffer::Vector{UInt8})
@@ -338,11 +320,10 @@ function _string_from_buffer(buffer::Vector{UInt8})
     return unsafe_string(pointer(buffer), len)
 end
 
-function _string_view_from_buffer!(buffer::Vector{UInt8})
+function _string_view_from_buffer(buffer::AbstractVector{UInt8})
     idx = findfirst(==(0x00), buffer)
     len = idx === nothing ? length(buffer) : idx - 1
-    resize!(buffer, len)
-    return StringView(buffer)
+    return SubString(StringView(buffer), 1, len)
 end
 
 function keys(verifier::AttributeVerifier)

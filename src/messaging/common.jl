@@ -1,17 +1,42 @@
 # Messaging patterns: pub/sub, request/response, event, blackboard.
 
-@inline function _require_isbits(::Type{T}) where {T}
-    isbitstype(T) || throw(ArgumentError("payload type must be isbits"))
-    return nothing
+@enum TypeVariant::UInt32 begin
+    TypeVariantFixedSize = UInt32(iox2_type_variant_e_FIXED_SIZE)
+    TypeVariantDynamic = UInt32(iox2_type_variant_e_DYNAMIC)
+end
+
+@inline function _type_variant_enum(value::Iceoryx2FFI.iox2_type_variant_e)
+    if value == iox2_type_variant_e_FIXED_SIZE
+        return TypeVariantFixedSize
+    elseif value == iox2_type_variant_e_DYNAMIC
+        return TypeVariantDynamic
+    end
+    throw(ArgumentError("unsupported type variant: $value"))
 end
 
 _variant_type(::Type{T}) where {T} = iox2_type_variant_e_FIXED_SIZE
-_variant_type(::Type{T}) where {T<:AbstractVector} = iox2_type_variant_e_DYNAMIC
-_variant_type(::Type{T}) where {T<:Tuple} = iox2_type_variant_e_FIXED_SIZE
+_variant_type(::Type{T}) where {T <: AbstractVector} = iox2_type_variant_e_DYNAMIC
+_variant_type(::Type{T}) where {T <: Tuple} = iox2_type_variant_e_FIXED_SIZE
 _payload_type(::Type{T}) where {T} = T
-_payload_type(::Type{T}) where {T<:AbstractArray} = eltype(T)
+_payload_type(::Type{T}) where {T <: AbstractArray} = eltype(T)
 
-_allocation_strategy(value::Iceoryx2FFI.iox2_allocation_strategy_e) = value
+@inline function _fixed_header_variant(::Type{T}, what::AbstractString) where {T}
+    variant = _variant_type(T)
+    if variant != iox2_type_variant_e_FIXED_SIZE
+        throw(ArgumentError("$what must be fixed-size; dynamic header variants are not exposed by the safe Julia API"))
+    end
+    return variant
+end
+
+@enum AllocationStrategy::UInt32 begin
+    AllocationStrategyBestFit = UInt32(Iceoryx2FFI.iox2_allocation_strategy_e_BEST_FIT)
+    AllocationStrategyPowerOfTwo = UInt32(Iceoryx2FFI.iox2_allocation_strategy_e_POWER_OF_TWO)
+    AllocationStrategyStatic = UInt32(Iceoryx2FFI.iox2_allocation_strategy_e_STATIC)
+end
+
+@inline function _allocation_strategy(value::AllocationStrategy)
+    return Iceoryx2FFI.iox2_allocation_strategy_e(UInt32(value))
+end
 
 @inline function _allocation_strategy(value::Symbol)
     if value === :best_fit
@@ -25,6 +50,104 @@ _allocation_strategy(value::Iceoryx2FFI.iox2_allocation_strategy_e) = value
 end
 
 @inline _allocation_strategy(value) = throw(ArgumentError("unsupported allocation_strategy: $value"))
+
+@enum BackpressureStrategy BackpressureStrategyRetryUntilDelivered BackpressureStrategyDiscardData
+
+@inline function _backpressure_strategy(value::BackpressureStrategy)
+    if value == BackpressureStrategyRetryUntilDelivered
+        return Iceoryx2FFI.iox2_backpressure_strategy_e_RETRY_UNTIL_DELIVERED
+    elseif value == BackpressureStrategyDiscardData
+        return Iceoryx2FFI.iox2_backpressure_strategy_e_DISCARD_DATA
+    end
+    throw(ArgumentError("unsupported backpressure_strategy: $value"))
+end
+
+@inline function _backpressure_strategy(value::Symbol)
+    if value === :retry_until_delivered
+        return Iceoryx2FFI.iox2_backpressure_strategy_e_RETRY_UNTIL_DELIVERED
+    elseif value === :discard_data
+        return Iceoryx2FFI.iox2_backpressure_strategy_e_DISCARD_DATA
+    end
+    throw(ArgumentError("unsupported backpressure_strategy: $value"))
+end
+
+@inline _backpressure_strategy(value) = throw(ArgumentError("unsupported backpressure_strategy: $value"))
+
+@inline function _backpressure_strategy_enum(value::Iceoryx2FFI.iox2_backpressure_strategy_e)
+    if value == Iceoryx2FFI.iox2_backpressure_strategy_e_RETRY_UNTIL_DELIVERED
+        return BackpressureStrategyRetryUntilDelivered
+    elseif value == Iceoryx2FFI.iox2_backpressure_strategy_e_DISCARD_DATA
+        return BackpressureStrategyDiscardData
+    end
+    throw(ArgumentError("unsupported backpressure_strategy: $value"))
+end
+
+@enum BackpressureAction BackpressureFollowStrategy BackpressureRetry BackpressureDiscardData BackpressureDiscardDataAndFail
+
+@inline function _backpressure_action(value::BackpressureAction)
+    if value == BackpressureFollowStrategy
+        return Iceoryx2FFI.iox2_backpressure_action_e_FOLLOW_BACKPRESSUREY_STRATEGY
+    elseif value == BackpressureRetry
+        return Iceoryx2FFI.iox2_backpressure_action_e_RETRY
+    elseif value == BackpressureDiscardData
+        return Iceoryx2FFI.iox2_backpressure_action_e_DISCARD_DATA
+    elseif value == BackpressureDiscardDataAndFail
+        return Iceoryx2FFI.iox2_backpressure_action_e_DISCARD_DATA_AND_FAIL
+    end
+    throw(ArgumentError("unsupported backpressure action: $value"))
+end
+
+@inline function _backpressure_action(value::Symbol)
+    if value === :follow_strategy
+        return Iceoryx2FFI.iox2_backpressure_action_e_FOLLOW_BACKPRESSUREY_STRATEGY
+    elseif value === :retry
+        return Iceoryx2FFI.iox2_backpressure_action_e_RETRY
+    elseif value === :discard_data
+        return Iceoryx2FFI.iox2_backpressure_action_e_DISCARD_DATA
+    elseif value === :discard_data_and_fail
+        return Iceoryx2FFI.iox2_backpressure_action_e_DISCARD_DATA_AND_FAIL
+    end
+    throw(ArgumentError("unsupported backpressure action: $value"))
+end
+
+@inline _backpressure_action(value) = throw(ArgumentError("unsupported backpressure action: $value"))
+
+@enum DegradationAction DegradationIgnore DegradationWarn DegradationDegradeAndFail
+
+@enum DegradationCause DegradationFailedToEstablishConnection DegradationConnectionCorrupted
+
+@inline function _degradation_action(value::DegradationAction)
+    if value == DegradationIgnore
+        return Iceoryx2FFI.iox2_degradation_action_e_IGNORE
+    elseif value == DegradationWarn
+        return Iceoryx2FFI.iox2_degradation_action_e_WARN
+    elseif value == DegradationDegradeAndFail
+        return Iceoryx2FFI.iox2_degradation_action_e_DEGRADE_AND_FAIL
+    end
+    throw(ArgumentError("unsupported degradation action: $value"))
+end
+
+@inline function _degradation_action(value::Symbol)
+    if value === :ignore
+        return Iceoryx2FFI.iox2_degradation_action_e_IGNORE
+    elseif value === :warn
+        return Iceoryx2FFI.iox2_degradation_action_e_WARN
+    elseif value === :degrade_and_fail
+        return Iceoryx2FFI.iox2_degradation_action_e_DEGRADE_AND_FAIL
+    end
+    throw(ArgumentError("unsupported degradation action: $value"))
+end
+
+@inline _degradation_action(value) = throw(ArgumentError("unsupported degradation action: $value"))
+
+@inline function _degradation_cause_enum(value::Iceoryx2FFI.iox2_degradation_cause_e)
+    if value == Iceoryx2FFI.iox2_degradation_cause_e_FAILED_TO_ESTABLISH_CONNECTION
+        return DegradationFailedToEstablishConnection
+    elseif value == Iceoryx2FFI.iox2_degradation_cause_e_CONNECTION_CORRUPTED
+        return DegradationConnectionCorrupted
+    end
+    throw(ArgumentError("unsupported degradation cause: $value"))
+end
 
 type_name(::Type{UInt8}) = "u8"
 type_name(::Type{UInt16}) = "u16"
@@ -57,9 +180,227 @@ end
 @inline function _type_details(::Type{T}) where {T}
     name = type_name(T)
     return name,
-        Iceoryx2FFI.c_size_t(ncodeunits(name)),
-        Iceoryx2FFI.c_size_t(sizeof(T)),
-        Iceoryx2FFI.c_size_t(Base.datatype_alignment(T))
+    Iceoryx2FFI.c_size_t(ncodeunits(name)),
+    Iceoryx2FFI.c_size_t(sizeof(T)),
+    Iceoryx2FFI.c_size_t(Base.datatype_alignment(T))
+end
+
+function _service_hash_string(handle_ref, hash_fn)
+    buf_len = Int(Iceoryx2FFI.IOX2_SERVICE_HASH_LENGTH)
+    buffer = Vector{UInt8}(undef, buf_len + 1)
+    GC.@preserve buffer begin
+        hash_fn(
+            handle_ref,
+            Ptr{Cchar}(pointer(buffer)),
+            Iceoryx2FFI.c_size_t(buf_len + 1)
+        )
+    end
+    return _string_from_buffer(buffer)
+end
+
+@inline function _raw_id_16(info, id_fn)
+    raw = Ref{Iceoryx2FFI.iox2_buffer_16_align_4_t}()
+    id_fn(unsafe_handle(info), raw)
+    return raw[].data
+end
+
+"""
+    service_id(info::Union{BackpressureInfoRef, DegradationInfoRef})
+
+Return the raw 16-byte service ID involved in a backpressure or degradation
+callback. The info view is valid only for the callback duration.
+"""
+@inline service_id(info::BackpressureInfoRef) = _raw_id_16(info, Iceoryx2FFI.iox2_backpressure_info_service_id)
+
+@inline service_id(info::DegradationInfoRef) = _raw_id_16(info, Iceoryx2FFI.iox2_degradation_info_service_id)
+
+"""
+    receiver_port_id(info::Union{BackpressureInfoRef, DegradationInfoRef})
+
+Return the raw 16-byte receiver port ID involved in the callback.
+"""
+@inline receiver_port_id(info::BackpressureInfoRef) = _raw_id_16(
+    info, Iceoryx2FFI.iox2_backpressure_info_receiver_port_id)
+
+@inline receiver_port_id(info::DegradationInfoRef) = _raw_id_16(
+    info, Iceoryx2FFI.iox2_degradation_info_receiver_port_id)
+
+"""
+    sender_port_id(info::Union{BackpressureInfoRef, DegradationInfoRef})
+
+Return the raw 16-byte sender port ID involved in the callback.
+"""
+@inline sender_port_id(info::BackpressureInfoRef) = _raw_id_16(
+    info, Iceoryx2FFI.iox2_backpressure_info_sender_port_id)
+
+@inline sender_port_id(info::DegradationInfoRef) = _raw_id_16(
+    info, Iceoryx2FFI.iox2_degradation_info_sender_port_id)
+
+"""
+    retries(info::BackpressureInfoRef) -> UInt64
+
+Return the retry count for the current backpressure incident.
+"""
+@inline retries(info::BackpressureInfoRef) = Iceoryx2FFI.iox2_backpressure_info_retries(unsafe_handle(info))
+
+"""
+    elapsed_time(info::BackpressureInfoRef) -> (UInt64, UInt32)
+
+Return elapsed retry time as `(seconds, nanoseconds)`.
+"""
+@inline function elapsed_time(info::BackpressureInfoRef)
+    seconds = Ref{UInt64}()
+    nanoseconds = Ref{UInt32}()
+    Iceoryx2FFI.iox2_backpressure_info_elapsed_time(unsafe_handle(info), seconds, nanoseconds)
+    return seconds[], nanoseconds[]
+end
+
+abstract type AbstractBackpressureHandler end
+abstract type AbstractDegradationHandler end
+
+const _CallbackException = Union{Nothing, CapturedException}
+
+@inline _callback_exception_ref() = Ref{_CallbackException}(nothing)
+
+mutable struct BackpressureHandler{F} <: AbstractBackpressureHandler
+    on_backpressure::F
+    ref::Base.RefValue{BackpressureHandler{F}}
+    callback::Iceoryx2FFI.iox2_backpressure_handler
+    last_exception::Base.RefValue{_CallbackException}
+    function BackpressureHandler{F}(on_backpressure::F) where {F}
+        ref = Ref{BackpressureHandler{F}}()
+        obj = new{F}(on_backpressure, ref, C_NULL, _callback_exception_ref())
+        obj.callback = _backpressure_handler_cfunction(obj)
+        ref[] = obj
+        return obj
+    end
+end
+
+function BackpressureHandler(on_backpressure)
+    BackpressureHandler{typeof(on_backpressure)}(on_backpressure)
+end
+
+mutable struct DegradationHandler{F} <: AbstractDegradationHandler
+    on_degradation::F
+    ref::Base.RefValue{DegradationHandler{F}}
+    callback::Iceoryx2FFI.iox2_degradation_handler
+    last_exception::Base.RefValue{_CallbackException}
+    function DegradationHandler{F}(on_degradation::F) where {F}
+        ref = Ref{DegradationHandler{F}}()
+        obj = new{F}(on_degradation, ref, C_NULL, _callback_exception_ref())
+        obj.callback = _degradation_handler_cfunction(obj)
+        ref[] = obj
+        return obj
+    end
+end
+
+function DegradationHandler(on_degradation)
+    DegradationHandler{typeof(on_degradation)}(on_degradation)
+end
+
+@inline last_callback_exception(handler::Union{
+    BackpressureHandler, DegradationHandler}) = handler.last_exception[]
+
+@inline function _record_callback_exception!(handler, err)
+    handler.last_exception[] = CapturedException(err, catch_backtrace())
+    return nothing
+end
+
+@inline function _clear_callback_exception!(handler)
+    handler.last_exception[] = nothing
+    return nothing
+end
+
+@noinline function _rethrow_callback_exception!(handler)
+    exception = handler.last_exception[]
+    exception === nothing && return nothing
+    handler.last_exception[] = nothing
+    throw(exception.ex)
+end
+
+function _backpressure_handler_wrapper(
+        info_handle::Iceoryx2FFI.iox2_backpressure_info_h_ref,
+        handler::T
+) where {T <: AbstractBackpressureHandler}
+    try
+        return _backpressure_action(handler.on_backpressure(BackpressureInfoRef(info_handle)))
+    catch err
+        _record_callback_exception!(handler, err)
+        return Iceoryx2FFI.iox2_backpressure_action_e_DISCARD_DATA_AND_FAIL
+    end
+end
+
+function _backpressure_handler_cfunction(::T) where {T <: AbstractBackpressureHandler}
+    return @cfunction(_backpressure_handler_wrapper,
+        Iceoryx2FFI.iox2_backpressure_action_e,
+        (Iceoryx2FFI.iox2_backpressure_info_h_ref, Ref{T}),)
+end
+
+function _degradation_handler_wrapper(
+        cause::Iceoryx2FFI.iox2_degradation_cause_e,
+        info_handle::Iceoryx2FFI.iox2_degradation_info_h_ref,
+        handler::T
+) where {T <: AbstractDegradationHandler}
+    try
+        return _degradation_action(handler.on_degradation(
+            _degradation_cause_enum(cause), DegradationInfoRef(info_handle)))
+    catch err
+        _record_callback_exception!(handler, err)
+        return Iceoryx2FFI.iox2_degradation_action_e_DEGRADE_AND_FAIL
+    end
+end
+
+function _degradation_handler_cfunction(::T) where {T <: AbstractDegradationHandler}
+    return @cfunction(_degradation_handler_wrapper,
+        Iceoryx2FFI.iox2_degradation_action_e,
+        (Iceoryx2FFI.iox2_degradation_cause_e,
+            Iceoryx2FFI.iox2_degradation_info_h_ref, Ref{T}),)
+end
+
+@inline function _take_callback_keepalive!(builder)
+    callbacks = builder.callback_keepalive
+    builder.callback_keepalive = Any[]
+    return callbacks
+end
+
+@inline function _drop_callback_keepalive!(obj)
+    empty!(obj.callback_keepalive)
+    return nothing
+end
+
+"""
+    CleanupState
+
+Report returned by dead-node cleanup APIs.
+"""
+struct CleanupState
+    cleanups::UInt64
+    failed_cleanups::UInt64
+end
+
+@inline CleanupState(raw::Iceoryx2FFI.iox2_cleanup_state_t) = CleanupState(raw.cleanups, raw.failed_cleanups)
+
+@inline function _cleanup_state_ref()
+    return Ref(Iceoryx2FFI.iox2_cleanup_state_t(0, 0))
+end
+
+@inline function _cleanup_state(raw_ref::Base.RefValue{Iceoryx2FFI.iox2_cleanup_state_t})
+    return CleanupState(raw_ref[])
+end
+
+@inline function _timeout_parts(seconds::Integer, nanoseconds::Integer)
+    seconds >= 0 ||
+        throw(ArgumentError("timeout seconds must be non-negative, got $seconds"))
+    0 <= nanoseconds < 1_000_000_000 ||
+        throw(ArgumentError("timeout nanoseconds must be in 0:999999999, got $nanoseconds"))
+    return UInt64(seconds), UInt32(nanoseconds)
+end
+
+function _timeout_parts(seconds::Real)
+    seconds >= 0 || throw(ArgumentError("timeout must be non-negative, got $seconds"))
+    secs = floor(UInt64, seconds)
+    nanos = floor(UInt32, (seconds - secs) * 1e9)
+    return secs, nanos
 end
 
 """
@@ -68,24 +409,27 @@ end
 Allocation-free view into shared memory payloads. The slice is valid only while
 its owning handle is alive. Access is bounds-checked by default.
 """
-struct Slice{T,O} <: AbstractVector{T}
+struct Slice{T, O} <: AbstractVector{T}
     ptr::Ptr{T}
     len::Int
     owner::O
 end
 
-Slice{T}(ptr::Ptr{T}, len::Integer) where {T} = Slice{T,Nothing}(ptr, Int(len), nothing)
-Slice{T}(ptr::Ptr{T}, len::Integer, owner) where {T} = Slice{T,typeof(owner)}(ptr, Int(len), owner)
+Slice{T}(ptr::Ptr{T}, len::Integer) where {T} = Slice{T, Nothing}(ptr, Int(len), nothing)
+function Slice{T}(ptr::Ptr{T}, len::Integer, owner) where {T}
+    Slice{T, typeof(owner)}(ptr, Int(len), owner)
+end
 
-mutable struct HeaderSlot{S,H}
+mutable struct HeaderSlot{S, H}
     storage::Base.RefValue{S}
     handle_ref::Base.RefValue{H}
-    function HeaderSlot{S,H}() where {S,H}
+    function HeaderSlot{S, H}() where {S, H}
         new(Ref{S}(), Ref{H}(_IOX2_NULL))
     end
 end
 
-@inline function _drop_header!(slot::HeaderSlot{Iceoryx2FFI.iox2_publish_subscribe_header_t,H}) where {H}
+@inline function _drop_header!(slot::HeaderSlot{
+        Iceoryx2FFI.iox2_publish_subscribe_header_t, H}) where {H}
     if slot.handle_ref[] != _IOX2_NULL
         Iceoryx2FFI.iox2_publish_subscribe_header_drop(slot.handle_ref[])
         slot.handle_ref[] = _IOX2_NULL
@@ -93,7 +437,8 @@ end
     return nothing
 end
 
-@inline function _drop_header!(slot::HeaderSlot{Iceoryx2FFI.iox2_request_header_t,H}) where {H}
+@inline function _drop_header!(slot::HeaderSlot{
+        Iceoryx2FFI.iox2_request_header_t, H}) where {H}
     if slot.handle_ref[] != _IOX2_NULL
         Iceoryx2FFI.iox2_request_header_drop(slot.handle_ref[])
         slot.handle_ref[] = _IOX2_NULL
@@ -101,13 +446,18 @@ end
     return nothing
 end
 
-@inline function _drop_header!(slot::HeaderSlot{Iceoryx2FFI.iox2_response_header_t,H}) where {H}
+@inline function _drop_header!(slot::HeaderSlot{
+        Iceoryx2FFI.iox2_response_header_t, H}) where {H}
     if slot.handle_ref[] != _IOX2_NULL
         Iceoryx2FFI.iox2_response_header_drop(slot.handle_ref[])
         slot.handle_ref[] = _IOX2_NULL
     end
     return nothing
 end
+
+Base.close(::PublishSubscribeHeaderRef) = nothing
+Base.close(::RequestHeaderRef) = nothing
+Base.close(::ResponseHeaderRef) = nothing
 
 Base.length(slice::Slice) = slice.len
 Base.size(slice::Slice) = (slice.len,)
@@ -130,7 +480,8 @@ Base.similar(slice::Slice{T}) where {T} = Vector{T}(undef, slice.len)
 end
 
 @inline function _require_inactive(handle_ref::Base.RefValue, what::AbstractString)
-    handle_ref[] == _IOX2_NULL || throw(ArgumentError("$what is still active; call close first"))
+    handle_ref[] == _IOX2_NULL ||
+        throw(ArgumentError("$what is still active; call close first"))
     return nothing
 end
 
@@ -140,7 +491,7 @@ end
 
 @inline _slice_mutable(::Type{O}) where {O} = O === Nothing
 
-@inline function Base.setindex!(slice::Slice{T,O}, value::T, i::Int) where {T,O}
+@inline function Base.setindex!(slice::Slice{T, O}, value::T, i::Int) where {T, O}
     _slice_mutable(O) || throw(ArgumentError("slice is read-only"))
     @boundscheck (i >= 1 && i <= slice.len) || throw(BoundsError(slice, i))
     unsafe_store!(slice.ptr, value, i)
@@ -152,7 +503,8 @@ end
     return unsafe_load(slice.ptr, state), state + 1
 end
 
-@inline function Base.fill!(slice::Slice{T}, value::T) where {T}
+@inline function Base.fill!(slice::Slice{T, O}, value::T) where {T, O}
+    _slice_mutable(O) || throw(ArgumentError("slice is read-only"))
     @inbounds for idx in 1:slice.len
         unsafe_store!(slice.ptr, value, idx)
     end
@@ -160,15 +512,50 @@ end
 end
 
 function Base.copyto!(dest::AbstractVector{T}, src::Slice{T}) where {T}
-    length(dest) == src.len || throw(DimensionMismatch("destination has length $(length(dest)), expected $(src.len)"))
+    length(dest) == src.len ||
+        throw(DimensionMismatch("destination has length $(length(dest)), expected $(src.len)"))
     @inbounds for i in 1:src.len
         dest[i] = unsafe_load(src.ptr, i)
     end
     return dest
 end
 
-function Base.copyto!(dest::Slice{T}, src::AbstractVector{T}) where {T}
-    length(src) == dest.len || throw(DimensionMismatch("source has length $(length(src)), expected $(dest.len)"))
+function Base.copyto!(dest::Slice{T, O}, src::AbstractVector{T}) where {T, O}
+    _slice_mutable(O) || throw(ArgumentError("destination slice is read-only"))
+    length(src) == dest.len ||
+        throw(DimensionMismatch("source has length $(length(src)), expected $(dest.len)"))
+    @inbounds for i in 1:dest.len
+        unsafe_store!(dest.ptr, src[i], i)
+    end
+    return dest
+end
+
+function Base.copyto!(dest::Slice{T, O}, src::Slice{T}) where {T, O}
+    _slice_mutable(O) || throw(ArgumentError("destination slice is read-only"))
+    length(src) == dest.len || throw(
+        DimensionMismatch("source has length $(length(src)), expected $(dest.len)"),
+    )
+    @inbounds for i in 1:dest.len
+        unsafe_store!(dest.ptr, unsafe_load(src.ptr, i), i)
+    end
+    return dest
+end
+
+function Base.copyto!(dest::PermutedDimsArray{T, 1}, src::Slice{T}) where {T}
+    length(dest) == src.len || throw(
+        DimensionMismatch("destination has length $(length(dest)), expected $(src.len)"),
+    )
+    @inbounds for i in 1:src.len
+        dest[i] = unsafe_load(src.ptr, i)
+    end
+    return dest
+end
+
+function Base.copyto!(dest::Slice{T, O}, src::PermutedDimsArray{T, 1}) where {T, O}
+    _slice_mutable(O) || throw(ArgumentError("destination slice is read-only"))
+    length(src) == dest.len || throw(
+        DimensionMismatch("source has length $(length(src)), expected $(dest.len)"),
+    )
     @inbounds for i in 1:dest.len
         unsafe_store!(dest.ptr, src[i], i)
     end
@@ -176,7 +563,8 @@ function Base.copyto!(dest::Slice{T}, src::AbstractVector{T}) where {T}
 end
 
 @inline function _default_value(::Type{T}) where {T}
-    Base.hasmethod(zero, Tuple{Type{T}}) || throw(ArgumentError("loan!/loan_slice! requires zero(::Type{$T})"))
+    Base.hasmethod(zero, Tuple{Type{T}}) ||
+        throw(ArgumentError("loan!/loan_slice! requires zero(::Type{$T})"))
     return zero(T)
 end
 

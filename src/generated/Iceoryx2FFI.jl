@@ -13,11 +13,13 @@ const iox2_config_ptr_t = Cvoid
 
 const iox2_listener_details_ptr_t = Cvoid
 
-const iox2_node_id_ptr_t = Cvoid
+const iox2_unique_node_id_ptr_t = Cvoid
 
 const iox2_node_name_ptr_t = Cvoid
 
 const iox2_notifier_details_ptr_t = Cvoid
+
+const iox2_port_name_ptr_t = Cvoid
 
 const iox2_publisher_details_ptr_t = Cvoid
 
@@ -31,15 +33,14 @@ const iox2_subscriber_details_ptr_t = Cvoid
 
 const iox2_writer_details_ptr_t = Cvoid
 
-"""
-    iox2_allocation_strategy_e
+@cenum iox2_semantic_string_error_e::UInt32 begin
+    iox2_semantic_string_error_e_INVALID_CONTENT = 1
+    iox2_semantic_string_error_e_EXCEEDS_MAXIMUM_LENGTH = 2
+end
 
-Describes generically an allocation strategy, meaning how the memory is increased when the available memory is insufficient.
-"""
-@cenum iox2_allocation_strategy_e::UInt32 begin
-    iox2_allocation_strategy_e_BEST_FIT = 0
-    iox2_allocation_strategy_e_POWER_OF_TWO = 1
-    iox2_allocation_strategy_e_STATIC = 2
+@cenum iox2_service_type_e::UInt32 begin
+    iox2_service_type_e_LOCAL = 0
+    iox2_service_type_e_IPC = 1
 end
 
 @cenum iox2_attribute_definition_error_e::UInt32 begin
@@ -51,40 +52,14 @@ end
     iox2_attribute_verification_error_e_INCOMPATIBLE_ATTRIBUTE = 2
 end
 
-@cenum iox2_blackboard_create_error_e::UInt32 begin
-    iox2_blackboard_create_error_e_C_ALREADY_EXISTS = 1
-    iox2_blackboard_create_error_e_C_IS_BEING_CREATED_BY_ANOTHER_INSTANCE = 2
-    iox2_blackboard_create_error_e_C_INTERNAL_FAILURE = 3
-    iox2_blackboard_create_error_e_C_INSUFFICIENT_PERMISSIONS = 4
-    iox2_blackboard_create_error_e_C_SERVICE_IN_CORRUPTED_STATE = 5
-    iox2_blackboard_create_error_e_C_HANGS_IN_CREATION = 6
-    iox2_blackboard_create_error_e_C_NO_ENTRIES_PROVIDED = 7
-end
-
-@cenum iox2_blackboard_open_error_e::UInt32 begin
-    iox2_blackboard_open_error_e_O_DOES_NOT_EXIST = 1
-    iox2_blackboard_open_error_e_O_SERVICE_IN_CORRUPTED_STATE = 2
-    iox2_blackboard_open_error_e_O_INCOMPATIBLE_KEYS = 3
-    iox2_blackboard_open_error_e_O_INTERNAL_FAILURE = 4
-    iox2_blackboard_open_error_e_O_INCOMPATIBLE_ATTRIBUTES = 5
-    iox2_blackboard_open_error_e_O_INCOMPATIBLE_MESSAGING_PATTERN = 6
-    iox2_blackboard_open_error_e_O_DOES_NOT_SUPPORT_REQUESTED_AMOUNT_OF_READERS = 7
-    iox2_blackboard_open_error_e_O_INSUFFICIENT_PERMISSIONS = 8
-    iox2_blackboard_open_error_e_O_HANGS_IN_CREATION = 9
-    iox2_blackboard_open_error_e_O_IS_MARKED_FOR_DESTRUCTION = 10
-    iox2_blackboard_open_error_e_O_EXCEEDS_MAX_NUMBER_OF_NODES = 11
-    iox2_blackboard_open_error_e_O_DOES_NOT_SUPPORT_REQUESTED_AMOUNT_OF_NODES = 12
-end
-
 @cenum iox2_callback_progression_e::UInt32 begin
     iox2_callback_progression_e_STOP = 0
     iox2_callback_progression_e_CONTINUE = 1
 end
 
-@cenum iox2_client_create_error_e::UInt32 begin
-    iox2_client_create_error_e_UNABLE_TO_CREATE_DATA_SEGMENT = 1
-    iox2_client_create_error_e_EXCEEDS_MAX_SUPPORTED_CLIENTS = 2
-    iox2_client_create_error_e_FAILED_TO_DEPLOY_THREAD_SAFETY_POLICY = 3
+@cenum iox2_backpressure_strategy_e::UInt32 begin
+    iox2_backpressure_strategy_e_RETRY_UNTIL_DELIVERED = 0
+    iox2_backpressure_strategy_e_DISCARD_DATA = 1
 end
 
 """
@@ -101,65 +76,10 @@ Failures occurring while creating a new [[`iox2_config_t`](@ref)] object with [`
     iox2_config_creation_error_e_INVALID_FILE_PATH = 6
 end
 
-@cenum iox2_connection_failure_e::UInt32 begin
-    iox2_connection_failure_e_FAILED_TO_ESTABLISH_CONNECTION = 0
-    iox2_connection_failure_e_UNABLE_TO_MAP_SENDERS_DATA_SEGMENT = 1
-end
-
-@cenum iox2_entry_handle_error_e::UInt32 begin
-    iox2_entry_handle_error_e_ENTRY_DOES_NOT_EXIST = 1
-end
-
-@cenum iox2_entry_handle_mut_error_e::UInt32 begin
-    iox2_entry_handle_mut_error_e_ENTRY_DOES_NOT_EXIST = 1
-    iox2_entry_handle_mut_error_e_HANDLE_ALREADY_EXISTS = 2
-end
-
-@cenum iox2_event_open_or_create_error_e::UInt32 begin
-    iox2_event_open_or_create_error_e_O_DOES_NOT_EXIST = 1
-    iox2_event_open_or_create_error_e_O_INSUFFICIENT_PERMISSIONS = 2
-    iox2_event_open_or_create_error_e_O_SERVICE_IN_CORRUPTED_STATE = 3
-    iox2_event_open_or_create_error_e_O_INCOMPATIBLE_MESSAGING_PATTERN = 4
-    iox2_event_open_or_create_error_e_O_INCOMPATIBLE_ATTRIBUTES = 5
-    iox2_event_open_or_create_error_e_O_INCOMPATIBLE_DEADLINE = 6
-    iox2_event_open_or_create_error_e_O_INCOMPATIBLE_NOTIFIER_CREATED_EVENT = 7
-    iox2_event_open_or_create_error_e_O_INCOMPATIBLE_NOTIFIER_DROPPED_EVENT = 8
-    iox2_event_open_or_create_error_e_O_INCOMPATIBLE_NOTIFIER_DEAD_EVENT = 9
-    iox2_event_open_or_create_error_e_O_INTERNAL_FAILURE = 10
-    iox2_event_open_or_create_error_e_O_HANGS_IN_CREATION = 11
-    iox2_event_open_or_create_error_e_O_DOES_NOT_SUPPORT_REQUESTED_AMOUNT_OF_NOTIFIERS = 12
-    iox2_event_open_or_create_error_e_O_DOES_NOT_SUPPORT_REQUESTED_AMOUNT_OF_LISTENERS = 13
-    iox2_event_open_or_create_error_e_O_DOES_NOT_SUPPORT_REQUESTED_MAX_EVENT_ID = 14
-    iox2_event_open_or_create_error_e_O_DOES_NOT_SUPPORT_REQUESTED_AMOUNT_OF_NODES = 15
-    iox2_event_open_or_create_error_e_O_EXCEEDS_MAX_NUMBER_OF_NODES = 16
-    iox2_event_open_or_create_error_e_O_IS_MARKED_FOR_DESTRUCTION = 17
-    iox2_event_open_or_create_error_e_C_SERVICE_IN_CORRUPTED_STATE = 18
-    iox2_event_open_or_create_error_e_C_INTERNAL_FAILURE = 19
-    iox2_event_open_or_create_error_e_C_IS_BEING_CREATED_BY_ANOTHER_INSTANCE = 20
-    iox2_event_open_or_create_error_e_C_ALREADY_EXISTS = 21
-    iox2_event_open_or_create_error_e_C_HANGS_IN_CREATION = 22
-    iox2_event_open_or_create_error_e_C_INSUFFICIENT_PERMISSIONS = 23
-    iox2_event_open_or_create_error_e_C_OLD_CONNECTION_STILL_ACTIVE = 24
-    iox2_event_open_or_create_error_e_SYSTEM_IN_FLUX = 25
-end
-
-@cenum iox2_listener_create_error_e::UInt32 begin
-    iox2_listener_create_error_e_EXCEEDS_MAX_SUPPORTED_LISTENERS = 1
-    iox2_listener_create_error_e_RESOURCE_CREATION_FAILED = 2
-    iox2_listener_create_error_e_FAILED_TO_DEPLOY_THREAD_SAFETY_POLICY = 3
-end
-
 @cenum iox2_listener_wait_error_e::UInt32 begin
     iox2_listener_wait_error_e_CONTRACT_VIOLATION = 1
     iox2_listener_wait_error_e_INTERNAL_FAILURE = 2
     iox2_listener_wait_error_e_INTERRUPT_SIGNAL = 3
-end
-
-@cenum iox2_loan_error_e::UInt32 begin
-    iox2_loan_error_e_OUT_OF_MEMORY = 1
-    iox2_loan_error_e_EXCEEDS_MAX_LOANED_SAMPLES = 2
-    iox2_loan_error_e_EXCEEDS_MAX_LOAN_SIZE = 3
-    iox2_loan_error_e_INTERNAL_FAILURE = 4
 end
 
 @cenum iox2_log_level_e::UInt32 begin
@@ -169,30 +89,6 @@ end
     iox2_log_level_e_WARN = 3
     iox2_log_level_e_ERROR = 4
     iox2_log_level_e_FATAL = 5
-end
-
-@cenum iox2_messaging_pattern_e::UInt32 begin
-    iox2_messaging_pattern_e_PUBLISH_SUBSCRIBE = 0
-    iox2_messaging_pattern_e_EVENT = 1
-    iox2_messaging_pattern_e_REQUEST_RESPONSE = 2
-    iox2_messaging_pattern_e_BLACKBOARD = 3
-end
-
-"""
-    iox2_node_cleanup_failure_e
-
-Failures of [`[`iox2_dead_node_remove_stale_resources`](@ref)()`] that occur when the stale resources of a dead node are removed.
-"""
-@cenum iox2_node_cleanup_failure_e::UInt32 begin
-    iox2_node_cleanup_failure_e_INTERRUPT = 1
-    iox2_node_cleanup_failure_e_INTERNAL_ERROR = 2
-    iox2_node_cleanup_failure_e_INSUFFICIENT_PERMISSIONS = 3
-    iox2_node_cleanup_failure_e_VERSION_MISMATCH = 4
-end
-
-@cenum iox2_node_creation_failure_e::UInt32 begin
-    iox2_node_creation_failure_e_INSUFFICIENT_PERMISSIONS = 1
-    iox2_node_creation_failure_e_INTERNAL_ERROR = 2
 end
 
 """
@@ -206,6 +102,28 @@ The failures that can occur when a list of node states is created with [`[`iox2_
     iox2_node_list_failure_e_INTERNAL_ERROR = 3
 end
 
+@cenum iox2_node_wait_failure_e::UInt32 begin
+    iox2_node_wait_failure_e_INTERRUPT = 1
+    iox2_node_wait_failure_e_TERMINATION_REQUEST = 2
+end
+
+"""
+    iox2_signal_handling_mode_e
+
+Defines how signals are handled by constructs that might register a custom signal handler.
+"""
+@cenum iox2_signal_handling_mode_e::UInt32 begin
+    iox2_signal_handling_mode_e_HANDLE_TERMINATION_REQUESTS = 1
+    iox2_signal_handling_mode_e_DISABLED = 2
+end
+
+@cenum iox2_messaging_pattern_e::UInt32 begin
+    iox2_messaging_pattern_e_PUBLISH_SUBSCRIBE = 0
+    iox2_messaging_pattern_e_EVENT = 1
+    iox2_messaging_pattern_e_REQUEST_RESPONSE = 2
+    iox2_messaging_pattern_e_BLACKBOARD = 3
+end
+
 @cenum iox2_node_state_e::UInt32 begin
     iox2_node_state_e_ALIVE = 0
     iox2_node_state_e_DEAD = 1
@@ -213,20 +131,200 @@ end
     iox2_node_state_e_UNDEFINED = 3
 end
 
-@cenum iox2_node_wait_failure_e::UInt32 begin
-    iox2_node_wait_failure_e_INTERRUPT = 1
-    iox2_node_wait_failure_e_TERMINATION_REQUEST = 2
-end
-
-@cenum iox2_notifier_create_error_e::UInt32 begin
-    iox2_notifier_create_error_e_EXCEEDS_MAX_SUPPORTED_NOTIFIERS = 1
-    iox2_notifier_create_error_e_FAILED_TO_DEPLOY_THREAD_SAFETY_POLICY = 2
+@cenum iox2_node_creation_failure_e::UInt32 begin
+    iox2_node_creation_failure_e_INSUFFICIENT_PERMISSIONS = 1
+    iox2_node_creation_failure_e_INTERNAL_ERROR = 2
+    iox2_node_creation_failure_e_SYSTEM_CORRUPTED = 3
 end
 
 @cenum iox2_notifier_notify_error_e::UInt32 begin
     iox2_notifier_notify_error_e_EVENT_ID_OUT_OF_BOUNDS = 1
     iox2_notifier_notify_error_e_MISSED_DEADLINE = 2
     iox2_notifier_notify_error_e_UNABLE_TO_ACQUIRE_ELAPSED_TIME = 3
+    iox2_notifier_notify_error_e_INVALID_LISTENER_KEY = 4
+end
+
+@cenum iox2_type_variant_e::UInt32 begin
+    iox2_type_variant_e_FIXED_SIZE = 0
+    iox2_type_variant_e_DYNAMIC = 1
+end
+
+@cenum iox2_client_create_error_e::UInt32 begin
+    iox2_client_create_error_e_UNABLE_TO_CREATE_DATA_SEGMENT = 1
+    iox2_client_create_error_e_EXCEEDS_MAX_SUPPORTED_CLIENTS = 2
+    iox2_client_create_error_e_FAILED_TO_DEPLOY_THREAD_SAFETY_POLICY = 3
+    iox2_client_create_error_e_UNABLE_TO_CREATE_PORT_TAG = 4
+    iox2_client_create_error_e_MAX_ACTIVE_REQUESTS_EXCEEDS_MAX_SUPPORTED_ACTIVE_REQUESTS_OF_SERVICE = 5
+end
+
+"""
+    iox2_allocation_strategy_e
+
+Describes generically an allocation strategy, meaning how the memory is increased when the available memory is insufficient.
+"""
+@cenum iox2_allocation_strategy_e::UInt32 begin
+    iox2_allocation_strategy_e_BEST_FIT = 0
+    iox2_allocation_strategy_e_POWER_OF_TWO = 1
+    iox2_allocation_strategy_e_STATIC = 2
+end
+
+"""
+    iox2_degradation_action_e
+
+Defines the action that shall be take when an degradation is detected. This can happen when a sample cannot be delivered, or when the system is corrupted and files are modified by non-iceoryx2 instances. Is used as return value of the degradation handler to define a custom behavior.
+"""
+@cenum iox2_degradation_action_e::UInt32 begin
+    iox2_degradation_action_e_IGNORE = 0
+    iox2_degradation_action_e_WARN = 1
+    iox2_degradation_action_e_DEGRADE_AND_FAIL = 2
+end
+
+"""
+    iox2_degradation_cause_e
+
+Defines the cause of a degradation and is a parameter of the degradation handler.
+"""
+@cenum iox2_degradation_cause_e::UInt32 begin
+    iox2_degradation_cause_e_FAILED_TO_ESTABLISH_CONNECTION = 0
+    iox2_degradation_cause_e_CONNECTION_CORRUPTED = 1
+end
+
+"""
+    iox2_backpressure_action_e
+
+Defines the action that shall be take when an a data cannot be delivered.
+"""
+@cenum iox2_backpressure_action_e::UInt32 begin
+    iox2_backpressure_action_e_FOLLOW_BACKPRESSUREY_STRATEGY = 0
+    iox2_backpressure_action_e_RETRY = 1
+    iox2_backpressure_action_e_DISCARD_DATA = 2
+    iox2_backpressure_action_e_DISCARD_DATA_AND_FAIL = 3
+end
+
+@cenum iox2_listener_create_error_e::UInt32 begin
+    iox2_listener_create_error_e_EXCEEDS_MAX_SUPPORTED_LISTENERS = 1
+    iox2_listener_create_error_e_RESOURCE_CREATION_FAILED = 2
+    iox2_listener_create_error_e_FAILED_TO_DEPLOY_THREAD_SAFETY_POLICY = 3
+    iox2_listener_create_error_e_UNABLE_TO_CREATE_PORT_TAG = 4
+end
+
+@cenum iox2_notifier_create_error_e::UInt32 begin
+    iox2_notifier_create_error_e_EXCEEDS_MAX_SUPPORTED_NOTIFIERS = 1
+    iox2_notifier_create_error_e_FAILED_TO_DEPLOY_THREAD_SAFETY_POLICY = 2
+    iox2_notifier_create_error_e_UNABLE_TO_CREATE_PORT_TAG = 3
+end
+
+@cenum iox2_publisher_create_error_e::UInt32 begin
+    iox2_publisher_create_error_e_EXCEEDS_MAX_SUPPORTED_PUBLISHERS = 1
+    iox2_publisher_create_error_e_UNABLE_TO_CREATE_DATA_SEGMENT = 2
+    iox2_publisher_create_error_e_FAILED_TO_DEPLOY_THREAD_SAFETY_POLICY = 3
+    iox2_publisher_create_error_e_UNABLE_TO_CREATE_PORT_TAG = 4
+end
+
+@cenum iox2_reader_create_error_e::UInt32 begin
+    iox2_reader_create_error_e_EXCEEDS_MAX_SUPPORTED_READERS = 1
+    iox2_reader_create_error_e_FAILED_TO_DEPLOY_THREADSAFETY_POLICY = 2
+    iox2_reader_create_error_e_UNABLE_TO_CREATE_PORT_TAG = 3
+end
+
+@cenum iox2_server_create_error_e::UInt32 begin
+    iox2_server_create_error_e_EXCEEDS_MAX_SUPPORTED_SERVERS = 1
+    iox2_server_create_error_e_UNABLE_TO_CREATE_DATA_SEGMENT = 2
+    iox2_server_create_error_e_FAILED_TO_DEPLOY_THREAD_SAFETY_POLICY = 3
+    iox2_server_create_error_e_UNABLE_TO_CREATE_PORT_TAG = 4
+end
+
+@cenum iox2_subscriber_create_error_e::UInt32 begin
+    iox2_subscriber_create_error_e_EXCEEDS_MAX_SUPPORTED_SUBSCRIBERS = 1
+    iox2_subscriber_create_error_e_BUFFER_SIZE_EXCEEDS_MAX_SUPPORTED_BUFFER_SIZE_OF_SERVICE = 2
+    iox2_subscriber_create_error_e_FAILED_TO_DEPLOY_THREAD_SAFETY_POLICY = 3
+    iox2_subscriber_create_error_e_UNABLE_TO_CREATE_PORT_TAG = 4
+    iox2_subscriber_create_error_e_HISTORY_REQUEST_EXCEEDS_HISTORY_SIZE_OF_SERVICE = 5
+    iox2_subscriber_create_error_e_HISTORY_REQUEST_EXCEEDS_BUFFER_SIZE_OF_SUBSCRIBER = 6
+end
+
+@cenum iox2_writer_create_error_e::UInt32 begin
+    iox2_writer_create_error_e_EXCEEDS_MAX_SUPPORTED_WRITERS = 1
+    iox2_writer_create_error_e_INTERNAL_FAILURE = 2
+    iox2_writer_create_error_e_FAILED_TO_DEPLOY_THREADSAFETY_POLICY = 3
+    iox2_writer_create_error_e_UNABLE_TO_CREATE_PORT_TAG = 4
+end
+
+@cenum iox2_progressive_write_error_e::UInt32 begin
+    iox2_progressive_write_error_e_COMMITTED_LENGTH_REGRESSED = 1
+    iox2_progressive_write_error_e_COMMITTED_LENGTH_EXCEEDS_CAPACITY = 2
+    iox2_progressive_write_error_e_SAMPLE_IS_TERMINAL = 3
+    iox2_progressive_write_error_e_INSUFFICIENT_CAPACITY = 4
+end
+
+@cenum iox2_progressive_sample_state_e::UInt32 begin
+    iox2_progressive_sample_state_e_ACTIVE = 1
+    iox2_progressive_sample_state_e_COMPLETE = 2
+    iox2_progressive_sample_state_e_ABORTED = 3
+end
+
+@cenum iox2_send_error_e::UInt32 begin
+    iox2_send_error_e_CONNECTION_BROKEN_SINCE_SENDER_NO_LONGER_EXISTS = 1
+    iox2_send_error_e_CONNECTION_CORRUPTED = 2
+    iox2_send_error_e_LOAN_ERROR_OUT_OF_MEMORY = 3
+    iox2_send_error_e_LOAN_ERROR_EXCEEDS_MAX_LOANS = 4
+    iox2_send_error_e_LOAN_ERROR_EXCEEDS_MAX_LOAN_SIZE = 5
+    iox2_send_error_e_LOAN_ERROR_INTERNAL_FAILURE = 6
+    iox2_send_error_e_CONNECTION_ERROR = 7
+    iox2_send_error_e_UNABLE_TO_DELIVER = 8
+    iox2_send_error_e_INTERNAL_ERROR = 9
+end
+
+@cenum iox2_loan_error_e::UInt32 begin
+    iox2_loan_error_e_OUT_OF_MEMORY = 1
+    iox2_loan_error_e_EXCEEDS_MAX_LOANED_SAMPLES = 2
+    iox2_loan_error_e_EXCEEDS_MAX_LOAN_SIZE = 3
+    iox2_loan_error_e_INTERNAL_FAILURE = 4
+end
+
+@cenum iox2_service_details_error_e::UInt32 begin
+    iox2_service_details_error_e_FAILED_TO_OPEN_STATIC_SERVICE_INFO = 1
+    iox2_service_details_error_e_FAILED_TO_READ_STATIC_SERVICE_INFO = 2
+    iox2_service_details_error_e_FAILED_TO_DESERIALIZE_STATIC_SERVICE_INFO = 3
+    iox2_service_details_error_e_SERVICE_IN_INCONSISTENT_STATE = 4
+    iox2_service_details_error_e_VERSION_MISMATCH = 5
+    iox2_service_details_error_e_INTERNAL_ERROR = 6
+    iox2_service_details_error_e_FAILED_TO_ACQUIRE_NODE_STATE = 7
+    iox2_service_details_error_e_INTERRUPT = 8
+    iox2_service_details_error_e_INSUFFICIENT_PERMISSIONS = 9
+end
+
+@cenum iox2_event_open_or_create_error_e::UInt32 begin
+    iox2_event_open_or_create_error_e_O_DOES_NOT_EXIST = 1
+    iox2_event_open_or_create_error_e_O_INSUFFICIENT_PERMISSIONS = 2
+    iox2_event_open_or_create_error_e_O_SERVICE_IN_CORRUPTED_STATE = 3
+    iox2_event_open_or_create_error_e_O_INCOMPATIBLE_MESSAGING_PATTERN = 4
+    iox2_event_open_or_create_error_e_O_INCOMPATIBLE_ATTRIBUTES = 5
+    iox2_event_open_or_create_error_e_O_INCOMPATIBLE_DEADLINE = 6
+    iox2_event_open_or_create_error_e_O_INCOMPATIBLE_NOTIFIER_CREATED_EVENT = 7
+    iox2_event_open_or_create_error_e_O_INCOMPATIBLE_NOTIFIER_DROPPED_EVENT = 8
+    iox2_event_open_or_create_error_e_O_INCOMPATIBLE_NOTIFIER_DEAD_EVENT = 9
+    iox2_event_open_or_create_error_e_O_INTERNAL_FAILURE = 10
+    iox2_event_open_or_create_error_e_O_UNABLE_TO_CREATE_SERVICE_TAG = 11
+    iox2_event_open_or_create_error_e_O_VERSION_MISMATCH = 12
+    iox2_event_open_or_create_error_e_O_HANGS_IN_CREATION = 13
+    iox2_event_open_or_create_error_e_O_DOES_NOT_SUPPORT_REQUESTED_AMOUNT_OF_NOTIFIERS = 14
+    iox2_event_open_or_create_error_e_O_DOES_NOT_SUPPORT_REQUESTED_AMOUNT_OF_LISTENERS = 15
+    iox2_event_open_or_create_error_e_O_DOES_NOT_SUPPORT_REQUESTED_MAX_EVENT_ID = 16
+    iox2_event_open_or_create_error_e_O_DOES_NOT_SUPPORT_REQUESTED_AMOUNT_OF_NODES = 17
+    iox2_event_open_or_create_error_e_O_EXCEEDS_MAX_NUMBER_OF_NODES = 18
+    iox2_event_open_or_create_error_e_O_IS_MARKED_FOR_DESTRUCTION = 19
+    iox2_event_open_or_create_error_e_O_INTERRUPT = 20
+    iox2_event_open_or_create_error_e_C_SERVICE_IN_CORRUPTED_STATE = 21
+    iox2_event_open_or_create_error_e_C_INTERNAL_FAILURE = 22
+    iox2_event_open_or_create_error_e_C_IS_BEING_CREATED_BY_ANOTHER_INSTANCE = 23
+    iox2_event_open_or_create_error_e_C_ALREADY_EXISTS = 24
+    iox2_event_open_or_create_error_e_C_INSUFFICIENT_PERMISSIONS = 25
+    iox2_event_open_or_create_error_e_C_UNABLE_TO_CREATE_SERVICE_TAG = 26
+    iox2_event_open_or_create_error_e_C_SERVICE_CONFIG_COULD_NOT_BE_CREATED = 27
+    iox2_event_open_or_create_error_e_C_OLD_CONNECTION_STILL_ACTIVE = 28
+    iox2_event_open_or_create_error_e_C_INTERRUPT = 29
+    iox2_event_open_or_create_error_e_SYSTEM_IN_FLUX = 30
 end
 
 @cenum iox2_pub_sub_open_or_create_error_e::UInt32 begin
@@ -244,28 +342,30 @@ end
     iox2_pub_sub_open_or_create_error_e_O_INCOMPATIBLE_OVERFLOW_BEHAVIOR = 12
     iox2_pub_sub_open_or_create_error_e_O_INSUFFICIENT_PERMISSIONS = 13
     iox2_pub_sub_open_or_create_error_e_O_SERVICE_IN_CORRUPTED_STATE = 14
-    iox2_pub_sub_open_or_create_error_e_O_HANGS_IN_CREATION = 15
-    iox2_pub_sub_open_or_create_error_e_O_EXCEEDS_MAX_NUMBER_OF_NODES = 16
-    iox2_pub_sub_open_or_create_error_e_O_IS_MARKED_FOR_DESTRUCTION = 17
-    iox2_pub_sub_open_or_create_error_e_C_SERVICE_IN_CORRUPTED_STATE = 18
-    iox2_pub_sub_open_or_create_error_e_C_SUBSCRIBER_BUFFER_MUST_BE_LARGER_THAN_HISTORY_SIZE = 19
-    iox2_pub_sub_open_or_create_error_e_C_ALREADY_EXISTS = 20
-    iox2_pub_sub_open_or_create_error_e_C_INSUFFICIENT_PERMISSIONS = 21
-    iox2_pub_sub_open_or_create_error_e_C_INTERNAL_FAILURE = 22
-    iox2_pub_sub_open_or_create_error_e_C_IS_BEING_CREATED_BY_ANOTHER_INSTANCE = 23
-    iox2_pub_sub_open_or_create_error_e_C_OLD_CONNECTION_STILL_ACTIVE = 24
-    iox2_pub_sub_open_or_create_error_e_C_HANGS_IN_CREATION = 25
-    iox2_pub_sub_open_or_create_error_e_SYSTEM_IN_FLUX = 26
+    iox2_pub_sub_open_or_create_error_e_O_UNABLE_TO_CREATE_SERVICE_TAG = 15
+    iox2_pub_sub_open_or_create_error_e_O_VERSION_MISMATCH = 16
+    iox2_pub_sub_open_or_create_error_e_O_HANGS_IN_CREATION = 17
+    iox2_pub_sub_open_or_create_error_e_O_EXCEEDS_MAX_NUMBER_OF_NODES = 18
+    iox2_pub_sub_open_or_create_error_e_O_IS_MARKED_FOR_DESTRUCTION = 19
+    iox2_pub_sub_open_or_create_error_e_O_INTERRUPT = 20
+    iox2_pub_sub_open_or_create_error_e_O_UNABLE_TO_ACQUIRE_TYPE_DEFINITION = 21
+    iox2_pub_sub_open_or_create_error_e_C_SERVICE_IN_CORRUPTED_STATE = 22
+    iox2_pub_sub_open_or_create_error_e_C_SUBSCRIBER_BUFFER_MUST_BE_LARGER_THAN_HISTORY_SIZE = 23
+    iox2_pub_sub_open_or_create_error_e_C_ALREADY_EXISTS = 24
+    iox2_pub_sub_open_or_create_error_e_C_INSUFFICIENT_PERMISSIONS = 25
+    iox2_pub_sub_open_or_create_error_e_C_INTERNAL_FAILURE = 26
+    iox2_pub_sub_open_or_create_error_e_C_IS_BEING_CREATED_BY_ANOTHER_INSTANCE = 27
+    iox2_pub_sub_open_or_create_error_e_C_HANGS_IN_CREATION = 28
+    iox2_pub_sub_open_or_create_error_e_C_UNABLE_TO_CREATE_SERVICE_TAG = 29
+    iox2_pub_sub_open_or_create_error_e_C_SERVICE_CONFIG_COULD_NOT_BE_CREATED = 30
+    iox2_pub_sub_open_or_create_error_e_C_INTERRUPT = 31
+    iox2_pub_sub_open_or_create_error_e_C_UNABLE_TO_ACQUIRE_TYPE_DEFINITION = 32
+    iox2_pub_sub_open_or_create_error_e_SYSTEM_IN_FLUX = 33
 end
 
-@cenum iox2_publisher_create_error_e::UInt32 begin
-    iox2_publisher_create_error_e_EXCEEDS_MAX_SUPPORTED_PUBLISHERS = 1
-    iox2_publisher_create_error_e_UNABLE_TO_CREATE_DATA_SEGMENT = 2
-    iox2_publisher_create_error_e_FAILED_TO_DEPLOY_THREAD_SAFETY_POLICY = 3
-end
-
-@cenum iox2_reader_create_error_e::UInt32 begin
-    iox2_reader_create_error_e_EXCEEDS_MAX_SUPPORTED_READERS = 1
+@cenum iox2_type_detail_error_e::UInt32 begin
+    iox2_type_detail_error_e_INVALID_TYPE_NAME = 1
+    iox2_type_detail_error_e_INVALID_SIZE_OR_ALIGNMENT_VALUE = 2
 end
 
 @cenum iox2_receive_error_e::UInt32 begin
@@ -274,125 +374,14 @@ end
     iox2_receive_error_e_UNABLE_TO_MAP_SENDERS_DATA_SEGMENT = 3
 end
 
-@cenum iox2_request_response_open_or_create_error_e::UInt32 begin
-    iox2_request_response_open_or_create_error_e_O_DOES_NOT_EXIST = 1
-    iox2_request_response_open_or_create_error_e_O_DOES_NOT_SUPPORT_REQUESTED_AMOUNT_OF_CLIENT_REQUEST_LOANS = 2
-    iox2_request_response_open_or_create_error_e_O_DOES_NOT_SUPPORT_REQUESTED_AMOUNT_OF_ACTIVE_REQUESTS_PER_CLIENT = 3
-    iox2_request_response_open_or_create_error_e_O_DOES_NOT_SUPPORT_REQUESTED_RESPONSE_BUFFER_SIZE = 4
-    iox2_request_response_open_or_create_error_e_O_DOES_NOT_SUPPORT_REQUESTED_AMOUNT_OF_SERVERS = 5
-    iox2_request_response_open_or_create_error_e_O_DOES_NOT_SUPPORT_REQUESTED_AMOUNT_OF_CLIENTS = 6
-    iox2_request_response_open_or_create_error_e_O_DOES_NOT_SUPPORT_REQUESTED_AMOUNT_OF_NODES = 7
-    iox2_request_response_open_or_create_error_e_O_DOES_NOT_SUPPORT_REQUESTED_AMOUNT_OF_BORROWED_RESPONSES_PER_PENDING_RESPONSE = 8
-    iox2_request_response_open_or_create_error_e_O_EXCEEDS_MAX_NUMBER_OF_NODES = 9
-    iox2_request_response_open_or_create_error_e_O_HANGS_IN_CREATION = 10
-    iox2_request_response_open_or_create_error_e_O_INCOMPATIBLE_REQUEST_TYPE = 11
-    iox2_request_response_open_or_create_error_e_O_INCOMPATIBLE_RESPONSE_TYPE = 12
-    iox2_request_response_open_or_create_error_e_O_INCOMPATIBLE_ATTRIBUTES = 13
-    iox2_request_response_open_or_create_error_e_O_INCOMPATIBLE_MESSAGING_PATTERN = 14
-    iox2_request_response_open_or_create_error_e_O_INCOMPATIBLE_OVERFLOW_BEHAVIOR_FOR_REQUESTS = 15
-    iox2_request_response_open_or_create_error_e_O_INCOMPATIBLE_OVERFLOW_BEHAVIOR_FOR_RESPONSES = 16
-    iox2_request_response_open_or_create_error_e_O_INCOMPATIBLE_BEHAVIOR_FOR_FIRE_AND_FORGET_REQUESTS = 17
-    iox2_request_response_open_or_create_error_e_O_INSUFFICIENT_PERMISSIONS = 18
-    iox2_request_response_open_or_create_error_e_O_INTERNAL_FAILURE = 19
-    iox2_request_response_open_or_create_error_e_O_IS_MARKED_FOR_DESTRUCTION = 20
-    iox2_request_response_open_or_create_error_e_O_SERVICE_IN_CORRUPTED_STATE = 21
-    iox2_request_response_open_or_create_error_e_C_ALREADY_EXISTS = 22
-    iox2_request_response_open_or_create_error_e_C_INTERNAL_FAILURE = 23
-    iox2_request_response_open_or_create_error_e_C_IS_BEING_CREATED_BY_ANOTHER_INSTANCE = 24
-    iox2_request_response_open_or_create_error_e_C_INSUFFICIENT_PERMISSIONS = 25
-    iox2_request_response_open_or_create_error_e_C_HANGS_IN_CREATION = 26
-    iox2_request_response_open_or_create_error_e_C_SERVICE_IN_CORRUPTED_STATE = 27
-    iox2_request_response_open_or_create_error_e_SYSTEM_IN_FLUX = 28
-end
-
-@cenum iox2_request_send_error_e::UInt32 begin
-    iox2_request_send_error_e_CONNECTION_BROKEN_SINCE_SENDER_NO_LONGER_EXISTS = 1
-    iox2_request_send_error_e_CONNECTION_CORRUPTED = 2
-    iox2_request_send_error_e_LOAN_ERROR_OUT_OF_MEMORY = 3
-    iox2_request_send_error_e_LOAN_ERROR_EXCEEDS_MAX_LOANS = 4
-    iox2_request_send_error_e_LOAN_ERROR_EXCEEDS_MAX_LOAN_SIZE = 5
-    iox2_request_send_error_e_LOAN_ERROR_INTERNAL_FAILURE = 6
-    iox2_request_send_error_e_CONNECTION_ERROR = 7
-    iox2_request_send_error_e_EXCEEDS_MAX_ACTIVE_REQUESTS = 8
-end
-
-@cenum iox2_semantic_string_error_e::UInt32 begin
-    iox2_semantic_string_error_e_INVALID_CONTENT = 1
-    iox2_semantic_string_error_e_EXCEEDS_MAXIMUM_LENGTH = 2
-end
-
-@cenum iox2_send_error_e::UInt32 begin
-    iox2_send_error_e_CONNECTION_BROKEN_SINCE_SENDER_NO_LONGER_EXISTS = 1
-    iox2_send_error_e_CONNECTION_CORRUPTED = 2
-    iox2_send_error_e_LOAN_ERROR_OUT_OF_MEMORY = 3
-    iox2_send_error_e_LOAN_ERROR_EXCEEDS_MAX_LOANS = 4
-    iox2_send_error_e_LOAN_ERROR_EXCEEDS_MAX_LOAN_SIZE = 5
-    iox2_send_error_e_LOAN_ERROR_INTERNAL_FAILURE = 6
-    iox2_send_error_e_CONNECTION_ERROR = 7
-end
-
-@cenum iox2_server_create_error_e::UInt32 begin
-    iox2_server_create_error_e_EXCEEDS_MAX_SUPPORTED_SERVERS = 1
-    iox2_server_create_error_e_UNABLE_TO_CREATE_DATA_SEGMENT = 2
-    iox2_server_create_error_e_FAILED_TO_DEPLOY_THREAD_SAFETY_POLICY = 3
-end
-
-@cenum iox2_service_details_error_e::UInt32 begin
-    iox2_service_details_error_e_FAILED_TO_OPEN_STATIC_SERVICE_INFO = 1
-    iox2_service_details_error_e_FAILED_TO_READ_STATIC_SERVICE_INFO = 2
-    iox2_service_details_error_e_FAILED_TO_DESERIALIZE_STATIC_SERVICE_INFO = 3
-    iox2_service_details_error_e_SERVICE_IN_INCONSISTENT_STATE = 4
-    iox2_service_details_error_e_VERSION_MISMATCH = 5
-    iox2_service_details_error_e_INTERNAL_ERROR = 6
-    iox2_service_details_error_e_FAILED_TO_ACQUIRE_NODE_STATE = 7
-end
-
 @cenum iox2_service_list_error_e::UInt32 begin
     iox2_service_list_error_e_INSUFFICIENT_PERMISSIONS = 1
     iox2_service_list_error_e_INTERNAL_ERROR = 2
 end
 
-@cenum iox2_service_type_e::UInt32 begin
-    iox2_service_type_e_LOCAL = 0
-    iox2_service_type_e_IPC = 1
-end
-
-"""
-    iox2_signal_handling_mode_e
-
-Defines how signals are handled by constructs that might register a custom signal handler.
-"""
-@cenum iox2_signal_handling_mode_e::UInt32 begin
-    iox2_signal_handling_mode_e_HANDLE_TERMINATION_REQUESTS = 1
-    iox2_signal_handling_mode_e_DISABLED = 2
-end
-
-@cenum iox2_subscriber_create_error_e::UInt32 begin
-    iox2_subscriber_create_error_e_EXCEEDS_MAX_SUPPORTED_SUBSCRIBERS = 1
-    iox2_subscriber_create_error_e_BUFFER_SIZE_EXCEEDS_MAX_SUPPORTED_BUFFER_SIZE_OF_SERVICE = 2
-    iox2_subscriber_create_error_e_FAILED_TO_DEPLOY_THREAD_SAFETY_POLICY = 3
-end
-
-@cenum iox2_type_detail_error_e::UInt32 begin
-    iox2_type_detail_error_e_INVALID_TYPE_NAME = 1
-    iox2_type_detail_error_e_INVALID_SIZE_OR_ALIGNMENT_VALUE = 2
-end
-
-@cenum iox2_type_variant_e::UInt32 begin
-    iox2_type_variant_e_FIXED_SIZE = 0
-    iox2_type_variant_e_DYNAMIC = 1
-end
-
-@cenum iox2_unable_to_deliver_strategy_e::UInt32 begin
-    iox2_unable_to_deliver_strategy_e_BLOCK = 0
-    iox2_unable_to_deliver_strategy_e_DISCARD_SAMPLE = 1
-end
-
-@cenum iox2_waitset_attachment_error_e::UInt32 begin
-    iox2_waitset_attachment_error_e_INSUFFICIENT_CAPACITY = 1
-    iox2_waitset_attachment_error_e_ALREADY_ATTACHED = 2
-    iox2_waitset_attachment_error_e_INTERNAL_ERROR = 3
-    iox2_waitset_attachment_error_e_INSUFFICIENT_RESOURCES = 4
+@cenum iox2_connection_failure_e::UInt32 begin
+    iox2_connection_failure_e_FAILED_TO_ESTABLISH_CONNECTION = 0
+    iox2_connection_failure_e_UNABLE_TO_MAP_SENDERS_DATA_SEGMENT = 1
 end
 
 @cenum iox2_waitset_create_error_e::UInt32 begin
@@ -415,9 +404,123 @@ end
     iox2_waitset_run_result_e_ALL_EVENTS_HANDLED = 4
 end
 
-@cenum iox2_writer_create_error_e::UInt32 begin
-    iox2_writer_create_error_e_EXCEEDS_MAX_SUPPORTED_WRITERS = 1
-    iox2_writer_create_error_e_INTERNAL_FAILURE = 2
+@cenum iox2_waitset_attachment_error_e::UInt32 begin
+    iox2_waitset_attachment_error_e_INSUFFICIENT_CAPACITY = 1
+    iox2_waitset_attachment_error_e_ALREADY_ATTACHED = 2
+    iox2_waitset_attachment_error_e_INTERNAL_ERROR = 3
+    iox2_waitset_attachment_error_e_INSUFFICIENT_RESOURCES = 4
+end
+
+"""
+    iox2_node_cleanup_failure_e
+
+Failures of [`[`iox2_dead_node_try_remove_stale_resources`](@ref)()`] that occur when the stale resources of a dead node are removed.
+"""
+@cenum iox2_node_cleanup_failure_e::UInt32 begin
+    iox2_node_cleanup_failure_e_INTERRUPT = 1
+    iox2_node_cleanup_failure_e_INTERNAL_ERROR = 2
+    iox2_node_cleanup_failure_e_INSUFFICIENT_PERMISSIONS = 3
+    iox2_node_cleanup_failure_e_VERSION_MISMATCH = 4
+    iox2_node_cleanup_failure_e_RESOURCES_ALREADY_CLEANED_UP = 5
+    iox2_node_cleanup_failure_e_ANOTHER_INSTANCE_IS_CLEANING_UP_THE_NODE = 6
+end
+
+@cenum iox2_request_response_open_or_create_error_e::UInt32 begin
+    iox2_request_response_open_or_create_error_e_O_DOES_NOT_EXIST = 1
+    iox2_request_response_open_or_create_error_e_O_DOES_NOT_SUPPORT_REQUESTED_AMOUNT_OF_CLIENT_REQUEST_LOANS = 2
+    iox2_request_response_open_or_create_error_e_O_DOES_NOT_SUPPORT_REQUESTED_AMOUNT_OF_ACTIVE_REQUESTS_PER_CLIENT = 3
+    iox2_request_response_open_or_create_error_e_O_DOES_NOT_SUPPORT_REQUESTED_RESPONSE_BUFFER_SIZE = 4
+    iox2_request_response_open_or_create_error_e_O_DOES_NOT_SUPPORT_REQUESTED_AMOUNT_OF_SERVERS = 5
+    iox2_request_response_open_or_create_error_e_O_DOES_NOT_SUPPORT_REQUESTED_AMOUNT_OF_CLIENTS = 6
+    iox2_request_response_open_or_create_error_e_O_DOES_NOT_SUPPORT_REQUESTED_AMOUNT_OF_NODES = 7
+    iox2_request_response_open_or_create_error_e_O_DOES_NOT_SUPPORT_REQUESTED_AMOUNT_OF_BORROWED_RESPONSES_PER_PENDING_RESPONSE = 8
+    iox2_request_response_open_or_create_error_e_O_EXCEEDS_MAX_NUMBER_OF_NODES = 9
+    iox2_request_response_open_or_create_error_e_O_HANGS_IN_CREATION = 10
+    iox2_request_response_open_or_create_error_e_O_INCOMPATIBLE_REQUEST_OR_RESPONSE_TYPE = 11
+    iox2_request_response_open_or_create_error_e_O_INCOMPATIBLE_ATTRIBUTES = 12
+    iox2_request_response_open_or_create_error_e_O_INCOMPATIBLE_MESSAGING_PATTERN = 13
+    iox2_request_response_open_or_create_error_e_O_INCOMPATIBLE_OVERFLOW_BEHAVIOR_FOR_REQUESTS = 14
+    iox2_request_response_open_or_create_error_e_O_INCOMPATIBLE_OVERFLOW_BEHAVIOR_FOR_RESPONSES = 15
+    iox2_request_response_open_or_create_error_e_O_INCOMPATIBLE_BEHAVIOR_FOR_FIRE_AND_FORGET_REQUESTS = 16
+    iox2_request_response_open_or_create_error_e_O_INSUFFICIENT_PERMISSIONS = 17
+    iox2_request_response_open_or_create_error_e_O_UNABLE_TO_CREATE_SERVICE_TAG = 18
+    iox2_request_response_open_or_create_error_e_O_VERSION_MISMATCH = 19
+    iox2_request_response_open_or_create_error_e_O_INTERNAL_FAILURE = 20
+    iox2_request_response_open_or_create_error_e_O_IS_MARKED_FOR_DESTRUCTION = 21
+    iox2_request_response_open_or_create_error_e_O_SERVICE_IN_CORRUPTED_STATE = 22
+    iox2_request_response_open_or_create_error_e_O_INTERRUPT = 23
+    iox2_request_response_open_or_create_error_e_O_UNABLE_TO_ACQUIRE_TYPE_DEFINITION = 24
+    iox2_request_response_open_or_create_error_e_C_ALREADY_EXISTS = 25
+    iox2_request_response_open_or_create_error_e_C_INTERNAL_FAILURE = 26
+    iox2_request_response_open_or_create_error_e_C_IS_BEING_CREATED_BY_ANOTHER_INSTANCE = 27
+    iox2_request_response_open_or_create_error_e_C_INSUFFICIENT_PERMISSIONS = 28
+    iox2_request_response_open_or_create_error_e_C_HANGS_IN_CREATION = 29
+    iox2_request_response_open_or_create_error_e_C_SERVICE_IN_CORRUPTED_STATE = 30
+    iox2_request_response_open_or_create_error_e_C_UNABLE_TO_CREATE_SERVICE_TAG = 31
+    iox2_request_response_open_or_create_error_e_C_SERVICE_CONFIG_COULD_NOT_BE_CREATED = 32
+    iox2_request_response_open_or_create_error_e_C_INTERRUPT = 33
+    iox2_request_response_open_or_create_error_e_C_UNABLE_TO_ACQUIRE_TYPE_DEFINITION = 34
+    iox2_request_response_open_or_create_error_e_SYSTEM_IN_FLUX = 35
+end
+
+@cenum iox2_request_send_error_e::UInt32 begin
+    iox2_request_send_error_e_CONNECTION_BROKEN_SINCE_SENDER_NO_LONGER_EXISTS = 1
+    iox2_request_send_error_e_CONNECTION_CORRUPTED = 2
+    iox2_request_send_error_e_LOAN_ERROR_OUT_OF_MEMORY = 3
+    iox2_request_send_error_e_LOAN_ERROR_EXCEEDS_MAX_LOANS = 4
+    iox2_request_send_error_e_LOAN_ERROR_EXCEEDS_MAX_LOAN_SIZE = 5
+    iox2_request_send_error_e_LOAN_ERROR_INTERNAL_FAILURE = 6
+    iox2_request_send_error_e_CONNECTION_ERROR = 7
+    iox2_request_send_error_e_EXCEEDS_MAX_ACTIVE_REQUESTS = 8
+    iox2_request_send_error_e_UNABLE_TO_DELIVER = 9
+    iox2_request_send_error_e_INTERNAL_ERROR = 10
+end
+
+@cenum iox2_service_remove_error_e::UInt32 begin
+    iox2_service_remove_error_e_INSUFFICIENT_PERMISSIONS = 1
+    iox2_service_remove_error_e_INTERRUPT = 2
+    iox2_service_remove_error_e_VERSION_MISMATCH = 3
+    iox2_service_remove_error_e_INTERNAL_ERROR = 4
+end
+
+@cenum iox2_entry_handle_error_e::UInt32 begin
+    iox2_entry_handle_error_e_ENTRY_DOES_NOT_EXIST = 1
+end
+
+@cenum iox2_blackboard_open_error_e::UInt32 begin
+    iox2_blackboard_open_error_e_O_DOES_NOT_EXIST = 1
+    iox2_blackboard_open_error_e_O_SERVICE_IN_CORRUPTED_STATE = 2
+    iox2_blackboard_open_error_e_O_INCOMPATIBLE_KEYS = 3
+    iox2_blackboard_open_error_e_O_INTERNAL_FAILURE = 4
+    iox2_blackboard_open_error_e_O_INCOMPATIBLE_ATTRIBUTES = 5
+    iox2_blackboard_open_error_e_O_INCOMPATIBLE_MESSAGING_PATTERN = 6
+    iox2_blackboard_open_error_e_O_DOES_NOT_SUPPORT_REQUESTED_AMOUNT_OF_READERS = 7
+    iox2_blackboard_open_error_e_O_INSUFFICIENT_PERMISSIONS = 8
+    iox2_blackboard_open_error_e_O_HANGS_IN_CREATION = 9
+    iox2_blackboard_open_error_e_O_IS_MARKED_FOR_DESTRUCTION = 10
+    iox2_blackboard_open_error_e_O_EXCEEDS_MAX_NUMBER_OF_NODES = 11
+    iox2_blackboard_open_error_e_O_DOES_NOT_SUPPORT_REQUESTED_AMOUNT_OF_NODES = 12
+    iox2_blackboard_open_error_e_O_UNABLE_TO_CREATE_SERVICE_TAG = 13
+    iox2_blackboard_open_error_e_O_VERSION_MISMATCH = 14
+    iox2_blackboard_open_error_e_O_INTERRUPT = 15
+end
+
+@cenum iox2_blackboard_create_error_e::UInt32 begin
+    iox2_blackboard_create_error_e_C_ALREADY_EXISTS = 1
+    iox2_blackboard_create_error_e_C_IS_BEING_CREATED_BY_ANOTHER_INSTANCE = 2
+    iox2_blackboard_create_error_e_C_INTERNAL_FAILURE = 3
+    iox2_blackboard_create_error_e_C_INSUFFICIENT_PERMISSIONS = 4
+    iox2_blackboard_create_error_e_C_SERVICE_IN_CORRUPTED_STATE = 5
+    iox2_blackboard_create_error_e_C_HANGS_IN_CREATION = 6
+    iox2_blackboard_create_error_e_C_NO_ENTRIES_PROVIDED = 7
+    iox2_blackboard_create_error_e_C_UNABLE_TO_CREATE_SERVICE_TAG = 8
+    iox2_blackboard_create_error_e_C_SERVICE_CONFIG_COULD_NOT_BE_CREATED = 9
+    iox2_blackboard_create_error_e_C_INTERRUPT = 10
+end
+
+@cenum iox2_entry_handle_mut_error_e::UInt32 begin
+    iox2_entry_handle_mut_error_e_ENTRY_DOES_NOT_EXIST = 1
+    iox2_entry_handle_mut_error_e_HANDLE_ALREADY_EXISTS = 2
 end
 
 const iox2_active_request_h_t = Cvoid
@@ -430,9 +533,13 @@ const iox2_attribute_specifier_h_t = Cvoid
 
 const iox2_attribute_verifier_h_t = Cvoid
 
+const iox2_backpressure_info_h = Cvoid
+
 const iox2_client_h_t = Cvoid
 
 const iox2_config_h_t = Cvoid
+
+const iox2_degradation_info_h = Cvoid
 
 const iox2_entry_handle_h_t = Cvoid
 
@@ -447,8 +554,6 @@ const iox2_listener_h_t = Cvoid
 const iox2_name_h_t = Cvoid
 
 const iox2_node_builder_h_t = Cvoid
-
-const iox2_node_id_h_t = Cvoid
 
 const iox2_node_name_h_t = Cvoid
 
@@ -466,6 +571,12 @@ const iox2_port_factory_listener_builder_h_t = Cvoid
 
 const iox2_port_factory_notifier_builder_h_t = Cvoid
 
+const iox2_port_factory_progressive_pub_sub_h_t = Cvoid
+
+const iox2_port_factory_progressive_publisher_builder_h_t = Cvoid
+
+const iox2_port_factory_progressive_subscriber_builder_h_t = Cvoid
+
 const iox2_port_factory_pub_sub_h_t = Cvoid
 
 const iox2_port_factory_publisher_builder_h_t = Cvoid
@@ -480,6 +591,18 @@ const iox2_port_factory_subscriber_builder_h_t = Cvoid
 
 const iox2_port_factory_writer_builder_h_t = Cvoid
 
+const iox2_port_name_h_t = Cvoid
+
+const iox2_progressive_publisher_h_t = Cvoid
+
+const iox2_progressive_sample_h_t = Cvoid
+
+const iox2_progressive_sample_mut_h_t = Cvoid
+
+const iox2_progressive_sample_mut_uninit_h_t = Cvoid
+
+const iox2_progressive_subscriber_h_t = Cvoid
+
 const iox2_publish_subscribe_header_h_t = Cvoid
 
 const iox2_publisher_h_t = Cvoid
@@ -489,6 +612,8 @@ const iox2_reader_h_t = Cvoid
 const iox2_request_header_h_t = Cvoid
 
 const iox2_request_mut_h_t = Cvoid
+
+const iox2_resizable_memory_publish_subscribe_h_t = Cvoid
 
 const iox2_response_h_t = Cvoid
 
@@ -510,6 +635,8 @@ const iox2_service_builder_event_h_t = Cvoid
 
 const iox2_service_builder_h_t = Cvoid
 
+const iox2_service_builder_progressive_pub_sub_h_t = Cvoid
+
 const iox2_service_builder_pub_sub_h_t = Cvoid
 
 const iox2_service_builder_request_response_h_t = Cvoid
@@ -521,6 +648,8 @@ const iox2_subscriber_h_t = Cvoid
 const iox2_unique_client_id_h_t = Cvoid
 
 const iox2_unique_listener_id_h_t = Cvoid
+
+const iox2_unique_node_id_h_t = Cvoid
 
 const iox2_unique_notifier_id_h_t = Cvoid
 
@@ -897,6 +1026,36 @@ The non-owning handle for [`iox2_attribute_verifier_t`](@ref). Passing the handl
 """
 const iox2_attribute_verifier_h_ref = Ptr{iox2_attribute_verifier_h}
 
+const iox2_backpressure_info_h_ref = Ptr{iox2_backpressure_info_h}
+
+struct iox2_buffer_16_align_4_t
+    data::NTuple{16, UInt8}
+end
+
+function Base.getproperty(x::Ptr{iox2_buffer_16_align_4_t}, f::Symbol)
+    f === :data && return Ptr{NTuple{16, UInt8}}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::iox2_buffer_16_align_4_t, f::Symbol)
+    r = Ref{iox2_buffer_16_align_4_t}(x)
+    ptr = Base.unsafe_convert(Ptr{iox2_buffer_16_align_4_t}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{iox2_buffer_16_align_4_t}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::iox2_buffer_16_align_4_t, private::Bool = false)
+    (:data, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
 """
 The owning handle for [`iox2_client_t`](@ref). Passing the handle to a function transfers the ownership.
 """
@@ -973,6 +1132,11 @@ end
 The owning handle for [[`iox2_unique_client_id_t`](@ref)]. Passing the handle to an function transfers the ownership.
 """
 const iox2_unique_client_id_h = Ptr{iox2_unique_client_id_h_t}
+
+"""
+The immutable pointer to the underlying `PortName`
+"""
+const iox2_port_name_ptr = Ptr{iox2_port_name_ptr_t}
 
 struct iox2_request_mut_storage_t
     data::NTuple{80, UInt8}
@@ -1108,7 +1272,7 @@ const iox2_client_details_ptr = Ptr{iox2_client_details_ptr_t}
 """
 The immutable pointer to the underlying `NodeId`
 """
-const iox2_node_id_ptr = Ptr{iox2_node_id_ptr_t}
+const iox2_unique_node_id_ptr = Ptr{iox2_unique_node_id_ptr_t}
 
 """
 The immutable pointer to the underlying `Config`
@@ -1126,11 +1290,11 @@ const iox2_config_h = Ptr{iox2_config_h_t}
 A storage object that has the size to store a config
 """
 struct iox2_config_storage_t
-    data::NTuple{4256, UInt8}
+    data::NTuple{5064, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_config_storage_t}, f::Symbol)
-    f === :internal && return Ptr{NTuple{4256, UInt8}}(x + 0)
+    f === :internal && return Ptr{NTuple{5064, UInt8}}(x + 0)
     return getfield(x, f)
 end
 
@@ -1159,12 +1323,12 @@ end
 Contains the iceoryx2 config
 """
 struct iox2_config_t
-    data::NTuple{4264, UInt8}
+    data::NTuple{5072, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_config_t}, f::Symbol)
     f === :value && return Ptr{iox2_config_storage_t}(x + 0)
-    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 4256)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 5064)
     return getfield(x, f)
 end
 
@@ -1191,6 +1355,8 @@ end
 The non-owning handle for [`iox2_config_t`](@ref). Passing the handle to an function does not transfers the ownership.
 """
 const iox2_config_h_ref = Ptr{iox2_config_h}
+
+const iox2_degradation_info_h_ref = Ptr{iox2_degradation_info_h}
 
 """
 The owning handle for [`iox2_entry_handle_t`](@ref). Passing the handle to an function transfers the ownership.
@@ -1424,7 +1590,7 @@ The non-owning handle for [`iox2_listener_t`](@ref). Passing the handle to an fu
 """
 const iox2_listener_h_ref = Ptr{iox2_listener_h}
 
-# typedef void ( * iox2_listener_wait_all_callback ) ( const struct iox2_event_id_t * , iox2_callback_context )
+# typedef void ( * iox2_listener_wait_all_callback ) ( const struct iox2_event_id_t * , uint64_t , iox2_callback_context )
 const iox2_listener_wait_all_callback = Ptr{Cvoid}
 
 """
@@ -1525,26 +1691,41 @@ The non-owning handle for [`iox2_node_t`](@ref). Passing the handle to an functi
 const iox2_node_h_ref = Ptr{iox2_node_h}
 
 """
-The owning handle for [`iox2_node_id_t`](@ref). Passing the handle to an function transfers the ownership.
+The immutable pointer to the underlying `ServiceName`
 """
-const iox2_node_id_h = Ptr{iox2_node_id_h_t}
+const iox2_service_name_ptr = Ptr{iox2_service_name_ptr_t}
 
 """
-The non-owning handle for [`iox2_node_id_t`](@ref). Passing the handle to an function does not transfers the ownership.
+The owning handle for [`iox2_unique_node_id_t`](@ref). Passing the handle to an function transfers the ownership.
 """
-const iox2_node_id_h_ref = Ptr{iox2_node_id_h}
+const iox2_unique_node_id_h = Ptr{iox2_unique_node_id_h_t}
 
-# typedef enum iox2_callback_progression_e ( * iox2_node_list_callback ) ( enum iox2_node_state_e , iox2_node_id_ptr , const char * , iox2_node_name_ptr , iox2_config_ptr , iox2_callback_context )
+"""
+The non-owning handle for [`iox2_unique_node_id_t`](@ref). Passing the handle to an function does not transfers the ownership.
+"""
+const iox2_unique_node_id_h_ref = Ptr{iox2_unique_node_id_h}
+
+# typedef enum iox2_callback_progression_e ( * iox2_node_list_callback ) ( enum iox2_node_state_e , iox2_unique_node_id_ptr , const char * , iox2_node_name_ptr , iox2_config_ptr , iox2_callback_context )
 """
 The callback for [[`iox2_node_list`](@ref)]
 
 # Arguments
 
-* [[`iox2_node_state_e`](@ref)] * [[`iox2_node_id_ptr`](@ref)] * [[`iox2_node_name_ptr`](@ref)](crate::[`iox2_node_name_ptr`](@ref)) -> `NULL` for `[`iox2_node_state_e`](@ref)::INACCESSIBLE` and `[`iox2_node_state_e`](@ref)::UNDEFINED` * [[`iox2_config_ptr`](@ref)](crate::[`iox2_config_ptr`](@ref)) -> `NULL` for `[`iox2_node_state_e`](@ref)::INACCESSIBLE` and `[`iox2_node_state_e`](@ref)::UNDEFINED` * [[`iox2_callback_context`](@ref)] -> provided by the user to [[`iox2_node_list`](@ref)] and can be `NULL`
+* [[`iox2_node_state_e`](@ref)] * [[`iox2_unique_node_id_ptr`](@ref)] * [[`iox2_node_name_ptr`](@ref)](crate::[`iox2_node_name_ptr`](@ref)) -> `NULL` for `[`iox2_node_state_e`](@ref)::INACCESSIBLE` and `[`iox2_node_state_e`](@ref)::UNDEFINED` * [[`iox2_config_ptr`](@ref)](crate::[`iox2_config_ptr`](@ref)) -> `NULL` for `[`iox2_node_state_e`](@ref)::INACCESSIBLE` and `[`iox2_node_state_e`](@ref)::UNDEFINED` * [[`iox2_callback_context`](@ref)] -> provided by the user to [[`iox2_node_list`](@ref)] and can be `NULL`
 
 Returns a [[`iox2_callback_progression_e`](@ref)](crate::[`iox2_callback_progression_e`](@ref))
 """
 const iox2_node_list_callback = Ptr{Cvoid}
+
+"""
+    iox2_cleanup_state_t
+
+Returned by `[`iox2_node_try_cleanup_dead_nodes`](@ref)()`. Contains the cleanup report of the call and contains the number of dead nodes that were successfully cleaned up and how many could not be cleaned up. This does not have to be an error, for instance when the current process does not have the permission to access the corresponding resources.
+"""
+struct iox2_cleanup_state_t
+    cleanups::UInt64
+    failed_cleanups::UInt64
+end
 
 """
 The owning handle for [`iox2_service_builder_t`](@ref). Passing the handle to an function transfers the ownership.
@@ -1608,11 +1789,6 @@ function Base.propertynames(x::iox2_service_builder_t, private::Bool = false)
             ()
         end...)
 end
-
-"""
-The immutable pointer to the underlying `ServiceName`
-"""
-const iox2_service_name_ptr = Ptr{iox2_service_name_ptr_t}
 
 """
 The owning handle for [`iox2_node_builder_t`](@ref). Passing the handle to an function transfers the ownership.
@@ -1733,63 +1909,6 @@ end
 
 function Base.propertynames(x::iox2_node_t, private::Bool = false)
     (:service_type, :value, :deleter, if private
-            fieldnames(typeof(x))
-        else
-            ()
-        end...)
-end
-
-struct iox2_node_id_storage_t
-    data::NTuple{24, UInt8}
-end
-
-function Base.getproperty(x::Ptr{iox2_node_id_storage_t}, f::Symbol)
-    f === :internal && return Ptr{NTuple{20, UInt8}}(x + 0)
-    return getfield(x, f)
-end
-
-function Base.getproperty(x::iox2_node_id_storage_t, f::Symbol)
-    r = Ref{iox2_node_id_storage_t}(x)
-    ptr = Base.unsafe_convert(Ptr{iox2_node_id_storage_t}, r)
-    fptr = getproperty(ptr, f)
-    GC.@preserve r unsafe_load(fptr)
-end
-
-function Base.setproperty!(x::Ptr{iox2_node_id_storage_t}, f::Symbol, v)
-    unsafe_store!(getproperty(x, f), v)
-end
-
-function Base.propertynames(x::iox2_node_id_storage_t, private::Bool = false)
-    (:internal, if private
-            fieldnames(typeof(x))
-        else
-            ()
-        end...)
-end
-
-struct iox2_node_id_t
-    data::NTuple{32, UInt8}
-end
-
-function Base.getproperty(x::Ptr{iox2_node_id_t}, f::Symbol)
-    f === :value && return Ptr{iox2_node_id_storage_t}(x + 0)
-    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 24)
-    return getfield(x, f)
-end
-
-function Base.getproperty(x::iox2_node_id_t, f::Symbol)
-    r = Ref{iox2_node_id_t}(x)
-    ptr = Base.unsafe_convert(Ptr{iox2_node_id_t}, r)
-    fptr = getproperty(ptr, f)
-    GC.@preserve r unsafe_load(fptr)
-end
-
-function Base.setproperty!(x::Ptr{iox2_node_id_t}, f::Symbol, v)
-    unsafe_store!(getproperty(x, f), v)
-end
-
-function Base.propertynames(x::iox2_node_id_t, private::Bool = false)
-    (:value, :deleter, if private
             fieldnames(typeof(x))
         else
             ()
@@ -2009,11 +2128,6 @@ The owning handle for [`iox2_response_t`](@ref). Passing the handle to a functio
 const iox2_response_h = Ptr{iox2_response_h_t}
 
 """
-The owning handle for [`iox2_port_factory_writer_builder_t`](@ref). Passing the handle to a function transfers the ownership.
-"""
-const iox2_port_factory_writer_builder_h = Ptr{iox2_port_factory_writer_builder_h_t}
-
-"""
 The owning handle for [`iox2_port_factory_blackboard_t`](@ref). Passing the handle to a function transfers the ownership.
 """
 const iox2_port_factory_blackboard_h = Ptr{iox2_port_factory_blackboard_h_t}
@@ -2023,12 +2137,17 @@ The non-owning handle for [`iox2_port_factory_blackboard_t`](@ref). Passing the 
 """
 const iox2_port_factory_blackboard_h_ref = Ptr{iox2_port_factory_blackboard_h}
 
+"""
+The owning handle for [`iox2_port_factory_writer_builder_t`](@ref). Passing the handle to a function transfers the ownership.
+"""
+const iox2_port_factory_writer_builder_h = Ptr{iox2_port_factory_writer_builder_h_t}
+
 struct iox2_port_factory_writer_builder_storage_t
-    data::NTuple{16, UInt8}
+    data::NTuple{96, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_port_factory_writer_builder_storage_t}, f::Symbol)
-    f === :internal && return Ptr{NTuple{16, UInt8}}(x + 0)
+    f === :internal && return Ptr{NTuple{96, UInt8}}(x + 0)
     return getfield(x, f)
 end
 
@@ -2052,13 +2171,13 @@ function Base.propertynames(x::iox2_port_factory_writer_builder_storage_t, priva
 end
 
 struct iox2_port_factory_writer_builder_t
-    data::NTuple{32, UInt8}
+    data::NTuple{112, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_port_factory_writer_builder_t}, f::Symbol)
     f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
     f === :value && return Ptr{iox2_port_factory_writer_builder_storage_t}(x + 8)
-    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 24)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 104)
     return getfield(x, f)
 end
 
@@ -2087,11 +2206,11 @@ The owning handle for [`iox2_port_factory_reader_builder_t`](@ref). Passing the 
 const iox2_port_factory_reader_builder_h = Ptr{iox2_port_factory_reader_builder_h_t}
 
 struct iox2_port_factory_reader_builder_storage_t
-    data::NTuple{16, UInt8}
+    data::NTuple{96, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_port_factory_reader_builder_storage_t}, f::Symbol)
-    f === :internal && return Ptr{NTuple{16, UInt8}}(x + 0)
+    f === :internal && return Ptr{NTuple{96, UInt8}}(x + 0)
     return getfield(x, f)
 end
 
@@ -2115,13 +2234,13 @@ function Base.propertynames(x::iox2_port_factory_reader_builder_storage_t, priva
 end
 
 struct iox2_port_factory_reader_builder_t
-    data::NTuple{32, UInt8}
+    data::NTuple{112, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_port_factory_reader_builder_t}, f::Symbol)
     f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
     f === :value && return Ptr{iox2_port_factory_reader_builder_storage_t}(x + 8)
-    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 24)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 104)
     return getfield(x, f)
 end
 
@@ -2205,12 +2324,60 @@ The non-owning handle for [`iox2_port_factory_client_builder_t`](@ref). Passing 
 """
 const iox2_port_factory_client_builder_h_ref = Ptr{iox2_port_factory_client_builder_h}
 
+# typedef size_t ( * iox2_preallocated_requests_override ) ( size_t , iox2_callback_context )
+"""
+The callback for [[`iox2_port_factory_client_builder_override_requests_preallocation`](@ref)]
+
+# Arguments
+
+* `number_of_preallocated_requests` - the worst case number of requests that need to be preallocated so that iceoryx2 can guarantee that it never runs out of memory. * [`iox2_callback_context`](@ref) -> provided by the user and can be `NULL`
+
+Returns the override value of preallocated requests. The return value is clamped between `1` and the worst case number of preallocated requests (`number_of_preallocated_requests`).
+"""
+const iox2_preallocated_requests_override = Ptr{Cvoid}
+
+# typedef enum iox2_degradation_action_e ( * iox2_degradation_handler ) ( enum iox2_degradation_cause_e , iox2_degradation_info_h_ref , iox2_callback_context )
+"""
+The degradation handler signature
+
+# Arguments
+
+* [[`iox2_degradation_cause_e`](@ref)] is the cause for the degradation * [[`iox2_degradation_info_h_ref`](@ref)] is a handle to obtain some information for the degradation; to be used with the `iox2\\_degradation\\_info\\_*` functions * [[`iox2_callback_context`](@ref)](crate::[`iox2_callback_context`](@ref)) is a user defined handler context to provide additional information
+
+# Returns
+
+[[`iox2_degradation_action_e`](@ref)] the selected action to handle the degradation
+
+# Safety
+
+* [`iox2_callback_context`](@ref) is stored for later use; if the port, including the send and receive functions, is accessed from multiple threads, the `ctx` must be thread-safe
+"""
+const iox2_degradation_handler = Ptr{Cvoid}
+
+# typedef enum iox2_backpressure_action_e ( * iox2_backpressure_handler ) ( iox2_backpressure_info_h_ref , iox2_callback_context )
+"""
+The backpressure handler signature
+
+# Arguments
+
+* [[`iox2_backpressure_info_h_ref`](@ref)] is a handle to obtain some information for the incident; to be used with the `iox2\\_backpressure\\_info\\_*` functions * [[`iox2_callback_context`](@ref)](crate::[`iox2_callback_context`](@ref)) is a user defined callback context to provide additional information
+
+# Returns
+
+[[`iox2_backpressure_action_e`](@ref)] the selected action to handle the incident
+
+# Safety
+
+* [`iox2_callback_context`](@ref) is stored for later use; if the port, including the send and receive functions, is accessed from multiple threads, the `ctx` must be thread-safe
+"""
+const iox2_backpressure_handler = Ptr{Cvoid}
+
 struct iox2_client_storage_t
-    data::NTuple{256, UInt8}
+    data::NTuple{32, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_client_storage_t}, f::Symbol)
-    f === :internal && return Ptr{NTuple{248, UInt8}}(x + 0)
+    f === :internal && return Ptr{NTuple{32, UInt8}}(x + 0)
     return getfield(x, f)
 end
 
@@ -2234,13 +2401,13 @@ function Base.propertynames(x::iox2_client_storage_t, private::Bool = false)
 end
 
 struct iox2_client_t
-    data::NTuple{288, UInt8}
+    data::NTuple{64, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_client_t}, f::Symbol)
     f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
     f === :value && return Ptr{iox2_client_storage_t}(x + 16)
-    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 272)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 48)
     return getfield(x, f)
 end
 
@@ -2295,11 +2462,11 @@ The owning handle for [`iox2_port_factory_notifier_builder_t`](@ref). Passing th
 const iox2_port_factory_notifier_builder_h = Ptr{iox2_port_factory_notifier_builder_h_t}
 
 struct iox2_port_factory_notifier_builder_storage_t
-    data::NTuple{24, UInt8}
+    data::NTuple{104, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_port_factory_notifier_builder_storage_t}, f::Symbol)
-    f === :internal && return Ptr{NTuple{24, UInt8}}(x + 0)
+    f === :internal && return Ptr{NTuple{104, UInt8}}(x + 0)
     return getfield(x, f)
 end
 
@@ -2323,13 +2490,13 @@ function Base.propertynames(x::iox2_port_factory_notifier_builder_storage_t, pri
 end
 
 struct iox2_port_factory_notifier_builder_t
-    data::NTuple{40, UInt8}
+    data::NTuple{120, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_port_factory_notifier_builder_t}, f::Symbol)
     f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
     f === :value && return Ptr{iox2_port_factory_notifier_builder_storage_t}(x + 8)
-    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 32)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 112)
     return getfield(x, f)
 end
 
@@ -2358,11 +2525,11 @@ The owning handle for [`iox2_port_factory_listener_builder_t`](@ref). Passing th
 const iox2_port_factory_listener_builder_h = Ptr{iox2_port_factory_listener_builder_h_t}
 
 struct iox2_port_factory_listener_builder_storage_t
-    data::NTuple{24, UInt8}
+    data::NTuple{96, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_port_factory_listener_builder_storage_t}, f::Symbol)
-    f === :internal && return Ptr{NTuple{24, UInt8}}(x + 0)
+    f === :internal && return Ptr{NTuple{96, UInt8}}(x + 0)
     return getfield(x, f)
 end
 
@@ -2386,13 +2553,13 @@ function Base.propertynames(x::iox2_port_factory_listener_builder_storage_t, pri
 end
 
 struct iox2_port_factory_listener_builder_t
-    data::NTuple{40, UInt8}
+    data::NTuple{112, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_port_factory_listener_builder_t}, f::Symbol)
     f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
     f === :value && return Ptr{iox2_port_factory_listener_builder_storage_t}(x + 8)
-    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 32)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 104)
     return getfield(x, f)
 end
 
@@ -2439,12 +2606,17 @@ Returns a [[`iox2_callback_progression_e`](@ref)](crate::[`iox2_callback_progres
 """
 const iox2_list_notifiers_callback = Ptr{Cvoid}
 
+"""
+The non-owning handle for [`iox2_port_factory_listener_builder_t`](@ref). Passing the handle to an function does not transfers the ownership.
+"""
+const iox2_port_factory_listener_builder_h_ref = Ptr{iox2_port_factory_listener_builder_h}
+
 struct iox2_listener_storage_t
-    data::NTuple{1656, UInt8}
+    data::NTuple{1416, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_listener_storage_t}, f::Symbol)
-    f === :internal && return Ptr{NTuple{1656, UInt8}}(x + 0)
+    f === :internal && return Ptr{NTuple{1416, UInt8}}(x + 0)
     return getfield(x, f)
 end
 
@@ -2468,13 +2640,13 @@ function Base.propertynames(x::iox2_listener_storage_t, private::Bool = false)
 end
 
 struct iox2_listener_t
-    data::NTuple{1672, UInt8}
+    data::NTuple{1432, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_listener_t}, f::Symbol)
     f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
     f === :value && return Ptr{iox2_listener_storage_t}(x + 8)
-    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 1664)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 1424)
     return getfield(x, f)
 end
 
@@ -2503,11 +2675,11 @@ The non-owning handle for [`iox2_port_factory_notifier_builder_t`](@ref). Passin
 const iox2_port_factory_notifier_builder_h_ref = Ptr{iox2_port_factory_notifier_builder_h}
 
 struct iox2_notifier_storage_t
-    data::NTuple{1656, UInt8}
+    data::NTuple{1440, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_notifier_storage_t}, f::Symbol)
-    f === :internal && return Ptr{NTuple{1656, UInt8}}(x + 0)
+    f === :internal && return Ptr{NTuple{1440, UInt8}}(x + 0)
     return getfield(x, f)
 end
 
@@ -2531,13 +2703,13 @@ function Base.propertynames(x::iox2_notifier_storage_t, private::Bool = false)
 end
 
 struct iox2_notifier_t
-    data::NTuple{1672, UInt8}
+    data::NTuple{1456, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_notifier_t}, f::Symbol)
     f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
     f === :value && return Ptr{iox2_notifier_storage_t}(x + 8)
-    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 1664)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 1448)
     return getfield(x, f)
 end
 
@@ -2560,6 +2732,266 @@ function Base.propertynames(x::iox2_notifier_t, private::Bool = false)
         end...)
 end
 
+const iox2_port_factory_progressive_publisher_builder_h = Ptr{iox2_port_factory_progressive_publisher_builder_h_t}
+
+const iox2_port_factory_progressive_pub_sub_h = Ptr{iox2_port_factory_progressive_pub_sub_h_t}
+
+const iox2_port_factory_progressive_pub_sub_h_ref = Ptr{iox2_port_factory_progressive_pub_sub_h}
+
+struct iox2_port_factory_progressive_publisher_builder_storage_t
+    data::NTuple{288, UInt8}
+end
+
+function Base.getproperty(x::Ptr{iox2_port_factory_progressive_publisher_builder_storage_t}, f::Symbol)
+    f === :internal && return Ptr{NTuple{288, UInt8}}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::iox2_port_factory_progressive_publisher_builder_storage_t, f::Symbol)
+    r = Ref{iox2_port_factory_progressive_publisher_builder_storage_t}(x)
+    ptr = Base.unsafe_convert(Ptr{iox2_port_factory_progressive_publisher_builder_storage_t}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{iox2_port_factory_progressive_publisher_builder_storage_t}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::iox2_port_factory_progressive_publisher_builder_storage_t, private::Bool = false)
+    (:internal, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
+struct iox2_port_factory_progressive_publisher_builder_t
+    data::NTuple{320, UInt8}
+end
+
+function Base.getproperty(x::Ptr{iox2_port_factory_progressive_publisher_builder_t}, f::Symbol)
+    f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
+    f === :value && return Ptr{iox2_port_factory_progressive_publisher_builder_storage_t}(x + 16)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 304)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::iox2_port_factory_progressive_publisher_builder_t, f::Symbol)
+    r = Ref{iox2_port_factory_progressive_publisher_builder_t}(x)
+    ptr = Base.unsafe_convert(Ptr{iox2_port_factory_progressive_publisher_builder_t}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{iox2_port_factory_progressive_publisher_builder_t}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::iox2_port_factory_progressive_publisher_builder_t, private::Bool = false)
+    (:service_type, :value, :deleter, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
+const iox2_port_factory_progressive_subscriber_builder_h = Ptr{iox2_port_factory_progressive_subscriber_builder_h_t}
+
+struct iox2_port_factory_progressive_subscriber_builder_storage_t
+    data::NTuple{192, UInt8}
+end
+
+function Base.getproperty(x::Ptr{iox2_port_factory_progressive_subscriber_builder_storage_t}, f::Symbol)
+    f === :internal && return Ptr{NTuple{192, UInt8}}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::iox2_port_factory_progressive_subscriber_builder_storage_t, f::Symbol)
+    r = Ref{iox2_port_factory_progressive_subscriber_builder_storage_t}(x)
+    ptr = Base.unsafe_convert(Ptr{iox2_port_factory_progressive_subscriber_builder_storage_t}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{iox2_port_factory_progressive_subscriber_builder_storage_t}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::iox2_port_factory_progressive_subscriber_builder_storage_t, private::Bool = false)
+    (:internal, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
+struct iox2_port_factory_progressive_subscriber_builder_t
+    data::NTuple{224, UInt8}
+end
+
+function Base.getproperty(x::Ptr{iox2_port_factory_progressive_subscriber_builder_t}, f::Symbol)
+    f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
+    f === :value && return Ptr{iox2_port_factory_progressive_subscriber_builder_storage_t}(x + 16)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 208)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::iox2_port_factory_progressive_subscriber_builder_t, f::Symbol)
+    r = Ref{iox2_port_factory_progressive_subscriber_builder_t}(x)
+    ptr = Base.unsafe_convert(Ptr{iox2_port_factory_progressive_subscriber_builder_t}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{iox2_port_factory_progressive_subscriber_builder_t}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::iox2_port_factory_progressive_subscriber_builder_t, private::Bool = false)
+    (:service_type, :value, :deleter, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
+const iox2_port_factory_progressive_publisher_builder_h_ref = Ptr{iox2_port_factory_progressive_publisher_builder_h}
+
+# typedef size_t ( * iox2_preallocated_samples_override ) ( size_t , iox2_callback_context )
+"""
+The callback for [[`iox2_port_factory_publisher_builder_override_samples_preallocation`](@ref)]
+
+# Arguments
+
+* `number_of_preallocated_samples` - the worst case number of samples that need to be preallocated so that iceoryx2 can guarantee that it never runs out of memory. * [`iox2_callback_context`](@ref) -> provided by the user and can be `NULL`
+
+Returns the override value of preallocated samples. The return value is clamped between `1` and the worst case number of preallocated samples (`number_of_preallocated_sample`).
+"""
+const iox2_preallocated_samples_override = Ptr{Cvoid}
+
+struct iox2_progressive_publisher_storage_t
+    data::NTuple{48, UInt8}
+end
+
+function Base.getproperty(x::Ptr{iox2_progressive_publisher_storage_t}, f::Symbol)
+    f === :internal && return Ptr{NTuple{48, UInt8}}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::iox2_progressive_publisher_storage_t, f::Symbol)
+    r = Ref{iox2_progressive_publisher_storage_t}(x)
+    ptr = Base.unsafe_convert(Ptr{iox2_progressive_publisher_storage_t}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{iox2_progressive_publisher_storage_t}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::iox2_progressive_publisher_storage_t, private::Bool = false)
+    (:internal, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
+struct iox2_progressive_publisher_t
+    data::NTuple{64, UInt8}
+end
+
+function Base.getproperty(x::Ptr{iox2_progressive_publisher_t}, f::Symbol)
+    f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
+    f === :value && return Ptr{iox2_progressive_publisher_storage_t}(x + 8)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 56)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::iox2_progressive_publisher_t, f::Symbol)
+    r = Ref{iox2_progressive_publisher_t}(x)
+    ptr = Base.unsafe_convert(Ptr{iox2_progressive_publisher_t}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{iox2_progressive_publisher_t}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::iox2_progressive_publisher_t, private::Bool = false)
+    (:service_type, :value, :deleter, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
+const iox2_progressive_publisher_h = Ptr{iox2_progressive_publisher_h_t}
+
+const iox2_port_factory_progressive_subscriber_builder_h_ref = Ptr{iox2_port_factory_progressive_subscriber_builder_h}
+
+struct iox2_progressive_subscriber_storage_t
+    data::NTuple{48, UInt8}
+end
+
+function Base.getproperty(x::Ptr{iox2_progressive_subscriber_storage_t}, f::Symbol)
+    f === :internal && return Ptr{NTuple{48, UInt8}}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::iox2_progressive_subscriber_storage_t, f::Symbol)
+    r = Ref{iox2_progressive_subscriber_storage_t}(x)
+    ptr = Base.unsafe_convert(Ptr{iox2_progressive_subscriber_storage_t}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{iox2_progressive_subscriber_storage_t}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::iox2_progressive_subscriber_storage_t, private::Bool = false)
+    (:internal, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
+struct iox2_progressive_subscriber_t
+    data::NTuple{64, UInt8}
+end
+
+function Base.getproperty(x::Ptr{iox2_progressive_subscriber_t}, f::Symbol)
+    f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
+    f === :value && return Ptr{iox2_progressive_subscriber_storage_t}(x + 8)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 56)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::iox2_progressive_subscriber_t, f::Symbol)
+    r = Ref{iox2_progressive_subscriber_t}(x)
+    ptr = Base.unsafe_convert(Ptr{iox2_progressive_subscriber_t}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{iox2_progressive_subscriber_t}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::iox2_progressive_subscriber_t, private::Bool = false)
+    (:service_type, :value, :deleter, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
+const iox2_progressive_subscriber_h = Ptr{iox2_progressive_subscriber_h_t}
+
 """
 The owning handle for [`iox2_port_factory_publisher_builder_t`](@ref). Passing the handle to an function transfers the ownership.
 """
@@ -2576,11 +3008,11 @@ The non-owning handle for [`iox2_port_factory_pub_sub_t`](@ref). Passing the han
 const iox2_port_factory_pub_sub_h_ref = Ptr{iox2_port_factory_pub_sub_h}
 
 struct iox2_port_factory_publisher_builder_storage_t
-    data::NTuple{128, UInt8}
+    data::NTuple{288, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_port_factory_publisher_builder_storage_t}, f::Symbol)
-    f === :internal && return Ptr{NTuple{128, UInt8}}(x + 0)
+    f === :internal && return Ptr{NTuple{288, UInt8}}(x + 0)
     return getfield(x, f)
 end
 
@@ -2604,13 +3036,13 @@ function Base.propertynames(x::iox2_port_factory_publisher_builder_storage_t, pr
 end
 
 struct iox2_port_factory_publisher_builder_t
-    data::NTuple{160, UInt8}
+    data::NTuple{320, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_port_factory_publisher_builder_t}, f::Symbol)
     f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
     f === :value && return Ptr{iox2_port_factory_publisher_builder_storage_t}(x + 16)
-    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 144)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 304)
     return getfield(x, f)
 end
 
@@ -2639,11 +3071,11 @@ The owning handle for [`iox2_port_factory_subscriber_builder_t`](@ref). Passing 
 const iox2_port_factory_subscriber_builder_h = Ptr{iox2_port_factory_subscriber_builder_h_t}
 
 struct iox2_port_factory_subscriber_builder_storage_t
-    data::NTuple{112, UInt8}
+    data::NTuple{192, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_port_factory_subscriber_builder_storage_t}, f::Symbol)
-    f === :internal && return Ptr{NTuple{112, UInt8}}(x + 0)
+    f === :internal && return Ptr{NTuple{192, UInt8}}(x + 0)
     return getfield(x, f)
 end
 
@@ -2667,13 +3099,13 @@ function Base.propertynames(x::iox2_port_factory_subscriber_builder_storage_t, p
 end
 
 struct iox2_port_factory_subscriber_builder_t
-    data::NTuple{144, UInt8}
+    data::NTuple{224, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_port_factory_subscriber_builder_t}, f::Symbol)
     f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
     f === :value && return Ptr{iox2_port_factory_subscriber_builder_storage_t}(x + 16)
-    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 128)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 208)
     return getfield(x, f)
 end
 
@@ -2753,11 +3185,11 @@ The non-owning handle for [`iox2_port_factory_publisher_builder_t`](@ref). Passi
 const iox2_port_factory_publisher_builder_h_ref = Ptr{iox2_port_factory_publisher_builder_h}
 
 struct iox2_publisher_storage_t
-    data::NTuple{256, UInt8}
+    data::NTuple{48, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_publisher_storage_t}, f::Symbol)
-    f === :internal && return Ptr{NTuple{248, UInt8}}(x + 0)
+    f === :internal && return Ptr{NTuple{48, UInt8}}(x + 0)
     return getfield(x, f)
 end
 
@@ -2781,13 +3213,13 @@ function Base.propertynames(x::iox2_publisher_storage_t, private::Bool = false)
 end
 
 struct iox2_publisher_t
-    data::NTuple{288, UInt8}
+    data::NTuple{80, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_publisher_t}, f::Symbol)
     f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
     f === :value && return Ptr{iox2_publisher_storage_t}(x + 16)
-    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 272)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 64)
     return getfield(x, f)
 end
 
@@ -2815,12 +3247,17 @@ The owning handle for [`iox2_publisher_t`](@ref). Passing the handle to an funct
 """
 const iox2_publisher_h = Ptr{iox2_publisher_h_t}
 
+"""
+The non-owning handle for [`iox2_port_factory_reader_builder_t`](@ref). Passing the handle to a function does not transfer the ownership.
+"""
+const iox2_port_factory_reader_builder_h_ref = Ptr{iox2_port_factory_reader_builder_h}
+
 struct iox2_reader_storage_t
-    data::NTuple{32, UInt8}
+    data::NTuple{48, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_reader_storage_t}, f::Symbol)
-    f === :internal && return Ptr{NTuple{32, UInt8}}(x + 0)
+    f === :internal && return Ptr{NTuple{48, UInt8}}(x + 0)
     return getfield(x, f)
 end
 
@@ -2844,13 +3281,13 @@ function Base.propertynames(x::iox2_reader_storage_t, private::Bool = false)
 end
 
 struct iox2_reader_t
-    data::NTuple{48, UInt8}
+    data::NTuple{64, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_reader_t}, f::Symbol)
     f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
     f === :value && return Ptr{iox2_reader_storage_t}(x + 8)
-    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 40)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 56)
     return getfield(x, f)
 end
 
@@ -2894,11 +3331,11 @@ The non-owning handle for [`iox2_port_factory_request_response_t`](@ref). Passin
 const iox2_port_factory_request_response_h_ref = Ptr{iox2_port_factory_request_response_h}
 
 struct iox2_port_factory_server_builder_storage_t
-    data::NTuple{176, UInt8}
+    data::NTuple{336, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_port_factory_server_builder_storage_t}, f::Symbol)
-    f === :internal && return Ptr{NTuple{176, UInt8}}(x + 0)
+    f === :internal && return Ptr{NTuple{336, UInt8}}(x + 0)
     return getfield(x, f)
 end
 
@@ -2922,13 +3359,13 @@ function Base.propertynames(x::iox2_port_factory_server_builder_storage_t, priva
 end
 
 struct iox2_port_factory_server_builder_t
-    data::NTuple{208, UInt8}
+    data::NTuple{368, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_port_factory_server_builder_t}, f::Symbol)
     f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
     f === :value && return Ptr{iox2_port_factory_server_builder_storage_t}(x + 16)
-    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 192)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 352)
     return getfield(x, f)
 end
 
@@ -2952,11 +3389,11 @@ function Base.propertynames(x::iox2_port_factory_server_builder_t, private::Bool
 end
 
 struct iox2_port_factory_client_builder_storage_t
-    data::NTuple{176, UInt8}
+    data::NTuple{352, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_port_factory_client_builder_storage_t}, f::Symbol)
-    f === :internal && return Ptr{NTuple{176, UInt8}}(x + 0)
+    f === :internal && return Ptr{NTuple{352, UInt8}}(x + 0)
     return getfield(x, f)
 end
 
@@ -2980,13 +3417,13 @@ function Base.propertynames(x::iox2_port_factory_client_builder_storage_t, priva
 end
 
 struct iox2_port_factory_client_builder_t
-    data::NTuple{208, UInt8}
+    data::NTuple{384, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_port_factory_client_builder_t}, f::Symbol)
     f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
     f === :value && return Ptr{iox2_port_factory_client_builder_storage_t}(x + 16)
-    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 192)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 368)
     return getfield(x, f)
 end
 
@@ -3058,12 +3495,24 @@ The non-owning handle for [`iox2_port_factory_server_builder_t`](@ref). Passing 
 """
 const iox2_port_factory_server_builder_h_ref = Ptr{iox2_port_factory_server_builder_h}
 
+# typedef size_t ( * iox2_preallocated_responses_override ) ( size_t , iox2_callback_context )
+"""
+The callback for [[`iox2_port_factory_server_builder_override_responses_preallocation`](@ref)]
+
+# Arguments
+
+* `number_of_preallocated_responses` - the worst case number of responses that need to be preallocated so that iceoryx2 can guarantee that it never runs out of memory. * [`iox2_callback_context`](@ref) -> provided by the user and can be `NULL`
+
+Returns the override value of preallocated responses. The return value is clamped between `1` and the worst case number of preallocated responses (`number_of_preallocated_responses`).
+"""
+const iox2_preallocated_responses_override = Ptr{Cvoid}
+
 struct iox2_server_storage_t
-    data::NTuple{256, UInt8}
+    data::NTuple{48, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_server_storage_t}, f::Symbol)
-    f === :internal && return Ptr{NTuple{248, UInt8}}(x + 0)
+    f === :internal && return Ptr{NTuple{40, UInt8}}(x + 0)
     return getfield(x, f)
 end
 
@@ -3087,13 +3536,13 @@ function Base.propertynames(x::iox2_server_storage_t, private::Bool = false)
 end
 
 struct iox2_server_t
-    data::NTuple{288, UInt8}
+    data::NTuple{80, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_server_t}, f::Symbol)
     f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
     f === :value && return Ptr{iox2_server_storage_t}(x + 16)
-    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 272)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 64)
     return getfield(x, f)
 end
 
@@ -3127,11 +3576,11 @@ The non-owning handle for [`iox2_port_factory_subscriber_builder_t`](@ref). Pass
 const iox2_port_factory_subscriber_builder_h_ref = Ptr{iox2_port_factory_subscriber_builder_h}
 
 struct iox2_subscriber_storage_t
-    data::NTuple{1232, UInt8}
+    data::NTuple{48, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_subscriber_storage_t}, f::Symbol)
-    f === :internal && return Ptr{NTuple{1232, UInt8}}(x + 0)
+    f === :internal && return Ptr{NTuple{48, UInt8}}(x + 0)
     return getfield(x, f)
 end
 
@@ -3155,13 +3604,13 @@ function Base.propertynames(x::iox2_subscriber_storage_t, private::Bool = false)
 end
 
 struct iox2_subscriber_t
-    data::NTuple{1264, UInt8}
+    data::NTuple{80, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_subscriber_t}, f::Symbol)
     f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
     f === :value && return Ptr{iox2_subscriber_storage_t}(x + 16)
-    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 1248)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 64)
     return getfield(x, f)
 end
 
@@ -3189,12 +3638,17 @@ The owning handle for [`iox2_subscriber_t`](@ref). Passing the handle to an func
 """
 const iox2_subscriber_h = Ptr{iox2_subscriber_h_t}
 
+"""
+The non-owning handle for [`iox2_port_factory_writer_builder_t`](@ref). Passing the handle to a function does not transfer the ownership.
+"""
+const iox2_port_factory_writer_builder_h_ref = Ptr{iox2_port_factory_writer_builder_h}
+
 struct iox2_writer_storage_t
-    data::NTuple{32, UInt8}
+    data::NTuple{1384, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_writer_storage_t}, f::Symbol)
-    f === :internal && return Ptr{NTuple{32, UInt8}}(x + 0)
+    f === :internal && return Ptr{NTuple{1384, UInt8}}(x + 0)
     return getfield(x, f)
 end
 
@@ -3218,13 +3672,13 @@ function Base.propertynames(x::iox2_writer_storage_t, private::Bool = false)
 end
 
 struct iox2_writer_t
-    data::NTuple{48, UInt8}
+    data::NTuple{1400, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_writer_t}, f::Symbol)
     f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
     f === :value && return Ptr{iox2_writer_storage_t}(x + 8)
-    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 40)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 1392)
     return getfield(x, f)
 end
 
@@ -3251,6 +3705,268 @@ end
 The owning handle for [`iox2_writer_t`](@ref). Passing the handle to a function transfers the ownership.
 """
 const iox2_writer_h = Ptr{iox2_writer_h_t}
+
+struct iox2_port_name_storage_t
+    data::NTuple{88, UInt8}
+end
+
+function Base.getproperty(x::Ptr{iox2_port_name_storage_t}, f::Symbol)
+    f === :internal && return Ptr{NTuple{88, UInt8}}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::iox2_port_name_storage_t, f::Symbol)
+    r = Ref{iox2_port_name_storage_t}(x)
+    ptr = Base.unsafe_convert(Ptr{iox2_port_name_storage_t}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{iox2_port_name_storage_t}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::iox2_port_name_storage_t, private::Bool = false)
+    (:internal, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
+struct iox2_port_name_t
+    data::NTuple{96, UInt8}
+end
+
+function Base.getproperty(x::Ptr{iox2_port_name_t}, f::Symbol)
+    f === :value && return Ptr{iox2_port_name_storage_t}(x + 0)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 88)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::iox2_port_name_t, f::Symbol)
+    r = Ref{iox2_port_name_t}(x)
+    ptr = Base.unsafe_convert(Ptr{iox2_port_name_t}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{iox2_port_name_t}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::iox2_port_name_t, private::Bool = false)
+    (:value, :deleter, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
+"""
+The owning handle for [`iox2_port_name_t`](@ref). Passing the handle to an function transfers the ownership.
+"""
+const iox2_port_name_h = Ptr{iox2_port_name_h_t}
+
+const iox2_progressive_publisher_h_ref = Ptr{iox2_progressive_publisher_h}
+
+struct iox2_progressive_sample_mut_uninit_storage_t
+    data::NTuple{72, UInt8}
+end
+
+function Base.getproperty(x::Ptr{iox2_progressive_sample_mut_uninit_storage_t}, f::Symbol)
+    f === :internal && return Ptr{NTuple{72, UInt8}}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::iox2_progressive_sample_mut_uninit_storage_t, f::Symbol)
+    r = Ref{iox2_progressive_sample_mut_uninit_storage_t}(x)
+    ptr = Base.unsafe_convert(Ptr{iox2_progressive_sample_mut_uninit_storage_t}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{iox2_progressive_sample_mut_uninit_storage_t}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::iox2_progressive_sample_mut_uninit_storage_t, private::Bool = false)
+    (:internal, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
+struct iox2_progressive_sample_mut_uninit_t
+    data::NTuple{88, UInt8}
+end
+
+function Base.getproperty(x::Ptr{iox2_progressive_sample_mut_uninit_t}, f::Symbol)
+    f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
+    f === :value && return Ptr{iox2_progressive_sample_mut_uninit_storage_t}(x + 8)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 80)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::iox2_progressive_sample_mut_uninit_t, f::Symbol)
+    r = Ref{iox2_progressive_sample_mut_uninit_t}(x)
+    ptr = Base.unsafe_convert(Ptr{iox2_progressive_sample_mut_uninit_t}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{iox2_progressive_sample_mut_uninit_t}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::iox2_progressive_sample_mut_uninit_t, private::Bool = false)
+    (:service_type, :value, :deleter, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
+const iox2_progressive_sample_mut_uninit_h = Ptr{iox2_progressive_sample_mut_uninit_h_t}
+
+const iox2_progressive_sample_mut_uninit_h_ref = Ptr{iox2_progressive_sample_mut_uninit_h}
+
+struct iox2_progressive_sample_mut_storage_t
+    data::NTuple{72, UInt8}
+end
+
+function Base.getproperty(x::Ptr{iox2_progressive_sample_mut_storage_t}, f::Symbol)
+    f === :internal && return Ptr{NTuple{72, UInt8}}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::iox2_progressive_sample_mut_storage_t, f::Symbol)
+    r = Ref{iox2_progressive_sample_mut_storage_t}(x)
+    ptr = Base.unsafe_convert(Ptr{iox2_progressive_sample_mut_storage_t}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{iox2_progressive_sample_mut_storage_t}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::iox2_progressive_sample_mut_storage_t, private::Bool = false)
+    (:internal, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
+struct iox2_progressive_sample_mut_t
+    data::NTuple{88, UInt8}
+end
+
+function Base.getproperty(x::Ptr{iox2_progressive_sample_mut_t}, f::Symbol)
+    f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
+    f === :value && return Ptr{iox2_progressive_sample_mut_storage_t}(x + 8)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 80)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::iox2_progressive_sample_mut_t, f::Symbol)
+    r = Ref{iox2_progressive_sample_mut_t}(x)
+    ptr = Base.unsafe_convert(Ptr{iox2_progressive_sample_mut_t}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{iox2_progressive_sample_mut_t}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::iox2_progressive_sample_mut_t, private::Bool = false)
+    (:service_type, :value, :deleter, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
+const iox2_progressive_sample_mut_h = Ptr{iox2_progressive_sample_mut_h_t}
+
+const iox2_progressive_sample_mut_h_ref = Ptr{iox2_progressive_sample_mut_h}
+
+const iox2_progressive_subscriber_h_ref = Ptr{iox2_progressive_subscriber_h}
+
+struct iox2_progressive_sample_storage_t
+    data::NTuple{96, UInt8}
+end
+
+function Base.getproperty(x::Ptr{iox2_progressive_sample_storage_t}, f::Symbol)
+    f === :internal && return Ptr{NTuple{96, UInt8}}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::iox2_progressive_sample_storage_t, f::Symbol)
+    r = Ref{iox2_progressive_sample_storage_t}(x)
+    ptr = Base.unsafe_convert(Ptr{iox2_progressive_sample_storage_t}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{iox2_progressive_sample_storage_t}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::iox2_progressive_sample_storage_t, private::Bool = false)
+    (:internal, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
+struct iox2_progressive_sample_t
+    data::NTuple{128, UInt8}
+end
+
+function Base.getproperty(x::Ptr{iox2_progressive_sample_t}, f::Symbol)
+    f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
+    f === :value && return Ptr{iox2_progressive_sample_storage_t}(x + 16)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 112)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::iox2_progressive_sample_t, f::Symbol)
+    r = Ref{iox2_progressive_sample_t}(x)
+    ptr = Base.unsafe_convert(Ptr{iox2_progressive_sample_t}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{iox2_progressive_sample_t}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::iox2_progressive_sample_t, private::Bool = false)
+    (:service_type, :value, :deleter, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
+const iox2_progressive_sample_h = Ptr{iox2_progressive_sample_h_t}
+
+const iox2_progressive_sample_h_ref = Ptr{iox2_progressive_sample_h}
+
+"""
+    iox2_progressive_sample_snapshot_t
+
+One atomically observed committed length and lifecycle state.
+"""
+struct iox2_progressive_sample_snapshot_t
+    committed_len::c_size_t
+    state::iox2_progressive_sample_state_e
+end
 
 """
 The owning handle for [[`iox2_publish_subscribe_header_t`](@ref)]. Passing the handle to an function transfers the ownership.
@@ -3335,11 +4051,11 @@ The non-owning handle for [`iox2_publisher_t`](@ref). Passing the handle to an f
 const iox2_publisher_h_ref = Ptr{iox2_publisher_h}
 
 struct iox2_sample_mut_storage_t
-    data::NTuple{64, UInt8}
+    data::NTuple{256, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_sample_mut_storage_t}, f::Symbol)
-    f === :internal && return Ptr{NTuple{64, UInt8}}(x + 0)
+    f === :internal && return Ptr{NTuple{256, UInt8}}(x + 0)
     return getfield(x, f)
 end
 
@@ -3363,13 +4079,13 @@ function Base.propertynames(x::iox2_sample_mut_storage_t, private::Bool = false)
 end
 
 struct iox2_sample_mut_t
-    data::NTuple{80, UInt8}
+    data::NTuple{272, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_sample_mut_t}, f::Symbol)
     f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
     f === :value && return Ptr{iox2_sample_mut_storage_t}(x + 8)
-    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 72)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 264)
     return getfield(x, f)
 end
 
@@ -3538,6 +4254,16 @@ The non-owning handle for [`iox2_request_mut_t`](@ref). Passing the handle to a 
 const iox2_request_mut_h_ref = Ptr{iox2_request_mut_h}
 
 """
+The owning handle for [`iox2_resizable_memory_publish_subscribe_t`](@ref). Passing the handle to an function transfers the ownership.
+"""
+const iox2_resizable_memory_publish_subscribe_h = Ptr{iox2_resizable_memory_publish_subscribe_h_t}
+
+"""
+The non-owning handle for [`iox2_resizable_memory_publish_subscribe_t`](@ref). Passing the handle to an function does not transfers the ownership.
+"""
+const iox2_resizable_memory_publish_subscribe_h_ref = Ptr{iox2_resizable_memory_publish_subscribe_h}
+
+"""
 The non-owning handle for [`iox2_response_t`](@ref). Passing the handle to a function does not transfer the ownership.
 """
 const iox2_response_h_ref = Ptr{iox2_response_h}
@@ -3702,11 +4428,11 @@ const iox2_sample_h_ref = Ptr{iox2_sample_h}
 Sample header used by `MessagingPattern::PublishSubscribe`
 """
 struct iox2_publish_subscribe_header_storage_t
-    data::NTuple{48, UInt8}
+    data::NTuple{56, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_publish_subscribe_header_storage_t}, f::Symbol)
-    f === :internal && return Ptr{NTuple{48, UInt8}}(x + 0)
+    f === :internal && return Ptr{NTuple{56, UInt8}}(x + 0)
     return getfield(x, f)
 end
 
@@ -3730,12 +4456,12 @@ function Base.propertynames(x::iox2_publish_subscribe_header_storage_t, private:
 end
 
 struct iox2_publish_subscribe_header_t
-    data::NTuple{56, UInt8}
+    data::NTuple{64, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_publish_subscribe_header_t}, f::Symbol)
     f === :value && return Ptr{iox2_publish_subscribe_header_storage_t}(x + 0)
-    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 48)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 56)
     return getfield(x, f)
 end
 
@@ -3762,6 +4488,64 @@ end
 The non-owning handle for [`iox2_sample_mut_t`](@ref). Passing the handle to an function does not transfers the ownership.
 """
 const iox2_sample_mut_h_ref = Ptr{iox2_sample_mut_h}
+
+struct iox2_resizable_memory_publish_subscribe_storage_t
+    data::NTuple{64, UInt8}
+end
+
+function Base.getproperty(x::Ptr{iox2_resizable_memory_publish_subscribe_storage_t}, f::Symbol)
+    f === :internal && return Ptr{NTuple{64, UInt8}}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::iox2_resizable_memory_publish_subscribe_storage_t, f::Symbol)
+    r = Ref{iox2_resizable_memory_publish_subscribe_storage_t}(x)
+    ptr = Base.unsafe_convert(Ptr{iox2_resizable_memory_publish_subscribe_storage_t}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{iox2_resizable_memory_publish_subscribe_storage_t}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::iox2_resizable_memory_publish_subscribe_storage_t, private::Bool = false)
+    (:internal, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
+struct iox2_resizable_memory_publish_subscribe_t
+    data::NTuple{80, UInt8}
+end
+
+function Base.getproperty(x::Ptr{iox2_resizable_memory_publish_subscribe_t}, f::Symbol)
+    f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
+    f === :value && return Ptr{iox2_resizable_memory_publish_subscribe_storage_t}(x + 8)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 72)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::iox2_resizable_memory_publish_subscribe_t, f::Symbol)
+    r = Ref{iox2_resizable_memory_publish_subscribe_t}(x)
+    ptr = Base.unsafe_convert(Ptr{iox2_resizable_memory_publish_subscribe_t}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{iox2_resizable_memory_publish_subscribe_t}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::iox2_resizable_memory_publish_subscribe_t, private::Bool = false)
+    (:service_type, :value, :deleter, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
 
 """
 The non-owning handle for [`iox2_server_t`](@ref). Passing the handle to a function does not transfer the ownership.
@@ -3901,6 +4685,11 @@ const iox2_service_builder_event_h = Ptr{iox2_service_builder_event_h_t}
 The owning handle for [`iox2_service_builder_t`](@ref) which is already configured as event. Passing the handle to an function transfers the ownership.
 """
 const iox2_service_builder_pub_sub_h = Ptr{iox2_service_builder_pub_sub_h_t}
+
+"""
+The owning handle for a service builder configured for progressive byte-slice publish-subscribe.
+"""
+const iox2_service_builder_progressive_pub_sub_h = Ptr{iox2_service_builder_progressive_pub_sub_h_t}
 
 """
 The owning handle for [`iox2_service_builder_t`](@ref) which is already configured as event. Passing the handle to an function transfers the ownership.
@@ -4047,6 +4836,69 @@ function Base.setproperty!(x::Ptr{iox2_port_factory_event_t}, f::Symbol, v)
 end
 
 function Base.propertynames(x::iox2_port_factory_event_t, private::Bool = false)
+    (:service_type, :value, :deleter, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
+"""
+A non-owning progressive publish-subscribe service-builder handle.
+"""
+const iox2_service_builder_progressive_pub_sub_h_ref = Ptr{iox2_service_builder_progressive_pub_sub_h}
+
+struct iox2_port_factory_progressive_pub_sub_storage_t
+    data::NTuple{16, UInt8}
+end
+
+function Base.getproperty(x::Ptr{iox2_port_factory_progressive_pub_sub_storage_t}, f::Symbol)
+    f === :internal && return Ptr{NTuple{16, UInt8}}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::iox2_port_factory_progressive_pub_sub_storage_t, f::Symbol)
+    r = Ref{iox2_port_factory_progressive_pub_sub_storage_t}(x)
+    ptr = Base.unsafe_convert(Ptr{iox2_port_factory_progressive_pub_sub_storage_t}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{iox2_port_factory_progressive_pub_sub_storage_t}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::iox2_port_factory_progressive_pub_sub_storage_t, private::Bool = false)
+    (:internal, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
+struct iox2_port_factory_progressive_pub_sub_t
+    data::NTuple{32, UInt8}
+end
+
+function Base.getproperty(x::Ptr{iox2_port_factory_progressive_pub_sub_t}, f::Symbol)
+    f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
+    f === :value && return Ptr{iox2_port_factory_progressive_pub_sub_storage_t}(x + 8)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 24)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::iox2_port_factory_progressive_pub_sub_t, f::Symbol)
+    r = Ref{iox2_port_factory_progressive_pub_sub_t}(x)
+    ptr = Base.unsafe_convert(Ptr{iox2_port_factory_progressive_pub_sub_t}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{iox2_port_factory_progressive_pub_sub_t}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::iox2_port_factory_progressive_pub_sub_t, private::Bool = false)
     (:service_type, :value, :deleter, if private
             fieldnames(typeof(x))
         else
@@ -4381,6 +5233,63 @@ const iox2_unique_client_id_h_ref = Ptr{iox2_unique_client_id_h}
 The non-owning handle for [[`iox2_unique_listener_id_t`](@ref)]. Passing the handle to an function does not transfers the ownership.
 """
 const iox2_unique_listener_id_h_ref = Ptr{iox2_unique_listener_id_h}
+
+struct iox2_unique_node_id_storage_t
+    data::NTuple{24, UInt8}
+end
+
+function Base.getproperty(x::Ptr{iox2_unique_node_id_storage_t}, f::Symbol)
+    f === :internal && return Ptr{NTuple{20, UInt8}}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::iox2_unique_node_id_storage_t, f::Symbol)
+    r = Ref{iox2_unique_node_id_storage_t}(x)
+    ptr = Base.unsafe_convert(Ptr{iox2_unique_node_id_storage_t}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{iox2_unique_node_id_storage_t}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::iox2_unique_node_id_storage_t, private::Bool = false)
+    (:internal, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
+
+struct iox2_unique_node_id_t
+    data::NTuple{32, UInt8}
+end
+
+function Base.getproperty(x::Ptr{iox2_unique_node_id_t}, f::Symbol)
+    f === :value && return Ptr{iox2_unique_node_id_storage_t}(x + 0)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 24)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::iox2_unique_node_id_t, f::Symbol)
+    r = Ref{iox2_unique_node_id_t}(x)
+    ptr = Base.unsafe_convert(Ptr{iox2_unique_node_id_t}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{iox2_unique_node_id_t}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::iox2_unique_node_id_t, private::Bool = false)
+    (:value, :deleter, if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...)
+end
 
 """
 The non-owning handle for [[`iox2_unique_notifier_id_t`](@ref)]. Passing the handle to an function does not transfers the ownership.
@@ -4780,7 +5689,7 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_semantic_string_error_string(enum iox2_semantic_string_error_e error);
 ```
 """
-function iox2_semantic_string_error_string(error)
+@inline function iox2_semantic_string_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_semantic_string_error_string(error::iox2_semantic_string_error_e)::Cstring
 end
 
@@ -4802,14 +5711,14 @@ Returns true if the client wants to gracefully disconnect. This allows the Serve
 bool iox2_active_request_has_disconnect_hint(iox2_active_request_h_ref handle);
 ```
 """
-function iox2_active_request_has_disconnect_hint(handle)
+@inline function iox2_active_request_has_disconnect_hint(handle)
     @ccall libiceoryx2_ffi_c.iox2_active_request_has_disconnect_hint(handle::iox2_active_request_h_ref)::Bool
 end
 
 """
     iox2_active_request_is_connected(handle)
 
-Returns true if the corresponding pending response is still connected anc can receive responses.
+Returns true if the corresponding pending response is still connected and can receive responses.
 
 # Arguments
 
@@ -4824,7 +5733,7 @@ Returns true if the corresponding pending response is still connected anc can re
 bool iox2_active_request_is_connected(iox2_active_request_h_ref handle);
 ```
 """
-function iox2_active_request_is_connected(handle)
+@inline function iox2_active_request_is_connected(handle)
     @ccall libiceoryx2_ffi_c.iox2_active_request_is_connected(handle::iox2_active_request_h_ref)::Bool
 end
 
@@ -4842,7 +5751,7 @@ Acquires the requests header.
 void iox2_active_request_header(iox2_active_request_h_ref handle, struct iox2_request_header_t *header_struct_ptr, iox2_request_header_h *header_handle_ptr);
 ```
 """
-function iox2_active_request_header(handle, header_struct_ptr, header_handle_ptr)
+@inline function iox2_active_request_header(handle, header_struct_ptr, header_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_active_request_header(handle::iox2_active_request_h_ref, header_struct_ptr::Ptr{iox2_request_header_t}, header_handle_ptr::Ptr{iox2_request_header_h})::Cvoid
 end
 
@@ -4860,7 +5769,7 @@ Acquires the request user header.
 void iox2_active_request_user_header(iox2_active_request_h_ref handle, const void **header_ptr);
 ```
 """
-function iox2_active_request_user_header(handle, header_ptr)
+@inline function iox2_active_request_user_header(handle, header_ptr)
     @ccall libiceoryx2_ffi_c.iox2_active_request_user_header(handle::iox2_active_request_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
 end
 
@@ -4878,8 +5787,26 @@ Acquires the request payload.
 void iox2_active_request_payload(iox2_active_request_h_ref handle, const void **payload_ptr, c_size_t *number_of_elements);
 ```
 """
-function iox2_active_request_payload(handle, payload_ptr, number_of_elements)
+@inline function iox2_active_request_payload(handle, payload_ptr, number_of_elements)
     @ccall libiceoryx2_ffi_c.iox2_active_request_payload(handle::iox2_active_request_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
+end
+
+"""
+    iox2_active_request_payload_number_of_bytes(handle)
+
+Returns the number of bytes of the received request payload.
+
+# Safety
+
+* `handle` obtained by [`[`iox2_server_receive`](@ref)()`](crate::[`iox2_server_receive`](@ref)())
+
+### Prototype
+```c
+c_size_t iox2_active_request_payload_number_of_bytes(iox2_active_request_h_ref handle);
+```
+"""
+@inline function iox2_active_request_payload_number_of_bytes(handle)
+    @ccall libiceoryx2_ffi_c.iox2_active_request_payload_number_of_bytes(handle::iox2_active_request_h_ref)::c_size_t
 end
 
 """
@@ -4902,7 +5829,7 @@ Return [[`IOX2_OK`](@ref)] on success, otherwise [[`iox2_loan_error_e`](@ref)](c
 int iox2_active_request_loan_slice_uninit(iox2_active_request_h_ref active_request_handle, struct iox2_response_mut_t *response_struct_ptr, iox2_response_mut_h *response_handle_ptr, size_t number_of_elements);
 ```
 """
-function iox2_active_request_loan_slice_uninit(active_request_handle, response_struct_ptr, response_handle_ptr, number_of_elements)
+@inline function iox2_active_request_loan_slice_uninit(active_request_handle, response_struct_ptr, response_handle_ptr, number_of_elements)
     @ccall libiceoryx2_ffi_c.iox2_active_request_loan_slice_uninit(active_request_handle::iox2_active_request_h_ref, response_struct_ptr::Ptr{iox2_response_mut_t}, response_handle_ptr::Ptr{iox2_response_mut_h}, number_of_elements::Csize_t)::Cint
 end
 
@@ -4926,7 +5853,7 @@ Return [[`IOX2_OK`](@ref)] on success, otherwise [[`iox2_send_error_e`](@ref)].
 int iox2_active_request_send_copy(iox2_active_request_h_ref active_request_handle, const void *data_ptr, size_t size_of_element, size_t number_of_elements);
 ```
 """
-function iox2_active_request_send_copy(active_request_handle, data_ptr, size_of_element, number_of_elements)
+@inline function iox2_active_request_send_copy(active_request_handle, data_ptr, size_of_element, number_of_elements)
     @ccall libiceoryx2_ffi_c.iox2_active_request_send_copy(active_request_handle::iox2_active_request_h_ref, data_ptr::Ptr{Cvoid}, size_of_element::Csize_t, number_of_elements::Csize_t)::Cint
 end
 
@@ -4948,7 +5875,7 @@ This function needs to be called to destroy the active\\_request!
 void iox2_active_request_drop(iox2_active_request_h handle);
 ```
 """
-function iox2_active_request_drop(handle)
+@inline function iox2_active_request_drop(handle)
     @ccall libiceoryx2_ffi_c.iox2_active_request_drop(handle::iox2_active_request_h)::Cvoid
 end
 
@@ -4966,7 +5893,7 @@ Returns the length of the attributes key.
 size_t iox2_attribute_key_len(iox2_attribute_h_ref handle);
 ```
 """
-function iox2_attribute_key_len(handle)
+@inline function iox2_attribute_key_len(handle)
     @ccall libiceoryx2_ffi_c.iox2_attribute_key_len(handle::iox2_attribute_h_ref)::Csize_t
 end
 
@@ -4984,7 +5911,7 @@ Copies the keys value into the provided buffer.
 void iox2_attribute_key(iox2_attribute_h_ref handle, char *buffer, size_t buffer_len);
 ```
 """
-function iox2_attribute_key(handle, buffer, buffer_len)
+@inline function iox2_attribute_key(handle, buffer, buffer_len)
     @ccall libiceoryx2_ffi_c.iox2_attribute_key(handle::iox2_attribute_h_ref, buffer::Cstring, buffer_len::Csize_t)::Cvoid
 end
 
@@ -5002,7 +5929,7 @@ Returns the length of the attributes value.
 size_t iox2_attribute_value_len(iox2_attribute_h_ref handle);
 ```
 """
-function iox2_attribute_value_len(handle)
+@inline function iox2_attribute_value_len(handle)
     @ccall libiceoryx2_ffi_c.iox2_attribute_value_len(handle::iox2_attribute_h_ref)::Csize_t
 end
 
@@ -5020,7 +5947,7 @@ Copies the values value into the provided buffer.
 void iox2_attribute_value(iox2_attribute_h_ref handle, char *buffer, size_t buffer_len);
 ```
 """
-function iox2_attribute_value(handle, buffer, buffer_len)
+@inline function iox2_attribute_value(handle, buffer, buffer_len)
     @ccall libiceoryx2_ffi_c.iox2_attribute_value(handle::iox2_attribute_h_ref, buffer::Cstring, buffer_len::Csize_t)::Cvoid
 end
 
@@ -5046,7 +5973,7 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_attribute_definition_error_create_error_string(enum iox2_attribute_definition_error_e error);
 ```
 """
-function iox2_attribute_definition_error_create_error_string(error)
+@inline function iox2_attribute_definition_error_create_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_attribute_definition_error_create_error_string(error::iox2_attribute_definition_error_e)::Cstring
 end
 
@@ -5072,7 +5999,7 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_attribute_verification_error_create_error_string(enum iox2_attribute_verification_error_e error);
 ```
 """
-function iox2_attribute_verification_error_create_error_string(error)
+@inline function iox2_attribute_verification_error_create_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_attribute_verification_error_create_error_string(error::iox2_attribute_verification_error_e)::Cstring
 end
 
@@ -5090,7 +6017,7 @@ This function create a new attribute\\_set by cloning an already existing one!
 void iox2_attribute_set_new_clone(struct iox2_attribute_set_t *struct_ptr, iox2_attribute_set_ptr source_ptr, iox2_attribute_set_h *handle_ptr);
 ```
 """
-function iox2_attribute_set_new_clone(struct_ptr, source_ptr, handle_ptr)
+@inline function iox2_attribute_set_new_clone(struct_ptr, source_ptr, handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_attribute_set_new_clone(struct_ptr::Ptr{iox2_attribute_set_t}, source_ptr::iox2_attribute_set_ptr, handle_ptr::Ptr{iox2_attribute_set_h})::Cvoid
 end
 
@@ -5108,7 +6035,7 @@ This function needs to be called to destroy the attribute set!
 void iox2_attribute_set_drop(iox2_attribute_set_h handle);
 ```
 """
-function iox2_attribute_set_drop(handle)
+@inline function iox2_attribute_set_drop(handle)
     @ccall libiceoryx2_ffi_c.iox2_attribute_set_drop(handle::iox2_attribute_set_h)::Cvoid
 end
 
@@ -5128,7 +6055,7 @@ Returns a [[`iox2_attribute_set_ptr`](@ref)]
 iox2_attribute_set_ptr iox2_cast_attribute_set_ptr(iox2_attribute_set_h handle);
 ```
 """
-function iox2_cast_attribute_set_ptr(handle)
+@inline function iox2_cast_attribute_set_ptr(handle)
     @ccall libiceoryx2_ffi_c.iox2_cast_attribute_set_ptr(handle::iox2_attribute_set_h)::iox2_attribute_set_ptr
 end
 
@@ -5146,7 +6073,7 @@ Returns the number of attributes in the attribute set.
 size_t iox2_attribute_set_number_of_attributes(iox2_attribute_set_ptr handle);
 ```
 """
-function iox2_attribute_set_number_of_attributes(handle)
+@inline function iox2_attribute_set_number_of_attributes(handle)
     @ccall libiceoryx2_ffi_c.iox2_attribute_set_number_of_attributes(handle::iox2_attribute_set_ptr)::Csize_t
 end
 
@@ -5164,7 +6091,7 @@ Returns a [[`iox2_attribute_h_ref`](@ref)] to the attribute stored at the provid
 iox2_attribute_h_ref iox2_attribute_set_index(iox2_attribute_set_ptr handle, size_t index);
 ```
 """
-function iox2_attribute_set_index(handle, index)
+@inline function iox2_attribute_set_index(handle, index)
     @ccall libiceoryx2_ffi_c.iox2_attribute_set_index(handle::iox2_attribute_set_ptr, index::Csize_t)::iox2_attribute_h_ref
 end
 
@@ -5182,7 +6109,7 @@ Returns the number of values stored under a specific key. If the key does not ex
 size_t iox2_attribute_set_number_of_key_values(iox2_attribute_set_ptr handle, const char *key);
 ```
 """
-function iox2_attribute_set_number_of_key_values(handle, key)
+@inline function iox2_attribute_set_number_of_key_values(handle, key)
     @ccall libiceoryx2_ffi_c.iox2_attribute_set_number_of_key_values(handle::iox2_attribute_set_ptr, key::Cstring)::Csize_t
 end
 
@@ -5200,7 +6127,7 @@ Returns a value of a key at a specific index. The index enumerates the values of
 void iox2_attribute_set_key_value(iox2_attribute_set_ptr handle, const char *key, size_t index, char *buffer, size_t buffer_len, bool *has_value);
 ```
 """
-function iox2_attribute_set_key_value(handle, key, index, buffer, buffer_len, has_value)
+@inline function iox2_attribute_set_key_value(handle, key, index, buffer, buffer_len, has_value)
     @ccall libiceoryx2_ffi_c.iox2_attribute_set_key_value(handle::iox2_attribute_set_ptr, key::Cstring, index::Csize_t, buffer::Cstring, buffer_len::Csize_t, has_value::Ptr{Bool})::Cvoid
 end
 
@@ -5218,7 +6145,7 @@ Calls the provided callback for every value that is owned by the provided key.
 void iox2_attribute_set_iter_key_values(iox2_attribute_set_ptr handle, const char *key, iox2_attribute_set_get_callback callback, iox2_callback_context callback_ctx);
 ```
 """
-function iox2_attribute_set_iter_key_values(handle, key, callback, callback_ctx)
+@inline function iox2_attribute_set_iter_key_values(handle, key, callback, callback_ctx)
     @ccall libiceoryx2_ffi_c.iox2_attribute_set_iter_key_values(handle::iox2_attribute_set_ptr, key::Cstring, callback::iox2_attribute_set_get_callback, callback_ctx::iox2_callback_context)::Cvoid
 end
 
@@ -5236,7 +6163,7 @@ Creates a new [[`iox2_attribute_specifier_h`](@ref)]. It must be cleaned up with
 int iox2_attribute_specifier_new(struct iox2_attribute_specifier_t *struct_ptr, iox2_attribute_specifier_h *handle_ptr);
 ```
 """
-function iox2_attribute_specifier_new(struct_ptr, handle_ptr)
+@inline function iox2_attribute_specifier_new(struct_ptr, handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_attribute_specifier_new(struct_ptr::Ptr{iox2_attribute_specifier_t}, handle_ptr::Ptr{iox2_attribute_specifier_h})::Cint
 end
 
@@ -5254,7 +6181,7 @@ Deletes a [[`iox2_attribute_specifier_h`](@ref)]. It must be created with [`[`io
 void iox2_attribute_specifier_drop(iox2_attribute_specifier_h handle);
 ```
 """
-function iox2_attribute_specifier_drop(handle)
+@inline function iox2_attribute_specifier_drop(handle)
     @ccall libiceoryx2_ffi_c.iox2_attribute_specifier_drop(handle::iox2_attribute_specifier_h)::Cvoid
 end
 
@@ -5274,14 +6201,14 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_attribute_definition_error_e`](
 int iox2_attribute_specifier_define(iox2_attribute_specifier_h_ref handle, const char *key, const char *value);
 ```
 """
-function iox2_attribute_specifier_define(handle, key, value)
+@inline function iox2_attribute_specifier_define(handle, key, value)
     @ccall libiceoryx2_ffi_c.iox2_attribute_specifier_define(handle::iox2_attribute_specifier_h_ref, key::Cstring, value::Cstring)::Cint
 end
 
 """
     iox2_attribute_specifier_attributes(handle)
 
-Returnes a [[`iox2_attribute_set_ptr`](@ref)] to the underlying attribute set.
+Returns a [[`iox2_attribute_set_ptr`](@ref)] to the underlying attribute set.
 
 # Safety
 
@@ -5292,7 +6219,7 @@ Returnes a [[`iox2_attribute_set_ptr`](@ref)] to the underlying attribute set.
 iox2_attribute_set_ptr iox2_attribute_specifier_attributes(iox2_attribute_specifier_h_ref handle);
 ```
 """
-function iox2_attribute_specifier_attributes(handle)
+@inline function iox2_attribute_specifier_attributes(handle)
     @ccall libiceoryx2_ffi_c.iox2_attribute_specifier_attributes(handle::iox2_attribute_specifier_h_ref)::iox2_attribute_set_ptr
 end
 
@@ -5310,7 +6237,7 @@ Creates a new [[`iox2_attribute_verifier_h`](@ref)]. It must be cleaned up with 
 int iox2_attribute_verifier_new(struct iox2_attribute_verifier_t *struct_ptr, iox2_attribute_verifier_h *handle_ptr);
 ```
 """
-function iox2_attribute_verifier_new(struct_ptr, handle_ptr)
+@inline function iox2_attribute_verifier_new(struct_ptr, handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_attribute_verifier_new(struct_ptr::Ptr{iox2_attribute_verifier_t}, handle_ptr::Ptr{iox2_attribute_verifier_h})::Cint
 end
 
@@ -5328,7 +6255,7 @@ Deletes a [[`iox2_attribute_verifier_h`](@ref)]. It must be created with [`[`iox
 void iox2_attribute_verifier_drop(iox2_attribute_verifier_h handle);
 ```
 """
-function iox2_attribute_verifier_drop(handle)
+@inline function iox2_attribute_verifier_drop(handle)
     @ccall libiceoryx2_ffi_c.iox2_attribute_verifier_drop(handle::iox2_attribute_verifier_h)::Cvoid
 end
 
@@ -5348,7 +6275,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_attribute_definition_error_e`](
 int iox2_attribute_verifier_require(iox2_attribute_verifier_h_ref handle, const char *key, const char *value);
 ```
 """
-function iox2_attribute_verifier_require(handle, key, value)
+@inline function iox2_attribute_verifier_require(handle, key, value)
     @ccall libiceoryx2_ffi_c.iox2_attribute_verifier_require(handle::iox2_attribute_verifier_h_ref, key::Cstring, value::Cstring)::Cint
 end
 
@@ -5368,14 +6295,14 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_attribute_definition_error_e`](
 int iox2_attribute_verifier_require_key(iox2_attribute_verifier_h_ref handle, const char *key);
 ```
 """
-function iox2_attribute_verifier_require_key(handle, key)
+@inline function iox2_attribute_verifier_require_key(handle, key)
     @ccall libiceoryx2_ffi_c.iox2_attribute_verifier_require_key(handle::iox2_attribute_verifier_h_ref, key::Cstring)::Cint
 end
 
 """
     iox2_attribute_verifier_attributes(handle)
 
-Returnes a [[`iox2_attribute_set_ptr`](@ref)] to the underlying attribute set.
+Returns a [[`iox2_attribute_set_ptr`](@ref)] to the underlying attribute set.
 
 # Safety
 
@@ -5386,7 +6313,7 @@ Returnes a [[`iox2_attribute_set_ptr`](@ref)] to the underlying attribute set.
 iox2_attribute_set_ptr iox2_attribute_verifier_attributes(iox2_attribute_verifier_h_ref handle);
 ```
 """
-function iox2_attribute_verifier_attributes(handle)
+@inline function iox2_attribute_verifier_attributes(handle)
     @ccall libiceoryx2_ffi_c.iox2_attribute_verifier_attributes(handle::iox2_attribute_verifier_h_ref)::iox2_attribute_set_ptr
 end
 
@@ -5406,7 +6333,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_attribute_verification_error_e`
 int iox2_attribute_verifier_verify_requirements(iox2_attribute_verifier_h_ref handle, iox2_attribute_set_ptr rhs, char *incompatible_key_buffer, size_t incompatible_key_buffer_len);
 ```
 """
-function iox2_attribute_verifier_verify_requirements(handle, rhs, incompatible_key_buffer, incompatible_key_buffer_len)
+@inline function iox2_attribute_verifier_verify_requirements(handle, rhs, incompatible_key_buffer, incompatible_key_buffer_len)
     @ccall libiceoryx2_ffi_c.iox2_attribute_verifier_verify_requirements(handle::iox2_attribute_verifier_h_ref, rhs::iox2_attribute_set_ptr, incompatible_key_buffer::Cstring, incompatible_key_buffer_len::Csize_t)::Cint
 end
 
@@ -5424,7 +6351,7 @@ Returns the number of required keys.
 size_t iox2_attribute_verifier_number_of_keys(iox2_attribute_verifier_h_ref handle);
 ```
 """
-function iox2_attribute_verifier_number_of_keys(handle)
+@inline function iox2_attribute_verifier_number_of_keys(handle)
     @ccall libiceoryx2_ffi_c.iox2_attribute_verifier_number_of_keys(handle::iox2_attribute_verifier_h_ref)::Csize_t
 end
 
@@ -5442,7 +6369,7 @@ Returns the length of a required key at a specific key index.
 size_t iox2_attribute_verifier_key_len(iox2_attribute_verifier_h_ref handle, size_t key_index);
 ```
 """
-function iox2_attribute_verifier_key_len(handle, key_index)
+@inline function iox2_attribute_verifier_key_len(handle, key_index)
     @ccall libiceoryx2_ffi_c.iox2_attribute_verifier_key_len(handle::iox2_attribute_verifier_h_ref, key_index::Csize_t)::Csize_t
 end
 
@@ -5460,12 +6387,122 @@ Copies the key value at a specific key index into the provided buffer.
 size_t iox2_attribute_verifier_key(iox2_attribute_verifier_h_ref handle, size_t key_index, char *key_value_buffer, size_t key_value_buffer_len);
 ```
 """
-function iox2_attribute_verifier_key(handle, key_index, key_value_buffer, key_value_buffer_len)
+@inline function iox2_attribute_verifier_key(handle, key_index, key_value_buffer, key_value_buffer_len)
     @ccall libiceoryx2_ffi_c.iox2_attribute_verifier_key(handle::iox2_attribute_verifier_h_ref, key_index::Csize_t, key_value_buffer::Cstring, key_value_buffer_len::Csize_t)::Csize_t
 end
 
 """
-    iox2_client_unable_to_deliver_strategy(handle)
+    iox2_backpressure_info_service_id(info_handle, service_id)
+
+Obtains the service id, which is involved in the delivery incident
+
+# Arguments
+
+* `info_handle` - Must be a valid [[`iox2_backpressure_info_h_ref`](@ref)] provided as parameter by [[`iox2_backpressure_handler`](@ref)] * `service_id` - Must be a pointer to a [[`iox2_buffer_16_align_4_t`](@ref)](crate::api::[`iox2_buffer_16_align_4_t`](@ref))
+
+# Safety
+
+* `info_handle` must be a valid handle * `service_id` must not be a null pointer
+
+### Prototype
+```c
+void iox2_backpressure_info_service_id(iox2_backpressure_info_h_ref info_handle, struct iox2_buffer_16_align_4_t *service_id);
+```
+"""
+@inline function iox2_backpressure_info_service_id(info_handle, service_id)
+    @ccall libiceoryx2_ffi_c.iox2_backpressure_info_service_id(info_handle::iox2_backpressure_info_h_ref, service_id::Ptr{iox2_buffer_16_align_4_t})::Cvoid
+end
+
+"""
+    iox2_backpressure_info_receiver_port_id(info_handle, receiver_port_id)
+
+Obtains the receiver port id, which is involved in the delivery incident
+
+# Arguments
+
+* `info_handle` - Must be a valid [[`iox2_backpressure_info_h_ref`](@ref)] provided as parameter by [[`iox2_backpressure_handler`](@ref)] * `service_id` - Must be a pointer to a [[`iox2_buffer_16_align_4_t`](@ref)](crate::api::[`iox2_buffer_16_align_4_t`](@ref))
+
+# Safety
+
+* `info_handle` must be a valid handle * `service_id` must not be a null pointer
+
+### Prototype
+```c
+void iox2_backpressure_info_receiver_port_id(iox2_backpressure_info_h_ref info_handle, struct iox2_buffer_16_align_4_t *receiver_port_id);
+```
+"""
+@inline function iox2_backpressure_info_receiver_port_id(info_handle, receiver_port_id)
+    @ccall libiceoryx2_ffi_c.iox2_backpressure_info_receiver_port_id(info_handle::iox2_backpressure_info_h_ref, receiver_port_id::Ptr{iox2_buffer_16_align_4_t})::Cvoid
+end
+
+"""
+    iox2_backpressure_info_sender_port_id(info_handle, sender_port_id)
+
+Obtains the sender port id, which is involved in the delivery incident
+
+# Arguments
+
+* `info_handle` - Must be a valid [[`iox2_backpressure_info_h_ref`](@ref)] provided as parameter by [[`iox2_backpressure_handler`](@ref)] * `service_id` - Must be a pointer to a [[`iox2_buffer_16_align_4_t`](@ref)](crate::api::[`iox2_buffer_16_align_4_t`](@ref))
+
+# Safety
+
+* `info_handle` must be a valid handle * `service_id` must not be a null pointer
+
+### Prototype
+```c
+void iox2_backpressure_info_sender_port_id(iox2_backpressure_info_h_ref info_handle, struct iox2_buffer_16_align_4_t *sender_port_id);
+```
+"""
+@inline function iox2_backpressure_info_sender_port_id(info_handle, sender_port_id)
+    @ccall libiceoryx2_ffi_c.iox2_backpressure_info_sender_port_id(info_handle::iox2_backpressure_info_h_ref, sender_port_id::Ptr{iox2_buffer_16_align_4_t})::Cvoid
+end
+
+"""
+    iox2_backpressure_info_retries(info_handle)
+
+Obtains the number of retries for the running delivery to the receiver port
+
+# Arguments
+
+* `info_handle` - Must be a valid [[`iox2_backpressure_info_h_ref`](@ref)] provided as parameter by [[`iox2_backpressure_handler`](@ref)]
+
+# Safety
+
+* `info_handle` must be a valid handle
+
+### Prototype
+```c
+uint64_t iox2_backpressure_info_retries(iox2_backpressure_info_h_ref info_handle);
+```
+"""
+@inline function iox2_backpressure_info_retries(info_handle)
+    @ccall libiceoryx2_ffi_c.iox2_backpressure_info_retries(info_handle::iox2_backpressure_info_h_ref)::UInt64
+end
+
+"""
+    iox2_backpressure_info_elapsed_time(info_handle, seconds, nanoseconds)
+
+Obtains the elapsed time since the initial retry
+
+# Arguments
+
+* `info_handle` - Must be a valid [[`iox2_backpressure_info_h_ref`](@ref)] provided as parameter by [[`iox2_backpressure_handler`](@ref)] * `seconds` - in parameter for the seconds part of the elapsed time * `nanoseconds` - in parameter for the nanoseconds part of the elapsed time
+
+# Safety
+
+* `info_handle` must be a valid handle * `seconds` must not be a null pointer * `nanoseconds` must not be a null pointer
+
+### Prototype
+```c
+void iox2_backpressure_info_elapsed_time(iox2_backpressure_info_h_ref info_handle, uint64_t *seconds, uint32_t *nanoseconds);
+```
+"""
+@inline function iox2_backpressure_info_elapsed_time(info_handle, seconds, nanoseconds)
+    @ccall libiceoryx2_ffi_c.iox2_backpressure_info_elapsed_time(info_handle::iox2_backpressure_info_h_ref, seconds::Ptr{UInt64}, nanoseconds::Ptr{UInt32})::Cvoid
+end
+
+"""
+    iox2_client_backpressure_strategy(handle)
 
 Returns the strategy the client follows when a request cannot be delivered since the servers buffer is full.
 
@@ -5473,7 +6510,7 @@ Returns the strategy the client follows when a request cannot be delivered since
 
 * `handle` obtained by [[`iox2_port_factory_client_builder_create`](@ref)](crate::[`iox2_port_factory_client_builder_create`](@ref))
 
-Returns [[`iox2_unable_to_deliver_strategy_e`](@ref)].
+Returns [[`iox2_backpressure_strategy_e`](@ref)].
 
 # Safety
 
@@ -5481,11 +6518,11 @@ Returns [[`iox2_unable_to_deliver_strategy_e`](@ref)].
 
 ### Prototype
 ```c
-enum iox2_unable_to_deliver_strategy_e iox2_client_unable_to_deliver_strategy(iox2_client_h_ref handle);
+enum iox2_backpressure_strategy_e iox2_client_backpressure_strategy(iox2_client_h_ref handle);
 ```
 """
-function iox2_client_unable_to_deliver_strategy(handle)
-    @ccall libiceoryx2_ffi_c.iox2_client_unable_to_deliver_strategy(handle::iox2_client_h_ref)::iox2_unable_to_deliver_strategy_e
+@inline function iox2_client_backpressure_strategy(handle)
+    @ccall libiceoryx2_ffi_c.iox2_client_backpressure_strategy(handle::iox2_client_h_ref)::iox2_backpressure_strategy_e
 end
 
 """
@@ -5506,7 +6543,7 @@ Returns the initial max slice len with which the client was created.
 c_size_t iox2_client_initial_max_slice_len(iox2_client_h_ref handle);
 ```
 """
-function iox2_client_initial_max_slice_len(handle)
+@inline function iox2_client_initial_max_slice_len(handle)
     @ccall libiceoryx2_ffi_c.iox2_client_initial_max_slice_len(handle::iox2_client_h_ref)::c_size_t
 end
 
@@ -5528,8 +6565,52 @@ Returns the unique port id of the client.
 void iox2_client_id(iox2_client_h_ref handle, struct iox2_unique_client_id_t *id_struct_ptr, iox2_unique_client_id_h *id_handle_ptr);
 ```
 """
-function iox2_client_id(handle, id_struct_ptr, id_handle_ptr)
+@inline function iox2_client_id(handle, id_struct_ptr, id_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_client_id(handle::iox2_client_h_ref, id_struct_ptr::Ptr{iox2_unique_client_id_t}, id_handle_ptr::Ptr{iox2_unique_client_id_h})::Cvoid
+end
+
+"""
+    iox2_client_name(handle)
+
+Returns the [[`iox2_port_name_ptr`](@ref)](crate::[`iox2_port_name_ptr`](@ref)), an immutable pointer to the port name.
+
+# Arguments
+
+* `handle` must be a valid [[`iox2_client_h_ref`](@ref)] obtained by [[`iox2_port_factory_client_builder_create`](@ref)](crate::[`iox2_port_factory_client_builder_create`](@ref))
+
+# Safety
+
+* `handle` is valid, non-null and was obtained via [[`iox2_port_factory_client_builder_create`](@ref)](crate::[`iox2_port_factory_client_builder_create`](@ref)).
+
+### Prototype
+```c
+iox2_port_name_ptr iox2_client_name(iox2_client_h_ref handle);
+```
+"""
+@inline function iox2_client_name(handle)
+    @ccall libiceoryx2_ffi_c.iox2_client_name(handle::iox2_client_h_ref)::iox2_port_name_ptr
+end
+
+"""
+    iox2_client_max_active_requests(handle)
+
+Returns the maximal active requests of the client.
+
+# Arguments
+
+* `handle` obtained by [[`iox2_port_factory_client_builder_create`](@ref)](crate::[`iox2_port_factory_client_builder_create`](@ref))
+
+# Safety
+
+* `handle` is valid and non-null
+
+### Prototype
+```c
+c_size_t iox2_client_max_active_requests(iox2_client_h_ref handle);
+```
+"""
+@inline function iox2_client_max_active_requests(handle)
+    @ccall libiceoryx2_ffi_c.iox2_client_max_active_requests(handle::iox2_client_h_ref)::c_size_t
 end
 
 """
@@ -5552,7 +6633,7 @@ Return [[`IOX2_OK`](@ref)] on success, otherwise [[`iox2_loan_error_e`](@ref)](c
 int iox2_client_loan_slice_uninit(iox2_client_h_ref client_handle, struct iox2_request_mut_t *request_struct_ptr, iox2_request_mut_h *request_handle_ptr, size_t number_of_elements);
 ```
 """
-function iox2_client_loan_slice_uninit(client_handle, request_struct_ptr, request_handle_ptr, number_of_elements)
+@inline function iox2_client_loan_slice_uninit(client_handle, request_struct_ptr, request_handle_ptr, number_of_elements)
     @ccall libiceoryx2_ffi_c.iox2_client_loan_slice_uninit(client_handle::iox2_client_h_ref, request_struct_ptr::Ptr{iox2_request_mut_t}, request_handle_ptr::Ptr{iox2_request_mut_h}, number_of_elements::Csize_t)::Cint
 end
 
@@ -5576,7 +6657,7 @@ Return [[`IOX2_OK`](@ref)] on success, otherwise [[`iox2_send_error_e`](@ref)](c
 int iox2_client_send_copy(iox2_client_h_ref client_handle, const void *data_ptr, size_t size_of_element, size_t number_of_elements, struct iox2_pending_response_t *pending_response_struct_ptr, iox2_pending_response_h *pending_response_handle_ptr);
 ```
 """
-function iox2_client_send_copy(client_handle, data_ptr, size_of_element, number_of_elements, pending_response_struct_ptr, pending_response_handle_ptr)
+@inline function iox2_client_send_copy(client_handle, data_ptr, size_of_element, number_of_elements, pending_response_struct_ptr, pending_response_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_client_send_copy(client_handle::iox2_client_h_ref, data_ptr::Ptr{Cvoid}, size_of_element::Csize_t, number_of_elements::Csize_t, pending_response_struct_ptr::Ptr{iox2_pending_response_t}, pending_response_handle_ptr::Ptr{iox2_pending_response_h})::Cint
 end
 
@@ -5598,7 +6679,7 @@ This function needs to be called to destroy the client!
 void iox2_client_drop(iox2_client_h client_handle);
 ```
 """
-function iox2_client_drop(client_handle)
+@inline function iox2_client_drop(client_handle)
     @ccall libiceoryx2_ffi_c.iox2_client_drop(client_handle::iox2_client_h)::Cvoid
 end
 
@@ -5616,14 +6697,14 @@ Returns the unique port id of the client.
 void iox2_client_details_client_id(iox2_client_details_ptr handle, struct iox2_unique_client_id_t *id_struct_ptr, iox2_unique_client_id_h *id_handle_ptr);
 ```
 """
-function iox2_client_details_client_id(handle, id_struct_ptr, id_handle_ptr)
+@inline function iox2_client_details_client_id(handle, id_struct_ptr, id_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_client_details_client_id(handle::iox2_client_details_ptr, id_struct_ptr::Ptr{iox2_unique_client_id_t}, id_handle_ptr::Ptr{iox2_unique_client_id_h})::Cvoid
 end
 
 """
     iox2_client_details_node_id(handle)
 
-Returns the [[`iox2_node_id_ptr`](@ref)](crate::[`iox2_node_id_ptr`](@ref)), an immutable pointer to the node id.
+Returns the [[`iox2_unique_node_id_ptr`](@ref)](crate::[`iox2_unique_node_id_ptr`](@ref)), an immutable pointer to the node id.
 
 # Safety
 
@@ -5631,11 +6712,11 @@ Returns the [[`iox2_node_id_ptr`](@ref)](crate::[`iox2_node_id_ptr`](@ref)), an 
 
 ### Prototype
 ```c
-iox2_node_id_ptr iox2_client_details_node_id(iox2_client_details_ptr handle);
+iox2_unique_node_id_ptr iox2_client_details_node_id(iox2_client_details_ptr handle);
 ```
 """
-function iox2_client_details_node_id(handle)
-    @ccall libiceoryx2_ffi_c.iox2_client_details_node_id(handle::iox2_client_details_ptr)::iox2_node_id_ptr
+@inline function iox2_client_details_node_id(handle)
+    @ccall libiceoryx2_ffi_c.iox2_client_details_node_id(handle::iox2_client_details_ptr)::iox2_unique_node_id_ptr
 end
 
 """
@@ -5652,7 +6733,7 @@ Returns the receive buffer size for incoming responses.
 c_size_t iox2_client_details_response_buffer_size(iox2_client_details_ptr handle);
 ```
 """
-function iox2_client_details_response_buffer_size(handle)
+@inline function iox2_client_details_response_buffer_size(handle)
     @ccall libiceoryx2_ffi_c.iox2_client_details_response_buffer_size(handle::iox2_client_details_ptr)::c_size_t
 end
 
@@ -5670,7 +6751,7 @@ The total number of requests available in the clients data segment
 c_size_t iox2_client_details_number_of_requests(iox2_client_details_ptr handle);
 ```
 """
-function iox2_client_details_number_of_requests(handle)
+@inline function iox2_client_details_number_of_requests(handle)
     @ccall libiceoryx2_ffi_c.iox2_client_details_number_of_requests(handle::iox2_client_details_ptr)::c_size_t
 end
 
@@ -5688,8 +6769,26 @@ The current maximum length of a slice.
 c_size_t iox2_client_details_max_slice_len(iox2_client_details_ptr handle);
 ```
 """
-function iox2_client_details_max_slice_len(handle)
+@inline function iox2_client_details_max_slice_len(handle)
     @ccall libiceoryx2_ffi_c.iox2_client_details_max_slice_len(handle::iox2_client_details_ptr)::c_size_t
+end
+
+"""
+    iox2_client_details_max_active_requests(handle)
+
+Returns the maximal active requests the client can send.
+
+# Safety
+
+* `handle` valid pointer to the client details
+
+### Prototype
+```c
+c_size_t iox2_client_details_max_active_requests(iox2_client_details_ptr handle);
+```
+"""
+@inline function iox2_client_details_max_active_requests(handle)
+    @ccall libiceoryx2_ffi_c.iox2_client_details_max_active_requests(handle::iox2_client_details_ptr)::c_size_t
 end
 
 """
@@ -5714,7 +6813,7 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_config_creation_error_string(enum iox2_config_creation_error_e error);
 ```
 """
-function iox2_config_creation_error_string(error)
+@inline function iox2_config_creation_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_config_creation_error_string(error::iox2_config_creation_error_e)::Cstring
 end
 
@@ -5738,7 +6837,7 @@ Returns a [[`iox2_config_ptr`](@ref)]
 iox2_config_ptr iox2_cast_config_ptr(iox2_config_h config_handle);
 ```
 """
-function iox2_cast_config_ptr(config_handle)
+@inline function iox2_cast_config_ptr(config_handle)
     @ccall libiceoryx2_ffi_c.iox2_cast_config_ptr(config_handle::iox2_config_h)::iox2_config_ptr
 end
 
@@ -5752,7 +6851,7 @@ Returns a pointer to the global config
 iox2_config_ptr iox2_config_global_config(void);
 ```
 """
-function iox2_config_global_config()
+@inline function iox2_config_global_config()
     @ccall libiceoryx2_ffi_c.iox2_config_global_config()::iox2_config_ptr
 end
 
@@ -5770,7 +6869,7 @@ Creates an iceoryx2 config populated with default values.
 int iox2_config_default(struct iox2_config_t *struct_ptr, iox2_config_h *handle_ptr);
 ```
 """
-function iox2_config_default(struct_ptr, handle_ptr)
+@inline function iox2_config_default(struct_ptr, handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_config_default(struct_ptr::Ptr{iox2_config_t}, handle_ptr::Ptr{iox2_config_h})::Cint
 end
 
@@ -5788,8 +6887,26 @@ Creates an iceoryx2 config populated values from the provided file.
 int iox2_config_from_file(struct iox2_config_t *struct_ptr, iox2_config_h *handle_ptr, const char *config_file);
 ```
 """
-function iox2_config_from_file(struct_ptr, handle_ptr, config_file)
+@inline function iox2_config_from_file(struct_ptr, handle_ptr, config_file)
     @ccall libiceoryx2_ffi_c.iox2_config_from_file(struct_ptr::Ptr{iox2_config_t}, handle_ptr::Ptr{iox2_config_h}, config_file::Cstring)::Cint
+end
+
+"""
+    iox2_config_setup_global_config_from_file(handle_ptr, config_file)
+
+Creates an iceoryx2 config, populated values from the provided file and sets it as global default.
+
+# Safety
+
+* `handle_ptr` - An uninitialized or dangling [[`iox2_config_ptr`](@ref)] handle which will be initialized by this function call. * `config_file` - Must be a valid file path to an existing config file.
+
+### Prototype
+```c
+int iox2_config_setup_global_config_from_file(iox2_config_ptr *handle_ptr, const char *config_file);
+```
+"""
+@inline function iox2_config_setup_global_config_from_file(handle_ptr, config_file)
+    @ccall libiceoryx2_ffi_c.iox2_config_setup_global_config_from_file(handle_ptr::Ptr{iox2_config_ptr}, config_file::Cstring)::Cint
 end
 
 """
@@ -5806,7 +6923,7 @@ Clones a config from the provided [[`iox2_config_ptr`](@ref)].
 void iox2_config_from_ptr(iox2_config_ptr config, struct iox2_config_t *struct_ptr, iox2_config_h *handle_ptr);
 ```
 """
-function iox2_config_from_ptr(config, struct_ptr, handle_ptr)
+@inline function iox2_config_from_ptr(config, struct_ptr, handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_config_from_ptr(config::iox2_config_ptr, struct_ptr::Ptr{iox2_config_t}, handle_ptr::Ptr{iox2_config_h})::Cvoid
 end
 
@@ -5824,7 +6941,7 @@ Clones a config from a given non-owning [[`iox2_config_h_ref`](@ref)].
 void iox2_config_clone(iox2_config_h_ref handle, struct iox2_config_t *struct_ptr, iox2_config_h *handle_ptr);
 ```
 """
-function iox2_config_clone(handle, struct_ptr, handle_ptr)
+@inline function iox2_config_clone(handle, struct_ptr, handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_config_clone(handle::iox2_config_h_ref, struct_ptr::Ptr{iox2_config_t}, handle_ptr::Ptr{iox2_config_h})::Cvoid
 end
 
@@ -5842,7 +6959,7 @@ Takes ownership of the handle and releases all underlying resources.
 void iox2_config_drop(iox2_config_h handle);
 ```
 """
-function iox2_config_drop(handle)
+@inline function iox2_config_drop(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_drop(handle::iox2_config_h)::Cvoid
 end
 
@@ -5860,7 +6977,7 @@ Returns the prefix used for all files created during runtime
 const char *iox2_config_global_prefix(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_global_prefix(handle)
+@inline function iox2_config_global_prefix(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_global_prefix(handle::iox2_config_h_ref)::Cstring
 end
 
@@ -5880,7 +6997,7 @@ Returns: [[`iox2_semantic_string_error_e`](@ref)](crate::api::[`iox2_semantic_st
 int iox2_config_global_set_prefix(iox2_config_h_ref handle, const char *value);
 ```
 """
-function iox2_config_global_set_prefix(handle, value)
+@inline function iox2_config_global_set_prefix(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_global_set_prefix(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
@@ -5898,7 +7015,7 @@ Returns the path under which all other directories or files will be created
 const char *iox2_config_global_root_path(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_global_root_path(handle)
+@inline function iox2_config_global_root_path(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_global_root_path(handle::iox2_config_h_ref)::Cstring
 end
 
@@ -5918,7 +7035,7 @@ Returns: [[`iox2_semantic_string_error_e`](@ref)](crate::api::[`iox2_semantic_st
 int iox2_config_global_set_root_path(iox2_config_h_ref handle, const char *value);
 ```
 """
-function iox2_config_global_set_root_path(handle, value)
+@inline function iox2_config_global_set_root_path(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_global_set_root_path(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
@@ -5936,7 +7053,7 @@ Returns the directory in which all node files are stored
 const char *iox2_config_global_node_directory(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_global_node_directory(handle)
+@inline function iox2_config_global_node_directory(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_global_node_directory(handle::iox2_config_h_ref)::Cstring
 end
 
@@ -5956,7 +7073,7 @@ Returns: [[`iox2_semantic_string_error_e`](@ref)](crate::api::[`iox2_semantic_st
 int iox2_config_global_node_set_directory(iox2_config_h_ref handle, const char *value);
 ```
 """
-function iox2_config_global_node_set_directory(handle, value)
+@inline function iox2_config_global_node_set_directory(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_global_node_set_directory(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
@@ -5974,7 +7091,7 @@ Returns the suffix of the monitor token
 const char *iox2_config_global_node_monitor_suffix(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_global_node_monitor_suffix(handle)
+@inline function iox2_config_global_node_monitor_suffix(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_global_node_monitor_suffix(handle::iox2_config_h_ref)::Cstring
 end
 
@@ -5994,8 +7111,46 @@ Returns: [[`iox2_semantic_string_error_e`](@ref)](crate::api::[`iox2_semantic_st
 int iox2_config_global_node_set_monitor_suffix(iox2_config_h_ref handle, const char *value);
 ```
 """
-function iox2_config_global_node_set_monitor_suffix(handle, value)
+@inline function iox2_config_global_node_set_monitor_suffix(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_global_node_set_monitor_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
+end
+
+"""
+    iox2_config_global_node_global_mgmt_suffix(handle)
+
+Returns the suffix of the global management segment.
+
+# Safety
+
+* `handle` - A valid non-owning [[`iox2_config_h_ref`](@ref)].
+
+### Prototype
+```c
+const char *iox2_config_global_node_global_mgmt_suffix(iox2_config_h_ref handle);
+```
+"""
+@inline function iox2_config_global_node_global_mgmt_suffix(handle)
+    @ccall libiceoryx2_ffi_c.iox2_config_global_node_global_mgmt_suffix(handle::iox2_config_h_ref)::Cstring
+end
+
+"""
+    iox2_config_global_node_set_global_mgmt_suffix(handle, value)
+
+Sets the suffix of the global management segment.
+
+Returns: [[`iox2_semantic_string_error_e`](@ref)](crate::api::[`iox2_semantic_string_error_e`](@ref)) when an invalid file name was provided
+
+# Safety
+
+* `handle` - A valid non-owning [[`iox2_config_h_ref`](@ref)]. * `value` - A valid file name containing the suffix
+
+### Prototype
+```c
+int iox2_config_global_node_set_global_mgmt_suffix(iox2_config_h_ref handle, const char *value);
+```
+"""
+@inline function iox2_config_global_node_set_global_mgmt_suffix(handle, value)
+    @ccall libiceoryx2_ffi_c.iox2_config_global_node_set_global_mgmt_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
 """
@@ -6012,7 +7167,7 @@ Returns the suffix of the files where the node configuration is stored.
 const char *iox2_config_global_node_static_config_suffix(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_global_node_static_config_suffix(handle)
+@inline function iox2_config_global_node_static_config_suffix(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_global_node_static_config_suffix(handle::iox2_config_h_ref)::Cstring
 end
 
@@ -6032,8 +7187,46 @@ Returns: [[`iox2_semantic_string_error_e`](@ref)](crate::api::[`iox2_semantic_st
 int iox2_config_global_node_set_static_config_suffix(iox2_config_h_ref handle, const char *value);
 ```
 """
-function iox2_config_global_node_set_static_config_suffix(handle, value)
+@inline function iox2_config_global_node_set_static_config_suffix(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_global_node_set_static_config_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
+end
+
+"""
+    iox2_config_global_node_port_tag_suffix(handle)
+
+Returns the suffix of the port tags.
+
+# Safety
+
+* `handle` - A valid non-owning [[`iox2_config_h_ref`](@ref)].
+
+### Prototype
+```c
+const char *iox2_config_global_node_port_tag_suffix(iox2_config_h_ref handle);
+```
+"""
+@inline function iox2_config_global_node_port_tag_suffix(handle)
+    @ccall libiceoryx2_ffi_c.iox2_config_global_node_port_tag_suffix(handle::iox2_config_h_ref)::Cstring
+end
+
+"""
+    iox2_config_global_node_set_port_tag_suffix(handle, value)
+
+Sets the suffix of the port tags.
+
+Returns: [[`iox2_semantic_string_error_e`](@ref)](crate::api::[`iox2_semantic_string_error_e`](@ref)) when an invalid file name was provided
+
+# Safety
+
+* `handle` - A valid non-owning [[`iox2_config_h_ref`](@ref)]. * `value` - A valid file name containing the suffix
+
+### Prototype
+```c
+int iox2_config_global_node_set_port_tag_suffix(iox2_config_h_ref handle, const char *value);
+```
+"""
+@inline function iox2_config_global_node_set_port_tag_suffix(handle, value)
+    @ccall libiceoryx2_ffi_c.iox2_config_global_node_set_port_tag_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
 """
@@ -6050,7 +7243,7 @@ Returns the suffix of the service tags.
 const char *iox2_config_global_node_service_tag_suffix(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_global_node_service_tag_suffix(handle)
+@inline function iox2_config_global_node_service_tag_suffix(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_global_node_service_tag_suffix(handle::iox2_config_h_ref)::Cstring
 end
 
@@ -6070,7 +7263,7 @@ Returns: [[`iox2_semantic_string_error_e`](@ref)](crate::api::[`iox2_semantic_st
 int iox2_config_global_node_set_service_tag_suffix(iox2_config_h_ref handle, const char *value);
 ```
 """
-function iox2_config_global_node_set_service_tag_suffix(handle, value)
+@inline function iox2_config_global_node_set_service_tag_suffix(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_global_node_set_service_tag_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
@@ -6088,7 +7281,7 @@ When true, [`[`iox2_node_builder_create`](@ref)()`](crate::api::[`iox2_node_buil
 bool iox2_config_global_node_cleanup_dead_nodes_on_creation(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_global_node_cleanup_dead_nodes_on_creation(handle)
+@inline function iox2_config_global_node_cleanup_dead_nodes_on_creation(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_global_node_cleanup_dead_nodes_on_creation(handle::iox2_config_h_ref)::Bool
 end
 
@@ -6106,7 +7299,7 @@ Enable/disable the cleanup dead nodes on creation
 void iox2_config_global_node_set_cleanup_dead_nodes_on_creation(iox2_config_h_ref handle, bool value);
 ```
 """
-function iox2_config_global_node_set_cleanup_dead_nodes_on_creation(handle, value)
+@inline function iox2_config_global_node_set_cleanup_dead_nodes_on_creation(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_global_node_set_cleanup_dead_nodes_on_creation(handle::iox2_config_h_ref, value::Bool)::Cvoid
 end
 
@@ -6124,7 +7317,7 @@ When true, the [`[`iox2_node_builder_create`](@ref)()`](crate::api::[`iox2_node_
 bool iox2_config_global_node_cleanup_dead_nodes_on_destruction(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_global_node_cleanup_dead_nodes_on_destruction(handle)
+@inline function iox2_config_global_node_cleanup_dead_nodes_on_destruction(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_global_node_cleanup_dead_nodes_on_destruction(handle::iox2_config_h_ref)::Bool
 end
 
@@ -6142,8 +7335,46 @@ Enable/disable the cleanup dead nodes on destruction
 void iox2_config_global_node_set_cleanup_dead_nodes_on_destruction(iox2_config_h_ref handle, bool value);
 ```
 """
-function iox2_config_global_node_set_cleanup_dead_nodes_on_destruction(handle, value)
+@inline function iox2_config_global_node_set_cleanup_dead_nodes_on_destruction(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_global_node_set_cleanup_dead_nodes_on_destruction(handle::iox2_config_h_ref, value::Bool)::Cvoid
+end
+
+"""
+    iox2_config_global_service_flatbuffer_schema_path(handle)
+
+Returns the directory which will be used to automatically lookup flatbuffer schema files. If no directory was defined it returns a nullptr.
+
+# Safety
+
+* `handle` - A valid non-owning [[`iox2_config_h_ref`](@ref)].
+
+### Prototype
+```c
+const char *iox2_config_global_service_flatbuffer_schema_path(iox2_config_h_ref handle);
+```
+"""
+@inline function iox2_config_global_service_flatbuffer_schema_path(handle)
+    @ccall libiceoryx2_ffi_c.iox2_config_global_service_flatbuffer_schema_path(handle::iox2_config_h_ref)::Cstring
+end
+
+"""
+    iox2_config_global_service_set_flatbuffer_schema_path(handle, value)
+
+Sets the directory which will be used to automatically lookup flatbuffer schema files. If the provided string literal is a nullptr, the path will be unset.
+
+Returns: [[`iox2_semantic_string_error_e`](@ref)](crate::api::[`iox2_semantic_string_error_e`](@ref)) when an invalid path was provided
+
+# Safety
+
+* `handle` - A valid non-owning [[`iox2_config_h_ref`](@ref)]. * `value` - A valid null-terminated string the corresponds to a valid path or a nullptr
+
+### Prototype
+```c
+int iox2_config_global_service_set_flatbuffer_schema_path(iox2_config_h_ref handle, const char *value);
+```
+"""
+@inline function iox2_config_global_service_set_flatbuffer_schema_path(handle, value)
+    @ccall libiceoryx2_ffi_c.iox2_config_global_service_set_flatbuffer_schema_path(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
 """
@@ -6160,7 +7391,7 @@ Returns the directory in which all service files are stored
 const char *iox2_config_global_service_directory(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_global_service_directory(handle)
+@inline function iox2_config_global_service_directory(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_global_service_directory(handle::iox2_config_h_ref)::Cstring
 end
 
@@ -6180,7 +7411,7 @@ Returns: [[`iox2_semantic_string_error_e`](@ref)](crate::api::[`iox2_semantic_st
 int iox2_config_global_service_set_directory(iox2_config_h_ref handle, const char *value);
 ```
 """
-function iox2_config_global_service_set_directory(handle, value)
+@inline function iox2_config_global_service_set_directory(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_global_service_set_directory(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
@@ -6198,7 +7429,7 @@ Returns the suffix of the ports data segment
 const char *iox2_config_global_service_data_segment_suffix(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_global_service_data_segment_suffix(handle)
+@inline function iox2_config_global_service_data_segment_suffix(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_global_service_data_segment_suffix(handle::iox2_config_h_ref)::Cstring
 end
 
@@ -6218,7 +7449,7 @@ Returns: [[`iox2_semantic_string_error_e`](@ref)](crate::api::[`iox2_semantic_st
 int iox2_config_global_service_set_data_segment_suffix(iox2_config_h_ref handle, const char *value);
 ```
 """
-function iox2_config_global_service_set_data_segment_suffix(handle, value)
+@inline function iox2_config_global_service_set_data_segment_suffix(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_global_service_set_data_segment_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
@@ -6236,7 +7467,7 @@ Returns the suffix of the static config file
 const char *iox2_config_global_service_static_config_storage_suffix(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_global_service_static_config_storage_suffix(handle)
+@inline function iox2_config_global_service_static_config_storage_suffix(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_global_service_static_config_storage_suffix(handle::iox2_config_h_ref)::Cstring
 end
 
@@ -6256,7 +7487,7 @@ Returns: [[`iox2_semantic_string_error_e`](@ref)](crate::api::[`iox2_semantic_st
 int iox2_config_global_service_set_static_config_storage_suffix(iox2_config_h_ref handle, const char *value);
 ```
 """
-function iox2_config_global_service_set_static_config_storage_suffix(handle, value)
+@inline function iox2_config_global_service_set_static_config_storage_suffix(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_global_service_set_static_config_storage_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
@@ -6274,7 +7505,7 @@ Returns the suffix of the dynamic config file
 const char *iox2_config_global_service_dynamic_config_storage_suffix(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_global_service_dynamic_config_storage_suffix(handle)
+@inline function iox2_config_global_service_dynamic_config_storage_suffix(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_global_service_dynamic_config_storage_suffix(handle::iox2_config_h_ref)::Cstring
 end
 
@@ -6294,14 +7525,50 @@ Returns: [[`iox2_semantic_string_error_e`](@ref)](crate::api::[`iox2_semantic_st
 int iox2_config_global_service_set_dynamic_config_storage_suffix(iox2_config_h_ref handle, const char *value);
 ```
 """
-function iox2_config_global_service_set_dynamic_config_storage_suffix(handle, value)
+@inline function iox2_config_global_service_set_dynamic_config_storage_suffix(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_global_service_set_dynamic_config_storage_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
 """
-    iox2_config_global_service_creation_timeout(handle, secs, nsecs)
+    iox2_config_global_service_cleanup_dead_nodes_on_open(handle)
 
-Returns the duration how long another process will wait until the service creation is finalized
+Returns if a dead node cleanup is performed whenever an existing service is opened by the builder.
+
+# Safety
+
+* `handle` - A valid non-owning [[`iox2_config_h_ref`](@ref)].
+
+### Prototype
+```c
+bool iox2_config_global_service_cleanup_dead_nodes_on_open(iox2_config_h_ref handle);
+```
+"""
+@inline function iox2_config_global_service_cleanup_dead_nodes_on_open(handle)
+    @ccall libiceoryx2_ffi_c.iox2_config_global_service_cleanup_dead_nodes_on_open(handle::iox2_config_h_ref)::Bool
+end
+
+"""
+    iox2_config_global_service_set_cleanup_dead_nodes_on_open(handle, value)
+
+Sets if a dead node cleanup is performed whenever an existing service is opened by the builder.
+
+# Safety
+
+* `handle` - A valid non-owning [[`iox2_config_h_ref`](@ref)].
+
+### Prototype
+```c
+void iox2_config_global_service_set_cleanup_dead_nodes_on_open(iox2_config_h_ref handle, bool value);
+```
+"""
+@inline function iox2_config_global_service_set_cleanup_dead_nodes_on_open(handle, value)
+    @ccall libiceoryx2_ffi_c.iox2_config_global_service_set_cleanup_dead_nodes_on_open(handle::iox2_config_h_ref, value::Bool)::Cvoid
+end
+
+"""
+    iox2_config_global_creation_timeout(handle, secs, nsecs)
+
+Returns the duration how long another process will wait until an entity like a Node or Service creation is finalized
 
 # Safety
 
@@ -6309,19 +7576,17 @@ Returns the duration how long another process will wait until the service creati
 
 ### Prototype
 ```c
-void iox2_config_global_service_creation_timeout(iox2_config_h_ref handle, uint64_t *secs, uint32_t *nsecs);
+void iox2_config_global_creation_timeout(iox2_config_h_ref handle, uint64_t *secs, uint32_t *nsecs);
 ```
 """
-function iox2_config_global_service_creation_timeout(handle, secs, nsecs)
-    @ccall libiceoryx2_ffi_c.iox2_config_global_service_creation_timeout(handle::iox2_config_h_ref, secs::Ptr{UInt64}, nsecs::Ptr{UInt32})::Cvoid
+@inline function iox2_config_global_creation_timeout(handle, secs, nsecs)
+    @ccall libiceoryx2_ffi_c.iox2_config_global_creation_timeout(handle::iox2_config_h_ref, secs::Ptr{UInt64}, nsecs::Ptr{UInt32})::Cvoid
 end
 
 """
-    iox2_config_global_service_set_creation_timeout(handle, sec, nsec)
+    iox2_config_global_set_creation_timeout(handle, sec, nsec)
 
 Sets the creation timeout
-
-Returns: [[`iox2_semantic_string_error_e`](@ref)](crate::api::[`iox2_semantic_string_error_e`](@ref)) when an invalid file name was provided
 
 # Safety
 
@@ -6329,11 +7594,11 @@ Returns: [[`iox2_semantic_string_error_e`](@ref)](crate::api::[`iox2_semantic_st
 
 ### Prototype
 ```c
-void iox2_config_global_service_set_creation_timeout(iox2_config_h_ref handle, uint64_t sec, uint32_t nsec);
+void iox2_config_global_set_creation_timeout(iox2_config_h_ref handle, uint64_t sec, uint32_t nsec);
 ```
 """
-function iox2_config_global_service_set_creation_timeout(handle, sec, nsec)
-    @ccall libiceoryx2_ffi_c.iox2_config_global_service_set_creation_timeout(handle::iox2_config_h_ref, sec::UInt64, nsec::UInt32)::Cvoid
+@inline function iox2_config_global_set_creation_timeout(handle, sec, nsec)
+    @ccall libiceoryx2_ffi_c.iox2_config_global_set_creation_timeout(handle::iox2_config_h_ref, sec::UInt64, nsec::UInt32)::Cvoid
 end
 
 """
@@ -6350,7 +7615,7 @@ The suffix of a one-to-one connection
 const char *iox2_config_global_service_connection_suffix(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_global_service_connection_suffix(handle)
+@inline function iox2_config_global_service_connection_suffix(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_global_service_connection_suffix(handle::iox2_config_h_ref)::Cstring
 end
 
@@ -6370,7 +7635,7 @@ Returns: [[`iox2_semantic_string_error_e`](@ref)](crate::api::[`iox2_semantic_st
 int iox2_config_global_service_set_connection_suffix(iox2_config_h_ref handle, const char *value);
 ```
 """
-function iox2_config_global_service_set_connection_suffix(handle, value)
+@inline function iox2_config_global_service_set_connection_suffix(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_global_service_set_connection_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
@@ -6388,7 +7653,7 @@ Returns the suffix of a one-to-one connection
 const char *iox2_config_global_service_event_connection_suffix(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_global_service_event_connection_suffix(handle)
+@inline function iox2_config_global_service_event_connection_suffix(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_global_service_event_connection_suffix(handle::iox2_config_h_ref)::Cstring
 end
 
@@ -6408,7 +7673,7 @@ Returns: [[`iox2_semantic_string_error_e`](@ref)](crate::api::[`iox2_semantic_st
 int iox2_config_global_service_set_event_connection_suffix(iox2_config_h_ref handle, const char *value);
 ```
 """
-function iox2_config_global_service_set_event_connection_suffix(handle, value)
+@inline function iox2_config_global_service_set_event_connection_suffix(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_global_service_set_event_connection_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
@@ -6426,7 +7691,7 @@ Returns the suffix of the blackboard management data segment
 const char *iox2_config_global_service_blackboard_mgmt_suffix(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_global_service_blackboard_mgmt_suffix(handle)
+@inline function iox2_config_global_service_blackboard_mgmt_suffix(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_global_service_blackboard_mgmt_suffix(handle::iox2_config_h_ref)::Cstring
 end
 
@@ -6446,7 +7711,7 @@ Returns: [[`iox2_semantic_string_error_e`](@ref)](crate::api::[`iox2_semantic_st
 int iox2_config_global_service_set_blackboard_mgmt_suffix(iox2_config_h_ref handle, const char *value);
 ```
 """
-function iox2_config_global_service_set_blackboard_mgmt_suffix(handle, value)
+@inline function iox2_config_global_service_set_blackboard_mgmt_suffix(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_global_service_set_blackboard_mgmt_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
@@ -6464,7 +7729,7 @@ Returns the suffix of the blackboard payload data segment
 const char *iox2_config_global_service_blackboard_data_suffix(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_global_service_blackboard_data_suffix(handle)
+@inline function iox2_config_global_service_blackboard_data_suffix(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_global_service_blackboard_data_suffix(handle::iox2_config_h_ref)::Cstring
 end
 
@@ -6484,7 +7749,7 @@ Returns: [[`iox2_semantic_string_error_e`](@ref)](crate::api::[`iox2_semantic_st
 int iox2_config_global_service_set_blackboard_data_suffix(iox2_config_h_ref handle, const char *value);
 ```
 """
-function iox2_config_global_service_set_blackboard_data_suffix(handle, value)
+@inline function iox2_config_global_service_set_blackboard_data_suffix(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_global_service_set_blackboard_data_suffix(handle::iox2_config_h_ref, value::Cstring)::Cint
 end
 
@@ -6502,7 +7767,7 @@ Returns the maximum amount of supported [[`iox2_subscriber_h`](@ref)](crate::api
 c_size_t iox2_config_defaults_publish_subscribe_max_subscribers(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_publish_subscribe_max_subscribers(handle)
+@inline function iox2_config_defaults_publish_subscribe_max_subscribers(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_max_subscribers(handle::iox2_config_h_ref)::c_size_t
 end
 
@@ -6520,7 +7785,7 @@ Sets the maximum amount of supported [[`iox2_subscriber_h`](@ref)](crate::api::[
 void iox2_config_defaults_publish_subscribe_set_max_subscribers(iox2_config_h_ref handle, c_size_t value);
 ```
 """
-function iox2_config_defaults_publish_subscribe_set_max_subscribers(handle, value)
+@inline function iox2_config_defaults_publish_subscribe_set_max_subscribers(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_set_max_subscribers(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -6538,7 +7803,7 @@ Returns maximum amount of supported [[`iox2_publisher_h`](@ref)](crate::api::[`i
 c_size_t iox2_config_defaults_publish_subscribe_max_publishers(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_publish_subscribe_max_publishers(handle)
+@inline function iox2_config_defaults_publish_subscribe_max_publishers(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_max_publishers(handle::iox2_config_h_ref)::c_size_t
 end
 
@@ -6556,7 +7821,7 @@ Sets the maximum amount of supported [[`iox2_publisher_h`](@ref)](crate::api::[`
 void iox2_config_defaults_publish_subscribe_set_max_publishers(iox2_config_h_ref handle, c_size_t value);
 ```
 """
-function iox2_config_defaults_publish_subscribe_set_max_publishers(handle, value)
+@inline function iox2_config_defaults_publish_subscribe_set_max_publishers(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_set_max_publishers(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -6574,7 +7839,7 @@ Returns the maximum amount of supported [[`iox2_node_h`](@ref)](crate::api::[`io
 c_size_t iox2_config_defaults_publish_subscribe_max_nodes(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_publish_subscribe_max_nodes(handle)
+@inline function iox2_config_defaults_publish_subscribe_max_nodes(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_max_nodes(handle::iox2_config_h_ref)::c_size_t
 end
 
@@ -6592,7 +7857,7 @@ Sets the maximum amount of supported [[`iox2_node_h`](@ref)](crate::api::[`iox2_
 void iox2_config_defaults_publish_subscribe_set_max_nodes(iox2_config_h_ref handle, c_size_t value);
 ```
 """
-function iox2_config_defaults_publish_subscribe_set_max_nodes(handle, value)
+@inline function iox2_config_defaults_publish_subscribe_set_max_nodes(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_set_max_nodes(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -6610,7 +7875,7 @@ Returns the maximum buffer size a [[`iox2_subscriber_h`](@ref)](crate::api::[`io
 c_size_t iox2_config_defaults_publish_subscribe_subscriber_max_buffer_size(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_publish_subscribe_subscriber_max_buffer_size(handle)
+@inline function iox2_config_defaults_publish_subscribe_subscriber_max_buffer_size(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_subscriber_max_buffer_size(handle::iox2_config_h_ref)::c_size_t
 end
 
@@ -6628,7 +7893,7 @@ Sets the maximum buffer size a [[`iox2_subscriber_h`](@ref)](crate::api::[`iox2_
 void iox2_config_defaults_publish_subscribe_set_subscriber_max_buffer_size(iox2_config_h_ref handle, c_size_t value);
 ```
 """
-function iox2_config_defaults_publish_subscribe_set_subscriber_max_buffer_size(handle, value)
+@inline function iox2_config_defaults_publish_subscribe_set_subscriber_max_buffer_size(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_set_subscriber_max_buffer_size(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -6646,7 +7911,7 @@ Returns the maximum amount of [[`iox2_sample_h`](@ref)](crate::api::[`iox2_sampl
 c_size_t iox2_config_defaults_publish_subscribe_subscriber_max_borrowed_samples(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_publish_subscribe_subscriber_max_borrowed_samples(handle)
+@inline function iox2_config_defaults_publish_subscribe_subscriber_max_borrowed_samples(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_subscriber_max_borrowed_samples(handle::iox2_config_h_ref)::c_size_t
 end
 
@@ -6664,7 +7929,7 @@ Sets the maximum amount of [[`iox2_sample_h`](@ref)](crate::api::[`iox2_sample_h
 void iox2_config_defaults_publish_subscribe_set_subscriber_max_borrowed_samples(iox2_config_h_ref handle, c_size_t value);
 ```
 """
-function iox2_config_defaults_publish_subscribe_set_subscriber_max_borrowed_samples(handle, value)
+@inline function iox2_config_defaults_publish_subscribe_set_subscriber_max_borrowed_samples(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_set_subscriber_max_borrowed_samples(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -6682,7 +7947,7 @@ Returns the maximum amount of [[`iox2_sample_mut_h`](@ref)](crate::api::[`iox2_s
 c_size_t iox2_config_defaults_publish_subscribe_publisher_max_loaned_samples(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_publish_subscribe_publisher_max_loaned_samples(handle)
+@inline function iox2_config_defaults_publish_subscribe_publisher_max_loaned_samples(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_publisher_max_loaned_samples(handle::iox2_config_h_ref)::c_size_t
 end
 
@@ -6700,7 +7965,7 @@ Sets the maximum amount of [[`iox2_sample_mut_h`](@ref)](crate::api::[`iox2_samp
 void iox2_config_defaults_publish_subscribe_set_publisher_max_loaned_samples(iox2_config_h_ref handle, c_size_t value);
 ```
 """
-function iox2_config_defaults_publish_subscribe_set_publisher_max_loaned_samples(handle, value)
+@inline function iox2_config_defaults_publish_subscribe_set_publisher_max_loaned_samples(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_set_publisher_max_loaned_samples(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -6718,7 +7983,7 @@ Returns the maximum history size a [[`iox2_subscriber_h`](@ref)](crate::api::[`i
 c_size_t iox2_config_defaults_publish_subscribe_publisher_history_size(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_publish_subscribe_publisher_history_size(handle)
+@inline function iox2_config_defaults_publish_subscribe_publisher_history_size(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_publisher_history_size(handle::iox2_config_h_ref)::c_size_t
 end
 
@@ -6736,7 +8001,7 @@ Sets the maximum history size a [[`iox2_subscriber_h`](@ref)](crate::api::[`iox2
 void iox2_config_defaults_publish_subscribe_set_publisher_history_size(iox2_config_h_ref handle, c_size_t value);
 ```
 """
-function iox2_config_defaults_publish_subscribe_set_publisher_history_size(handle, value)
+@inline function iox2_config_defaults_publish_subscribe_set_publisher_history_size(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_set_publisher_history_size(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -6754,7 +8019,7 @@ Defines how the [[`iox2_subscriber_h`](@ref)](crate::api::[`iox2_subscriber_h`](
 bool iox2_config_defaults_publish_subscribe_enable_safe_overflow(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_publish_subscribe_enable_safe_overflow(handle)
+@inline function iox2_config_defaults_publish_subscribe_enable_safe_overflow(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_enable_safe_overflow(handle::iox2_config_h_ref)::Bool
 end
 
@@ -6772,16 +8037,16 @@ Enables/disables safe overflow
 void iox2_config_defaults_publish_subscribe_set_enable_safe_overflow(iox2_config_h_ref handle, bool value);
 ```
 """
-function iox2_config_defaults_publish_subscribe_set_enable_safe_overflow(handle, value)
+@inline function iox2_config_defaults_publish_subscribe_set_enable_safe_overflow(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_set_enable_safe_overflow(handle::iox2_config_h_ref, value::Bool)::Cvoid
 end
 
 """
-    iox2_config_defaults_publish_subscribe_unable_to_deliver_strategy(handle)
+    iox2_config_defaults_publish_subscribe_backpressure_strategy(handle)
 
 If safe overflow is deactivated it defines the deliver strategy of the [[`iox2_publisher_h`](@ref)](crate::api::[`iox2_publisher_h`](@ref)) when the [[`iox2_subscriber_h`](@ref)](crate::api::[`iox2_subscriber_h`](@ref))s buffer is full.
 
-Returns [[`iox2_unable_to_deliver_strategy_e`](@ref)]
+Returns [[`iox2_backpressure_strategy_e`](@ref)]
 
 # Safety
 
@@ -6789,17 +8054,17 @@ Returns [[`iox2_unable_to_deliver_strategy_e`](@ref)]
 
 ### Prototype
 ```c
-int iox2_config_defaults_publish_subscribe_unable_to_deliver_strategy(iox2_config_h_ref handle);
+int iox2_config_defaults_publish_subscribe_backpressure_strategy(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_publish_subscribe_unable_to_deliver_strategy(handle)
-    @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_unable_to_deliver_strategy(handle::iox2_config_h_ref)::Cint
+@inline function iox2_config_defaults_publish_subscribe_backpressure_strategy(handle)
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_backpressure_strategy(handle::iox2_config_h_ref)::Cint
 end
 
 """
-    iox2_config_defaults_publish_subscribe_set_unable_to_deliver_strategy(handle, value)
+    iox2_config_defaults_publish_subscribe_set_backpressure_strategy(handle, value)
 
-Define the unable to deliver strategy
+Define the backpressure strategy
 
 # Safety
 
@@ -6807,11 +8072,11 @@ Define the unable to deliver strategy
 
 ### Prototype
 ```c
-void iox2_config_defaults_publish_subscribe_set_unable_to_deliver_strategy(iox2_config_h_ref handle, enum iox2_unable_to_deliver_strategy_e value);
+void iox2_config_defaults_publish_subscribe_set_backpressure_strategy(iox2_config_h_ref handle, enum iox2_backpressure_strategy_e value);
 ```
 """
-function iox2_config_defaults_publish_subscribe_set_unable_to_deliver_strategy(handle, value)
-    @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_set_unable_to_deliver_strategy(handle::iox2_config_h_ref, value::iox2_unable_to_deliver_strategy_e)::Cvoid
+@inline function iox2_config_defaults_publish_subscribe_set_backpressure_strategy(handle, value)
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_set_backpressure_strategy(handle::iox2_config_h_ref, value::iox2_backpressure_strategy_e)::Cvoid
 end
 
 """
@@ -6828,7 +8093,7 @@ Defines the size of the internal [[`iox2_subscriber_h`](@ref)](crate::api::[`iox
 c_size_t iox2_config_defaults_publish_subscribe_subscriber_expired_connection_buffer(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_publish_subscribe_subscriber_expired_connection_buffer(handle)
+@inline function iox2_config_defaults_publish_subscribe_subscriber_expired_connection_buffer(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_subscriber_expired_connection_buffer(handle::iox2_config_h_ref)::c_size_t
 end
 
@@ -6846,7 +8111,7 @@ Set the expired connection buffer size
 void iox2_config_defaults_publish_subscribe_set_subscriber_expired_connection_buffer(iox2_config_h_ref handle, c_size_t value);
 ```
 """
-function iox2_config_defaults_publish_subscribe_set_subscriber_expired_connection_buffer(handle, value)
+@inline function iox2_config_defaults_publish_subscribe_set_subscriber_expired_connection_buffer(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_publish_subscribe_set_subscriber_expired_connection_buffer(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -6864,7 +8129,7 @@ Returns the expired connection buffer size for [[`iox2_client_h`](@ref)](crate::
 c_size_t iox2_config_defaults_request_response_client_expired_connection_buffer(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_request_response_client_expired_connection_buffer(handle)
+@inline function iox2_config_defaults_request_response_client_expired_connection_buffer(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_client_expired_connection_buffer(handle::iox2_config_h_ref)::c_size_t
 end
 
@@ -6882,7 +8147,7 @@ Sets the expired connection buffer size for [[`iox2_client_h`](@ref)](crate::api
 void iox2_config_defaults_request_response_set_client_expired_connection_buffer(iox2_config_h_ref handle, c_size_t value);
 ```
 """
-function iox2_config_defaults_request_response_set_client_expired_connection_buffer(handle, value)
+@inline function iox2_config_defaults_request_response_set_client_expired_connection_buffer(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_client_expired_connection_buffer(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -6900,7 +8165,7 @@ Returns the expired connection buffer size for [`iox2_serve_h`](crate::api::[`io
 c_size_t iox2_config_defaults_request_response_server_expired_connection_buffer(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_request_response_server_expired_connection_buffer(handle)
+@inline function iox2_config_defaults_request_response_server_expired_connection_buffer(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_server_expired_connection_buffer(handle::iox2_config_h_ref)::c_size_t
 end
 
@@ -6918,16 +8183,16 @@ Sets the expired connection buffer size for [[`iox2_server_h`](@ref)](crate::api
 void iox2_config_defaults_request_response_set_server_expired_connection_buffer(iox2_config_h_ref handle, c_size_t value);
 ```
 """
-function iox2_config_defaults_request_response_set_server_expired_connection_buffer(handle, value)
+@inline function iox2_config_defaults_request_response_set_server_expired_connection_buffer(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_server_expired_connection_buffer(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
 """
-    iox2_config_defaults_request_response_client_unable_to_deliver_strategy(handle)
+    iox2_config_defaults_request_response_client_backpressure_strategy(handle)
 
 If safe overflow is deactivated it defines the deliver strategy of the [[`iox2_client_h`](@ref)](crate::api::[`iox2_client_h`](@ref)) when the [[`iox2_server_h`](@ref)](crate::api::[`iox2_server_h`](@ref))s request buffer is full.
 
-Returns [[`iox2_unable_to_deliver_strategy_e`](@ref)]
+Returns [[`iox2_backpressure_strategy_e`](@ref)]
 
 # Safety
 
@@ -6935,17 +8200,17 @@ Returns [[`iox2_unable_to_deliver_strategy_e`](@ref)]
 
 ### Prototype
 ```c
-int iox2_config_defaults_request_response_client_unable_to_deliver_strategy(iox2_config_h_ref handle);
+int iox2_config_defaults_request_response_client_backpressure_strategy(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_request_response_client_unable_to_deliver_strategy(handle)
-    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_client_unable_to_deliver_strategy(handle::iox2_config_h_ref)::Cint
+@inline function iox2_config_defaults_request_response_client_backpressure_strategy(handle)
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_client_backpressure_strategy(handle::iox2_config_h_ref)::Cint
 end
 
 """
-    iox2_config_defaults_request_response_set_client_unable_to_deliver_strategy(handle, value)
+    iox2_config_defaults_request_response_set_client_backpressure_strategy(handle, value)
 
-Defines the unable to deliver strategy for the [[`iox2_client_h`](@ref)](crate::api::[`iox2_client_h`](@ref)).
+Defines the backpressure strategy for the [[`iox2_client_h`](@ref)](crate::api::[`iox2_client_h`](@ref)).
 
 # Safety
 
@@ -6953,19 +8218,19 @@ Defines the unable to deliver strategy for the [[`iox2_client_h`](@ref)](crate::
 
 ### Prototype
 ```c
-void iox2_config_defaults_request_response_set_client_unable_to_deliver_strategy(iox2_config_h_ref handle, enum iox2_unable_to_deliver_strategy_e value);
+void iox2_config_defaults_request_response_set_client_backpressure_strategy(iox2_config_h_ref handle, enum iox2_backpressure_strategy_e value);
 ```
 """
-function iox2_config_defaults_request_response_set_client_unable_to_deliver_strategy(handle, value)
-    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_client_unable_to_deliver_strategy(handle::iox2_config_h_ref, value::iox2_unable_to_deliver_strategy_e)::Cvoid
+@inline function iox2_config_defaults_request_response_set_client_backpressure_strategy(handle, value)
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_client_backpressure_strategy(handle::iox2_config_h_ref, value::iox2_backpressure_strategy_e)::Cvoid
 end
 
 """
-    iox2_config_defaults_request_response_server_unable_to_deliver_strategy(handle)
+    iox2_config_defaults_request_response_server_backpressure_strategy(handle)
 
 If safe overflow is deactivated it defines the deliver strategy of the [[`iox2_server_h`](@ref)](crate::api::[`iox2_server_h`](@ref)) when the [[`iox2_client_h`](@ref)](crate::api::[`iox2_client_h`](@ref))s response buffer is full.
 
-Returns [[`iox2_unable_to_deliver_strategy_e`](@ref)]
+Returns [[`iox2_backpressure_strategy_e`](@ref)]
 
 # Safety
 
@@ -6973,17 +8238,17 @@ Returns [[`iox2_unable_to_deliver_strategy_e`](@ref)]
 
 ### Prototype
 ```c
-int iox2_config_defaults_request_response_server_unable_to_deliver_strategy(iox2_config_h_ref handle);
+int iox2_config_defaults_request_response_server_backpressure_strategy(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_request_response_server_unable_to_deliver_strategy(handle)
-    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_server_unable_to_deliver_strategy(handle::iox2_config_h_ref)::Cint
+@inline function iox2_config_defaults_request_response_server_backpressure_strategy(handle)
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_server_backpressure_strategy(handle::iox2_config_h_ref)::Cint
 end
 
 """
-    iox2_config_defaults_request_response_set_server_unable_to_deliver_strategy(handle, value)
+    iox2_config_defaults_request_response_set_server_backpressure_strategy(handle, value)
 
-Defines the unable to deliver strategy for the [[`iox2_server_h`](@ref)](crate::api::[`iox2_server_h`](@ref)).
+Defines the backpressure strategy for the [[`iox2_server_h`](@ref)](crate::api::[`iox2_server_h`](@ref)).
 
 # Safety
 
@@ -6991,11 +8256,11 @@ Defines the unable to deliver strategy for the [[`iox2_server_h`](@ref)](crate::
 
 ### Prototype
 ```c
-void iox2_config_defaults_request_response_set_server_unable_to_deliver_strategy(iox2_config_h_ref handle, enum iox2_unable_to_deliver_strategy_e value);
+void iox2_config_defaults_request_response_set_server_backpressure_strategy(iox2_config_h_ref handle, enum iox2_backpressure_strategy_e value);
 ```
 """
-function iox2_config_defaults_request_response_set_server_unable_to_deliver_strategy(handle, value)
-    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_server_unable_to_deliver_strategy(handle::iox2_config_h_ref, value::iox2_unable_to_deliver_strategy_e)::Cvoid
+@inline function iox2_config_defaults_request_response_set_server_backpressure_strategy(handle, value)
+    @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_server_backpressure_strategy(handle::iox2_config_h_ref, value::iox2_backpressure_strategy_e)::Cvoid
 end
 
 """
@@ -7012,7 +8277,7 @@ Returns if the service supports fire and forget requests. Those are requests whe
 bool iox2_config_defaults_request_response_has_fire_and_forget_requests(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_request_response_has_fire_and_forget_requests(handle)
+@inline function iox2_config_defaults_request_response_has_fire_and_forget_requests(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_has_fire_and_forget_requests(handle::iox2_config_h_ref)::Bool
 end
 
@@ -7030,7 +8295,7 @@ Defines if request response services shall support fire and forget requests.
 void iox2_config_defaults_request_response_set_fire_and_forget_requests(iox2_config_h_ref handle, bool value);
 ```
 """
-function iox2_config_defaults_request_response_set_fire_and_forget_requests(handle, value)
+@inline function iox2_config_defaults_request_response_set_fire_and_forget_requests(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_fire_and_forget_requests(handle::iox2_config_h_ref, value::Bool)::Cvoid
 end
 
@@ -7048,7 +8313,7 @@ Defines how the [[`iox2_server_h`](@ref)](crate::api::[`iox2_server_h`](@ref)) b
 bool iox2_config_defaults_request_response_enable_safe_overflow_for_requests(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_request_response_enable_safe_overflow_for_requests(handle)
+@inline function iox2_config_defaults_request_response_enable_safe_overflow_for_requests(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_enable_safe_overflow_for_requests(handle::iox2_config_h_ref)::Bool
 end
 
@@ -7066,7 +8331,7 @@ Enables/disables safe overflow for requests
 void iox2_config_defaults_request_response_set_enable_safe_overflow_for_requests(iox2_config_h_ref handle, bool value);
 ```
 """
-function iox2_config_defaults_request_response_set_enable_safe_overflow_for_requests(handle, value)
+@inline function iox2_config_defaults_request_response_set_enable_safe_overflow_for_requests(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_enable_safe_overflow_for_requests(handle::iox2_config_h_ref, value::Bool)::Cvoid
 end
 
@@ -7084,7 +8349,7 @@ Defines how the [[`iox2_client_h`](@ref)](crate::api::[`iox2_client_h`](@ref)) b
 bool iox2_config_defaults_request_response_enable_safe_overflow_for_responses(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_request_response_enable_safe_overflow_for_responses(handle)
+@inline function iox2_config_defaults_request_response_enable_safe_overflow_for_responses(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_enable_safe_overflow_for_responses(handle::iox2_config_h_ref)::Bool
 end
 
@@ -7102,7 +8367,7 @@ Enables/disables safe overflow for responses
 void iox2_config_defaults_request_response_set_enable_safe_overflow_for_responses(iox2_config_h_ref handle, bool value);
 ```
 """
-function iox2_config_defaults_request_response_set_enable_safe_overflow_for_responses(handle, value)
+@inline function iox2_config_defaults_request_response_set_enable_safe_overflow_for_responses(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_enable_safe_overflow_for_responses(handle::iox2_config_h_ref, value::Bool)::Cvoid
 end
 
@@ -7120,7 +8385,7 @@ Returns how many active requests a [[`iox2_client_h`](@ref)](crate::api::[`iox2_
 c_size_t iox2_config_defaults_request_response_max_active_requests_per_client(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_request_response_max_active_requests_per_client(handle)
+@inline function iox2_config_defaults_request_response_max_active_requests_per_client(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_max_active_requests_per_client(handle::iox2_config_h_ref)::c_size_t
 end
 
@@ -7138,7 +8403,7 @@ Sets the max number of active requests.
 void iox2_config_defaults_request_response_set_max_active_requests_per_client(iox2_config_h_ref handle, c_size_t value);
 ```
 """
-function iox2_config_defaults_request_response_set_max_active_requests_per_client(handle, value)
+@inline function iox2_config_defaults_request_response_set_max_active_requests_per_client(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_max_active_requests_per_client(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -7156,7 +8421,7 @@ Returns the size of the [[`iox2_response_h`](@ref)](crate::api::[`iox2_response_
 c_size_t iox2_config_defaults_request_response_max_response_buffer_size(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_request_response_max_response_buffer_size(handle)
+@inline function iox2_config_defaults_request_response_max_response_buffer_size(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_max_response_buffer_size(handle::iox2_config_h_ref)::c_size_t
 end
 
@@ -7174,7 +8439,7 @@ Sets the max response buffer size
 void iox2_config_defaults_request_response_set_max_response_buffer_size(iox2_config_h_ref handle, c_size_t value);
 ```
 """
-function iox2_config_defaults_request_response_set_max_response_buffer_size(handle, value)
+@inline function iox2_config_defaults_request_response_set_max_response_buffer_size(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_max_response_buffer_size(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -7192,7 +8457,7 @@ Returns how many [[`iox2_server_h`](@ref)](crate::api::[`iox2_server_h`](@ref))s
 c_size_t iox2_config_defaults_request_response_max_servers(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_request_response_max_servers(handle)
+@inline function iox2_config_defaults_request_response_max_servers(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_max_servers(handle::iox2_config_h_ref)::c_size_t
 end
 
@@ -7210,7 +8475,7 @@ Sets the maximum number of servers per service
 void iox2_config_defaults_request_response_set_max_servers(iox2_config_h_ref handle, c_size_t value);
 ```
 """
-function iox2_config_defaults_request_response_set_max_servers(handle, value)
+@inline function iox2_config_defaults_request_response_set_max_servers(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_max_servers(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -7228,7 +8493,7 @@ Returns how many [[`iox2_client_h`](@ref)](crate::api::[`iox2_client_h`](@ref))s
 c_size_t iox2_config_defaults_request_response_max_clients(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_request_response_max_clients(handle)
+@inline function iox2_config_defaults_request_response_max_clients(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_max_clients(handle::iox2_config_h_ref)::c_size_t
 end
 
@@ -7246,7 +8511,7 @@ Sets the maximum number of clients per service
 void iox2_config_defaults_request_response_set_max_clients(iox2_config_h_ref handle, c_size_t value);
 ```
 """
-function iox2_config_defaults_request_response_set_max_clients(handle, value)
+@inline function iox2_config_defaults_request_response_set_max_clients(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_max_clients(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -7264,7 +8529,7 @@ Returns how many [[`iox2_node_h`](@ref)](crate::api::[`iox2_node_h`](@ref))s can
 c_size_t iox2_config_defaults_request_response_max_nodes(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_request_response_max_nodes(handle)
+@inline function iox2_config_defaults_request_response_max_nodes(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_max_nodes(handle::iox2_config_h_ref)::c_size_t
 end
 
@@ -7282,7 +8547,7 @@ Sets the maximum number of nodes per service
 void iox2_config_defaults_request_response_set_max_nodes(iox2_config_h_ref handle, c_size_t value);
 ```
 """
-function iox2_config_defaults_request_response_set_max_nodes(handle, value)
+@inline function iox2_config_defaults_request_response_set_max_nodes(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_max_nodes(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -7300,7 +8565,7 @@ Returns how many [[`iox2_response_h`](@ref)](crate::api::[`iox2_response_h`](@re
 c_size_t iox2_config_defaults_request_response_max_borrowed_responses_per_pending_response(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_request_response_max_borrowed_responses_per_pending_response(handle)
+@inline function iox2_config_defaults_request_response_max_borrowed_responses_per_pending_response(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_max_borrowed_responses_per_pending_response(handle::iox2_config_h_ref)::c_size_t
 end
 
@@ -7318,7 +8583,7 @@ Sets the maximum number of borrowed responses per pending response
 void iox2_config_defaults_request_response_set_max_borrowed_responses_per_pending_response(iox2_config_h_ref handle, c_size_t value);
 ```
 """
-function iox2_config_defaults_request_response_set_max_borrowed_responses_per_pending_response(handle, value)
+@inline function iox2_config_defaults_request_response_set_max_borrowed_responses_per_pending_response(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_max_borrowed_responses_per_pending_response(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -7336,7 +8601,7 @@ Returns how many [[`iox2_request_mut_h`](@ref)](crate::api::[`iox2_request_mut_h
 c_size_t iox2_config_defaults_request_response_max_loaned_requests(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_request_response_max_loaned_requests(handle)
+@inline function iox2_config_defaults_request_response_max_loaned_requests(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_max_loaned_requests(handle::iox2_config_h_ref)::c_size_t
 end
 
@@ -7354,7 +8619,7 @@ Sets the maximum number of loaned requests
 void iox2_config_defaults_request_response_set_max_loaned_requests(iox2_config_h_ref handle, c_size_t value);
 ```
 """
-function iox2_config_defaults_request_response_set_max_loaned_requests(handle, value)
+@inline function iox2_config_defaults_request_response_set_max_loaned_requests(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_max_loaned_requests(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -7372,7 +8637,7 @@ Returns how many [[`iox2_response_mut_h`](@ref)](crate::api::[`iox2_response_mut
 c_size_t iox2_config_defaults_request_response_server_max_loaned_responses_per_request(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_request_response_server_max_loaned_responses_per_request(handle)
+@inline function iox2_config_defaults_request_response_server_max_loaned_responses_per_request(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_server_max_loaned_responses_per_request(handle::iox2_config_h_ref)::c_size_t
 end
 
@@ -7390,7 +8655,7 @@ Sets the maximum number of loaned responses per request
 void iox2_config_defaults_request_response_set_server_max_loaned_responses_per_request(iox2_config_h_ref handle, c_size_t value);
 ```
 """
-function iox2_config_defaults_request_response_set_server_max_loaned_responses_per_request(handle, value)
+@inline function iox2_config_defaults_request_response_set_server_max_loaned_responses_per_request(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_request_response_set_server_max_loaned_responses_per_request(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -7408,7 +8673,7 @@ Returns the maximum amount of supported [[`iox2_listener_h`](@ref)](crate::api::
 c_size_t iox2_config_defaults_event_max_listeners(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_event_max_listeners(handle)
+@inline function iox2_config_defaults_event_max_listeners(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_max_listeners(handle::iox2_config_h_ref)::c_size_t
 end
 
@@ -7426,7 +8691,7 @@ Sets the maximum amount of supported [[`iox2_listener_h`](@ref)](crate::api::[`i
 void iox2_config_defaults_event_set_max_listeners(iox2_config_h_ref handle, c_size_t value);
 ```
 """
-function iox2_config_defaults_event_set_max_listeners(handle, value)
+@inline function iox2_config_defaults_event_set_max_listeners(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_set_max_listeners(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -7444,7 +8709,7 @@ Returns the default deadline for event services. If there is a deadline set, the
 bool iox2_config_defaults_event_deadline(iox2_config_h_ref handle, uint64_t *seconds, uint32_t *nanoseconds);
 ```
 """
-function iox2_config_defaults_event_deadline(handle, seconds, nanoseconds)
+@inline function iox2_config_defaults_event_deadline(handle, seconds, nanoseconds)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_deadline(handle::iox2_config_h_ref, seconds::Ptr{UInt64}, nanoseconds::Ptr{UInt32})::Bool
 end
 
@@ -7462,7 +8727,7 @@ Sets the default deadline for event services. If `seconds` and `nanoseconds` is 
 void iox2_config_defaults_event_set_deadline(iox2_config_h_ref handle, const uint64_t *seconds, const uint32_t *nanoseconds);
 ```
 """
-function iox2_config_defaults_event_set_deadline(handle, seconds, nanoseconds)
+@inline function iox2_config_defaults_event_set_deadline(handle, seconds, nanoseconds)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_set_deadline(handle::iox2_config_h_ref, seconds::Ptr{UInt64}, nanoseconds::Ptr{UInt32})::Cvoid
 end
 
@@ -7480,7 +8745,7 @@ Returns the event id value that is emitted when a new notifier is created. It re
 bool iox2_config_defaults_event_notifier_created_event(iox2_config_h_ref handle, c_size_t *value);
 ```
 """
-function iox2_config_defaults_event_notifier_created_event(handle, value)
+@inline function iox2_config_defaults_event_notifier_created_event(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_notifier_created_event(handle::iox2_config_h_ref, value::Ptr{c_size_t})::Bool
 end
 
@@ -7498,7 +8763,7 @@ Sets the event id value that is emitted when a new notifier is created. If `valu
 void iox2_config_defaults_event_set_notifier_created_event(iox2_config_h_ref handle, const c_size_t *value);
 ```
 """
-function iox2_config_defaults_event_set_notifier_created_event(handle, value)
+@inline function iox2_config_defaults_event_set_notifier_created_event(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_set_notifier_created_event(handle::iox2_config_h_ref, value::Ptr{c_size_t})::Cvoid
 end
 
@@ -7516,7 +8781,7 @@ Returns the event id value that is emitted when a notifier is dropped. It return
 bool iox2_config_defaults_event_notifier_dropped_event(iox2_config_h_ref handle, c_size_t *value);
 ```
 """
-function iox2_config_defaults_event_notifier_dropped_event(handle, value)
+@inline function iox2_config_defaults_event_notifier_dropped_event(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_notifier_dropped_event(handle::iox2_config_h_ref, value::Ptr{c_size_t})::Bool
 end
 
@@ -7534,7 +8799,7 @@ Sets the event id value that is emitted when a notifier is dropped. If `value` i
 void iox2_config_defaults_event_set_notifier_dropped_event(iox2_config_h_ref handle, const c_size_t *value);
 ```
 """
-function iox2_config_defaults_event_set_notifier_dropped_event(handle, value)
+@inline function iox2_config_defaults_event_set_notifier_dropped_event(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_set_notifier_dropped_event(handle::iox2_config_h_ref, value::Ptr{c_size_t})::Cvoid
 end
 
@@ -7552,7 +8817,7 @@ Returns the event id value that is emitted when a notifier is identified as dead
 bool iox2_config_defaults_event_notifier_dead_event(iox2_config_h_ref handle, c_size_t *value);
 ```
 """
-function iox2_config_defaults_event_notifier_dead_event(handle, value)
+@inline function iox2_config_defaults_event_notifier_dead_event(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_notifier_dead_event(handle::iox2_config_h_ref, value::Ptr{c_size_t})::Bool
 end
 
@@ -7570,7 +8835,7 @@ Sets the event id value that is emitted when a notifier is identified as dead. I
 void iox2_config_defaults_event_set_notifier_dead_event(iox2_config_h_ref handle, const c_size_t *value);
 ```
 """
-function iox2_config_defaults_event_set_notifier_dead_event(handle, value)
+@inline function iox2_config_defaults_event_set_notifier_dead_event(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_set_notifier_dead_event(handle::iox2_config_h_ref, value::Ptr{c_size_t})::Cvoid
 end
 
@@ -7588,7 +8853,7 @@ Returns the maximum amount of supported [[`iox2_notifier_h`](@ref)](crate::api::
 c_size_t iox2_config_defaults_event_max_notifiers(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_event_max_notifiers(handle)
+@inline function iox2_config_defaults_event_max_notifiers(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_max_notifiers(handle::iox2_config_h_ref)::c_size_t
 end
 
@@ -7606,7 +8871,7 @@ Sets the maximum amount of supported [[`iox2_notifier_h`](@ref)](crate::api::[`i
 void iox2_config_defaults_event_set_max_notifiers(iox2_config_h_ref handle, c_size_t value);
 ```
 """
-function iox2_config_defaults_event_set_max_notifiers(handle, value)
+@inline function iox2_config_defaults_event_set_max_notifiers(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_set_max_notifiers(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -7624,7 +8889,7 @@ Returns the maximum amount of supported [[`iox2_node_h`](@ref)](crate::api::[`io
 c_size_t iox2_config_defaults_event_max_nodes(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_event_max_nodes(handle)
+@inline function iox2_config_defaults_event_max_nodes(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_max_nodes(handle::iox2_config_h_ref)::c_size_t
 end
 
@@ -7642,7 +8907,7 @@ Sets the maximum amount of supported [[`iox2_node_h`](@ref)](crate::api::[`iox2_
 void iox2_config_defaults_event_set_max_nodes(iox2_config_h_ref handle, c_size_t value);
 ```
 """
-function iox2_config_defaults_event_set_max_nodes(handle, value)
+@inline function iox2_config_defaults_event_set_max_nodes(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_set_max_nodes(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -7660,7 +8925,7 @@ Returns the largest event id supported by the event service
 c_size_t iox2_config_defaults_event_event_id_max_value(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_event_event_id_max_value(handle)
+@inline function iox2_config_defaults_event_event_id_max_value(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_event_id_max_value(handle::iox2_config_h_ref)::c_size_t
 end
 
@@ -7678,7 +8943,7 @@ Sets the largest event id supported by the event service
 void iox2_config_defaults_event_set_event_id_max_value(iox2_config_h_ref handle, c_size_t value);
 ```
 """
-function iox2_config_defaults_event_set_event_id_max_value(handle, value)
+@inline function iox2_config_defaults_event_set_event_id_max_value(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_event_set_event_id_max_value(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -7696,7 +8961,7 @@ Returns the maximum amount of supported [[`iox2_reader_h`](@ref)](crate::api::[`
 c_size_t iox2_config_defaults_blackboard_max_readers(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_blackboard_max_readers(handle)
+@inline function iox2_config_defaults_blackboard_max_readers(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_blackboard_max_readers(handle::iox2_config_h_ref)::c_size_t
 end
 
@@ -7714,7 +8979,7 @@ Sets the maximum amount of supported [[`iox2_reader_h`](@ref)](crate::api::[`iox
 void iox2_config_defaults_blackboard_set_max_readers(iox2_config_h_ref handle, c_size_t value);
 ```
 """
-function iox2_config_defaults_blackboard_set_max_readers(handle, value)
+@inline function iox2_config_defaults_blackboard_set_max_readers(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_blackboard_set_max_readers(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -7732,7 +8997,7 @@ Returns the maximum amount of supported [[`iox2_node_h`](@ref)](crate::api::[`io
 c_size_t iox2_config_defaults_blackboard_max_nodes(iox2_config_h_ref handle);
 ```
 """
-function iox2_config_defaults_blackboard_max_nodes(handle)
+@inline function iox2_config_defaults_blackboard_max_nodes(handle)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_blackboard_max_nodes(handle::iox2_config_h_ref)::c_size_t
 end
 
@@ -7750,8 +9015,74 @@ Sets the maximum amount of supported [[`iox2_node_h`](@ref)](crate::api::[`iox2_
 void iox2_config_defaults_blackboard_set_max_nodes(iox2_config_h_ref handle, c_size_t value);
 ```
 """
-function iox2_config_defaults_blackboard_set_max_nodes(handle, value)
+@inline function iox2_config_defaults_blackboard_set_max_nodes(handle, value)
     @ccall libiceoryx2_ffi_c.iox2_config_defaults_blackboard_set_max_nodes(handle::iox2_config_h_ref, value::c_size_t)::Cvoid
+end
+
+"""
+    iox2_degradation_info_service_id(info_handle, service_id)
+
+Obtains the service id, which is involved in the degradation
+
+# Arguments
+
+* `info_handle` - Must be a valid [[`iox2_degradation_info_h_ref`](@ref)] provided as parameter by [[`iox2_degradation_handler`](@ref)] * `service_id` - Must be a pointer to a [[`iox2_buffer_16_align_4_t`](@ref)](crate::api::[`iox2_buffer_16_align_4_t`](@ref))
+
+# Safety
+
+* `info_handle` must be a valid handle * `service_id` must not be a null pointer
+
+### Prototype
+```c
+void iox2_degradation_info_service_id(iox2_degradation_info_h_ref info_handle, struct iox2_buffer_16_align_4_t *service_id);
+```
+"""
+@inline function iox2_degradation_info_service_id(info_handle, service_id)
+    @ccall libiceoryx2_ffi_c.iox2_degradation_info_service_id(info_handle::iox2_degradation_info_h_ref, service_id::Ptr{iox2_buffer_16_align_4_t})::Cvoid
+end
+
+"""
+    iox2_degradation_info_receiver_port_id(info_handle, receiver_port_id)
+
+Obtains the receiver port id, which is involved in the degradation
+
+# Arguments
+
+* `info_handle` - Must be a valid [[`iox2_degradation_info_h_ref`](@ref)] provided as parameter by [[`iox2_degradation_handler`](@ref)] * `receiver_port_id` - Must be a pointer to a [[`iox2_buffer_16_align_4_t`](@ref)](crate::api::[`iox2_buffer_16_align_4_t`](@ref))
+
+# Safety
+
+* `info_handle` must be a valid handle * `receiver_port_id` must not be a null pointer
+
+### Prototype
+```c
+void iox2_degradation_info_receiver_port_id(iox2_degradation_info_h_ref info_handle, struct iox2_buffer_16_align_4_t *receiver_port_id);
+```
+"""
+@inline function iox2_degradation_info_receiver_port_id(info_handle, receiver_port_id)
+    @ccall libiceoryx2_ffi_c.iox2_degradation_info_receiver_port_id(info_handle::iox2_degradation_info_h_ref, receiver_port_id::Ptr{iox2_buffer_16_align_4_t})::Cvoid
+end
+
+"""
+    iox2_degradation_info_sender_port_id(info_handle, sender_port_id)
+
+Obtains the sender port id, which is involved in the degradation
+
+# Arguments
+
+* `info_handle` - Must be a valid [[`iox2_degradation_info_h_ref`](@ref)] provided as parameter by [[`iox2_degradation_handler`](@ref)] * `sender_port_id` - Must be a pointer to a [[`iox2_buffer_16_align_4_t`](@ref)](crate::api::[`iox2_buffer_16_align_4_t`](@ref))
+
+# Safety
+
+* `info_handle` must be a valid handle * `sender_port_id` must not be a null pointer
+
+### Prototype
+```c
+void iox2_degradation_info_sender_port_id(iox2_degradation_info_h_ref info_handle, struct iox2_buffer_16_align_4_t *sender_port_id);
+```
+"""
+@inline function iox2_degradation_info_sender_port_id(info_handle, sender_port_id)
+    @ccall libiceoryx2_ffi_c.iox2_degradation_info_sender_port_id(info_handle::iox2_degradation_info_h_ref, sender_port_id::Ptr{iox2_buffer_16_align_4_t})::Cvoid
 end
 
 """
@@ -7768,7 +9099,7 @@ Copies the value to `value_ptr`. If a `generation_counter_ptr` is passed, a copy
 void iox2_entry_handle_get(iox2_entry_handle_h_ref entry_handle_handle, void *value_ptr, c_size_t value_size, c_size_t value_alignment, void *generation_counter_ptr);
 ```
 """
-function iox2_entry_handle_get(entry_handle_handle, value_ptr, value_size, value_alignment, generation_counter_ptr)
+@inline function iox2_entry_handle_get(entry_handle_handle, value_ptr, value_size, value_alignment, generation_counter_ptr)
     @ccall libiceoryx2_ffi_c.iox2_entry_handle_get(entry_handle_handle::iox2_entry_handle_h_ref, value_ptr::Ptr{Cvoid}, value_size::c_size_t, value_alignment::c_size_t, generation_counter_ptr::Ptr{Cvoid})::Cvoid
 end
 
@@ -7786,7 +9117,7 @@ Checks if the blackboard value that corresponds to the `generation_counter` is u
 bool iox2_entry_handle_is_up_to_date(iox2_entry_handle_h_ref entry_handle_handle, uint64_t generation_counter);
 ```
 """
-function iox2_entry_handle_is_up_to_date(entry_handle_handle, generation_counter)
+@inline function iox2_entry_handle_is_up_to_date(entry_handle_handle, generation_counter)
     @ccall libiceoryx2_ffi_c.iox2_entry_handle_is_up_to_date(entry_handle_handle::iox2_entry_handle_h_ref, generation_counter::UInt64)::Bool
 end
 
@@ -7804,7 +9135,7 @@ Returns an id corresponding to the entry which can be used in an event based com
 void iox2_entry_handle_entry_id(iox2_entry_handle_h_ref entry_handle_handle, struct iox2_event_id_t *entry_id);
 ```
 """
-function iox2_entry_handle_entry_id(entry_handle_handle, entry_id)
+@inline function iox2_entry_handle_entry_id(entry_handle_handle, entry_id)
     @ccall libiceoryx2_ffi_c.iox2_entry_handle_entry_id(entry_handle_handle::iox2_entry_handle_h_ref, entry_id::Ptr{iox2_event_id_t})::Cvoid
 end
 
@@ -7826,7 +9157,7 @@ This function needs to be called to destroy the entry handle!
 void iox2_entry_handle_drop(iox2_entry_handle_h entry_handle_handle);
 ```
 """
-function iox2_entry_handle_drop(entry_handle_handle)
+@inline function iox2_entry_handle_drop(entry_handle_handle)
     @ccall libiceoryx2_ffi_c.iox2_entry_handle_drop(entry_handle_handle::iox2_entry_handle_h)::Cvoid
 end
 
@@ -7844,7 +9175,7 @@ Consumes the `iox2_entry_handle_mut` and loans an uninitialized entry value that
 void iox2_entry_handle_mut_loan_uninit(iox2_entry_handle_mut_h entry_handle_mut_handle, struct iox2_entry_value_uninit_t *entry_value_uninit_struct_ptr, iox2_entry_value_uninit_h *entry_value_uninit_handle_ptr, size_t value_size, size_t value_alignment);
 ```
 """
-function iox2_entry_handle_mut_loan_uninit(entry_handle_mut_handle, entry_value_uninit_struct_ptr, entry_value_uninit_handle_ptr, value_size, value_alignment)
+@inline function iox2_entry_handle_mut_loan_uninit(entry_handle_mut_handle, entry_value_uninit_struct_ptr, entry_value_uninit_handle_ptr, value_size, value_alignment)
     @ccall libiceoryx2_ffi_c.iox2_entry_handle_mut_loan_uninit(entry_handle_mut_handle::iox2_entry_handle_mut_h, entry_value_uninit_struct_ptr::Ptr{iox2_entry_value_uninit_t}, entry_value_uninit_handle_ptr::Ptr{iox2_entry_value_uninit_h}, value_size::Csize_t, value_alignment::Csize_t)::Cvoid
 end
 
@@ -7862,7 +9193,7 @@ Updates the entry value by copying the value pointed to by `value_ptr`
 void iox2_entry_handle_mut_update_with_copy(iox2_entry_handle_mut_h_ref entry_handle_mut_handle, void *value_ptr, size_t value_size, size_t value_alignment);
 ```
 """
-function iox2_entry_handle_mut_update_with_copy(entry_handle_mut_handle, value_ptr, value_size, value_alignment)
+@inline function iox2_entry_handle_mut_update_with_copy(entry_handle_mut_handle, value_ptr, value_size, value_alignment)
     @ccall libiceoryx2_ffi_c.iox2_entry_handle_mut_update_with_copy(entry_handle_mut_handle::iox2_entry_handle_mut_h_ref, value_ptr::Ptr{Cvoid}, value_size::Csize_t, value_alignment::Csize_t)::Cvoid
 end
 
@@ -7880,7 +9211,7 @@ Returns an id corresponding to the entry which can be used in an event based com
 void iox2_entry_handle_mut_entry_id(iox2_entry_handle_mut_h_ref entry_handle_mut_handle, struct iox2_event_id_t *entry_id);
 ```
 """
-function iox2_entry_handle_mut_entry_id(entry_handle_mut_handle, entry_id)
+@inline function iox2_entry_handle_mut_entry_id(entry_handle_mut_handle, entry_id)
     @ccall libiceoryx2_ffi_c.iox2_entry_handle_mut_entry_id(entry_handle_mut_handle::iox2_entry_handle_mut_h_ref, entry_id::Ptr{iox2_event_id_t})::Cvoid
 end
 
@@ -7902,7 +9233,7 @@ This function needs to be called to destroy the entry handle mut!
 void iox2_entry_handle_mut_drop(iox2_entry_handle_mut_h entry_handle_mut_handle);
 ```
 """
-function iox2_entry_handle_mut_drop(entry_handle_mut_handle)
+@inline function iox2_entry_handle_mut_drop(entry_handle_mut_handle)
     @ccall libiceoryx2_ffi_c.iox2_entry_handle_mut_drop(entry_handle_mut_handle::iox2_entry_handle_mut_h)::Cvoid
 end
 
@@ -7920,7 +9251,7 @@ Acquires the entrie's mutable value. After writing the value, [`[`iox2_entry_val
 void iox2_entry_value_uninit_value_mut(iox2_entry_value_uninit_h_ref entry_value_uninit_handle, void **value_ptr);
 ```
 """
-function iox2_entry_value_uninit_value_mut(entry_value_uninit_handle, value_ptr)
+@inline function iox2_entry_value_uninit_value_mut(entry_value_uninit_handle, value_ptr)
     @ccall libiceoryx2_ffi_c.iox2_entry_value_uninit_value_mut(entry_value_uninit_handle::iox2_entry_value_uninit_h_ref, value_ptr::Ptr{Ptr{Cvoid}})::Cvoid
 end
 
@@ -7938,7 +9269,7 @@ Consumes the entry value, makes the new value readable for [[`iox2_reader_t`](@r
 void iox2_entry_value_uninit_update(iox2_entry_value_uninit_h entry_value_uninit_handle, struct iox2_entry_handle_mut_t *entry_handle_mut_struct_ptr, iox2_entry_handle_mut_h *entry_handle_mut_handle_ptr);
 ```
 """
-function iox2_entry_value_uninit_update(entry_value_uninit_handle, entry_handle_mut_struct_ptr, entry_handle_mut_handle_ptr)
+@inline function iox2_entry_value_uninit_update(entry_value_uninit_handle, entry_handle_mut_struct_ptr, entry_handle_mut_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_entry_value_uninit_update(entry_value_uninit_handle::iox2_entry_value_uninit_h, entry_handle_mut_struct_ptr::Ptr{iox2_entry_handle_mut_t}, entry_handle_mut_handle_ptr::Ptr{iox2_entry_handle_mut_h})::Cvoid
 end
 
@@ -7956,7 +9287,7 @@ Consumes and discards the entry value and returns the original entry handle mut.
 void iox2_entry_value_uninit_discard(iox2_entry_value_uninit_h entry_value_uninit_handle, struct iox2_entry_handle_mut_t *entry_handle_mut_struct_ptr, iox2_entry_handle_mut_h *entry_handle_mut_handle_ptr);
 ```
 """
-function iox2_entry_value_uninit_discard(entry_value_uninit_handle, entry_handle_mut_struct_ptr, entry_handle_mut_handle_ptr)
+@inline function iox2_entry_value_uninit_discard(entry_value_uninit_handle, entry_handle_mut_struct_ptr, entry_handle_mut_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_entry_value_uninit_discard(entry_value_uninit_handle::iox2_entry_value_uninit_h, entry_handle_mut_struct_ptr::Ptr{iox2_entry_handle_mut_t}, entry_handle_mut_handle_ptr::Ptr{iox2_entry_handle_mut_h})::Cvoid
 end
 
@@ -7978,7 +9309,7 @@ This function needs to be called to destroy the entry value!
 void iox2_entry_value_uninit_drop(iox2_entry_value_uninit_h entry_value_uninit_handle);
 ```
 """
-function iox2_entry_value_uninit_drop(entry_value_uninit_handle)
+@inline function iox2_entry_value_uninit_drop(entry_value_uninit_handle)
     @ccall libiceoryx2_ffi_c.iox2_entry_value_uninit_drop(entry_value_uninit_handle::iox2_entry_value_uninit_h)::Cvoid
 end
 
@@ -7996,7 +9327,7 @@ Casts a [[`iox2_file_descriptor_h`](@ref)] into an [[`iox2_file_descriptor_ptr`]
 iox2_file_descriptor_ptr iox2_cast_file_descriptor_ptr(iox2_file_descriptor_h handle);
 ```
 """
-function iox2_cast_file_descriptor_ptr(handle)
+@inline function iox2_cast_file_descriptor_ptr(handle)
     @ccall libiceoryx2_ffi_c.iox2_cast_file_descriptor_ptr(handle::iox2_file_descriptor_h)::iox2_file_descriptor_ptr
 end
 
@@ -8014,7 +9345,7 @@ Releases a [[`iox2_file_descriptor_h`](@ref)].
 void iox2_file_descriptor_drop(iox2_file_descriptor_h handle);
 ```
 """
-function iox2_file_descriptor_drop(handle)
+@inline function iox2_file_descriptor_drop(handle)
     @ccall libiceoryx2_ffi_c.iox2_file_descriptor_drop(handle::iox2_file_descriptor_h)::Cvoid
 end
 
@@ -8032,7 +9363,7 @@ Returns the underlying native file descriptor value. When the [`iox2_file_descri
 int32_t iox2_file_descriptor_native_handle(iox2_file_descriptor_ptr handle);
 ```
 """
-function iox2_file_descriptor_native_handle(handle)
+@inline function iox2_file_descriptor_native_handle(handle)
     @ccall libiceoryx2_ffi_c.iox2_file_descriptor_native_handle(handle::iox2_file_descriptor_ptr)::Int32
 end
 
@@ -8054,7 +9385,7 @@ Returns true, when the [[`iox2_file_descriptor_h`](@ref)] was initialized succes
 bool iox2_file_descriptor_new(int32_t value, bool is_owned, struct iox2_file_descriptor_t *struct_ptr, iox2_file_descriptor_h *handle_ptr);
 ```
 """
-function iox2_file_descriptor_new(value, is_owned, struct_ptr, handle_ptr)
+@inline function iox2_file_descriptor_new(value, is_owned, struct_ptr, handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_file_descriptor_new(value::Int32, is_owned::Bool, struct_ptr::Ptr{iox2_file_descriptor_t}, handle_ptr::Ptr{iox2_file_descriptor_h})::Bool
 end
 
@@ -8080,7 +9411,7 @@ A pointer to a null-terminated string containing the error message. The string i
 const char *iox2_listener_wait_error_string(enum iox2_listener_wait_error_e error);
 ```
 """
-function iox2_listener_wait_error_string(error)
+@inline function iox2_listener_wait_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_listener_wait_error_string(error::iox2_listener_wait_error_e)::Cstring
 end
 
@@ -8102,7 +9433,7 @@ This function needs to be called to destroy the listener!
 void iox2_listener_drop(iox2_listener_h listener_handle);
 ```
 """
-function iox2_listener_drop(listener_handle)
+@inline function iox2_listener_drop(listener_handle)
     @ccall libiceoryx2_ffi_c.iox2_listener_drop(listener_handle::iox2_listener_h)::Cvoid
 end
 
@@ -8124,18 +9455,18 @@ Returns the underlying non-owning file descriptor of the [[`iox2_listener_h`](@r
 iox2_file_descriptor_ptr iox2_listener_get_file_descriptor(iox2_listener_h_ref listener_handle);
 ```
 """
-function iox2_listener_get_file_descriptor(listener_handle)
+@inline function iox2_listener_get_file_descriptor(listener_handle)
     @ccall libiceoryx2_ffi_c.iox2_listener_get_file_descriptor(listener_handle::iox2_listener_h_ref)::iox2_file_descriptor_ptr
 end
 
 """
-    iox2_listener_try_wait_all(listener_handle, callback, callback_ctx)
+    iox2_listener_try_wait(listener_handle, number_of_notifications, callback, callback_ctx)
 
 Tries to wait on the listener and calls the callback for every received event providing the corresponding [[`iox2_event_id_t`](@ref)] pointer to the event. On error it returns [[`iox2_listener_wait_error_e`](@ref)].
 
 # Arguments
 
-* `listener_handle` - A valid [[`iox2_listener_h_ref`](@ref)], * `callback` - A valid callback with [[`iox2_listener_wait_all_callback`](@ref)} signature * `callback_ctx` - An optional callback context [[`iox2_callback_context`](@ref)} to e.g. store information across callback iterations
+* `listener_handle` - A valid [[`iox2_listener_h_ref`](@ref)], * `number_of_notifications` - A valid pointer to an `uint64_t` integer. * `callback` - A valid callback with [[`iox2_listener_wait_all_callback`](@ref)} signature * `callback_ctx` - An optional callback context [[`iox2_callback_context`](@ref)} to e.g. store information across callback iterations
 
 # Safety
 
@@ -8143,21 +9474,21 @@ Tries to wait on the listener and calls the callback for every received event pr
 
 ### Prototype
 ```c
-int iox2_listener_try_wait_all(iox2_listener_h_ref listener_handle, iox2_listener_wait_all_callback callback, iox2_callback_context callback_ctx);
+int iox2_listener_try_wait(iox2_listener_h_ref listener_handle, uint64_t *number_of_notifications, iox2_listener_wait_all_callback callback, iox2_callback_context callback_ctx);
 ```
 """
-function iox2_listener_try_wait_all(listener_handle, callback, callback_ctx)
-    @ccall libiceoryx2_ffi_c.iox2_listener_try_wait_all(listener_handle::iox2_listener_h_ref, callback::iox2_listener_wait_all_callback, callback_ctx::iox2_callback_context)::Cint
+@inline function iox2_listener_try_wait(listener_handle, number_of_notifications, callback, callback_ctx)
+    @ccall libiceoryx2_ffi_c.iox2_listener_try_wait(listener_handle::iox2_listener_h_ref, number_of_notifications::Ptr{UInt64}, callback::iox2_listener_wait_all_callback, callback_ctx::iox2_callback_context)::Cint
 end
 
 """
-    iox2_listener_timed_wait_all(listener_handle, callback, callback_ctx, seconds, nanoseconds)
+    iox2_listener_timed_wait(listener_handle, number_of_notifications, callback, callback_ctx, seconds, nanoseconds)
 
 Blocks the listener until at least one event was received or the provided timeout has passed. When an event was received then it calls the callback for every received event providing the corresponding [[`iox2_event_id_t`](@ref)] pointer to the event. On error it returns [[`iox2_listener_wait_error_e`](@ref)].
 
 # Arguments
 
-* `listener_handle` - A valid [[`iox2_listener_h_ref`](@ref)], * `callback` - A valid callback with [[`iox2_listener_wait_all_callback`](@ref)} signature * `callback_ctx` - An optional callback context [[`iox2_callback_context`](@ref)} to e.g. store information across callback iterations
+* `listener_handle` - A valid [[`iox2_listener_h_ref`](@ref)], * `number_of_notifications` - A valid pointer to an `uint64_t` integer. * `callback` - A valid callback with [[`iox2_listener_wait_all_callback`](@ref)} signature * `callback_ctx` - An optional callback context [[`iox2_callback_context`](@ref)} to e.g. store information across callback iterations
 
 # Safety
 
@@ -8165,11 +9496,11 @@ Blocks the listener until at least one event was received or the provided timeou
 
 ### Prototype
 ```c
-int iox2_listener_timed_wait_all(iox2_listener_h_ref listener_handle, iox2_listener_wait_all_callback callback, iox2_callback_context callback_ctx, uint64_t seconds, uint32_t nanoseconds);
+int iox2_listener_timed_wait(iox2_listener_h_ref listener_handle, uint64_t *number_of_notifications, iox2_listener_wait_all_callback callback, iox2_callback_context callback_ctx, uint64_t seconds, uint32_t nanoseconds);
 ```
 """
-function iox2_listener_timed_wait_all(listener_handle, callback, callback_ctx, seconds, nanoseconds)
-    @ccall libiceoryx2_ffi_c.iox2_listener_timed_wait_all(listener_handle::iox2_listener_h_ref, callback::iox2_listener_wait_all_callback, callback_ctx::iox2_callback_context, seconds::UInt64, nanoseconds::UInt32)::Cint
+@inline function iox2_listener_timed_wait(listener_handle, number_of_notifications, callback, callback_ctx, seconds, nanoseconds)
+    @ccall libiceoryx2_ffi_c.iox2_listener_timed_wait(listener_handle::iox2_listener_h_ref, number_of_notifications::Ptr{UInt64}, callback::iox2_listener_wait_all_callback, callback_ctx::iox2_callback_context, seconds::UInt64, nanoseconds::UInt32)::Cint
 end
 
 """
@@ -8190,8 +9521,30 @@ Returns the unique port id of the listener.
 void iox2_listener_id(iox2_listener_h_ref listener_handle, struct iox2_unique_listener_id_t *id_struct_ptr, iox2_unique_listener_id_h *id_handle_ptr);
 ```
 """
-function iox2_listener_id(listener_handle, id_struct_ptr, id_handle_ptr)
+@inline function iox2_listener_id(listener_handle, id_struct_ptr, id_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_listener_id(listener_handle::iox2_listener_h_ref, id_struct_ptr::Ptr{iox2_unique_listener_id_t}, id_handle_ptr::Ptr{iox2_unique_listener_id_h})::Cvoid
+end
+
+"""
+    iox2_listener_name(listener_handle)
+
+Returns the [[`iox2_port_name_ptr`](@ref)](crate::[`iox2_port_name_ptr`](@ref)), an immutable pointer to the port name.
+
+# Arguments
+
+* `listener_handle` must be a valid [[`iox2_listener_h_ref`](@ref)] obtained by [[`iox2_port_factory_listener_builder_create`](@ref)](crate::[`iox2_port_factory_listener_builder_create`](@ref))
+
+# Safety
+
+* `listener_handle` is valid, non-null and was obtained via [[`iox2_port_factory_listener_builder_create`](@ref)](crate::[`iox2_port_factory_listener_builder_create`](@ref)).
+
+### Prototype
+```c
+iox2_port_name_ptr iox2_listener_name(iox2_listener_h_ref listener_handle);
+```
+"""
+@inline function iox2_listener_name(listener_handle)
+    @ccall libiceoryx2_ffi_c.iox2_listener_name(listener_handle::iox2_listener_h_ref)::iox2_port_name_ptr
 end
 
 """
@@ -8208,18 +9561,18 @@ Returns the deadline of the listener's service. If there is a deadline set, the 
 bool iox2_listener_deadline(iox2_listener_h_ref listener_handle, uint64_t *seconds, uint32_t *nanoseconds);
 ```
 """
-function iox2_listener_deadline(listener_handle, seconds, nanoseconds)
+@inline function iox2_listener_deadline(listener_handle, seconds, nanoseconds)
     @ccall libiceoryx2_ffi_c.iox2_listener_deadline(listener_handle::iox2_listener_h_ref, seconds::Ptr{UInt64}, nanoseconds::Ptr{UInt32})::Bool
 end
 
 """
-    iox2_listener_blocking_wait_all(listener_handle, callback, callback_ctx)
+    iox2_listener_blocking_wait(listener_handle, number_of_notifications, callback, callback_ctx)
 
 Blocks the listener until at least one event was received and then calls the callback for every received event providing the corresponding [[`iox2_event_id_t`](@ref)] pointer to the event. On error it returns [[`iox2_listener_wait_error_e`](@ref)].
 
 # Arguments
 
-* `listener_handle` - A valid [[`iox2_listener_h_ref`](@ref)], * `callback` - A valid callback with [[`iox2_listener_wait_all_callback`](@ref)} signature * `callback_ctx` - An optional callback context [[`iox2_callback_context`](@ref)} to e.g. store information across callback iterations
+* `listener_handle` - A valid [[`iox2_listener_h_ref`](@ref)], * `number_of_notifications` - A valid pointer to an `uint64_t` integer. * `callback` - A valid callback with [[`iox2_listener_wait_all_callback`](@ref)} signature * `callback_ctx` - An optional callback context [[`iox2_callback_context`](@ref)} to e.g. store information across callback iterations
 
 # Safety
 
@@ -8227,77 +9580,11 @@ Blocks the listener until at least one event was received and then calls the cal
 
 ### Prototype
 ```c
-int iox2_listener_blocking_wait_all(iox2_listener_h_ref listener_handle, iox2_listener_wait_all_callback callback, iox2_callback_context callback_ctx);
+int iox2_listener_blocking_wait(iox2_listener_h_ref listener_handle, uint64_t *number_of_notifications, iox2_listener_wait_all_callback callback, iox2_callback_context callback_ctx);
 ```
 """
-function iox2_listener_blocking_wait_all(listener_handle, callback, callback_ctx)
-    @ccall libiceoryx2_ffi_c.iox2_listener_blocking_wait_all(listener_handle::iox2_listener_h_ref, callback::iox2_listener_wait_all_callback, callback_ctx::iox2_callback_context)::Cint
-end
-
-"""
-    iox2_listener_try_wait_one(listener_handle, event_id, has_received_one)
-
-Tries to wait on the listener. If there is no event id present it returns immediately and sets the out parameter `has_received_one` to false. Otherwise, it sets the `event_id` out parameter and `has_received_one` to true. On error it returns [[`iox2_listener_wait_error_e`](@ref)].
-
-# Arguments
-
-* `listener_handle` - A valid [[`iox2_listener_h_ref`](@ref)], * `event_id` - A pointer to an [[`iox2_event_id_t`](@ref)] to store the received id. * `has_received_one` - A pointer to a [`bool`] that signals if an event id was received or not
-
-# Safety
-
-* All input arguments must be non-null.
-
-### Prototype
-```c
-int iox2_listener_try_wait_one(iox2_listener_h_ref listener_handle, struct iox2_event_id_t *event_id, bool *has_received_one);
-```
-"""
-function iox2_listener_try_wait_one(listener_handle, event_id, has_received_one)
-    @ccall libiceoryx2_ffi_c.iox2_listener_try_wait_one(listener_handle::iox2_listener_h_ref, event_id::Ptr{iox2_event_id_t}, has_received_one::Ptr{Bool})::Cint
-end
-
-"""
-    iox2_listener_timed_wait_one(listener_handle, event_id, has_received_one, seconds, nanoseconds)
-
-Blocks on the listener until an event id was received or the provided timeout has passed. When no event id was received and the function was interrupted by a signal, `has_received_one` is set to false. Otherwise, it sets the `event_id` out parameter and `has_received_one` to true. On error it returns [[`iox2_listener_wait_error_e`](@ref)].
-
-# Arguments
-
-* `listener_handle` - A valid [[`iox2_listener_h_ref`](@ref)], * `event_id` - A pointer to an [[`iox2_event_id_t`](@ref)] to store the received id. * `has_received_one` - A pointer to a [`bool`] that signals if an event id was received or not * `seconds` - The timeout seconds part * `nanoseconds` - The timeout nanoseconds part
-
-# Safety
-
-* All input arguments must be non-null.
-
-### Prototype
-```c
-int iox2_listener_timed_wait_one(iox2_listener_h_ref listener_handle, struct iox2_event_id_t *event_id, bool *has_received_one, uint64_t seconds, uint32_t nanoseconds);
-```
-"""
-function iox2_listener_timed_wait_one(listener_handle, event_id, has_received_one, seconds, nanoseconds)
-    @ccall libiceoryx2_ffi_c.iox2_listener_timed_wait_one(listener_handle::iox2_listener_h_ref, event_id::Ptr{iox2_event_id_t}, has_received_one::Ptr{Bool}, seconds::UInt64, nanoseconds::UInt32)::Cint
-end
-
-"""
-    iox2_listener_blocking_wait_one(listener_handle, event_id, has_received_one)
-
-Blocks on the listener until an event id was received. When no event id was received and the function was interrupted by a signal, `has_received_one` is set to false. Otherwise, it sets the `event_id` out parameter and `has_received_one` to true. On error it returns [[`iox2_listener_wait_error_e`](@ref)].
-
-# Arguments
-
-* `listener_handle` - A valid [[`iox2_listener_h_ref`](@ref)], * `event_id` - A pointer to an [[`iox2_event_id_t`](@ref)] to store the received id. * `has_received_one` - A pointer to a [`bool`] that signals if an event id was received or not
-
-# Safety
-
-* All input arguments must be non-null.
-
-### Prototype
-```c
-int iox2_listener_blocking_wait_one(iox2_listener_h_ref listener_handle, struct iox2_event_id_t *event_id, bool *has_received_one);
-```
-"""
-function iox2_listener_blocking_wait_one(listener_handle, event_id, has_received_one)
-    @ccall libiceoryx2_ffi_c.iox2_listener_blocking_wait_one(listener_handle::iox2_listener_h_ref, event_id::Ptr{iox2_event_id_t}, has_received_one::Ptr{Bool})::Cint
+@inline function iox2_listener_blocking_wait(listener_handle, number_of_notifications, callback, callback_ctx)
+    @ccall libiceoryx2_ffi_c.iox2_listener_blocking_wait(listener_handle::iox2_listener_h_ref, number_of_notifications::Ptr{UInt64}, callback::iox2_listener_wait_all_callback, callback_ctx::iox2_callback_context)::Cint
 end
 
 """
@@ -8314,14 +9601,14 @@ Returns the unique port id of the listener.
 void iox2_listener_details_listener_id(iox2_listener_details_ptr handle, struct iox2_unique_listener_id_t *id_struct_ptr, iox2_unique_listener_id_h *id_handle_ptr);
 ```
 """
-function iox2_listener_details_listener_id(handle, id_struct_ptr, id_handle_ptr)
+@inline function iox2_listener_details_listener_id(handle, id_struct_ptr, id_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_listener_details_listener_id(handle::iox2_listener_details_ptr, id_struct_ptr::Ptr{iox2_unique_listener_id_t}, id_handle_ptr::Ptr{iox2_unique_listener_id_h})::Cvoid
 end
 
 """
     iox2_listener_details_node_id(handle)
 
-Returns the [[`iox2_node_id_ptr`](@ref)](crate::[`iox2_node_id_ptr`](@ref)), an immutable pointer to the node id.
+Returns the [[`iox2_unique_node_id_ptr`](@ref)](crate::[`iox2_unique_node_id_ptr`](@ref)), an immutable pointer to the node id.
 
 # Safety
 
@@ -8329,11 +9616,11 @@ Returns the [[`iox2_node_id_ptr`](@ref)](crate::[`iox2_node_id_ptr`](@ref)), an 
 
 ### Prototype
 ```c
-iox2_node_id_ptr iox2_listener_details_node_id(iox2_listener_details_ptr handle);
+iox2_unique_node_id_ptr iox2_listener_details_node_id(iox2_listener_details_ptr handle);
 ```
 """
-function iox2_listener_details_node_id(handle)
-    @ccall libiceoryx2_ffi_c.iox2_listener_details_node_id(handle::iox2_listener_details_ptr)::iox2_node_id_ptr
+@inline function iox2_listener_details_node_id(handle)
+    @ccall libiceoryx2_ffi_c.iox2_listener_details_node_id(handle::iox2_listener_details_ptr)::iox2_unique_node_id_ptr
 end
 
 """
@@ -8350,7 +9637,7 @@ Adds a log message to the logger.
 void iox2_log(enum iox2_log_level_e log_level, const char *origin, const char *message);
 ```
 """
-function iox2_log(log_level, origin, message)
+@inline function iox2_log(log_level, origin, message)
     @ccall libiceoryx2_ffi_c.iox2_log(log_level::iox2_log_level_e, origin::Cstring, message::Cstring)::Cvoid
 end
 
@@ -8359,12 +9646,16 @@ end
 
 Sets the log level from environment variable or defaults it if variable does not exist
 
+# Important
+
+When using external frameworks, the log level should be set explicitly, as only messages matching that level will be forwarded. You may also need to configure the framework’s own log level settings.
+
 ### Prototype
 ```c
 void iox2_set_log_level_from_env_or_default(void);
 ```
 """
-function iox2_set_log_level_from_env_or_default()
+@inline function iox2_set_log_level_from_env_or_default()
     @ccall libiceoryx2_ffi_c.iox2_set_log_level_from_env_or_default()::Cvoid
 end
 
@@ -8373,12 +9664,16 @@ end
 
 Sets the log level from environment variable or to a user given value if variable does not exist
 
+# Important
+
+When using external frameworks, the log level should be set explicitly, as only messages matching that level will be forwarded. You may also need to configure the framework’s own log level settings.
+
 ### Prototype
 ```c
 void iox2_set_log_level_from_env_or(enum iox2_log_level_e v);
 ```
 """
-function iox2_set_log_level_from_env_or(v)
+@inline function iox2_set_log_level_from_env_or(v)
     @ccall libiceoryx2_ffi_c.iox2_set_log_level_from_env_or(v::iox2_log_level_e)::Cvoid
 end
 
@@ -8387,12 +9682,16 @@ end
 
 Sets the log level.
 
+# Important
+
+When using external frameworks, the log level should be set explicitly, as only messages matching that level will be forwarded. You may also need to configure the framework’s own log level settings.
+
 ### Prototype
 ```c
 void iox2_set_log_level(enum iox2_log_level_e v);
 ```
 """
-function iox2_set_log_level(v)
+@inline function iox2_set_log_level(v)
     @ccall libiceoryx2_ffi_c.iox2_set_log_level(v::iox2_log_level_e)::Cvoid
 end
 
@@ -8406,7 +9705,7 @@ Returns the current log level.
 enum iox2_log_level_e iox2_get_log_level(void);
 ```
 """
-function iox2_get_log_level()
+@inline function iox2_get_log_level()
     @ccall libiceoryx2_ffi_c.iox2_get_log_level()::iox2_log_level_e
 end
 
@@ -8420,7 +9719,7 @@ Sets the logger that shall be used. This function can only be called once and mu
 bool iox2_set_logger(iox2_log_callback logger);
 ```
 """
-function iox2_set_logger(logger)
+@inline function iox2_set_logger(logger)
     @ccall libiceoryx2_ffi_c.iox2_set_logger(logger::iox2_log_callback)::Bool
 end
 
@@ -8444,7 +9743,7 @@ Returns a pointer to a null-terminated string containing the error description.
 const char *iox2_node_list_failure_string(enum iox2_node_list_failure_e error);
 ```
 """
-function iox2_node_list_failure_string(error)
+@inline function iox2_node_list_failure_string(error)
     @ccall libiceoryx2_ffi_c.iox2_node_list_failure_string(error::iox2_node_list_failure_e)::Cstring
 end
 
@@ -8470,7 +9769,7 @@ A pointer to a null-terminated string containing the error message. The string i
 const char *iox2_node_wait_failure_string(enum iox2_node_wait_failure_e error);
 ```
 """
-function iox2_node_wait_failure_string(error)
+@inline function iox2_node_wait_failure_string(error)
     @ccall libiceoryx2_ffi_c.iox2_node_wait_failure_string(error::iox2_node_wait_failure_e)::Cstring
 end
 
@@ -8488,7 +9787,7 @@ Returns the [[`iox2_node_name_ptr`](@ref)](crate::[`iox2_node_name_ptr`](@ref)),
 iox2_node_name_ptr iox2_node_name(iox2_node_h_ref node_handle);
 ```
 """
-function iox2_node_name(node_handle)
+@inline function iox2_node_name(node_handle)
     @ccall libiceoryx2_ffi_c.iox2_node_name(node_handle::iox2_node_h_ref)::iox2_node_name_ptr
 end
 
@@ -8506,7 +9805,7 @@ Wait until the provided cycle time has passed and returns a [[`iox2_node_wait_fa
 int iox2_node_wait(iox2_node_h_ref node_handle, uint64_t cycle_time_sec, uint32_t cycle_time_nsec);
 ```
 """
-function iox2_node_wait(node_handle, cycle_time_sec, cycle_time_nsec)
+@inline function iox2_node_wait(node_handle, cycle_time_sec, cycle_time_nsec)
     @ccall libiceoryx2_ffi_c.iox2_node_wait(node_handle::iox2_node_h_ref, cycle_time_sec::UInt64, cycle_time_nsec::UInt32)::Cint
 end
 
@@ -8524,7 +9823,7 @@ Returns the [[`iox2_config_ptr`](@ref)](crate::[`iox2_config_ptr`](@ref)), an im
 iox2_config_ptr iox2_node_config(iox2_node_h_ref node_handle);
 ```
 """
-function iox2_node_config(node_handle)
+@inline function iox2_node_config(node_handle)
     @ccall libiceoryx2_ffi_c.iox2_node_config(node_handle::iox2_node_h_ref)::iox2_config_ptr
 end
 
@@ -8542,14 +9841,14 @@ Returns the [[`iox2_signal_handling_mode_e`](@ref)] with which the node was crea
 enum iox2_signal_handling_mode_e iox2_node_signal_handling_mode(iox2_node_h_ref node_handle);
 ```
 """
-function iox2_node_signal_handling_mode(node_handle)
+@inline function iox2_node_signal_handling_mode(node_handle)
     @ccall libiceoryx2_ffi_c.iox2_node_signal_handling_mode(node_handle::iox2_node_h_ref)::iox2_signal_handling_mode_e
 end
 
 """
-    iox2_node_id(node_handle, service_type)
+    iox2_unique_node_id(node_handle, service_type)
 
-Returns the [[`iox2_node_id_ptr`](@ref)](crate::[`iox2_node_id_ptr`](@ref)), an immutable pointer to the node id.
+Returns the [[`iox2_unique_node_id_ptr`](@ref)](crate::[`iox2_unique_node_id_ptr`](@ref)), an immutable pointer to the node id.
 
 # Safety
 
@@ -8557,15 +9856,53 @@ Returns the [[`iox2_node_id_ptr`](@ref)](crate::[`iox2_node_id_ptr`](@ref)), an 
 
 ### Prototype
 ```c
-iox2_node_id_ptr iox2_node_id(iox2_node_h_ref node_handle, enum iox2_service_type_e service_type);
+iox2_unique_node_id_ptr iox2_unique_node_id(iox2_node_h_ref node_handle, enum iox2_service_type_e service_type);
 ```
 """
-function iox2_node_id(node_handle, service_type)
-    @ccall libiceoryx2_ffi_c.iox2_node_id(node_handle::iox2_node_h_ref, service_type::iox2_service_type_e)::iox2_node_id_ptr
+@inline function iox2_unique_node_id(node_handle, service_type)
+    @ccall libiceoryx2_ffi_c.iox2_unique_node_id(node_handle::iox2_node_h_ref, service_type::iox2_service_type_e)::iox2_unique_node_id_ptr
 end
 
 """
-    iox2_dead_node_remove_stale_resources(service_type, node_id, config, has_success)
+    iox2_node_force_remove_service(node_handle, service_name_ptr, messaging_pattern, service_removed)
+
+Removes a service by force. This shall be used if the resources could not be removed in a previous run and now it is no longer possible to open the service.
+
+# Safety
+
+* No other process shall use the service. * The `node_handle` must be valid and obtained by [[`iox2_node_builder_create`](@ref)](crate::[`iox2_node_builder_create`](@ref))! * The `service_name_ptr` is valid and non-null * The `service_removed` variable points to a valid bool
+
+### Prototype
+```c
+int iox2_node_force_remove_service(iox2_node_h_ref node_handle, iox2_service_name_ptr service_name_ptr, enum iox2_messaging_pattern_e messaging_pattern, bool *service_removed);
+```
+"""
+@inline function iox2_node_force_remove_service(node_handle, service_name_ptr, messaging_pattern, service_removed)
+    @ccall libiceoryx2_ffi_c.iox2_node_force_remove_service(node_handle::iox2_node_h_ref, service_name_ptr::iox2_service_name_ptr, messaging_pattern::iox2_messaging_pattern_e, service_removed::Ptr{Bool})::Cint
+end
+
+"""
+    iox2_dead_node_blocking_remove_stale_resources(service_type, node_id, config, timeout_sec, timeout_nsec)
+
+Removes all stale resources of a dead node under a provided config. If another instance is already removing the stale resources it waits until the resources are cleaned up or the timeout has passed.
+
+Returns [[`IOX2_OK`](@ref)] on success, otherwise [[`iox2_node_cleanup_failure_e`](@ref)].
+
+# Safety
+
+* The `node_handle` must be valid and obtained by [[`iox2_node_builder_create`](@ref)](crate::[`iox2_node_builder_create`](@ref))! * The `node_id` must be valid * The `config` must be valid * `has_success` must point to a valid memory location
+
+### Prototype
+```c
+int iox2_dead_node_blocking_remove_stale_resources(enum iox2_service_type_e service_type, iox2_unique_node_id_h_ref node_id, iox2_config_h_ref config, uint64_t timeout_sec, uint32_t timeout_nsec);
+```
+"""
+@inline function iox2_dead_node_blocking_remove_stale_resources(service_type, node_id, config, timeout_sec, timeout_nsec)
+    @ccall libiceoryx2_ffi_c.iox2_dead_node_blocking_remove_stale_resources(service_type::iox2_service_type_e, node_id::iox2_unique_node_id_h_ref, config::iox2_config_h_ref, timeout_sec::UInt64, timeout_nsec::UInt32)::Cint
+end
+
+"""
+    iox2_dead_node_try_remove_stale_resources(service_type, node_id, config)
 
 Removes all stale resources of a dead node under a provided config.
 
@@ -8577,17 +9914,17 @@ Returns [[`IOX2_OK`](@ref)] on success, otherwise [[`iox2_node_cleanup_failure_e
 
 ### Prototype
 ```c
-int iox2_dead_node_remove_stale_resources(enum iox2_service_type_e service_type, iox2_node_id_h_ref node_id, iox2_config_h_ref config, bool *has_success);
+int iox2_dead_node_try_remove_stale_resources(enum iox2_service_type_e service_type, iox2_unique_node_id_h_ref node_id, iox2_config_h_ref config);
 ```
 """
-function iox2_dead_node_remove_stale_resources(service_type, node_id, config, has_success)
-    @ccall libiceoryx2_ffi_c.iox2_dead_node_remove_stale_resources(service_type::iox2_service_type_e, node_id::iox2_node_id_h_ref, config::iox2_config_h_ref, has_success::Ptr{Bool})::Cint
+@inline function iox2_dead_node_try_remove_stale_resources(service_type, node_id, config)
+    @ccall libiceoryx2_ffi_c.iox2_dead_node_try_remove_stale_resources(service_type::iox2_service_type_e, node_id::iox2_unique_node_id_h_ref, config::iox2_config_h_ref)::Cint
 end
 
 """
     iox2_node_list(service_type, config_ptr, callback, callback_ctx)
 
-Calls the callback repeatedly with an [[`iox2_node_state_e`](@ref)], [[`iox2_node_id_ptr`](@ref)], [´[`iox2_node_name_ptr`](@ref)´] and [[`iox2_config_ptr`](@ref)] for all [`Node`](iceoryx2::node::Node)s in the system under a given [`Config`](iceoryx2::config::Config).
+Calls the callback repeatedly with an [[`iox2_node_state_e`](@ref)], [[`iox2_unique_node_id_ptr`](@ref)], [´[`iox2_node_name_ptr`](@ref)´] and [[`iox2_config_ptr`](@ref)] for all [`Node`](iceoryx2::node::Node)s in the system under a given [`Config`](iceoryx2::config::Config).
 
 # Arguments
 
@@ -8604,14 +9941,58 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_node_list_failure_e`](@ref)] ot
 int iox2_node_list(enum iox2_service_type_e service_type, iox2_config_ptr config_ptr, iox2_node_list_callback callback, iox2_callback_context callback_ctx);
 ```
 """
-function iox2_node_list(service_type, config_ptr, callback, callback_ctx)
+@inline function iox2_node_list(service_type, config_ptr, callback, callback_ctx)
     @ccall libiceoryx2_ffi_c.iox2_node_list(service_type::iox2_service_type_e, config_ptr::iox2_config_ptr, callback::iox2_node_list_callback, callback_ctx::iox2_callback_context)::Cint
 end
 
 """
-    iox2_node_service_builder(node_handle, service_builder_struct_ptr, service_name_ptr)
+    iox2_node_try_cleanup_dead_nodes(node_handle, cleanup_state)
 
-Instantiates a [[`iox2_service_builder_h`](@ref)] for a service with the provided name.
+Removes the stale system resources of all dead nodes. The dead nodes are also removed from all registered services.
+
+If a node cannot be cleaned up since the process has insufficient permissions or it is currently being cleaned up by another process then the node is skipped.
+
+# Safety
+
+* The `node_handle` must be valid and obtained by [[`iox2_node_builder_create`](@ref)](crate::[`iox2_node_builder_create`](@ref))! * `cleanup_state` - A valid pointer to a [[`iox2_cleanup_state_t`](@ref)]
+
+### Prototype
+```c
+void iox2_node_try_cleanup_dead_nodes(iox2_node_h_ref node_handle, struct iox2_cleanup_state_t *cleanup_state);
+```
+"""
+@inline function iox2_node_try_cleanup_dead_nodes(node_handle, cleanup_state)
+    @ccall libiceoryx2_ffi_c.iox2_node_try_cleanup_dead_nodes(node_handle::iox2_node_h_ref, cleanup_state::Ptr{iox2_cleanup_state_t})::Cvoid
+end
+
+"""
+    iox2_node_blocking_cleanup_dead_nodes(node_handle, cleanup_state, timeout_secs, timeout_nsecs)
+
+Removes the stale system resources of all dead nodes. The dead nodes are also removed from all registered services.
+
+If a node cannot be cleaned up since the process has insufficient permissions then the node is skipped. If it is currently being cleaned up by another process then the cleaner will wait until the timeout as either passed or the cleaned was finished.
+
+The timeout is applied to every individual dead node the function needs to wait on.
+
+# Arguments
+
+* `timeout_secs` - The timeout second part * `timeout_nsecs` - The timeout nanosecond part
+
+# Safety
+
+* The `node_handle` must be valid and obtained by [[`iox2_node_builder_create`](@ref)](crate::[`iox2_node_builder_create`](@ref))! * `cleanup_state` - A valid pointer to a [[`iox2_cleanup_state_t`](@ref)]
+
+### Prototype
+```c
+void iox2_node_blocking_cleanup_dead_nodes(iox2_node_h_ref node_handle, struct iox2_cleanup_state_t *cleanup_state, uint64_t timeout_secs, uint32_t timeout_nsecs);
+```
+"""
+@inline function iox2_node_blocking_cleanup_dead_nodes(node_handle, cleanup_state, timeout_secs, timeout_nsecs)
+    @ccall libiceoryx2_ffi_c.iox2_node_blocking_cleanup_dead_nodes(node_handle::iox2_node_h_ref, cleanup_state::Ptr{iox2_cleanup_state_t}, timeout_secs::UInt64, timeout_nsecs::UInt32)::Cvoid
+end
+
+"""
+    iox2_node_service_builder(node_handle, service_builder_struct_ptr, service_name_ptr)
 
 # Arguments
 
@@ -8628,7 +10009,7 @@ Returns the [`iox2_service_builder_h`](@ref) handle for the service builder.
 iox2_service_builder_h iox2_node_service_builder(iox2_node_h_ref node_handle, struct iox2_service_builder_t *service_builder_struct_ptr, iox2_service_name_ptr service_name_ptr);
 ```
 """
-function iox2_node_service_builder(node_handle, service_builder_struct_ptr, service_name_ptr)
+@inline function iox2_node_service_builder(node_handle, service_builder_struct_ptr, service_name_ptr)
     @ccall libiceoryx2_ffi_c.iox2_node_service_builder(node_handle::iox2_node_h_ref, service_builder_struct_ptr::Ptr{iox2_service_builder_t}, service_name_ptr::iox2_service_name_ptr)::iox2_service_builder_h
 end
 
@@ -8650,7 +10031,7 @@ This function needs to be called to destroy the node!
 void iox2_node_drop(iox2_node_h node_handle);
 ```
 """
-function iox2_node_drop(node_handle)
+@inline function iox2_node_drop(node_handle)
     @ccall libiceoryx2_ffi_c.iox2_node_drop(node_handle::iox2_node_h)::Cvoid
 end
 
@@ -8676,7 +10057,7 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_node_creation_failure_string(enum iox2_node_creation_failure_e error);
 ```
 """
-function iox2_node_creation_failure_string(error)
+@inline function iox2_node_creation_failure_string(error)
     @ccall libiceoryx2_ffi_c.iox2_node_creation_failure_string(error::iox2_node_creation_failure_e)::Cstring
 end
 
@@ -8702,7 +10083,7 @@ A [[`iox2_node_builder_h`](@ref)] handle to build the actual node.
 iox2_node_builder_h iox2_node_builder_new(struct iox2_node_builder_t *node_builder_struct_ptr);
 ```
 """
-function iox2_node_builder_new(node_builder_struct_ptr)
+@inline function iox2_node_builder_new(node_builder_struct_ptr)
     @ccall libiceoryx2_ffi_c.iox2_node_builder_new(node_builder_struct_ptr::Ptr{iox2_node_builder_t})::iox2_node_builder_h
 end
 
@@ -8724,7 +10105,7 @@ Sets the node name for the builder
 void iox2_node_builder_set_name(iox2_node_builder_h_ref node_builder_handle, iox2_node_name_ptr node_name_ptr);
 ```
 """
-function iox2_node_builder_set_name(node_builder_handle, node_name_ptr)
+@inline function iox2_node_builder_set_name(node_builder_handle, node_name_ptr)
     @ccall libiceoryx2_ffi_c.iox2_node_builder_set_name(node_builder_handle::iox2_node_builder_h_ref, node_name_ptr::iox2_node_name_ptr)::Cvoid
 end
 
@@ -8746,7 +10127,7 @@ Sets the [[`iox2_signal_handling_mode_e`](@ref)] for the [[`iox2_node_h`](@ref)]
 void iox2_node_builder_set_signal_handling_mode(iox2_node_builder_h_ref node_builder_handle, enum iox2_signal_handling_mode_e signal_handling_mode);
 ```
 """
-function iox2_node_builder_set_signal_handling_mode(node_builder_handle, signal_handling_mode)
+@inline function iox2_node_builder_set_signal_handling_mode(node_builder_handle, signal_handling_mode)
     @ccall libiceoryx2_ffi_c.iox2_node_builder_set_signal_handling_mode(node_builder_handle::iox2_node_builder_h_ref, signal_handling_mode::iox2_signal_handling_mode_e)::Cvoid
 end
 
@@ -8766,7 +10147,7 @@ Returns [`IOX2_OK`](@ref)
 void iox2_node_builder_set_config(iox2_node_builder_h_ref node_builder_handle, iox2_config_h_ref config_handle);
 ```
 """
-function iox2_node_builder_set_config(node_builder_handle, config_handle)
+@inline function iox2_node_builder_set_config(node_builder_handle, config_handle)
     @ccall libiceoryx2_ffi_c.iox2_node_builder_set_config(node_builder_handle::iox2_node_builder_h_ref, config_handle::iox2_config_h_ref)::Cvoid
 end
 
@@ -8790,134 +10171,8 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_node_creation_failure_e`](@ref)
 int iox2_node_builder_create(iox2_node_builder_h node_builder_handle, struct iox2_node_t *node_struct_ptr, enum iox2_service_type_e service_type, iox2_node_h *node_handle_ptr);
 ```
 """
-function iox2_node_builder_create(node_builder_handle, node_struct_ptr, service_type, node_handle_ptr)
+@inline function iox2_node_builder_create(node_builder_handle, node_struct_ptr, service_type, node_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_node_builder_create(node_builder_handle::iox2_node_builder_h, node_struct_ptr::Ptr{iox2_node_t}, service_type::iox2_service_type_e, node_handle_ptr::Ptr{iox2_node_h})::Cint
-end
-
-"""
-    iox2_node_id_clone_from_ptr(node_id_struct_ptr, node_id_ptr, node_id_handle_ptr)
-
-Creates a new [[`iox2_node_id_h`](@ref)] by cloning a [[`iox2_node_id_ptr`](@ref)].
-
-# Safety
-
-* `node_id_struct_ptr` - Must be either a NULL pointer or a pointer to a valid [[`iox2_node_id_t`](@ref)]. If it is a NULL pointer, the storage will be allocated on the heap. * `node_id_ptr` - Must be a valid [[`iox2_node_id_ptr`](@ref)] * `node_id_handle_ptr` - Must point to a valid [[`iox2_node_id_h`](@ref)].
-
-### Prototype
-```c
-void iox2_node_id_clone_from_ptr(struct iox2_node_id_t *node_id_struct_ptr, iox2_node_id_ptr node_id_ptr, iox2_node_id_h *node_id_handle_ptr);
-```
-"""
-function iox2_node_id_clone_from_ptr(node_id_struct_ptr, node_id_ptr, node_id_handle_ptr)
-    @ccall libiceoryx2_ffi_c.iox2_node_id_clone_from_ptr(node_id_struct_ptr::Ptr{iox2_node_id_t}, node_id_ptr::iox2_node_id_ptr, node_id_handle_ptr::Ptr{iox2_node_id_h})::Cvoid
-end
-
-"""
-    iox2_node_id_clone_from_handle(node_id_struct_ptr, node_id_handle, node_id_handle_ptr)
-
-Creates a new [[`iox2_node_id_h`](@ref)] by cloning a [[`iox2_node_id_h_ref`](@ref)].
-
-# Safety
-
-* `node_id_struct_ptr` - Must be either a NULL pointer or a pointer to a valid [[`iox2_node_id_t`](@ref)]. If it is a NULL pointer, the storage will be allocated on the heap. * `node_id_handle` - Must be a valid [[`iox2_node_id_h_ref`](@ref)] * `node_id_handle_ptr` - Must point to a valid [[`iox2_node_id_h`](@ref)].
-
-### Prototype
-```c
-void iox2_node_id_clone_from_handle(struct iox2_node_id_t *node_id_struct_ptr, iox2_node_id_h_ref node_id_handle, iox2_node_id_h *node_id_handle_ptr);
-```
-"""
-function iox2_node_id_clone_from_handle(node_id_struct_ptr, node_id_handle, node_id_handle_ptr)
-    @ccall libiceoryx2_ffi_c.iox2_node_id_clone_from_handle(node_id_struct_ptr::Ptr{iox2_node_id_t}, node_id_handle::iox2_node_id_h_ref, node_id_handle_ptr::Ptr{iox2_node_id_h})::Cvoid
-end
-
-"""
-    iox2_node_id_value_high(node_id_handle)
-
-Returns the high bits of the underlying value of the [[`iox2_node_id_h`](@ref)].
-
-# Safety
-
-* `node_id_handle` - Must be a valid [[`iox2_node_id_h_ref`](@ref)]
-
-### Prototype
-```c
-uint64_t iox2_node_id_value_high(iox2_node_id_h_ref node_id_handle);
-```
-"""
-function iox2_node_id_value_high(node_id_handle)
-    @ccall libiceoryx2_ffi_c.iox2_node_id_value_high(node_id_handle::iox2_node_id_h_ref)::UInt64
-end
-
-"""
-    iox2_node_id_value_low(node_id_handle)
-
-Returns the low bits of the underlying value of the [[`iox2_node_id_h`](@ref)].
-
-# Safety
-
-* `node_id_handle` - Must be a valid [[`iox2_node_id_h_ref`](@ref)]
-
-### Prototype
-```c
-uint64_t iox2_node_id_value_low(iox2_node_id_h_ref node_id_handle);
-```
-"""
-function iox2_node_id_value_low(node_id_handle)
-    @ccall libiceoryx2_ffi_c.iox2_node_id_value_low(node_id_handle::iox2_node_id_h_ref)::UInt64
-end
-
-"""
-    iox2_node_id_pid(node_id_handle)
-
-Returns the process id of the [[`iox2_node_id_h`](@ref)].
-
-# Safety
-
-* `node_id_handle` - Must be a valid [[`iox2_node_id_h_ref`](@ref)]
-
-### Prototype
-```c
-int32_t iox2_node_id_pid(iox2_node_id_h_ref node_id_handle);
-```
-"""
-function iox2_node_id_pid(node_id_handle)
-    @ccall libiceoryx2_ffi_c.iox2_node_id_pid(node_id_handle::iox2_node_id_h_ref)::Int32
-end
-
-"""
-    iox2_node_id_creation_time(node_id_handle, seconds, nanoseconds)
-
-Returns the creation time of the [[`iox2_node_id_h`](@ref)].
-
-# Safety
-
-* `node_id_handle` - Must be a valid [[`iox2_node_id_h_ref`](@ref)] * `seconds` - Must point to a valid memory location * `nanoseconds` - Must point to a valid memory location
-
-### Prototype
-```c
-void iox2_node_id_creation_time(iox2_node_id_h_ref node_id_handle, uint64_t *seconds, uint32_t *nanoseconds);
-```
-"""
-function iox2_node_id_creation_time(node_id_handle, seconds, nanoseconds)
-    @ccall libiceoryx2_ffi_c.iox2_node_id_creation_time(node_id_handle::iox2_node_id_h_ref, seconds::Ptr{UInt64}, nanoseconds::Ptr{UInt32})::Cvoid
-end
-
-"""
-    iox2_node_id_drop(node_id_handle)
-
-Takes ownership of the handle to delete and remove the underlying resources of a [[`iox2_node_id_h`](@ref)].
-
-# Safety
-
-* `node_id_handle` - Must be a valid [[`iox2_node_id_h`](@ref)]
-
-### Prototype
-```c
-void iox2_node_id_drop(iox2_node_id_h node_id_handle);
-```
-"""
-function iox2_node_id_drop(node_id_handle)
-    @ccall libiceoryx2_ffi_c.iox2_node_id_drop(node_id_handle::iox2_node_id_h)::Cvoid
 end
 
 """
@@ -8940,7 +10195,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_semantic_string_error_e`](@ref)
 int iox2_node_name_new(struct iox2_node_name_t *node_name_struct_ptr, const char *node_name_str, c_size_t node_name_len, iox2_node_name_h *node_name_handle_ptr);
 ```
 """
-function iox2_node_name_new(node_name_struct_ptr, node_name_str, node_name_len, node_name_handle_ptr)
+@inline function iox2_node_name_new(node_name_struct_ptr, node_name_str, node_name_len, node_name_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_node_name_new(node_name_struct_ptr::Ptr{iox2_node_name_t}, node_name_str::Cstring, node_name_len::c_size_t, node_name_handle_ptr::Ptr{iox2_node_name_h})::Cint
 end
 
@@ -8964,7 +10219,7 @@ Returns a [[`iox2_node_name_ptr`](@ref)]
 iox2_node_name_ptr iox2_cast_node_name_ptr(iox2_node_name_h node_name_handle);
 ```
 """
-function iox2_cast_node_name_ptr(node_name_handle)
+@inline function iox2_cast_node_name_ptr(node_name_handle)
     @ccall libiceoryx2_ffi_c.iox2_cast_node_name_ptr(node_name_handle::iox2_node_name_h)::iox2_node_name_ptr
 end
 
@@ -8988,7 +10243,7 @@ Returns a non-zero-terminated char array
 const char *iox2_node_name_as_chars(iox2_node_name_ptr node_name_ptr, c_size_t *node_name_len);
 ```
 """
-function iox2_node_name_as_chars(node_name_ptr, node_name_len)
+@inline function iox2_node_name_as_chars(node_name_ptr, node_name_len)
     @ccall libiceoryx2_ffi_c.iox2_node_name_as_chars(node_name_ptr::iox2_node_name_ptr, node_name_len::Ptr{c_size_t})::Cstring
 end
 
@@ -8996,8 +10251,6 @@ end
     iox2_node_name_drop(node_name_handle)
 
 This function needs to be called to destroy the node name!
-
-In general, this function is not required to call, since [[`iox2_node_builder_set_name`](@ref)](crate::[`iox2_node_builder_set_name`](@ref)) will consume the [[`iox2_node_name_h`](@ref)] handle.
 
 # Arguments
 
@@ -9012,7 +10265,7 @@ In general, this function is not required to call, since [[`iox2_node_builder_se
 void iox2_node_name_drop(iox2_node_name_h node_name_handle);
 ```
 """
-function iox2_node_name_drop(node_name_handle)
+@inline function iox2_node_name_drop(node_name_handle)
     @ccall libiceoryx2_ffi_c.iox2_node_name_drop(node_name_handle::iox2_node_name_h)::Cvoid
 end
 
@@ -9038,7 +10291,7 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_notifier_notify_error_string(enum iox2_notifier_notify_error_e error);
 ```
 """
-function iox2_notifier_notify_error_string(error)
+@inline function iox2_notifier_notify_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_notifier_notify_error_string(error::iox2_notifier_notify_error_e)::Cstring
 end
 
@@ -9056,8 +10309,30 @@ Returns the unique port id of the notifier.
 void iox2_notifier_id(iox2_notifier_h_ref notifier_handle, struct iox2_unique_notifier_id_t *id_struct_ptr, iox2_unique_notifier_id_h *id_handle_ptr);
 ```
 """
-function iox2_notifier_id(notifier_handle, id_struct_ptr, id_handle_ptr)
+@inline function iox2_notifier_id(notifier_handle, id_struct_ptr, id_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_notifier_id(notifier_handle::iox2_notifier_h_ref, id_struct_ptr::Ptr{iox2_unique_notifier_id_t}, id_handle_ptr::Ptr{iox2_unique_notifier_id_h})::Cvoid
+end
+
+"""
+    iox2_notifier_name(notifier_handle)
+
+Returns the [[`iox2_port_name_ptr`](@ref)](crate::[`iox2_port_name_ptr`](@ref)), an immutable pointer to the port name.
+
+# Arguments
+
+* `notifier_handle` must be a valid [[`iox2_notifier_h_ref`](@ref)] obtained by [[`iox2_port_factory_notifier_builder_create`](@ref)](crate::[`iox2_port_factory_notifier_builder_create`](@ref))
+
+# Safety
+
+* `notifier_handle` is valid, non-null and was obtained via [[`iox2_port_factory_notifier_builder_create`](@ref)](crate::[`iox2_port_factory_notifier_builder_create`](@ref)).
+
+### Prototype
+```c
+iox2_port_name_ptr iox2_notifier_name(iox2_notifier_h_ref notifier_handle);
+```
+"""
+@inline function iox2_notifier_name(notifier_handle)
+    @ccall libiceoryx2_ffi_c.iox2_notifier_name(notifier_handle::iox2_notifier_h_ref)::iox2_port_name_ptr
 end
 
 """
@@ -9074,7 +10349,7 @@ Returns the deadline of the notifier's service. If there is a deadline set, the 
 bool iox2_notifier_deadline(iox2_notifier_h_ref notifier_handle, uint64_t *seconds, uint32_t *nanoseconds);
 ```
 """
-function iox2_notifier_deadline(notifier_handle, seconds, nanoseconds)
+@inline function iox2_notifier_deadline(notifier_handle, seconds, nanoseconds)
     @ccall libiceoryx2_ffi_c.iox2_notifier_deadline(notifier_handle::iox2_notifier_h_ref, seconds::Ptr{UInt64}, nanoseconds::Ptr{UInt32})::Bool
 end
 
@@ -9098,7 +10373,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_notifier_notify_error_e`](@ref)
 int iox2_notifier_notify(iox2_notifier_h_ref notifier_handle, c_size_t *number_of_notified_listener_ptr);
 ```
 """
-function iox2_notifier_notify(notifier_handle, number_of_notified_listener_ptr)
+@inline function iox2_notifier_notify(notifier_handle, number_of_notified_listener_ptr)
     @ccall libiceoryx2_ffi_c.iox2_notifier_notify(notifier_handle::iox2_notifier_h_ref, number_of_notified_listener_ptr::Ptr{c_size_t})::Cint
 end
 
@@ -9122,7 +10397,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_notifier_notify_error_e`](@ref)
 int iox2_notifier_notify_with_custom_event_id(iox2_notifier_h_ref notifier_handle, const struct iox2_event_id_t *custom_event_id_ptr, c_size_t *number_of_notified_listener_ptr);
 ```
 """
-function iox2_notifier_notify_with_custom_event_id(notifier_handle, custom_event_id_ptr, number_of_notified_listener_ptr)
+@inline function iox2_notifier_notify_with_custom_event_id(notifier_handle, custom_event_id_ptr, number_of_notified_listener_ptr)
     @ccall libiceoryx2_ffi_c.iox2_notifier_notify_with_custom_event_id(notifier_handle::iox2_notifier_h_ref, custom_event_id_ptr::Ptr{iox2_event_id_t}, number_of_notified_listener_ptr::Ptr{c_size_t})::Cint
 end
 
@@ -9144,7 +10419,7 @@ This function needs to be called to destroy the notifier!
 void iox2_notifier_drop(iox2_notifier_h notifier_handle);
 ```
 """
-function iox2_notifier_drop(notifier_handle)
+@inline function iox2_notifier_drop(notifier_handle)
     @ccall libiceoryx2_ffi_c.iox2_notifier_drop(notifier_handle::iox2_notifier_h)::Cvoid
 end
 
@@ -9162,14 +10437,14 @@ Returns the unique port id of the notifier.
 void iox2_notifier_details_notifier_id(iox2_notifier_details_ptr handle, struct iox2_unique_notifier_id_t *id_struct_ptr, iox2_unique_notifier_id_h *id_handle_ptr);
 ```
 """
-function iox2_notifier_details_notifier_id(handle, id_struct_ptr, id_handle_ptr)
+@inline function iox2_notifier_details_notifier_id(handle, id_struct_ptr, id_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_notifier_details_notifier_id(handle::iox2_notifier_details_ptr, id_struct_ptr::Ptr{iox2_unique_notifier_id_t}, id_handle_ptr::Ptr{iox2_unique_notifier_id_h})::Cvoid
 end
 
 """
     iox2_notifier_details_node_id(handle)
 
-Returns the [[`iox2_node_id_ptr`](@ref)](crate::[`iox2_node_id_ptr`](@ref)), an immutable pointer to the node id.
+Returns the [[`iox2_unique_node_id_ptr`](@ref)](crate::[`iox2_unique_node_id_ptr`](@ref)), an immutable pointer to the node id.
 
 # Safety
 
@@ -9177,11 +10452,11 @@ Returns the [[`iox2_node_id_ptr`](@ref)](crate::[`iox2_node_id_ptr`](@ref)), an 
 
 ### Prototype
 ```c
-iox2_node_id_ptr iox2_notifier_details_node_id(iox2_notifier_details_ptr handle);
+iox2_unique_node_id_ptr iox2_notifier_details_node_id(iox2_notifier_details_ptr handle);
 ```
 """
-function iox2_notifier_details_node_id(handle)
-    @ccall libiceoryx2_ffi_c.iox2_notifier_details_node_id(handle::iox2_notifier_details_ptr)::iox2_node_id_ptr
+@inline function iox2_notifier_details_node_id(handle)
+    @ccall libiceoryx2_ffi_c.iox2_notifier_details_node_id(handle::iox2_notifier_details_ptr)::iox2_unique_node_id_ptr
 end
 
 """
@@ -9202,7 +10477,7 @@ Returns true if the corresponding active request is still connected and response
 bool iox2_pending_response_is_connected(iox2_pending_response_h_ref handle);
 ```
 """
-function iox2_pending_response_is_connected(handle)
+@inline function iox2_pending_response_is_connected(handle)
     @ccall libiceoryx2_ffi_c.iox2_pending_response_is_connected(handle::iox2_pending_response_h_ref)::Bool
 end
 
@@ -9224,7 +10499,7 @@ Marks the connection state that the Client wants to gracefully disconnect. When 
 void iox2_pending_response_set_disconnect_hint(iox2_pending_response_h_ref handle);
 ```
 """
-function iox2_pending_response_set_disconnect_hint(handle)
+@inline function iox2_pending_response_set_disconnect_hint(handle)
     @ccall libiceoryx2_ffi_c.iox2_pending_response_set_disconnect_hint(handle::iox2_pending_response_h_ref)::Cvoid
 end
 
@@ -9246,7 +10521,7 @@ Returns how many servers received the corresponding request initially.
 c_size_t iox2_pending_response_number_of_server_connections(iox2_pending_response_h_ref handle);
 ```
 """
-function iox2_pending_response_number_of_server_connections(handle)
+@inline function iox2_pending_response_number_of_server_connections(handle)
     @ccall libiceoryx2_ffi_c.iox2_pending_response_number_of_server_connections(handle::iox2_pending_response_h_ref)::c_size_t
 end
 
@@ -9268,7 +10543,7 @@ Returns true if there is a response in the buffer, otherwise false.
 bool iox2_pending_response_has_response(iox2_pending_response_h_ref handle);
 ```
 """
-function iox2_pending_response_has_response(handle)
+@inline function iox2_pending_response_has_response(handle)
     @ccall libiceoryx2_ffi_c.iox2_pending_response_has_response(handle::iox2_pending_response_h_ref)::Bool
 end
 
@@ -9286,7 +10561,7 @@ Acquires the requests header.
 void iox2_pending_response_header(iox2_pending_response_h_ref handle, struct iox2_request_header_t *header_struct_ptr, iox2_request_header_h *header_handle_ptr);
 ```
 """
-function iox2_pending_response_header(handle, header_struct_ptr, header_handle_ptr)
+@inline function iox2_pending_response_header(handle, header_struct_ptr, header_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_pending_response_header(handle::iox2_pending_response_h_ref, header_struct_ptr::Ptr{iox2_request_header_t}, header_handle_ptr::Ptr{iox2_request_header_h})::Cvoid
 end
 
@@ -9304,7 +10579,7 @@ Acquires the requests user header.
 void iox2_pending_response_user_header(iox2_pending_response_h_ref handle, const void **header_ptr);
 ```
 """
-function iox2_pending_response_user_header(handle, header_ptr)
+@inline function iox2_pending_response_user_header(handle, header_ptr)
     @ccall libiceoryx2_ffi_c.iox2_pending_response_user_header(handle::iox2_pending_response_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
 end
 
@@ -9322,7 +10597,7 @@ Acquires the requests payload.
 void iox2_pending_response_payload(iox2_pending_response_h_ref handle, const void **payload_ptr, c_size_t *number_of_elements);
 ```
 """
-function iox2_pending_response_payload(handle, payload_ptr, number_of_elements)
+@inline function iox2_pending_response_payload(handle, payload_ptr, number_of_elements)
     @ccall libiceoryx2_ffi_c.iox2_pending_response_payload(handle::iox2_pending_response_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
 end
 
@@ -9346,7 +10621,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_receive_error_e`](@ref)](crate:
 int iox2_pending_response_receive(iox2_pending_response_h_ref handle, struct iox2_response_t *response_struct_ptr, iox2_response_h *response_handle_ptr);
 ```
 """
-function iox2_pending_response_receive(handle, response_struct_ptr, response_handle_ptr)
+@inline function iox2_pending_response_receive(handle, response_struct_ptr, response_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_pending_response_receive(handle::iox2_pending_response_h_ref, response_struct_ptr::Ptr{iox2_response_t}, response_handle_ptr::Ptr{iox2_response_h})::Cint
 end
 
@@ -9368,8 +10643,58 @@ This function needs to be called to destroy the pending response!
 void iox2_pending_response_drop(iox2_pending_response_h handle);
 ```
 """
-function iox2_pending_response_drop(handle)
+@inline function iox2_pending_response_drop(handle)
     @ccall libiceoryx2_ffi_c.iox2_pending_response_drop(handle::iox2_pending_response_h)::Cvoid
+end
+
+"""
+    iox2_port_factory_blackboard_try_cleanup_dead_nodes(port_factory_handle, cleanup_state)
+
+Removes the stale system resources of all dead nodes connected to this service.
+
+If a node cannot be cleaned up since the process has insufficient permissions or it is currently being cleaned up by another process then the node is skipped.
+
+# Arguments
+
+* `service_type` - A [[`iox2_service_type_e`](@ref)] * `cleanup_state` - A valid pointer to a [[`iox2_cleanup_state_t`](@ref)]
+
+# Safety
+
+* The `handle` must be valid and obtained by [[`iox2_service_builder_blackboard_open`](@ref)](crate::[`iox2_service_builder_blackboard_open`](@ref)) or [[`iox2_service_builder_blackboard_create`](@ref)](crate::[`iox2_service_builder_blackboard_create`](@ref))! * The `cleanup_state` must be a valid pointer.
+
+### Prototype
+```c
+void iox2_port_factory_blackboard_try_cleanup_dead_nodes(iox2_port_factory_blackboard_h_ref port_factory_handle, struct iox2_cleanup_state_t *cleanup_state);
+```
+"""
+@inline function iox2_port_factory_blackboard_try_cleanup_dead_nodes(port_factory_handle, cleanup_state)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_try_cleanup_dead_nodes(port_factory_handle::iox2_port_factory_blackboard_h_ref, cleanup_state::Ptr{iox2_cleanup_state_t})::Cvoid
+end
+
+"""
+    iox2_port_factory_blackboard_blocking_cleanup_dead_nodes(port_factory_handle, cleanup_state, timeout_secs, timeout_nsecs)
+
+Removes the stale system resources of all dead nodes connected to this service.
+
+If a node cannot be cleaned up since the process has insufficient permissions then the node is skipped. If it is currently being cleaned up by another process then the cleaner will wait until the timeout as either passed or the cleaned was finished.
+
+The timeout is applied to every individual dead node the function needs to wait on.
+
+# Arguments
+
+* `service_type` - A [[`iox2_service_type_e`](@ref)] * `cleanup_state` - A valid pointer to a [[`iox2_cleanup_state_t`](@ref)] * `timeout_secs` - The timeout second part * `timeout_nsecs` - The timeout nanosecond part
+
+# Safety
+
+* The `handle` must be valid and obtained by [[`iox2_service_builder_blackboard_open`](@ref)](crate::[`iox2_service_builder_blackboard_open`](@ref)) or [[`iox2_service_builder_blackboard_create`](@ref)](crate::[`iox2_service_builder_blackboard_create`](@ref))! * The `cleanup_state` must be a valid pointer.
+
+### Prototype
+```c
+void iox2_port_factory_blackboard_blocking_cleanup_dead_nodes(iox2_port_factory_blackboard_h_ref port_factory_handle, struct iox2_cleanup_state_t *cleanup_state, uint64_t timeout_secs, uint32_t timeout_nsecs);
+```
+"""
+@inline function iox2_port_factory_blackboard_blocking_cleanup_dead_nodes(port_factory_handle, cleanup_state, timeout_secs, timeout_nsecs)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_blocking_cleanup_dead_nodes(port_factory_handle::iox2_port_factory_blackboard_h_ref, cleanup_state::Ptr{iox2_cleanup_state_t}, timeout_secs::UInt64, timeout_nsecs::UInt32)::Cvoid
 end
 
 """
@@ -9392,7 +10717,7 @@ Returns the [`iox2_port_factory_writer_builder_h`](@ref) handle for the writer b
 iox2_port_factory_writer_builder_h iox2_port_factory_blackboard_writer_builder(iox2_port_factory_blackboard_h_ref port_factory_handle, struct iox2_port_factory_writer_builder_t *writer_builder_struct_ptr);
 ```
 """
-function iox2_port_factory_blackboard_writer_builder(port_factory_handle, writer_builder_struct_ptr)
+@inline function iox2_port_factory_blackboard_writer_builder(port_factory_handle, writer_builder_struct_ptr)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_writer_builder(port_factory_handle::iox2_port_factory_blackboard_h_ref, writer_builder_struct_ptr::Ptr{iox2_port_factory_writer_builder_t})::iox2_port_factory_writer_builder_h
 end
 
@@ -9416,7 +10741,7 @@ Returns the [[`iox2_port_factory_reader_builder_h`](@ref)] handle for the reader
 iox2_port_factory_reader_builder_h iox2_port_factory_blackboard_reader_builder(iox2_port_factory_blackboard_h_ref port_factory_handle, struct iox2_port_factory_reader_builder_t *reader_builder_struct_ptr);
 ```
 """
-function iox2_port_factory_blackboard_reader_builder(port_factory_handle, reader_builder_struct_ptr)
+@inline function iox2_port_factory_blackboard_reader_builder(port_factory_handle, reader_builder_struct_ptr)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_reader_builder(port_factory_handle::iox2_port_factory_blackboard_h_ref, reader_builder_struct_ptr::Ptr{iox2_port_factory_reader_builder_t})::iox2_port_factory_reader_builder_h
 end
 
@@ -9434,7 +10759,7 @@ Returns the service attributes.
 iox2_attribute_set_ptr iox2_port_factory_blackboard_attributes(iox2_port_factory_blackboard_h_ref port_factory_handle);
 ```
 """
-function iox2_port_factory_blackboard_attributes(port_factory_handle)
+@inline function iox2_port_factory_blackboard_attributes(port_factory_handle)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_attributes(port_factory_handle::iox2_port_factory_blackboard_h_ref)::iox2_attribute_set_ptr
 end
 
@@ -9452,7 +10777,7 @@ Sets the values in the provided [[`iox2_static_config_blackboard_t`](@ref)] poin
 void iox2_port_factory_blackboard_static_config(iox2_port_factory_blackboard_h_ref port_factory_handle, struct iox2_static_config_blackboard_t *static_config);
 ```
 """
-function iox2_port_factory_blackboard_static_config(port_factory_handle, static_config)
+@inline function iox2_port_factory_blackboard_static_config(port_factory_handle, static_config)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_static_config(port_factory_handle::iox2_port_factory_blackboard_h_ref, static_config::Ptr{iox2_static_config_blackboard_t})::Cvoid
 end
 
@@ -9470,14 +10795,14 @@ Returns how many writer ports are currently connected.
 size_t iox2_port_factory_blackboard_dynamic_config_number_of_writers(iox2_port_factory_blackboard_h_ref handle);
 ```
 """
-function iox2_port_factory_blackboard_dynamic_config_number_of_writers(handle)
+@inline function iox2_port_factory_blackboard_dynamic_config_number_of_writers(handle)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_dynamic_config_number_of_writers(handle::iox2_port_factory_blackboard_h_ref)::Csize_t
 end
 
 """
     iox2_port_factory_blackboard_nodes(handle, callback, callback_ctx)
 
-Calls the callback repeatedly with an [[`iox2_node_state_e`](@ref)](crate::api::[`iox2_node_state_e`](@ref)), [[`iox2_node_id_ptr`](@ref)](crate::api::[`iox2_node_id_ptr`](@ref)), [´[`iox2_node_name_ptr`](@ref)´](crate::api::[`iox2_node_name_ptr`](@ref)) and [[`iox2_config_ptr`](@ref)](crate::api::[`iox2_config_ptr`](@ref)) for all [`Node`](iceoryx2::node::Node)s that have opened the service.
+Calls the callback repeatedly with an [[`iox2_node_state_e`](@ref)](crate::api::[`iox2_node_state_e`](@ref)), [[`iox2_unique_node_id_ptr`](@ref)](crate::api::[`iox2_unique_node_id_ptr`](@ref)), [´[`iox2_node_name_ptr`](@ref)´](crate::api::[`iox2_node_name_ptr`](@ref)) and [[`iox2_config_ptr`](@ref)](crate::api::[`iox2_config_ptr`](@ref)) for all [`Node`](iceoryx2::node::Node)s that have opened the service.
 
 Returns [`IOX2_OK`](@ref) on success, an [[`iox2_node_list_failure_e`](@ref)](crate::api::[`iox2_node_list_failure_e`](@ref)) otherwise.
 
@@ -9490,7 +10815,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_node_list_failure_e`](@ref)](cr
 int iox2_port_factory_blackboard_nodes(iox2_port_factory_blackboard_h_ref handle, iox2_node_list_callback callback, iox2_callback_context callback_ctx);
 ```
 """
-function iox2_port_factory_blackboard_nodes(handle, callback, callback_ctx)
+@inline function iox2_port_factory_blackboard_nodes(handle, callback, callback_ctx)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_nodes(handle::iox2_port_factory_blackboard_h_ref, callback::iox2_node_list_callback, callback_ctx::iox2_callback_context)::Cint
 end
 
@@ -9508,14 +10833,14 @@ Returns the [[`iox2_service_name_ptr`](@ref)], an immutable pointer to the servi
 iox2_service_name_ptr iox2_port_factory_blackboard_service_name(iox2_port_factory_blackboard_h_ref handle);
 ```
 """
-function iox2_port_factory_blackboard_service_name(handle)
+@inline function iox2_port_factory_blackboard_service_name(handle)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_service_name(handle::iox2_port_factory_blackboard_h_ref)::iox2_service_name_ptr
 end
 
 """
-    iox2_port_factory_blackboard_service_id(handle, buffer, buffer_len)
+    iox2_port_factory_blackboard_service_hash(handle, buffer, buffer_len)
 
-Stores the service id in the provided buffer
+Stores the service hash in the provided buffer
 
 # Safety
 
@@ -9523,11 +10848,11 @@ Stores the service id in the provided buffer
 
 ### Prototype
 ```c
-void iox2_port_factory_blackboard_service_id(iox2_port_factory_blackboard_h_ref handle, char *buffer, size_t buffer_len);
+void iox2_port_factory_blackboard_service_hash(iox2_port_factory_blackboard_h_ref handle, char *buffer, size_t buffer_len);
 ```
 """
-function iox2_port_factory_blackboard_service_id(handle, buffer, buffer_len)
-    @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_service_id(handle::iox2_port_factory_blackboard_h_ref, buffer::Cstring, buffer_len::Csize_t)::Cvoid
+@inline function iox2_port_factory_blackboard_service_hash(handle, buffer, buffer_len)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_service_hash(handle::iox2_port_factory_blackboard_h_ref, buffer::Cstring, buffer_len::Csize_t)::Cvoid
 end
 
 """
@@ -9544,14 +10869,14 @@ Returns how many reader ports are currently connected.
 size_t iox2_port_factory_blackboard_dynamic_config_number_of_readers(iox2_port_factory_blackboard_h_ref handle);
 ```
 """
-function iox2_port_factory_blackboard_dynamic_config_number_of_readers(handle)
+@inline function iox2_port_factory_blackboard_dynamic_config_number_of_readers(handle)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_dynamic_config_number_of_readers(handle::iox2_port_factory_blackboard_h_ref)::Csize_t
 end
 
 """
     iox2_port_factory_blackboard_dynamic_config_list_readers(handle, callback, callback_ctx)
 
-Calls the callback repeatedly for every connected [[`iox2_reader_h`](@ref)](crate::[`iox2_reader_h`](@ref)) and provides all communcation details with a [[`iox2_reader_details_ptr`](@ref)].
+Calls the callback repeatedly for every connected [[`iox2_reader_h`](@ref)](crate::[`iox2_reader_h`](@ref)) and provides all communication details with a [[`iox2_reader_details_ptr`](@ref)].
 
 # Safety
 
@@ -9562,14 +10887,14 @@ Calls the callback repeatedly for every connected [[`iox2_reader_h`](@ref)](crat
 void iox2_port_factory_blackboard_dynamic_config_list_readers(iox2_port_factory_blackboard_h_ref handle, iox2_list_readers_callback callback, iox2_callback_context callback_ctx);
 ```
 """
-function iox2_port_factory_blackboard_dynamic_config_list_readers(handle, callback, callback_ctx)
+@inline function iox2_port_factory_blackboard_dynamic_config_list_readers(handle, callback, callback_ctx)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_dynamic_config_list_readers(handle::iox2_port_factory_blackboard_h_ref, callback::iox2_list_readers_callback, callback_ctx::iox2_callback_context)::Cvoid
 end
 
 """
     iox2_port_factory_blackboard_dynamic_config_list_writers(handle, callback, callback_ctx)
 
-Calls the callback repeatedly for every connected [[`iox2_writer_h`](@ref)](crate::[`iox2_writer_h`](@ref)) and provides all communcation details with a [[`iox2_writer_details_ptr`](@ref)].
+Calls the callback repeatedly for every connected [[`iox2_writer_h`](@ref)](crate::[`iox2_writer_h`](@ref)) and provides all communication details with a [[`iox2_writer_details_ptr`](@ref)].
 
 # Safety
 
@@ -9580,7 +10905,7 @@ Calls the callback repeatedly for every connected [[`iox2_writer_h`](@ref)](crat
 void iox2_port_factory_blackboard_dynamic_config_list_writers(iox2_port_factory_blackboard_h_ref handle, iox2_list_writers_callback callback, iox2_callback_context callback_ctx);
 ```
 """
-function iox2_port_factory_blackboard_dynamic_config_list_writers(handle, callback, callback_ctx)
+@inline function iox2_port_factory_blackboard_dynamic_config_list_writers(handle, callback, callback_ctx)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_dynamic_config_list_writers(handle::iox2_port_factory_blackboard_h_ref, callback::iox2_list_writers_callback, callback_ctx::iox2_callback_context)::Cvoid
 end
 
@@ -9602,7 +10927,7 @@ This function needs to be called to destroy the port factory!
 void iox2_port_factory_blackboard_drop(iox2_port_factory_blackboard_h port_factory_handle);
 ```
 """
-function iox2_port_factory_blackboard_drop(port_factory_handle)
+@inline function iox2_port_factory_blackboard_drop(port_factory_handle)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_drop(port_factory_handle::iox2_port_factory_blackboard_h)::Cvoid
 end
 
@@ -9620,7 +10945,7 @@ Iterates over all keys of the blackboard and calls the provided callback with a 
 void iox2_port_factory_blackboard_list_keys(iox2_port_factory_blackboard_h_ref handle, iox2_port_factory_blackboard_list_keys_callback callback, iox2_callback_context callback_ctx);
 ```
 """
-function iox2_port_factory_blackboard_list_keys(handle, callback, callback_ctx)
+@inline function iox2_port_factory_blackboard_list_keys(handle, callback, callback_ctx)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_blackboard_list_keys(handle::iox2_port_factory_blackboard_h_ref, callback::iox2_port_factory_blackboard_list_keys_callback, callback_ctx::iox2_callback_context)::Cvoid
 end
 
@@ -9646,8 +10971,34 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_client_create_error_string(enum iox2_client_create_error_e error);
 ```
 """
-function iox2_client_create_error_string(error)
+@inline function iox2_client_create_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_client_create_error_string(error::iox2_client_create_error_e)::Cstring
+end
+
+"""
+    iox2_port_factory_client_builder_override_requests_preallocation(port_factory_handle, callback, callback_ctx)
+
+Defines a callback to reduce the number of preallocated requests. The input argument is the worst case number of preallocated requests required to guarantee that the client never runs out of requests to loan and send. The return value is clamped between `1` and the worst case number of preallocated requests.
+
+# Important
+
+If the user reduces the number of preallocated requests, iceoryx2 can no longer guarantee, that the client can always loan a request to send.
+
+# Arguments
+
+* `port_factory_handle` - Must be a valid [[`iox2_port_factory_client_builder_h_ref`](@ref)] obtained by [[`iox2_port_factory_request_response_client_builder`](@ref)](crate::[`iox2_port_factory_request_response_client_builder`](@ref)). * callback - the override callback * callback\\_ctx - a context pointer provided to the override callback as input argument
+
+# Safety
+
+* `port_factory_handle` must be a valid handle
+
+### Prototype
+```c
+void iox2_port_factory_client_builder_override_requests_preallocation(iox2_port_factory_client_builder_h_ref port_factory_handle, iox2_preallocated_requests_override callback, iox2_callback_context callback_ctx);
+```
+"""
+@inline function iox2_port_factory_client_builder_override_requests_preallocation(port_factory_handle, callback, callback_ctx)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_client_builder_override_requests_preallocation(port_factory_handle::iox2_port_factory_client_builder_h_ref, callback::iox2_preallocated_requests_override, callback_ctx::iox2_callback_context)::Cvoid
 end
 
 """
@@ -9668,8 +11019,74 @@ Sets the [[`iox2_allocation_strategy_e`](@ref)] for the client
 void iox2_port_factory_client_builder_set_allocation_strategy(iox2_port_factory_client_builder_h_ref port_factory_handle, enum iox2_allocation_strategy_e value);
 ```
 """
-function iox2_port_factory_client_builder_set_allocation_strategy(port_factory_handle, value)
+@inline function iox2_port_factory_client_builder_set_allocation_strategy(port_factory_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_client_builder_set_allocation_strategy(port_factory_handle::iox2_port_factory_client_builder_h_ref, value::iox2_allocation_strategy_e)::Cvoid
+end
+
+"""
+    iox2_port_factory_client_builder_set_request_degradation_handler(port_factory_handle, handler, ctx)
+
+Sets the request degradation handler for the client
+
+# Arguments
+
+* `port_factory_handle` - Must be a valid [[`iox2_port_factory_client_builder_h_ref`](@ref)] obtained by [[`iox2_port_factory_request_response_client_builder`](@ref)](crate::[`iox2_port_factory_request_response_client_builder`](@ref)). * `handler` is the [[`iox2_degradation_handler`](@ref)](crate::[`iox2_degradation_handler`](@ref)) * `ctx` is an user defined [[`iox2_callback_context`](@ref)](crate::[`iox2_callback_context`](@ref))
+
+# Safety
+
+* `port_factory_handle` must be a valid handle * `ctx` is stored for later use; if the client, including the send and receive functions, is accessed from multiple threads, the `ctx` must be thread-safe
+
+### Prototype
+```c
+void iox2_port_factory_client_builder_set_request_degradation_handler(iox2_port_factory_client_builder_h_ref port_factory_handle, iox2_degradation_handler handler, iox2_callback_context ctx);
+```
+"""
+@inline function iox2_port_factory_client_builder_set_request_degradation_handler(port_factory_handle, handler, ctx)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_client_builder_set_request_degradation_handler(port_factory_handle::iox2_port_factory_client_builder_h_ref, handler::iox2_degradation_handler, ctx::iox2_callback_context)::Cvoid
+end
+
+"""
+    iox2_port_factory_client_builder_set_response_degradation_handler(port_factory_handle, handler, ctx)
+
+Sets the response degradation handler for the client
+
+# Arguments
+
+* `port_factory_handle` - Must be a valid [[`iox2_port_factory_client_builder_h_ref`](@ref)] obtained by [[`iox2_port_factory_request_response_client_builder`](@ref)](crate::[`iox2_port_factory_request_response_client_builder`](@ref)). * `handler` is the [[`iox2_degradation_handler`](@ref)](crate::[`iox2_degradation_handler`](@ref)) * `ctx` is an user defined [[`iox2_callback_context`](@ref)](crate::[`iox2_callback_context`](@ref))
+
+# Safety
+
+* `port_factory_handle` must be a valid handle * `ctx` is stored for later use; if the client, including the send and receive functions, is accessed from multiple threads, the `ctx` must be thread-safe
+
+### Prototype
+```c
+void iox2_port_factory_client_builder_set_response_degradation_handler(iox2_port_factory_client_builder_h_ref port_factory_handle, iox2_degradation_handler handler, iox2_callback_context ctx);
+```
+"""
+@inline function iox2_port_factory_client_builder_set_response_degradation_handler(port_factory_handle, handler, ctx)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_client_builder_set_response_degradation_handler(port_factory_handle::iox2_port_factory_client_builder_h_ref, handler::iox2_degradation_handler, ctx::iox2_callback_context)::Cvoid
+end
+
+"""
+    iox2_port_factory_client_builder_set_backpressure_handler(port_factory_handle, handler, ctx)
+
+Sets the backpressure handler for the client to be able to execute custom code if a request cannot be delivered
+
+# Arguments
+
+* `port_factory_handle` - Must be a valid [[`iox2_port_factory_client_builder_h_ref`](@ref)] obtained by [[`iox2_port_factory_request_response_client_builder`](@ref)](crate::[`iox2_port_factory_request_response_client_builder`](@ref)). * `handler` is the [[`iox2_backpressure_handler`](@ref)](crate::[`iox2_backpressure_handler`](@ref)) * `ctx` is an user defined [[`iox2_callback_context`](@ref)](crate::[`iox2_callback_context`](@ref))
+
+# Safety
+
+* `port_factory_handle` must be valid handles * `ctx` is stored for later use; if the client, including the send function, is accessed from multiple threads, the `ctx` must be thread-safe
+
+### Prototype
+```c
+void iox2_port_factory_client_builder_set_backpressure_handler(iox2_port_factory_client_builder_h_ref port_factory_handle, iox2_backpressure_handler handler, iox2_callback_context ctx);
+```
+"""
+@inline function iox2_port_factory_client_builder_set_backpressure_handler(port_factory_handle, handler, ctx)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_client_builder_set_backpressure_handler(port_factory_handle::iox2_port_factory_client_builder_h_ref, handler::iox2_backpressure_handler, ctx::iox2_callback_context)::Cvoid
 end
 
 """
@@ -9690,18 +11107,18 @@ Sets the max slice length for the client
 void iox2_port_factory_client_builder_set_initial_max_slice_len(iox2_port_factory_client_builder_h_ref port_factory_handle, c_size_t value);
 ```
 """
-function iox2_port_factory_client_builder_set_initial_max_slice_len(port_factory_handle, value)
+@inline function iox2_port_factory_client_builder_set_initial_max_slice_len(port_factory_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_client_builder_set_initial_max_slice_len(port_factory_handle::iox2_port_factory_client_builder_h_ref, value::c_size_t)::Cvoid
 end
 
 """
-    iox2_port_factory_client_builder_unable_to_deliver_strategy(port_factory_handle, value)
+    iox2_port_factory_client_builder_backpressure_strategy(port_factory_handle, value)
 
-Sets the unable to deliver strategy for the client
+Sets the backpressure strategy for the client
 
 # Arguments
 
-* `port_factory_handle` - Must be a valid [[`iox2_port_factory_client_builder_h_ref`](@ref)] obtained by [[`iox2_port_factory_request_response_client_builder`](@ref)](crate::[`iox2_port_factory_request_response_client_builder`](@ref)). * `value` - The value to set the unable to deliver strategy to
+* `port_factory_handle` - Must be a valid [[`iox2_port_factory_client_builder_h_ref`](@ref)] obtained by [[`iox2_port_factory_request_response_client_builder`](@ref)](crate::[`iox2_port_factory_request_response_client_builder`](@ref)). * `value` - The value to set the backpressure strategy to
 
 # Safety
 
@@ -9709,11 +11126,53 @@ Sets the unable to deliver strategy for the client
 
 ### Prototype
 ```c
-void iox2_port_factory_client_builder_unable_to_deliver_strategy(iox2_port_factory_client_builder_h_ref port_factory_handle, enum iox2_unable_to_deliver_strategy_e value);
+void iox2_port_factory_client_builder_backpressure_strategy(iox2_port_factory_client_builder_h_ref port_factory_handle, enum iox2_backpressure_strategy_e value);
 ```
 """
-function iox2_port_factory_client_builder_unable_to_deliver_strategy(port_factory_handle, value)
-    @ccall libiceoryx2_ffi_c.iox2_port_factory_client_builder_unable_to_deliver_strategy(port_factory_handle::iox2_port_factory_client_builder_h_ref, value::iox2_unable_to_deliver_strategy_e)::Cvoid
+@inline function iox2_port_factory_client_builder_backpressure_strategy(port_factory_handle, value)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_client_builder_backpressure_strategy(port_factory_handle::iox2_port_factory_client_builder_h_ref, value::iox2_backpressure_strategy_e)::Cvoid
+end
+
+"""
+    iox2_port_factory_client_builder_set_max_active_requests(port_factory_handle, value)
+
+Sets the maximal active requests for the client.
+
+# Arguments
+
+* `port_factory_handle` - Must be a valid [[`iox2_port_factory_client_builder_h_ref`](@ref)] obtained by [[`iox2_port_factory_request_response_client_builder`](@ref)](crate::[`iox2_port_factory_request_response_client_builder`](@ref)). * `value` - The value to set the maximal active requests to
+
+# Safety
+
+* `port_factory_handle` must be valid
+
+### Prototype
+```c
+void iox2_port_factory_client_builder_set_max_active_requests(iox2_port_factory_client_builder_h_ref port_factory_handle, c_size_t value);
+```
+"""
+@inline function iox2_port_factory_client_builder_set_max_active_requests(port_factory_handle, value)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_client_builder_set_max_active_requests(port_factory_handle::iox2_port_factory_client_builder_h_ref, value::c_size_t)::Cvoid
+end
+
+"""
+    iox2_port_factory_client_builder_set_name(port_factory_handle, port_name_ptr)
+
+Sets the port name for the `Client`
+
+# Arguments
+
+* `port_factory_handle` - Must be a valid [[`iox2_port_factory_client_builder_h_ref`](@ref)] obtained by [[`iox2_port_factory_request_response_client_builder`](@ref)](crate::[`iox2_port_factory_request_response_client_builder`](@ref)). * `port_name_ptr` - Must be a valid [[`iox2_port_name_ptr`](@ref)], e.g. obtained by [[`iox2_port_name_new`](@ref)](crate::[`iox2_port_name_new`](@ref)) and converted by [[`iox2_cast_port_name_ptr`](@ref)](crate::[`iox2_cast_port_name_ptr`](@ref)) # Safety
+
+* `port_factory_handle` as well as `port_name_ptr` must be valid handles
+
+### Prototype
+```c
+void iox2_port_factory_client_builder_set_name(iox2_port_factory_client_builder_h_ref port_factory_handle, iox2_port_name_ptr port_name_ptr);
+```
+"""
+@inline function iox2_port_factory_client_builder_set_name(port_factory_handle, port_name_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_client_builder_set_name(port_factory_handle::iox2_port_factory_client_builder_h_ref, port_name_ptr::iox2_port_name_ptr)::Cvoid
 end
 
 """
@@ -9736,7 +11195,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_client_create_error_e`](@ref)] 
 int iox2_port_factory_client_builder_create(iox2_port_factory_client_builder_h port_factory_handle, struct iox2_client_t *struct_ptr, iox2_client_h *handle_ptr);
 ```
 """
-function iox2_port_factory_client_builder_create(port_factory_handle, struct_ptr, handle_ptr)
+@inline function iox2_port_factory_client_builder_create(port_factory_handle, struct_ptr, handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_client_builder_create(port_factory_handle::iox2_port_factory_client_builder_h, struct_ptr::Ptr{iox2_client_t}, handle_ptr::Ptr{iox2_client_h})::Cint
 end
 
@@ -9754,8 +11213,58 @@ Returns the [[`iox2_service_name_ptr`](@ref)], an immutable pointer to the servi
 iox2_service_name_ptr iox2_port_factory_event_service_name(iox2_port_factory_event_h_ref port_factory_handle);
 ```
 """
-function iox2_port_factory_event_service_name(port_factory_handle)
+@inline function iox2_port_factory_event_service_name(port_factory_handle)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_event_service_name(port_factory_handle::iox2_port_factory_event_h_ref)::iox2_service_name_ptr
+end
+
+"""
+    iox2_port_factory_event_try_cleanup_dead_nodes(port_factory_handle, cleanup_state)
+
+Removes the stale system resources of all dead nodes connected to this service.
+
+If a node cannot be cleaned up since the process has insufficient permissions or it is currently being cleaned up by another process then the node is skipped.
+
+# Arguments
+
+* `service_type` - A [[`iox2_service_type_e`](@ref)] * `cleanup_state` - A valid pointer to a [[`iox2_cleanup_state_t`](@ref)]
+
+# Safety
+
+* The `_handle` must be valid and obtained by [[`iox2_service_builder_event_open`](@ref)](crate::[`iox2_service_builder_event_open`](@ref)) or [[`iox2_service_builder_event_open_or_create`](@ref)](crate::[`iox2_service_builder_event_open_or_create`](@ref))! * The `cleanup_state` must be a valid pointer.
+
+### Prototype
+```c
+void iox2_port_factory_event_try_cleanup_dead_nodes(iox2_port_factory_event_h_ref port_factory_handle, struct iox2_cleanup_state_t *cleanup_state);
+```
+"""
+@inline function iox2_port_factory_event_try_cleanup_dead_nodes(port_factory_handle, cleanup_state)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_event_try_cleanup_dead_nodes(port_factory_handle::iox2_port_factory_event_h_ref, cleanup_state::Ptr{iox2_cleanup_state_t})::Cvoid
+end
+
+"""
+    iox2_port_factory_event_blocking_cleanup_dead_nodes(port_factory_handle, cleanup_state, timeout_secs, timeout_nsecs)
+
+Removes the stale system resources of all dead nodes connected to this service.
+
+If a node cannot be cleaned up since the process has insufficient permissions then the node is skipped. If it is currently being cleaned up by another process then the cleaner will wait until the timeout as either passed or the cleaned was finished.
+
+The timeout is applied to every individual dead node the function needs to wait on.
+
+# Arguments
+
+* `service_type` - A [[`iox2_service_type_e`](@ref)] * `cleanup_state` - A valid pointer to a [[`iox2_cleanup_state_t`](@ref)] * `timeout_secs` - The timeout second part * `timeout_nsecs` - The timeout nanosecond part
+
+# Safety
+
+* The `_handle` must be valid and obtained by [[`iox2_service_builder_event_open`](@ref)](crate::[`iox2_service_builder_event_open`](@ref)) or [[`iox2_service_builder_event_open_or_create`](@ref)](crate::[`iox2_service_builder_event_open_or_create`](@ref))! * The `cleanup_state` must be a valid pointer.
+
+### Prototype
+```c
+void iox2_port_factory_event_blocking_cleanup_dead_nodes(iox2_port_factory_event_h_ref port_factory_handle, struct iox2_cleanup_state_t *cleanup_state, uint64_t timeout_secs, uint32_t timeout_nsecs);
+```
+"""
+@inline function iox2_port_factory_event_blocking_cleanup_dead_nodes(port_factory_handle, cleanup_state, timeout_secs, timeout_nsecs)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_event_blocking_cleanup_dead_nodes(port_factory_handle::iox2_port_factory_event_h_ref, cleanup_state::Ptr{iox2_cleanup_state_t}, timeout_secs::UInt64, timeout_nsecs::UInt32)::Cvoid
 end
 
 """
@@ -9772,7 +11281,7 @@ Set the values in the provided [[`iox2_static_config_event_t`](@ref)] pointer.
 void iox2_port_factory_event_static_config(iox2_port_factory_event_h_ref port_factory_handle, struct iox2_static_config_event_t *static_config);
 ```
 """
-function iox2_port_factory_event_static_config(port_factory_handle, static_config)
+@inline function iox2_port_factory_event_static_config(port_factory_handle, static_config)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_event_static_config(port_factory_handle::iox2_port_factory_event_h_ref, static_config::Ptr{iox2_static_config_event_t})::Cvoid
 end
 
@@ -9796,7 +11305,7 @@ Returns the [`iox2_port_factory_notifier_builder_h`](@ref) handle for the notifi
 iox2_port_factory_notifier_builder_h iox2_port_factory_event_notifier_builder(iox2_port_factory_event_h_ref port_factory_handle, struct iox2_port_factory_notifier_builder_t *notifier_builder_struct_ptr);
 ```
 """
-function iox2_port_factory_event_notifier_builder(port_factory_handle, notifier_builder_struct_ptr)
+@inline function iox2_port_factory_event_notifier_builder(port_factory_handle, notifier_builder_struct_ptr)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_event_notifier_builder(port_factory_handle::iox2_port_factory_event_h_ref, notifier_builder_struct_ptr::Ptr{iox2_port_factory_notifier_builder_t})::iox2_port_factory_notifier_builder_h
 end
 
@@ -9820,14 +11329,14 @@ Returns the [[`iox2_port_factory_listener_builder_h`](@ref)] handle for the list
 iox2_port_factory_listener_builder_h iox2_port_factory_event_listener_builder(iox2_port_factory_event_h_ref port_factory_handle, struct iox2_port_factory_listener_builder_t *listener_builder_struct_ptr);
 ```
 """
-function iox2_port_factory_event_listener_builder(port_factory_handle, listener_builder_struct_ptr)
+@inline function iox2_port_factory_event_listener_builder(port_factory_handle, listener_builder_struct_ptr)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_event_listener_builder(port_factory_handle::iox2_port_factory_event_h_ref, listener_builder_struct_ptr::Ptr{iox2_port_factory_listener_builder_t})::iox2_port_factory_listener_builder_h
 end
 
 """
     iox2_port_factory_event_attributes(port_factory_handle)
 
-Returnes the services attributes.
+Returns the services attributes.
 
 # Safety
 
@@ -9838,7 +11347,7 @@ Returnes the services attributes.
 iox2_attribute_set_ptr iox2_port_factory_event_attributes(iox2_port_factory_event_h_ref port_factory_handle);
 ```
 """
-function iox2_port_factory_event_attributes(port_factory_handle)
+@inline function iox2_port_factory_event_attributes(port_factory_handle)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_event_attributes(port_factory_handle::iox2_port_factory_event_h_ref)::iox2_attribute_set_ptr
 end
 
@@ -9856,7 +11365,7 @@ Returns how many listener ports are currently connected.
 size_t iox2_port_factory_event_dynamic_config_number_of_listeners(iox2_port_factory_event_h_ref handle);
 ```
 """
-function iox2_port_factory_event_dynamic_config_number_of_listeners(handle)
+@inline function iox2_port_factory_event_dynamic_config_number_of_listeners(handle)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_event_dynamic_config_number_of_listeners(handle::iox2_port_factory_event_h_ref)::Csize_t
 end
 
@@ -9874,14 +11383,14 @@ Returns how many notifier ports are currently connected.
 size_t iox2_port_factory_event_dynamic_config_number_of_notifiers(iox2_port_factory_event_h_ref handle);
 ```
 """
-function iox2_port_factory_event_dynamic_config_number_of_notifiers(handle)
+@inline function iox2_port_factory_event_dynamic_config_number_of_notifiers(handle)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_event_dynamic_config_number_of_notifiers(handle::iox2_port_factory_event_h_ref)::Csize_t
 end
 
 """
-    iox2_port_factory_event_service_id(handle, buffer, buffer_len)
+    iox2_port_factory_event_service_hash(handle, buffer, buffer_len)
 
-Stores the service id in the provided buffer
+Stores the service hash in the provided buffer
 
 # Safety
 
@@ -9889,17 +11398,17 @@ Stores the service id in the provided buffer
 
 ### Prototype
 ```c
-void iox2_port_factory_event_service_id(iox2_port_factory_event_h_ref handle, char *buffer, size_t buffer_len);
+void iox2_port_factory_event_service_hash(iox2_port_factory_event_h_ref handle, char *buffer, size_t buffer_len);
 ```
 """
-function iox2_port_factory_event_service_id(handle, buffer, buffer_len)
-    @ccall libiceoryx2_ffi_c.iox2_port_factory_event_service_id(handle::iox2_port_factory_event_h_ref, buffer::Cstring, buffer_len::Csize_t)::Cvoid
+@inline function iox2_port_factory_event_service_hash(handle, buffer, buffer_len)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_event_service_hash(handle::iox2_port_factory_event_h_ref, buffer::Cstring, buffer_len::Csize_t)::Cvoid
 end
 
 """
     iox2_port_factory_event_nodes(handle, callback, callback_ctx)
 
-Calls the callback repeatedly with an [[`iox2_node_state_e`](@ref)](crate::api::[`iox2_node_state_e`](@ref)), [[`iox2_node_id_ptr`](@ref)](crate::api::[`iox2_node_id_ptr`](@ref)), [´[`iox2_node_name_ptr`](@ref)´](crate::api::[`iox2_node_name_ptr`](@ref)) and [[`iox2_config_ptr`](@ref)](crate::api::[`iox2_config_ptr`](@ref)) for all [`Node`](iceoryx2::node::Node)s that have opened the service.
+Calls the callback repeatedly with an [[`iox2_node_state_e`](@ref)](crate::api::[`iox2_node_state_e`](@ref)), [[`iox2_unique_node_id_ptr`](@ref)](crate::api::[`iox2_unique_node_id_ptr`](@ref)), [´[`iox2_node_name_ptr`](@ref)´](crate::api::[`iox2_node_name_ptr`](@ref)) and [[`iox2_config_ptr`](@ref)](crate::api::[`iox2_config_ptr`](@ref)) for all [`Node`](iceoryx2::node::Node)s that have opened the service.
 
 Returns [`IOX2_OK`](@ref) on success, an [[`iox2_node_list_failure_e`](@ref)](crate::api::[`iox2_node_list_failure_e`](@ref)) otherwise.
 
@@ -9912,14 +11421,14 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_node_list_failure_e`](@ref)](cr
 int iox2_port_factory_event_nodes(iox2_port_factory_event_h_ref handle, iox2_node_list_callback callback, iox2_callback_context callback_ctx);
 ```
 """
-function iox2_port_factory_event_nodes(handle, callback, callback_ctx)
+@inline function iox2_port_factory_event_nodes(handle, callback, callback_ctx)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_event_nodes(handle::iox2_port_factory_event_h_ref, callback::iox2_node_list_callback, callback_ctx::iox2_callback_context)::Cint
 end
 
 """
     iox2_port_factory_event_dynamic_config_list_listeners(handle, callback, callback_ctx)
 
-Calls the callback repeatedly for every connected [[`iox2_listener_h`](@ref)](crate::[`iox2_listener_h`](@ref)) and provides all communcation details with a [[`iox2_listener_details_ptr`](@ref)].
+Calls the callback repeatedly for every connected [[`iox2_listener_h`](@ref)](crate::[`iox2_listener_h`](@ref)) and provides all communication details with a [[`iox2_listener_details_ptr`](@ref)].
 
 # Safety
 
@@ -9930,14 +11439,14 @@ Calls the callback repeatedly for every connected [[`iox2_listener_h`](@ref)](cr
 void iox2_port_factory_event_dynamic_config_list_listeners(iox2_port_factory_event_h_ref handle, iox2_list_listeners_callback callback, iox2_callback_context callback_ctx);
 ```
 """
-function iox2_port_factory_event_dynamic_config_list_listeners(handle, callback, callback_ctx)
+@inline function iox2_port_factory_event_dynamic_config_list_listeners(handle, callback, callback_ctx)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_event_dynamic_config_list_listeners(handle::iox2_port_factory_event_h_ref, callback::iox2_list_listeners_callback, callback_ctx::iox2_callback_context)::Cvoid
 end
 
 """
     iox2_port_factory_event_dynamic_config_list_notifiers(handle, callback, callback_ctx)
 
-Calls the callback repeatedly for every connected [[`iox2_notifier_h`](@ref)](crate::[`iox2_notifier_h`](@ref)) and provides all communcation details with a [[`iox2_notifier_details_ptr`](@ref)].
+Calls the callback repeatedly for every connected [[`iox2_notifier_h`](@ref)](crate::[`iox2_notifier_h`](@ref)) and provides all communication details with a [[`iox2_notifier_details_ptr`](@ref)].
 
 # Safety
 
@@ -9948,7 +11457,7 @@ Calls the callback repeatedly for every connected [[`iox2_notifier_h`](@ref)](cr
 void iox2_port_factory_event_dynamic_config_list_notifiers(iox2_port_factory_event_h_ref handle, iox2_list_notifiers_callback callback, iox2_callback_context callback_ctx);
 ```
 """
-function iox2_port_factory_event_dynamic_config_list_notifiers(handle, callback, callback_ctx)
+@inline function iox2_port_factory_event_dynamic_config_list_notifiers(handle, callback, callback_ctx)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_event_dynamic_config_list_notifiers(handle::iox2_port_factory_event_h_ref, callback::iox2_list_notifiers_callback, callback_ctx::iox2_callback_context)::Cvoid
 end
 
@@ -9970,7 +11479,7 @@ This function needs to be called to destroy the port factory!
 void iox2_port_factory_event_drop(iox2_port_factory_event_h port_factory_handle);
 ```
 """
-function iox2_port_factory_event_drop(port_factory_handle)
+@inline function iox2_port_factory_event_drop(port_factory_handle)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_event_drop(port_factory_handle::iox2_port_factory_event_h)::Cvoid
 end
 
@@ -9996,8 +11505,28 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_listener_create_error_string(enum iox2_listener_create_error_e error);
 ```
 """
-function iox2_listener_create_error_string(error)
+@inline function iox2_listener_create_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_listener_create_error_string(error::iox2_listener_create_error_e)::Cstring
+end
+
+"""
+    iox2_port_factory_listener_builder_set_name(port_factory_handle, port_name_ptr)
+
+Sets the port name for the `Listener`
+
+# Arguments
+
+* `port_factory_handle` - Must be a valid [[`iox2_port_factory_listener_builder_h_ref`](@ref)] obtained by [[`iox2_port_factory_event_listener_builder`](@ref)](crate::[`iox2_port_factory_event_listener_builder`](@ref)). * `port_name_ptr` - Must be a valid [[`iox2_port_name_ptr`](@ref)], e.g. obtained by [[`iox2_port_name_new`](@ref)](crate::[`iox2_port_name_new`](@ref)) and converted by [[`iox2_cast_port_name_ptr`](@ref)](crate::[`iox2_cast_port_name_ptr`](@ref)) # Safety
+
+* `port_factory_handle` as well as `port_name_ptr` must be valid handles
+
+### Prototype
+```c
+void iox2_port_factory_listener_builder_set_name(iox2_port_factory_listener_builder_h_ref port_factory_handle, iox2_port_name_ptr port_name_ptr);
+```
+"""
+@inline function iox2_port_factory_listener_builder_set_name(port_factory_handle, port_name_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_listener_builder_set_name(port_factory_handle::iox2_port_factory_listener_builder_h_ref, port_name_ptr::iox2_port_name_ptr)::Cvoid
 end
 
 """
@@ -10020,7 +11549,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_listener_create_error_e`](@ref)
 int iox2_port_factory_listener_builder_create(iox2_port_factory_listener_builder_h port_factory_handle, struct iox2_listener_t *listener_struct_ptr, iox2_listener_h *listener_handle_ptr);
 ```
 """
-function iox2_port_factory_listener_builder_create(port_factory_handle, listener_struct_ptr, listener_handle_ptr)
+@inline function iox2_port_factory_listener_builder_create(port_factory_handle, listener_struct_ptr, listener_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_listener_builder_create(port_factory_handle::iox2_port_factory_listener_builder_h, listener_struct_ptr::Ptr{iox2_listener_t}, listener_handle_ptr::Ptr{iox2_listener_h})::Cint
 end
 
@@ -10046,7 +11575,7 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_notifier_create_error_string(enum iox2_notifier_create_error_e error);
 ```
 """
-function iox2_notifier_create_error_string(error)
+@inline function iox2_notifier_create_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_notifier_create_error_string(error::iox2_notifier_create_error_e)::Cstring
 end
 
@@ -10068,8 +11597,28 @@ Sets the default event id for the builder
 void iox2_port_factory_notifier_builder_set_default_event_id(iox2_port_factory_notifier_builder_h_ref port_factory_handle, const struct iox2_event_id_t *value);
 ```
 """
-function iox2_port_factory_notifier_builder_set_default_event_id(port_factory_handle, value)
+@inline function iox2_port_factory_notifier_builder_set_default_event_id(port_factory_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_notifier_builder_set_default_event_id(port_factory_handle::iox2_port_factory_notifier_builder_h_ref, value::Ptr{iox2_event_id_t})::Cvoid
+end
+
+"""
+    iox2_port_factory_notifier_builder_set_name(port_factory_handle, port_name_ptr)
+
+Sets the port name for the `Notifier`
+
+# Arguments
+
+* `port_factory_handle` - Must be a valid [[`iox2_port_factory_notifier_builder_h_ref`](@ref)] obtained by [[`iox2_port_factory_event_notifier_builder`](@ref)](crate::[`iox2_port_factory_event_notifier_builder`](@ref)). * `port_name_ptr` - Must be a valid [[`iox2_port_name_ptr`](@ref)], e.g. obtained by [[`iox2_port_name_new`](@ref)](crate::[`iox2_port_name_new`](@ref)) and converted by [[`iox2_cast_port_name_ptr`](@ref)](crate::[`iox2_cast_port_name_ptr`](@ref)) # Safety
+
+* `port_factory_handle` as well as `port_name_ptr` must be valid handles
+
+### Prototype
+```c
+void iox2_port_factory_notifier_builder_set_name(iox2_port_factory_notifier_builder_h_ref port_factory_handle, iox2_port_name_ptr port_name_ptr);
+```
+"""
+@inline function iox2_port_factory_notifier_builder_set_name(port_factory_handle, port_name_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_notifier_builder_set_name(port_factory_handle::iox2_port_factory_notifier_builder_h_ref, port_name_ptr::iox2_port_name_ptr)::Cvoid
 end
 
 """
@@ -10092,8 +11641,260 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_notifier_create_error_e`](@ref)
 int iox2_port_factory_notifier_builder_create(iox2_port_factory_notifier_builder_h port_factory_handle, struct iox2_notifier_t *notifier_struct_ptr, iox2_notifier_h *notifier_handle_ptr);
 ```
 """
-function iox2_port_factory_notifier_builder_create(port_factory_handle, notifier_struct_ptr, notifier_handle_ptr)
+@inline function iox2_port_factory_notifier_builder_create(port_factory_handle, notifier_struct_ptr, notifier_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_notifier_builder_create(port_factory_handle::iox2_port_factory_notifier_builder_h, notifier_struct_ptr::Ptr{iox2_notifier_t}, notifier_handle_ptr::Ptr{iox2_notifier_h})::Cint
+end
+
+"""
+    iox2_port_factory_progressive_pub_sub_publisher_builder(factory_handle, builder_struct_ptr)
+
+Creates a builder for the single progressive publisher.
+
+# Safety
+
+`factory_handle` must be valid. `builder_struct_ptr` must be null or point to uninitialized storage that is large and aligned enough for the declared C type. The factory must outlive the returned builder and the publisher created from it.
+
+### Prototype
+```c
+iox2_port_factory_progressive_publisher_builder_h iox2_port_factory_progressive_pub_sub_publisher_builder(iox2_port_factory_progressive_pub_sub_h_ref factory_handle, struct iox2_port_factory_progressive_publisher_builder_t *builder_struct_ptr);
+```
+"""
+@inline function iox2_port_factory_progressive_pub_sub_publisher_builder(factory_handle, builder_struct_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_progressive_pub_sub_publisher_builder(factory_handle::iox2_port_factory_progressive_pub_sub_h_ref, builder_struct_ptr::Ptr{iox2_port_factory_progressive_publisher_builder_t})::iox2_port_factory_progressive_publisher_builder_h
+end
+
+"""
+    iox2_port_factory_progressive_pub_sub_subscriber_builder(factory_handle, builder_struct_ptr)
+
+Creates a builder for a progressive subscriber.
+
+# Safety
+
+`factory_handle` must be valid. `builder_struct_ptr` must be null or point to uninitialized storage that is large and aligned enough for the declared C type. The factory must outlive the returned builder and the subscriber created from it.
+
+### Prototype
+```c
+iox2_port_factory_progressive_subscriber_builder_h iox2_port_factory_progressive_pub_sub_subscriber_builder(iox2_port_factory_progressive_pub_sub_h_ref factory_handle, struct iox2_port_factory_progressive_subscriber_builder_t *builder_struct_ptr);
+```
+"""
+@inline function iox2_port_factory_progressive_pub_sub_subscriber_builder(factory_handle, builder_struct_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_progressive_pub_sub_subscriber_builder(factory_handle::iox2_port_factory_progressive_pub_sub_h_ref, builder_struct_ptr::Ptr{iox2_port_factory_progressive_subscriber_builder_t})::iox2_port_factory_progressive_subscriber_builder_h
+end
+
+"""
+    iox2_port_factory_progressive_publisher_builder_set_initial_max_slice_len(builder_handle, value)
+
+Sets the initial maximum progressive payload capacity in bytes.
+
+# Safety
+
+`builder_handle` must be a valid non-owning progressive publisher-builder handle.
+
+### Prototype
+```c
+void iox2_port_factory_progressive_publisher_builder_set_initial_max_slice_len(iox2_port_factory_progressive_publisher_builder_h_ref builder_handle, c_size_t value);
+```
+"""
+@inline function iox2_port_factory_progressive_publisher_builder_set_initial_max_slice_len(builder_handle, value)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_progressive_publisher_builder_set_initial_max_slice_len(builder_handle::iox2_port_factory_progressive_publisher_builder_h_ref, value::c_size_t)::Cvoid
+end
+
+"""
+    iox2_port_factory_progressive_publisher_builder_set_max_loaned_samples(builder_handle, value)
+
+Sets the maximum number of simultaneously loaned progressive samples.
+
+# Safety
+
+`builder_handle` must be a valid non-owning progressive publisher-builder handle.
+
+### Prototype
+```c
+void iox2_port_factory_progressive_publisher_builder_set_max_loaned_samples(iox2_port_factory_progressive_publisher_builder_h_ref builder_handle, c_size_t value);
+```
+"""
+@inline function iox2_port_factory_progressive_publisher_builder_set_max_loaned_samples(builder_handle, value)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_progressive_publisher_builder_set_max_loaned_samples(builder_handle::iox2_port_factory_progressive_publisher_builder_h_ref, value::c_size_t)::Cvoid
+end
+
+"""
+    iox2_port_factory_progressive_publisher_builder_set_allocation_strategy(builder_handle, value)
+
+Selects the progressive publisher's allocation strategy.
+
+# Safety
+
+`builder_handle` must be valid and `value` must be a valid C enum value.
+
+### Prototype
+```c
+void iox2_port_factory_progressive_publisher_builder_set_allocation_strategy(iox2_port_factory_progressive_publisher_builder_h_ref builder_handle, enum iox2_allocation_strategy_e value);
+```
+"""
+@inline function iox2_port_factory_progressive_publisher_builder_set_allocation_strategy(builder_handle, value)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_progressive_publisher_builder_set_allocation_strategy(builder_handle::iox2_port_factory_progressive_publisher_builder_h_ref, value::iox2_allocation_strategy_e)::Cvoid
+end
+
+"""
+    iox2_port_factory_progressive_publisher_builder_set_backpressure_strategy(builder_handle, value)
+
+Selects the backpressure strategy used only while sending a new frame.
+
+# Safety
+
+`builder_handle` must be valid and `value` must be a valid C enum value.
+
+### Prototype
+```c
+void iox2_port_factory_progressive_publisher_builder_set_backpressure_strategy(iox2_port_factory_progressive_publisher_builder_h_ref builder_handle, enum iox2_backpressure_strategy_e value);
+```
+"""
+@inline function iox2_port_factory_progressive_publisher_builder_set_backpressure_strategy(builder_handle, value)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_progressive_publisher_builder_set_backpressure_strategy(builder_handle::iox2_port_factory_progressive_publisher_builder_h_ref, value::iox2_backpressure_strategy_e)::Cvoid
+end
+
+"""
+    iox2_port_factory_progressive_publisher_builder_set_backpressure_handler(builder_handle, handler, ctx)
+
+Installs the callback invoked when a new progressive sample cannot be delivered.
+
+# Safety
+
+`builder_handle` and `handler` must be valid. `ctx` is retained by the publisher; it must remain valid for every callback invocation and be safe to access under the publisher's threading policy.
+
+### Prototype
+```c
+void iox2_port_factory_progressive_publisher_builder_set_backpressure_handler(iox2_port_factory_progressive_publisher_builder_h_ref builder_handle, iox2_backpressure_handler handler, iox2_callback_context ctx);
+```
+"""
+@inline function iox2_port_factory_progressive_publisher_builder_set_backpressure_handler(builder_handle, handler, ctx)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_progressive_publisher_builder_set_backpressure_handler(builder_handle::iox2_port_factory_progressive_publisher_builder_h_ref, handler::iox2_backpressure_handler, ctx::iox2_callback_context)::Cvoid
+end
+
+"""
+    iox2_port_factory_progressive_publisher_builder_override_samples_preallocation(builder_handle, callback, callback_ctx)
+
+Overrides the number of samples preallocated by the progressive publisher.
+
+# Safety
+
+`builder_handle` and `callback` must be valid. `callback_ctx` must remain valid for every callback invocation and be safe to access under the publisher's threading policy.
+
+### Prototype
+```c
+void iox2_port_factory_progressive_publisher_builder_override_samples_preallocation(iox2_port_factory_progressive_publisher_builder_h_ref builder_handle, iox2_preallocated_samples_override callback, iox2_callback_context callback_ctx);
+```
+"""
+@inline function iox2_port_factory_progressive_publisher_builder_override_samples_preallocation(builder_handle, callback, callback_ctx)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_progressive_publisher_builder_override_samples_preallocation(builder_handle::iox2_port_factory_progressive_publisher_builder_h_ref, callback::iox2_preallocated_samples_override, callback_ctx::iox2_callback_context)::Cvoid
+end
+
+"""
+    iox2_port_factory_progressive_publisher_builder_set_name(builder_handle, port_name_ptr)
+
+Sets the progressive publisher port name.
+
+# Safety
+
+`builder_handle` and `port_name_ptr` must be valid for the duration of this call.
+
+### Prototype
+```c
+void iox2_port_factory_progressive_publisher_builder_set_name(iox2_port_factory_progressive_publisher_builder_h_ref builder_handle, iox2_port_name_ptr port_name_ptr);
+```
+"""
+@inline function iox2_port_factory_progressive_publisher_builder_set_name(builder_handle, port_name_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_progressive_publisher_builder_set_name(builder_handle::iox2_port_factory_progressive_publisher_builder_h_ref, port_name_ptr::iox2_port_name_ptr)::Cvoid
+end
+
+"""
+    iox2_port_factory_progressive_publisher_builder_create(builder_handle, publisher_struct_ptr, publisher_handle_ptr)
+
+Creates the progressive publisher and consumes its builder.
+
+# Safety
+
+`builder_handle` must be a valid owning handle and is consumed. `publisher_handle_ptr` must be writable. `publisher_struct_ptr` must be null or point to uninitialized storage.
+
+### Prototype
+```c
+int iox2_port_factory_progressive_publisher_builder_create(iox2_port_factory_progressive_publisher_builder_h builder_handle, struct iox2_progressive_publisher_t *publisher_struct_ptr, iox2_progressive_publisher_h *publisher_handle_ptr);
+```
+"""
+@inline function iox2_port_factory_progressive_publisher_builder_create(builder_handle, publisher_struct_ptr, publisher_handle_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_progressive_publisher_builder_create(builder_handle::iox2_port_factory_progressive_publisher_builder_h, publisher_struct_ptr::Ptr{iox2_progressive_publisher_t}, publisher_handle_ptr::Ptr{iox2_progressive_publisher_h})::Cint
+end
+
+"""
+    iox2_port_factory_progressive_subscriber_builder_set_buffer_size(builder_handle, value)
+
+Sets the progressive subscriber queue capacity.
+
+# Safety
+
+`builder_handle` must be a valid non-owning progressive subscriber-builder handle.
+
+### Prototype
+```c
+void iox2_port_factory_progressive_subscriber_builder_set_buffer_size(iox2_port_factory_progressive_subscriber_builder_h_ref builder_handle, c_size_t value);
+```
+"""
+@inline function iox2_port_factory_progressive_subscriber_builder_set_buffer_size(builder_handle, value)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_progressive_subscriber_builder_set_buffer_size(builder_handle::iox2_port_factory_progressive_subscriber_builder_h_ref, value::c_size_t)::Cvoid
+end
+
+"""
+    iox2_port_factory_progressive_subscriber_builder_set_name(builder_handle, port_name_ptr)
+
+Sets the progressive subscriber port name.
+
+# Safety
+
+`builder_handle` and `port_name_ptr` must be valid for the duration of this call.
+
+### Prototype
+```c
+void iox2_port_factory_progressive_subscriber_builder_set_name(iox2_port_factory_progressive_subscriber_builder_h_ref builder_handle, iox2_port_name_ptr port_name_ptr);
+```
+"""
+@inline function iox2_port_factory_progressive_subscriber_builder_set_name(builder_handle, port_name_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_progressive_subscriber_builder_set_name(builder_handle::iox2_port_factory_progressive_subscriber_builder_h_ref, port_name_ptr::iox2_port_name_ptr)::Cvoid
+end
+
+"""
+    iox2_port_factory_progressive_subscriber_builder_create(builder_handle, subscriber_struct_ptr, subscriber_handle_ptr)
+
+Creates a progressive subscriber and consumes its builder.
+
+# Safety
+
+`builder_handle` must be a valid owning handle and is consumed. `subscriber_handle_ptr` must be writable. `subscriber_struct_ptr` must be null or point to uninitialized storage.
+
+### Prototype
+```c
+int iox2_port_factory_progressive_subscriber_builder_create(iox2_port_factory_progressive_subscriber_builder_h builder_handle, struct iox2_progressive_subscriber_t *subscriber_struct_ptr, iox2_progressive_subscriber_h *subscriber_handle_ptr);
+```
+"""
+@inline function iox2_port_factory_progressive_subscriber_builder_create(builder_handle, subscriber_struct_ptr, subscriber_handle_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_progressive_subscriber_builder_create(builder_handle::iox2_port_factory_progressive_subscriber_builder_h, subscriber_struct_ptr::Ptr{iox2_progressive_subscriber_t}, subscriber_handle_ptr::Ptr{iox2_progressive_subscriber_h})::Cint
+end
+
+"""
+    iox2_port_factory_progressive_pub_sub_drop(factory_handle)
+
+Drops a progressive port factory.
+
+# Safety
+
+`factory_handle` must be a valid owning handle and becomes invalid after this call.
+
+### Prototype
+```c
+void iox2_port_factory_progressive_pub_sub_drop(iox2_port_factory_progressive_pub_sub_h factory_handle);
+```
+"""
+@inline function iox2_port_factory_progressive_pub_sub_drop(factory_handle)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_progressive_pub_sub_drop(factory_handle::iox2_port_factory_progressive_pub_sub_h)::Cvoid
 end
 
 """
@@ -10116,7 +11917,7 @@ Returns the [`iox2_port_factory_publisher_builder_h`](@ref) handle for the publi
 iox2_port_factory_publisher_builder_h iox2_port_factory_pub_sub_publisher_builder(iox2_port_factory_pub_sub_h_ref port_factory_handle, struct iox2_port_factory_publisher_builder_t *publisher_builder_struct_ptr);
 ```
 """
-function iox2_port_factory_pub_sub_publisher_builder(port_factory_handle, publisher_builder_struct_ptr)
+@inline function iox2_port_factory_pub_sub_publisher_builder(port_factory_handle, publisher_builder_struct_ptr)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_publisher_builder(port_factory_handle::iox2_port_factory_pub_sub_h_ref, publisher_builder_struct_ptr::Ptr{iox2_port_factory_publisher_builder_t})::iox2_port_factory_publisher_builder_h
 end
 
@@ -10140,14 +11941,14 @@ Returns the [[`iox2_port_factory_subscriber_builder_h`](@ref)] handle for the su
 iox2_port_factory_subscriber_builder_h iox2_port_factory_pub_sub_subscriber_builder(iox2_port_factory_pub_sub_h_ref port_factory_handle, struct iox2_port_factory_subscriber_builder_t *subscriber_builder_struct_ptr);
 ```
 """
-function iox2_port_factory_pub_sub_subscriber_builder(port_factory_handle, subscriber_builder_struct_ptr)
+@inline function iox2_port_factory_pub_sub_subscriber_builder(port_factory_handle, subscriber_builder_struct_ptr)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_subscriber_builder(port_factory_handle::iox2_port_factory_pub_sub_h_ref, subscriber_builder_struct_ptr::Ptr{iox2_port_factory_subscriber_builder_t})::iox2_port_factory_subscriber_builder_h
 end
 
 """
     iox2_port_factory_pub_sub_attributes(port_factory_handle)
 
-Returnes the services attributes.
+Returns the services attributes.
 
 # Safety
 
@@ -10158,8 +11959,58 @@ Returnes the services attributes.
 iox2_attribute_set_ptr iox2_port_factory_pub_sub_attributes(iox2_port_factory_pub_sub_h_ref port_factory_handle);
 ```
 """
-function iox2_port_factory_pub_sub_attributes(port_factory_handle)
+@inline function iox2_port_factory_pub_sub_attributes(port_factory_handle)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_attributes(port_factory_handle::iox2_port_factory_pub_sub_h_ref)::iox2_attribute_set_ptr
+end
+
+"""
+    iox2_port_factory_pub_sub_try_cleanup_dead_nodes(port_factory_handle, cleanup_state)
+
+Removes the stale system resources of all dead nodes connected to this service.
+
+If a node cannot be cleaned up since the process has insufficient permissions or it is currently being cleaned up by another process then the node is skipped.
+
+# Arguments
+
+* `service_type` - A [[`iox2_service_type_e`](@ref)] * `cleanup_state` - A valid pointer to a [[`iox2_cleanup_state_t`](@ref)]
+
+# Safety
+
+* The `handle` must be valid and obtained by [[`iox2_service_builder_pub_sub_open`](@ref)](crate::[`iox2_service_builder_pub_sub_open`](@ref)) or [[`iox2_service_builder_pub_sub_open_or_create`](@ref)](crate::[`iox2_service_builder_pub_sub_open_or_create`](@ref))! * The `cleanup_state` must be a valid pointer.
+
+### Prototype
+```c
+void iox2_port_factory_pub_sub_try_cleanup_dead_nodes(iox2_port_factory_pub_sub_h_ref port_factory_handle, struct iox2_cleanup_state_t *cleanup_state);
+```
+"""
+@inline function iox2_port_factory_pub_sub_try_cleanup_dead_nodes(port_factory_handle, cleanup_state)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_try_cleanup_dead_nodes(port_factory_handle::iox2_port_factory_pub_sub_h_ref, cleanup_state::Ptr{iox2_cleanup_state_t})::Cvoid
+end
+
+"""
+    iox2_port_factory_pub_sub_blocking_cleanup_dead_nodes(port_factory_handle, cleanup_state, timeout_secs, timeout_nsecs)
+
+Removes the stale system resources of all dead nodes connected to this service.
+
+If a node cannot be cleaned up since the process has insufficient permissions then the node is skipped. If it is currently being cleaned up by another process then the cleaner will wait until the timeout as either passed or the cleaned was finished.
+
+The timeout is applied to every individual dead node the function needs to wait on.
+
+# Arguments
+
+* `service_type` - A [[`iox2_service_type_e`](@ref)] * `cleanup_state` - A valid pointer to a [[`iox2_cleanup_state_t`](@ref)] * `timeout_secs` - The timeout second part * `timeout_nsecs` - The timeout nanosecond part
+
+# Safety
+
+* The `handle` must be valid and obtained by [[`iox2_service_builder_pub_sub_open`](@ref)](crate::[`iox2_service_builder_pub_sub_open`](@ref)) or [[`iox2_service_builder_pub_sub_open_or_create`](@ref)](crate::[`iox2_service_builder_pub_sub_open_or_create`](@ref))! * The `cleanup_state` must be a valid pointer.
+
+### Prototype
+```c
+void iox2_port_factory_pub_sub_blocking_cleanup_dead_nodes(iox2_port_factory_pub_sub_h_ref port_factory_handle, struct iox2_cleanup_state_t *cleanup_state, uint64_t timeout_secs, uint32_t timeout_nsecs);
+```
+"""
+@inline function iox2_port_factory_pub_sub_blocking_cleanup_dead_nodes(port_factory_handle, cleanup_state, timeout_secs, timeout_nsecs)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_blocking_cleanup_dead_nodes(port_factory_handle::iox2_port_factory_pub_sub_h_ref, cleanup_state::Ptr{iox2_cleanup_state_t}, timeout_secs::UInt64, timeout_nsecs::UInt32)::Cvoid
 end
 
 """
@@ -10176,7 +12027,7 @@ Set the values in the provided [[`iox2_static_config_publish_subscribe_t`](@ref)
 void iox2_port_factory_pub_sub_static_config(iox2_port_factory_pub_sub_h_ref port_factory_handle, struct iox2_static_config_publish_subscribe_t *static_config);
 ```
 """
-function iox2_port_factory_pub_sub_static_config(port_factory_handle, static_config)
+@inline function iox2_port_factory_pub_sub_static_config(port_factory_handle, static_config)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_static_config(port_factory_handle::iox2_port_factory_pub_sub_h_ref, static_config::Ptr{iox2_static_config_publish_subscribe_t})::Cvoid
 end
 
@@ -10194,14 +12045,14 @@ Returns how many publisher ports are currently connected.
 size_t iox2_port_factory_pub_sub_dynamic_config_number_of_publishers(iox2_port_factory_pub_sub_h_ref handle);
 ```
 """
-function iox2_port_factory_pub_sub_dynamic_config_number_of_publishers(handle)
+@inline function iox2_port_factory_pub_sub_dynamic_config_number_of_publishers(handle)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_dynamic_config_number_of_publishers(handle::iox2_port_factory_pub_sub_h_ref)::Csize_t
 end
 
 """
     iox2_port_factory_pub_sub_nodes(handle, callback, callback_ctx)
 
-Calls the callback repeatedly with an [[`iox2_node_state_e`](@ref)](crate::api::[`iox2_node_state_e`](@ref)), [[`iox2_node_id_ptr`](@ref)](crate::api::[`iox2_node_id_ptr`](@ref)), [´[`iox2_node_name_ptr`](@ref)´](crate::api::[`iox2_node_name_ptr`](@ref)) and [[`iox2_config_ptr`](@ref)](crate::api::[`iox2_config_ptr`](@ref)) for all [`Node`](iceoryx2::node::Node)s that have opened the service.
+Calls the callback repeatedly with an [[`iox2_node_state_e`](@ref)](crate::api::[`iox2_node_state_e`](@ref)), [[`iox2_unique_node_id_ptr`](@ref)](crate::api::[`iox2_unique_node_id_ptr`](@ref)), [´[`iox2_node_name_ptr`](@ref)´](crate::api::[`iox2_node_name_ptr`](@ref)) and [[`iox2_config_ptr`](@ref)](crate::api::[`iox2_config_ptr`](@ref)) for all [`Node`](iceoryx2::node::Node)s that have opened the service.
 
 Returns [`IOX2_OK`](@ref) on success, an [[`iox2_node_list_failure_e`](@ref)](crate::api::[`iox2_node_list_failure_e`](@ref)) otherwise.
 
@@ -10214,7 +12065,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_node_list_failure_e`](@ref)](cr
 int iox2_port_factory_pub_sub_nodes(iox2_port_factory_pub_sub_h_ref handle, iox2_node_list_callback callback, iox2_callback_context callback_ctx);
 ```
 """
-function iox2_port_factory_pub_sub_nodes(handle, callback, callback_ctx)
+@inline function iox2_port_factory_pub_sub_nodes(handle, callback, callback_ctx)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_nodes(handle::iox2_port_factory_pub_sub_h_ref, callback::iox2_node_list_callback, callback_ctx::iox2_callback_context)::Cint
 end
 
@@ -10232,14 +12083,14 @@ Returns the [[`iox2_service_name_ptr`](@ref)], an immutable pointer to the servi
 iox2_service_name_ptr iox2_port_factory_pub_sub_service_name(iox2_port_factory_pub_sub_h_ref handle);
 ```
 """
-function iox2_port_factory_pub_sub_service_name(handle)
+@inline function iox2_port_factory_pub_sub_service_name(handle)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_service_name(handle::iox2_port_factory_pub_sub_h_ref)::iox2_service_name_ptr
 end
 
 """
-    iox2_port_factory_pub_sub_service_id(handle, buffer, buffer_len)
+    iox2_port_factory_pub_sub_service_hash(handle, buffer, buffer_len)
 
-Stores the service id in the provided buffer
+Stores the service hash in the provided buffer
 
 # Safety
 
@@ -10247,11 +12098,11 @@ Stores the service id in the provided buffer
 
 ### Prototype
 ```c
-void iox2_port_factory_pub_sub_service_id(iox2_port_factory_pub_sub_h_ref handle, char *buffer, size_t buffer_len);
+void iox2_port_factory_pub_sub_service_hash(iox2_port_factory_pub_sub_h_ref handle, char *buffer, size_t buffer_len);
 ```
 """
-function iox2_port_factory_pub_sub_service_id(handle, buffer, buffer_len)
-    @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_service_id(handle::iox2_port_factory_pub_sub_h_ref, buffer::Cstring, buffer_len::Csize_t)::Cvoid
+@inline function iox2_port_factory_pub_sub_service_hash(handle, buffer, buffer_len)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_service_hash(handle::iox2_port_factory_pub_sub_h_ref, buffer::Cstring, buffer_len::Csize_t)::Cvoid
 end
 
 """
@@ -10268,14 +12119,14 @@ Returns how many subscriber ports are currently connected.
 size_t iox2_port_factory_pub_sub_dynamic_config_number_of_subscribers(iox2_port_factory_pub_sub_h_ref handle);
 ```
 """
-function iox2_port_factory_pub_sub_dynamic_config_number_of_subscribers(handle)
+@inline function iox2_port_factory_pub_sub_dynamic_config_number_of_subscribers(handle)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_dynamic_config_number_of_subscribers(handle::iox2_port_factory_pub_sub_h_ref)::Csize_t
 end
 
 """
     iox2_port_factory_pub_sub_dynamic_config_list_subscribers(handle, callback, callback_ctx)
 
-Calls the callback repeatedly for every connected [[`iox2_subscriber_h`](@ref)](crate::[`iox2_subscriber_h`](@ref)) and provides all communcation details with a [[`iox2_subscriber_details_ptr`](@ref)].
+Calls the callback repeatedly for every connected [[`iox2_subscriber_h`](@ref)](crate::[`iox2_subscriber_h`](@ref)) and provides all communication details with a [[`iox2_subscriber_details_ptr`](@ref)].
 
 # Safety
 
@@ -10286,14 +12137,14 @@ Calls the callback repeatedly for every connected [[`iox2_subscriber_h`](@ref)](
 void iox2_port_factory_pub_sub_dynamic_config_list_subscribers(iox2_port_factory_pub_sub_h_ref handle, iox2_list_subscribers_callback callback, iox2_callback_context callback_ctx);
 ```
 """
-function iox2_port_factory_pub_sub_dynamic_config_list_subscribers(handle, callback, callback_ctx)
+@inline function iox2_port_factory_pub_sub_dynamic_config_list_subscribers(handle, callback, callback_ctx)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_dynamic_config_list_subscribers(handle::iox2_port_factory_pub_sub_h_ref, callback::iox2_list_subscribers_callback, callback_ctx::iox2_callback_context)::Cvoid
 end
 
 """
     iox2_port_factory_pub_sub_dynamic_config_list_publishers(handle, callback, callback_ctx)
 
-Calls the callback repeatedly for every connected [[`iox2_publisher_h`](@ref)](crate::[`iox2_publisher_h`](@ref)) and provides all communcation details with a [[`iox2_publisher_details_ptr`](@ref)].
+Calls the callback repeatedly for every connected [[`iox2_publisher_h`](@ref)](crate::[`iox2_publisher_h`](@ref)) and provides all communication details with a [[`iox2_publisher_details_ptr`](@ref)].
 
 # Safety
 
@@ -10304,7 +12155,7 @@ Calls the callback repeatedly for every connected [[`iox2_publisher_h`](@ref)](c
 void iox2_port_factory_pub_sub_dynamic_config_list_publishers(iox2_port_factory_pub_sub_h_ref handle, iox2_list_publishers_callback callback, iox2_callback_context callback_ctx);
 ```
 """
-function iox2_port_factory_pub_sub_dynamic_config_list_publishers(handle, callback, callback_ctx)
+@inline function iox2_port_factory_pub_sub_dynamic_config_list_publishers(handle, callback, callback_ctx)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_dynamic_config_list_publishers(handle::iox2_port_factory_pub_sub_h_ref, callback::iox2_list_publishers_callback, callback_ctx::iox2_callback_context)::Cvoid
 end
 
@@ -10326,7 +12177,7 @@ This function needs to be called to destroy the port factory!
 void iox2_port_factory_pub_sub_drop(iox2_port_factory_pub_sub_h port_factory_handle);
 ```
 """
-function iox2_port_factory_pub_sub_drop(port_factory_handle)
+@inline function iox2_port_factory_pub_sub_drop(port_factory_handle)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_pub_sub_drop(port_factory_handle::iox2_port_factory_pub_sub_h)::Cvoid
 end
 
@@ -10352,8 +12203,34 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_publisher_create_error_string(enum iox2_publisher_create_error_e error);
 ```
 """
-function iox2_publisher_create_error_string(error)
+@inline function iox2_publisher_create_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_publisher_create_error_string(error::iox2_publisher_create_error_e)::Cstring
+end
+
+"""
+    iox2_port_factory_publisher_builder_override_samples_preallocation(port_factory_handle, callback, callback_ctx)
+
+Defines a callback to reduce the number of preallocated samples. The input argument is the worst case number of preallocated samples required to guarantee that the publisher never runs out of samples to loan and send. The return value is clamped between `1` and the worst case number of preallocated samples.
+
+# Important
+
+If the user reduces the number of preallocated samples, iceoryx2 can no longer guarantee, that the publisher can always loan a sample to send.
+
+# Arguments
+
+* `port_factory_handle` - Must be a valid [[`iox2_port_factory_publisher_builder_h_ref`](@ref)] obtained by [[`iox2_port_factory_pub_sub_publisher_builder`](@ref)](crate::[`iox2_port_factory_pub_sub_publisher_builder`](@ref)). * callback - the override callback * callback\\_ctx - a context pointer provided to the override callback as input argument
+
+# Safety
+
+* `port_factory_handle` must be a valid handle
+
+### Prototype
+```c
+void iox2_port_factory_publisher_builder_override_samples_preallocation(iox2_port_factory_publisher_builder_h_ref port_factory_handle, iox2_preallocated_samples_override callback, iox2_callback_context callback_ctx);
+```
+"""
+@inline function iox2_port_factory_publisher_builder_override_samples_preallocation(port_factory_handle, callback, callback_ctx)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_publisher_builder_override_samples_preallocation(port_factory_handle::iox2_port_factory_publisher_builder_h_ref, callback::iox2_preallocated_samples_override, callback_ctx::iox2_callback_context)::Cvoid
 end
 
 """
@@ -10374,8 +12251,52 @@ Sets the [[`iox2_allocation_strategy_e`](@ref)] for the publisher
 void iox2_port_factory_publisher_builder_set_allocation_strategy(iox2_port_factory_publisher_builder_h_ref port_factory_handle, enum iox2_allocation_strategy_e value);
 ```
 """
-function iox2_port_factory_publisher_builder_set_allocation_strategy(port_factory_handle, value)
+@inline function iox2_port_factory_publisher_builder_set_allocation_strategy(port_factory_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_publisher_builder_set_allocation_strategy(port_factory_handle::iox2_port_factory_publisher_builder_h_ref, value::iox2_allocation_strategy_e)::Cvoid
+end
+
+"""
+    iox2_port_factory_publisher_builder_set_degradation_handler(port_factory_handle, handler, ctx)
+
+Sets the degradation handler for the publisher
+
+# Arguments
+
+* `port_factory_handle` - Must be a valid [[`iox2_port_factory_publisher_builder_h_ref`](@ref)] obtained by [[`iox2_port_factory_pub_sub_publisher_builder`](@ref)](crate::[`iox2_port_factory_pub_sub_publisher_builder`](@ref)). * `handler` is the [[`iox2_degradation_handler`](@ref)](crate::[`iox2_degradation_handler`](@ref)) * `ctx` is an user defined [[`iox2_callback_context`](@ref)](crate::[`iox2_callback_context`](@ref))
+
+# Safety
+
+* `port_factory_handle` must be valid handles * `ctx` is stored for later use; if the publisher, including the send function, is accessed from multiple threads, the `ctx` must be thread-safe
+
+### Prototype
+```c
+void iox2_port_factory_publisher_builder_set_degradation_handler(iox2_port_factory_publisher_builder_h_ref port_factory_handle, iox2_degradation_handler handler, iox2_callback_context ctx);
+```
+"""
+@inline function iox2_port_factory_publisher_builder_set_degradation_handler(port_factory_handle, handler, ctx)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_publisher_builder_set_degradation_handler(port_factory_handle::iox2_port_factory_publisher_builder_h_ref, handler::iox2_degradation_handler, ctx::iox2_callback_context)::Cvoid
+end
+
+"""
+    iox2_port_factory_publisher_builder_set_backpressure_handler(port_factory_handle, handler, ctx)
+
+Sets the backpressure handler for the publisher to be able to execute custom code if a sample cannot be delivered
+
+# Arguments
+
+* `port_factory_handle` - Must be a valid [[`iox2_port_factory_publisher_builder_h_ref`](@ref)] obtained by [[`iox2_port_factory_pub_sub_publisher_builder`](@ref)](crate::[`iox2_port_factory_pub_sub_publisher_builder`](@ref)). * `handler` is the [[`iox2_backpressure_handler`](@ref)](crate::[`iox2_backpressure_handler`](@ref)) * `ctx` is an user defined [[`iox2_callback_context`](@ref)](crate::[`iox2_callback_context`](@ref))
+
+# Safety
+
+* `port_factory_handle` must be valid handles * `ctx` is stored for later use; if the publisher, including the send function, is accessed from multiple threads, the `ctx` must be thread-safe
+
+### Prototype
+```c
+void iox2_port_factory_publisher_builder_set_backpressure_handler(iox2_port_factory_publisher_builder_h_ref port_factory_handle, iox2_backpressure_handler handler, iox2_callback_context ctx);
+```
+"""
+@inline function iox2_port_factory_publisher_builder_set_backpressure_handler(port_factory_handle, handler, ctx)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_publisher_builder_set_backpressure_handler(port_factory_handle::iox2_port_factory_publisher_builder_h_ref, handler::iox2_backpressure_handler, ctx::iox2_callback_context)::Cvoid
 end
 
 """
@@ -10396,7 +12317,7 @@ Sets the max slice length for the publisher
 void iox2_port_factory_publisher_builder_set_initial_max_slice_len(iox2_port_factory_publisher_builder_h_ref port_factory_handle, c_size_t value);
 ```
 """
-function iox2_port_factory_publisher_builder_set_initial_max_slice_len(port_factory_handle, value)
+@inline function iox2_port_factory_publisher_builder_set_initial_max_slice_len(port_factory_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_publisher_builder_set_initial_max_slice_len(port_factory_handle::iox2_port_factory_publisher_builder_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -10418,14 +12339,14 @@ Sets the max loaned samples for the publisher
 void iox2_port_factory_publisher_builder_set_max_loaned_samples(iox2_port_factory_publisher_builder_h_ref port_factory_handle, c_size_t value);
 ```
 """
-function iox2_port_factory_publisher_builder_set_max_loaned_samples(port_factory_handle, value)
+@inline function iox2_port_factory_publisher_builder_set_max_loaned_samples(port_factory_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_publisher_builder_set_max_loaned_samples(port_factory_handle::iox2_port_factory_publisher_builder_h_ref, value::c_size_t)::Cvoid
 end
 
 """
-    iox2_port_factory_publisher_builder_unable_to_deliver_strategy(port_factory_handle, value)
+    iox2_port_factory_publisher_builder_backpressure_strategy(port_factory_handle, value)
 
-Sets the unable to deliver strategy for the publisher
+Sets the backpressure strategy for the publisher
 
 # Arguments
 
@@ -10437,11 +12358,31 @@ Sets the unable to deliver strategy for the publisher
 
 ### Prototype
 ```c
-void iox2_port_factory_publisher_builder_unable_to_deliver_strategy(iox2_port_factory_publisher_builder_h_ref port_factory_handle, enum iox2_unable_to_deliver_strategy_e value);
+void iox2_port_factory_publisher_builder_backpressure_strategy(iox2_port_factory_publisher_builder_h_ref port_factory_handle, enum iox2_backpressure_strategy_e value);
 ```
 """
-function iox2_port_factory_publisher_builder_unable_to_deliver_strategy(port_factory_handle, value)
-    @ccall libiceoryx2_ffi_c.iox2_port_factory_publisher_builder_unable_to_deliver_strategy(port_factory_handle::iox2_port_factory_publisher_builder_h_ref, value::iox2_unable_to_deliver_strategy_e)::Cvoid
+@inline function iox2_port_factory_publisher_builder_backpressure_strategy(port_factory_handle, value)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_publisher_builder_backpressure_strategy(port_factory_handle::iox2_port_factory_publisher_builder_h_ref, value::iox2_backpressure_strategy_e)::Cvoid
+end
+
+"""
+    iox2_port_factory_publisher_builder_set_name(port_factory_handle, port_name_ptr)
+
+Sets the port name for the `Publisher`
+
+# Arguments
+
+* `port_factory_handle` - Must be a valid [[`iox2_port_factory_publisher_builder_h_ref`](@ref)] obtained by [[`iox2_port_factory_pub_sub_publisher_builder`](@ref)](crate::[`iox2_port_factory_pub_sub_publisher_builder`](@ref)). * `port_name_ptr` - Must be a valid [[`iox2_port_name_ptr`](@ref)], e.g. obtained by [[`iox2_port_name_new`](@ref)](crate::[`iox2_port_name_new`](@ref)) and converted by [[`iox2_cast_port_name_ptr`](@ref)](crate::[`iox2_cast_port_name_ptr`](@ref)) # Safety
+
+* `port_factory_handle` as well as `port_name_ptr` must be valid handles
+
+### Prototype
+```c
+void iox2_port_factory_publisher_builder_set_name(iox2_port_factory_publisher_builder_h_ref port_factory_handle, iox2_port_name_ptr port_name_ptr);
+```
+"""
+@inline function iox2_port_factory_publisher_builder_set_name(port_factory_handle, port_name_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_publisher_builder_set_name(port_factory_handle::iox2_port_factory_publisher_builder_h_ref, port_name_ptr::iox2_port_name_ptr)::Cvoid
 end
 
 """
@@ -10464,7 +12405,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_publisher_create_error_e`](@ref
 int iox2_port_factory_publisher_builder_create(iox2_port_factory_publisher_builder_h port_factory_handle, struct iox2_publisher_t *publisher_struct_ptr, iox2_publisher_h *publisher_handle_ptr);
 ```
 """
-function iox2_port_factory_publisher_builder_create(port_factory_handle, publisher_struct_ptr, publisher_handle_ptr)
+@inline function iox2_port_factory_publisher_builder_create(port_factory_handle, publisher_struct_ptr, publisher_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_publisher_builder_create(port_factory_handle::iox2_port_factory_publisher_builder_h, publisher_struct_ptr::Ptr{iox2_publisher_t}, publisher_handle_ptr::Ptr{iox2_publisher_h})::Cint
 end
 
@@ -10490,8 +12431,28 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_reader_create_error_string(enum iox2_reader_create_error_e error);
 ```
 """
-function iox2_reader_create_error_string(error)
+@inline function iox2_reader_create_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_reader_create_error_string(error::iox2_reader_create_error_e)::Cstring
+end
+
+"""
+    iox2_port_factory_reader_builder_set_name(port_factory_handle, port_name_ptr)
+
+Sets the port name for the `Reader`
+
+# Arguments
+
+* `port_factory_handle` - Must be a valid [[`iox2_port_factory_reader_builder_h_ref`](@ref)] obtained by [[`iox2_port_factory_blackboard_reader_builder`](@ref)](crate::[`iox2_port_factory_blackboard_reader_builder`](@ref)). * `port_name_ptr` - Must be a valid [[`iox2_port_name_ptr`](@ref)], e.g. obtained by [[`iox2_port_name_new`](@ref)](crate::[`iox2_port_name_new`](@ref)) and converted by [[`iox2_cast_port_name_ptr`](@ref)](crate::[`iox2_cast_port_name_ptr`](@ref)) # Safety
+
+* `port_factory_handle` as well as `port_name_ptr` must be valid handles
+
+### Prototype
+```c
+void iox2_port_factory_reader_builder_set_name(iox2_port_factory_reader_builder_h_ref port_factory_handle, iox2_port_name_ptr port_name_ptr);
+```
+"""
+@inline function iox2_port_factory_reader_builder_set_name(port_factory_handle, port_name_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_reader_builder_set_name(port_factory_handle::iox2_port_factory_reader_builder_h_ref, port_name_ptr::iox2_port_name_ptr)::Cvoid
 end
 
 """
@@ -10514,7 +12475,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_reader_create_error_e`](@ref)] 
 int iox2_port_factory_reader_builder_create(iox2_port_factory_reader_builder_h port_factory_handle, struct iox2_reader_t *reader_struct_ptr, iox2_reader_h *reader_handle_ptr);
 ```
 """
-function iox2_port_factory_reader_builder_create(port_factory_handle, reader_struct_ptr, reader_handle_ptr)
+@inline function iox2_port_factory_reader_builder_create(port_factory_handle, reader_struct_ptr, reader_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_reader_builder_create(port_factory_handle::iox2_port_factory_reader_builder_h, reader_struct_ptr::Ptr{iox2_reader_t}, reader_handle_ptr::Ptr{iox2_reader_h})::Cint
 end
 
@@ -10538,7 +12499,7 @@ Returns the [`iox2_port_factory_server_builder_h`](@ref) handle for the server b
 iox2_port_factory_server_builder_h iox2_port_factory_request_response_server_builder(iox2_port_factory_request_response_h_ref port_factory_handle, struct iox2_port_factory_server_builder_t *builder_struct_ptr);
 ```
 """
-function iox2_port_factory_request_response_server_builder(port_factory_handle, builder_struct_ptr)
+@inline function iox2_port_factory_request_response_server_builder(port_factory_handle, builder_struct_ptr)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_server_builder(port_factory_handle::iox2_port_factory_request_response_h_ref, builder_struct_ptr::Ptr{iox2_port_factory_server_builder_t})::iox2_port_factory_server_builder_h
 end
 
@@ -10562,7 +12523,7 @@ Returns the [`iox2_port_factory_client_builder_h`](@ref) handle for the client b
 iox2_port_factory_client_builder_h iox2_port_factory_request_response_client_builder(iox2_port_factory_request_response_h_ref port_factory_handle, struct iox2_port_factory_client_builder_t *builder_struct_ptr);
 ```
 """
-function iox2_port_factory_request_response_client_builder(port_factory_handle, builder_struct_ptr)
+@inline function iox2_port_factory_request_response_client_builder(port_factory_handle, builder_struct_ptr)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_client_builder(port_factory_handle::iox2_port_factory_request_response_h_ref, builder_struct_ptr::Ptr{iox2_port_factory_client_builder_t})::iox2_port_factory_client_builder_h
 end
 
@@ -10580,8 +12541,58 @@ Returns the services attributes.
 iox2_attribute_set_ptr iox2_port_factory_request_response_attributes(iox2_port_factory_request_response_h_ref port_factory_handle);
 ```
 """
-function iox2_port_factory_request_response_attributes(port_factory_handle)
+@inline function iox2_port_factory_request_response_attributes(port_factory_handle)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_attributes(port_factory_handle::iox2_port_factory_request_response_h_ref)::iox2_attribute_set_ptr
+end
+
+"""
+    iox2_port_factory_request_response_try_cleanup_dead_nodes(port_factory_handle, cleanup_state)
+
+Removes the stale system resources of all dead nodes connected to this service.
+
+If a node cannot be cleaned up since the process has insufficient permissions or it is currently being cleaned up by another process then the node is skipped.
+
+# Arguments
+
+* `service_type` - A [[`iox2_service_type_e`](@ref)] * `cleanup_state` - A valid pointer to a [[`iox2_cleanup_state_t`](@ref)]
+
+# Safety
+
+* The `port_factory_handle` must be valid and obtained by [[`iox2_service_builder_request_response_open`](@ref)](crate::[`iox2_service_builder_request_response_open`](@ref)) or [[`iox2_service_builder_request_response_open_or_create`](@ref)](crate::[`iox2_service_builder_request_response_open_or_create`](@ref))! * The `cleanup_state` must be a valid pointer.
+
+### Prototype
+```c
+void iox2_port_factory_request_response_try_cleanup_dead_nodes(iox2_port_factory_request_response_h_ref port_factory_handle, struct iox2_cleanup_state_t *cleanup_state);
+```
+"""
+@inline function iox2_port_factory_request_response_try_cleanup_dead_nodes(port_factory_handle, cleanup_state)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_try_cleanup_dead_nodes(port_factory_handle::iox2_port_factory_request_response_h_ref, cleanup_state::Ptr{iox2_cleanup_state_t})::Cvoid
+end
+
+"""
+    iox2_port_factory_request_response_blocking_cleanup_dead_nodes(port_factory_handle, cleanup_state, timeout_secs, timeout_nsecs)
+
+Removes the stale system resources of all dead nodes connected to this service.
+
+If a node cannot be cleaned up since the process has insufficient permissions then the node is skipped. If it is currently being cleaned up by another process then the cleaner will wait until the timeout as either passed or the cleaned was finished.
+
+The timeout is applied to every individual dead node the function needs to wait on.
+
+# Arguments
+
+* `service_type` - A [[`iox2_service_type_e`](@ref)] * `cleanup_state` - A valid pointer to a [[`iox2_cleanup_state_t`](@ref)] * `timeout_secs` - The timeout second part * `timeout_nsecs` - The timeout nanosecond part
+
+# Safety
+
+* The `port_factory_handle` must be valid and obtained by [[`iox2_service_builder_request_response_open`](@ref)](crate::[`iox2_service_builder_request_response_open`](@ref)) or [[`iox2_service_builder_request_response_open_or_create`](@ref)](crate::[`iox2_service_builder_request_response_open_or_create`](@ref))! * The `cleanup_state` must be a valid pointer.
+
+### Prototype
+```c
+void iox2_port_factory_request_response_blocking_cleanup_dead_nodes(iox2_port_factory_request_response_h_ref port_factory_handle, struct iox2_cleanup_state_t *cleanup_state, uint64_t timeout_secs, uint32_t timeout_nsecs);
+```
+"""
+@inline function iox2_port_factory_request_response_blocking_cleanup_dead_nodes(port_factory_handle, cleanup_state, timeout_secs, timeout_nsecs)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_blocking_cleanup_dead_nodes(port_factory_handle::iox2_port_factory_request_response_h_ref, cleanup_state::Ptr{iox2_cleanup_state_t}, timeout_secs::UInt64, timeout_nsecs::UInt32)::Cvoid
 end
 
 """
@@ -10598,7 +12609,7 @@ Set the values in the provided [[`iox2_static_config_request_response_t`](@ref)]
 void iox2_port_factory_request_response_static_config(iox2_port_factory_request_response_h_ref port_factory_handle, struct iox2_static_config_request_response_t *static_config);
 ```
 """
-function iox2_port_factory_request_response_static_config(port_factory_handle, static_config)
+@inline function iox2_port_factory_request_response_static_config(port_factory_handle, static_config)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_static_config(port_factory_handle::iox2_port_factory_request_response_h_ref, static_config::Ptr{iox2_static_config_request_response_t})::Cvoid
 end
 
@@ -10616,7 +12627,7 @@ Returns how many server ports are currently connected.
 size_t iox2_port_factory_request_response_dynamic_config_number_of_servers(iox2_port_factory_request_response_h_ref handle);
 ```
 """
-function iox2_port_factory_request_response_dynamic_config_number_of_servers(handle)
+@inline function iox2_port_factory_request_response_dynamic_config_number_of_servers(handle)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_dynamic_config_number_of_servers(handle::iox2_port_factory_request_response_h_ref)::Csize_t
 end
 
@@ -10634,14 +12645,14 @@ Returns how many client ports are currently connected.
 size_t iox2_port_factory_request_response_dynamic_config_number_of_clients(iox2_port_factory_request_response_h_ref handle);
 ```
 """
-function iox2_port_factory_request_response_dynamic_config_number_of_clients(handle)
+@inline function iox2_port_factory_request_response_dynamic_config_number_of_clients(handle)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_dynamic_config_number_of_clients(handle::iox2_port_factory_request_response_h_ref)::Csize_t
 end
 
 """
     iox2_port_factory_request_response_nodes(handle, callback, callback_ctx)
 
-Calls the callback repeatedly with an [[`iox2_node_state_e`](@ref)](crate::api::[`iox2_node_state_e`](@ref)), [[`iox2_node_id_ptr`](@ref)](crate::api::[`iox2_node_id_ptr`](@ref)), [´[`iox2_node_name_ptr`](@ref)´](crate::api::[`iox2_node_name_ptr`](@ref)) and [[`iox2_config_ptr`](@ref)](crate::api::[`iox2_config_ptr`](@ref)) for all [`Node`](iceoryx2::node::Node)s that have opened the service.
+Calls the callback repeatedly with an [[`iox2_node_state_e`](@ref)](crate::api::[`iox2_node_state_e`](@ref)), [[`iox2_unique_node_id_ptr`](@ref)](crate::api::[`iox2_unique_node_id_ptr`](@ref)), [´[`iox2_node_name_ptr`](@ref)´](crate::api::[`iox2_node_name_ptr`](@ref)) and [[`iox2_config_ptr`](@ref)](crate::api::[`iox2_config_ptr`](@ref)) for all [`Node`](iceoryx2::node::Node)s that have opened the service.
 
 Returns [`IOX2_OK`](@ref) on success, an [[`iox2_node_list_failure_e`](@ref)](crate::api::[`iox2_node_list_failure_e`](@ref)) otherwise.
 
@@ -10654,7 +12665,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_node_list_failure_e`](@ref)](cr
 int iox2_port_factory_request_response_nodes(iox2_port_factory_request_response_h_ref handle, iox2_node_list_callback callback, iox2_callback_context callback_ctx);
 ```
 """
-function iox2_port_factory_request_response_nodes(handle, callback, callback_ctx)
+@inline function iox2_port_factory_request_response_nodes(handle, callback, callback_ctx)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_nodes(handle::iox2_port_factory_request_response_h_ref, callback::iox2_node_list_callback, callback_ctx::iox2_callback_context)::Cint
 end
 
@@ -10672,14 +12683,14 @@ Returns the [[`iox2_service_name_ptr`](@ref)], an immutable pointer to the servi
 iox2_service_name_ptr iox2_port_factory_request_response_service_name(iox2_port_factory_request_response_h_ref handle);
 ```
 """
-function iox2_port_factory_request_response_service_name(handle)
+@inline function iox2_port_factory_request_response_service_name(handle)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_service_name(handle::iox2_port_factory_request_response_h_ref)::iox2_service_name_ptr
 end
 
 """
-    iox2_port_factory_request_response_service_id(handle, buffer, buffer_len)
+    iox2_port_factory_request_response_service_hash(handle, buffer, buffer_len)
 
-Stores the service id in the provided buffer
+Stores the service hash in the provided buffer
 
 # Safety
 
@@ -10687,17 +12698,17 @@ Stores the service id in the provided buffer
 
 ### Prototype
 ```c
-void iox2_port_factory_request_response_service_id(iox2_port_factory_request_response_h_ref handle, char *buffer, size_t buffer_len);
+void iox2_port_factory_request_response_service_hash(iox2_port_factory_request_response_h_ref handle, char *buffer, size_t buffer_len);
 ```
 """
-function iox2_port_factory_request_response_service_id(handle, buffer, buffer_len)
-    @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_service_id(handle::iox2_port_factory_request_response_h_ref, buffer::Cstring, buffer_len::Csize_t)::Cvoid
+@inline function iox2_port_factory_request_response_service_hash(handle, buffer, buffer_len)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_service_hash(handle::iox2_port_factory_request_response_h_ref, buffer::Cstring, buffer_len::Csize_t)::Cvoid
 end
 
 """
     iox2_port_factory_request_response_dynamic_config_list_servers(handle, callback, callback_ctx)
 
-Calls the callback repeatedly for every connected [[`iox2_server_h`](@ref)](crate::[`iox2_server_h`](@ref)) and provides all communcation details with a [[`iox2_server_details_ptr`](@ref)].
+Calls the callback repeatedly for every connected [[`iox2_server_h`](@ref)](crate::[`iox2_server_h`](@ref)) and provides all communication details with a [[`iox2_server_details_ptr`](@ref)].
 
 # Safety
 
@@ -10708,14 +12719,14 @@ Calls the callback repeatedly for every connected [[`iox2_server_h`](@ref)](crat
 void iox2_port_factory_request_response_dynamic_config_list_servers(iox2_port_factory_request_response_h_ref handle, iox2_list_servers_callback callback, iox2_callback_context callback_ctx);
 ```
 """
-function iox2_port_factory_request_response_dynamic_config_list_servers(handle, callback, callback_ctx)
+@inline function iox2_port_factory_request_response_dynamic_config_list_servers(handle, callback, callback_ctx)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_dynamic_config_list_servers(handle::iox2_port_factory_request_response_h_ref, callback::iox2_list_servers_callback, callback_ctx::iox2_callback_context)::Cvoid
 end
 
 """
     iox2_port_factory_request_response_dynamic_config_list_clients(handle, callback, callback_ctx)
 
-Calls the callback repeatedly with for every connected [[`iox2_client_h`](@ref)](crate::[`iox2_client_h`](@ref)) and provides all communcation details with a [[`iox2_client_details_ptr`](@ref)].
+Calls the callback repeatedly with for every connected [[`iox2_client_h`](@ref)](crate::[`iox2_client_h`](@ref)) and provides all communication details with a [[`iox2_client_details_ptr`](@ref)].
 
 # Safety
 
@@ -10726,7 +12737,7 @@ Calls the callback repeatedly with for every connected [[`iox2_client_h`](@ref)]
 void iox2_port_factory_request_response_dynamic_config_list_clients(iox2_port_factory_request_response_h_ref handle, iox2_list_clients_callback callback, iox2_callback_context callback_ctx);
 ```
 """
-function iox2_port_factory_request_response_dynamic_config_list_clients(handle, callback, callback_ctx)
+@inline function iox2_port_factory_request_response_dynamic_config_list_clients(handle, callback, callback_ctx)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_dynamic_config_list_clients(handle::iox2_port_factory_request_response_h_ref, callback::iox2_list_clients_callback, callback_ctx::iox2_callback_context)::Cvoid
 end
 
@@ -10748,7 +12759,7 @@ This function needs to be called to destroy the port factory!
 void iox2_port_factory_request_response_drop(iox2_port_factory_request_response_h port_factory_handle);
 ```
 """
-function iox2_port_factory_request_response_drop(port_factory_handle)
+@inline function iox2_port_factory_request_response_drop(port_factory_handle)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_request_response_drop(port_factory_handle::iox2_port_factory_request_response_h)::Cvoid
 end
 
@@ -10774,8 +12785,34 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_server_create_error_string(enum iox2_server_create_error_e error);
 ```
 """
-function iox2_server_create_error_string(error)
+@inline function iox2_server_create_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_server_create_error_string(error::iox2_server_create_error_e)::Cstring
+end
+
+"""
+    iox2_port_factory_server_builder_override_responses_preallocation(port_factory_handle, callback, callback_ctx)
+
+Defines a callback to reduce the number of preallocated responses. The input argument is the worst case number of preallocated responses required to guarantee that the server never runs out of responses to loan and send. The return value is clamped between `1` and the worst case number of preallocated responses.
+
+# Important
+
+If the user reduces the number of preallocated responses, iceoryx2 can no longer guarantee, that the server can always loan a response to send.
+
+# Arguments
+
+* `port_factory_handle` - Must be a valid [[`iox2_port_factory_server_builder_h_ref`](@ref)] obtained by [[`iox2_port_factory_request_response_server_builder`](@ref)](crate::[`iox2_port_factory_request_response_server_builder`](@ref)). * callback - the override callback * callback\\_ctx - a context pointer provided to the override callback as input argument
+
+# Safety
+
+* `port_factory_handle` must be a valid handle
+
+### Prototype
+```c
+void iox2_port_factory_server_builder_override_responses_preallocation(iox2_port_factory_server_builder_h_ref port_factory_handle, iox2_preallocated_responses_override callback, iox2_callback_context callback_ctx);
+```
+"""
+@inline function iox2_port_factory_server_builder_override_responses_preallocation(port_factory_handle, callback, callback_ctx)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_server_builder_override_responses_preallocation(port_factory_handle::iox2_port_factory_server_builder_h_ref, callback::iox2_preallocated_responses_override, callback_ctx::iox2_callback_context)::Cvoid
 end
 
 """
@@ -10796,8 +12833,74 @@ Sets the [[`iox2_allocation_strategy_e`](@ref)] for the server
 void iox2_port_factory_server_builder_set_allocation_strategy(iox2_port_factory_server_builder_h_ref port_factory_handle, enum iox2_allocation_strategy_e value);
 ```
 """
-function iox2_port_factory_server_builder_set_allocation_strategy(port_factory_handle, value)
+@inline function iox2_port_factory_server_builder_set_allocation_strategy(port_factory_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_server_builder_set_allocation_strategy(port_factory_handle::iox2_port_factory_server_builder_h_ref, value::iox2_allocation_strategy_e)::Cvoid
+end
+
+"""
+    iox2_port_factory_server_builder_set_request_degradation_handler(port_factory_handle, handler, ctx)
+
+Sets the request degradation handler for the sever
+
+# Arguments
+
+* `port_factory_handle` - Must be a valid [[`iox2_port_factory_server_builder_h_ref`](@ref)] obtained by [[`iox2_port_factory_request_response_server_builder`](@ref)](crate::[`iox2_port_factory_request_response_server_builder`](@ref)). * `handler` is the [[`iox2_degradation_handler`](@ref)](crate::[`iox2_degradation_handler`](@ref)) * `ctx` is an user defined [[`iox2_callback_context`](@ref)](crate::[`iox2_callback_context`](@ref))
+
+# Safety
+
+* `port_factory_handle` must be valid handles * `ctx` is stored for later use; if the server, including the send function, is accessed from multiple threads, the `ctx` must be thread-safe
+
+### Prototype
+```c
+void iox2_port_factory_server_builder_set_request_degradation_handler(iox2_port_factory_server_builder_h_ref port_factory_handle, iox2_degradation_handler handler, iox2_callback_context ctx);
+```
+"""
+@inline function iox2_port_factory_server_builder_set_request_degradation_handler(port_factory_handle, handler, ctx)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_server_builder_set_request_degradation_handler(port_factory_handle::iox2_port_factory_server_builder_h_ref, handler::iox2_degradation_handler, ctx::iox2_callback_context)::Cvoid
+end
+
+"""
+    iox2_port_factory_server_builder_set_response_degradation_handler(port_factory_handle, handler, ctx)
+
+Sets the response degradation handler for the server
+
+# Arguments
+
+* `port_factory_handle` - Must be a valid [[`iox2_port_factory_server_builder_h_ref`](@ref)] obtained by [[`iox2_port_factory_request_response_server_builder`](@ref)](crate::[`iox2_port_factory_request_response_server_builder`](@ref)). * `handler` is the [[`iox2_degradation_handler`](@ref)](crate::[`iox2_degradation_handler`](@ref)) * `ctx` is an user defined [[`iox2_callback_context`](@ref)](crate::[`iox2_callback_context`](@ref))
+
+# Safety
+
+* `port_factory_handle` must be valid handles * `ctx` is stored for later use; if the server, including the send function, is accessed from multiple threads, the `ctx` must be thread-safe
+
+### Prototype
+```c
+void iox2_port_factory_server_builder_set_response_degradation_handler(iox2_port_factory_server_builder_h_ref port_factory_handle, iox2_degradation_handler handler, iox2_callback_context ctx);
+```
+"""
+@inline function iox2_port_factory_server_builder_set_response_degradation_handler(port_factory_handle, handler, ctx)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_server_builder_set_response_degradation_handler(port_factory_handle::iox2_port_factory_server_builder_h_ref, handler::iox2_degradation_handler, ctx::iox2_callback_context)::Cvoid
+end
+
+"""
+    iox2_port_factory_server_builder_set_backpressure_handler(port_factory_handle, handler, ctx)
+
+Sets the backpressure handler for the server to be able to execute custom code if a response cannot be delivered
+
+# Arguments
+
+* `port_factory_handle` - Must be a valid [[`iox2_port_factory_server_builder_h_ref`](@ref)] obtained by [[`iox2_port_factory_request_response_server_builder`](@ref)](crate::[`iox2_port_factory_request_response_server_builder`](@ref)). * `handler` is the [[`iox2_backpressure_handler`](@ref)](crate::[`iox2_backpressure_handler`](@ref)) * `ctx` is an user defined [[`iox2_callback_context`](@ref)](crate::[`iox2_callback_context`](@ref))
+
+# Safety
+
+* `port_factory_handle` must be valid handles * `ctx` is stored for later use; if the server, including the send function, is accessed from multiple threads, the `ctx` must be thread-safe
+
+### Prototype
+```c
+void iox2_port_factory_server_builder_set_backpressure_handler(iox2_port_factory_server_builder_h_ref port_factory_handle, iox2_backpressure_handler handler, iox2_callback_context ctx);
+```
+"""
+@inline function iox2_port_factory_server_builder_set_backpressure_handler(port_factory_handle, handler, ctx)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_server_builder_set_backpressure_handler(port_factory_handle::iox2_port_factory_server_builder_h_ref, handler::iox2_backpressure_handler, ctx::iox2_callback_context)::Cvoid
 end
 
 """
@@ -10818,7 +12921,7 @@ Sets the initial max slice length for the server
 void iox2_port_factory_server_builder_set_initial_max_slice_len(iox2_port_factory_server_builder_h_ref port_factory_handle, c_size_t value);
 ```
 """
-function iox2_port_factory_server_builder_set_initial_max_slice_len(port_factory_handle, value)
+@inline function iox2_port_factory_server_builder_set_initial_max_slice_len(port_factory_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_server_builder_set_initial_max_slice_len(port_factory_handle::iox2_port_factory_server_builder_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -10840,14 +12943,14 @@ Defines how many responses the server can loan per request
 void iox2_port_factory_server_builder_set_max_loaned_responses_per_request(iox2_port_factory_server_builder_h_ref port_factory_handle, c_size_t value);
 ```
 """
-function iox2_port_factory_server_builder_set_max_loaned_responses_per_request(port_factory_handle, value)
+@inline function iox2_port_factory_server_builder_set_max_loaned_responses_per_request(port_factory_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_server_builder_set_max_loaned_responses_per_request(port_factory_handle::iox2_port_factory_server_builder_h_ref, value::c_size_t)::Cvoid
 end
 
 """
-    iox2_port_factory_server_builder_unable_to_deliver_strategy(port_factory_handle, value)
+    iox2_port_factory_server_builder_backpressure_strategy(port_factory_handle, value)
 
-Sets the unable to deliver strategy for the server
+Sets the backpressure strategy for the server
 
 # Arguments
 
@@ -10859,11 +12962,31 @@ Sets the unable to deliver strategy for the server
 
 ### Prototype
 ```c
-void iox2_port_factory_server_builder_unable_to_deliver_strategy(iox2_port_factory_server_builder_h_ref port_factory_handle, enum iox2_unable_to_deliver_strategy_e value);
+void iox2_port_factory_server_builder_backpressure_strategy(iox2_port_factory_server_builder_h_ref port_factory_handle, enum iox2_backpressure_strategy_e value);
 ```
 """
-function iox2_port_factory_server_builder_unable_to_deliver_strategy(port_factory_handle, value)
-    @ccall libiceoryx2_ffi_c.iox2_port_factory_server_builder_unable_to_deliver_strategy(port_factory_handle::iox2_port_factory_server_builder_h_ref, value::iox2_unable_to_deliver_strategy_e)::Cvoid
+@inline function iox2_port_factory_server_builder_backpressure_strategy(port_factory_handle, value)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_server_builder_backpressure_strategy(port_factory_handle::iox2_port_factory_server_builder_h_ref, value::iox2_backpressure_strategy_e)::Cvoid
+end
+
+"""
+    iox2_port_factory_server_builder_set_name(port_factory_handle, port_name_ptr)
+
+Sets the port name for the `Server`
+
+# Arguments
+
+* `port_factory_handle` - Must be a valid [[`iox2_port_factory_server_builder_h_ref`](@ref)] obtained by [[`iox2_port_factory_request_response_server_builder`](@ref)](crate::[`iox2_port_factory_request_response_server_builder`](@ref)). * `port_name_ptr` - Must be a valid [[`iox2_port_name_ptr`](@ref)], e.g. obtained by [[`iox2_port_name_new`](@ref)](crate::[`iox2_port_name_new`](@ref)) and converted by [[`iox2_cast_port_name_ptr`](@ref)](crate::[`iox2_cast_port_name_ptr`](@ref)) # Safety
+
+* `port_factory_handle` as well as `port_name_ptr` must be valid handles
+
+### Prototype
+```c
+void iox2_port_factory_server_builder_set_name(iox2_port_factory_server_builder_h_ref port_factory_handle, iox2_port_name_ptr port_name_ptr);
+```
+"""
+@inline function iox2_port_factory_server_builder_set_name(port_factory_handle, port_name_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_server_builder_set_name(port_factory_handle::iox2_port_factory_server_builder_h_ref, port_name_ptr::iox2_port_name_ptr)::Cvoid
 end
 
 """
@@ -10886,7 +13009,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_server_create_error_e`](@ref)] 
 int iox2_port_factory_server_builder_create(iox2_port_factory_server_builder_h port_factory_handle, struct iox2_server_t *struct_ptr, iox2_server_h *handle_ptr);
 ```
 """
-function iox2_port_factory_server_builder_create(port_factory_handle, struct_ptr, handle_ptr)
+@inline function iox2_port_factory_server_builder_create(port_factory_handle, struct_ptr, handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_server_builder_create(port_factory_handle::iox2_port_factory_server_builder_h, struct_ptr::Ptr{iox2_server_t}, handle_ptr::Ptr{iox2_server_h})::Cint
 end
 
@@ -10912,7 +13035,7 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_subscriber_create_error_string(enum iox2_subscriber_create_error_e error);
 ```
 """
-function iox2_subscriber_create_error_string(error)
+@inline function iox2_subscriber_create_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_subscriber_create_error_string(error::iox2_subscriber_create_error_e)::Cstring
 end
 
@@ -10934,8 +13057,72 @@ Sets the buffer size for the subscriber
 void iox2_port_factory_subscriber_builder_set_buffer_size(iox2_port_factory_subscriber_builder_h_ref port_factory_handle, c_size_t value);
 ```
 """
-function iox2_port_factory_subscriber_builder_set_buffer_size(port_factory_handle, value)
+@inline function iox2_port_factory_subscriber_builder_set_buffer_size(port_factory_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_subscriber_builder_set_buffer_size(port_factory_handle::iox2_port_factory_subscriber_builder_h_ref, value::c_size_t)::Cvoid
+end
+
+"""
+    iox2_port_factory_subscriber_builder_set_history_request(port_factory_handle, value)
+
+Defines the amount of requested history samples. By default the value defined with the service's `history_size` is used.
+
+# Arguments
+
+* `port_factory_handle` - Must be a valid [[`iox2_port_factory_subscriber_builder_h_ref`](@ref)] obtained by [[`iox2_port_factory_pub_sub_subscriber_builder`](@ref)](crate::[`iox2_port_factory_pub_sub_subscriber_builder`](@ref)). * `value` - The value to set buffer size to
+
+# Safety
+
+* `port_factory_handle` must be valid handles
+
+### Prototype
+```c
+void iox2_port_factory_subscriber_builder_set_history_request(iox2_port_factory_subscriber_builder_h_ref port_factory_handle, c_size_t value);
+```
+"""
+@inline function iox2_port_factory_subscriber_builder_set_history_request(port_factory_handle, value)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_subscriber_builder_set_history_request(port_factory_handle::iox2_port_factory_subscriber_builder_h_ref, value::c_size_t)::Cvoid
+end
+
+"""
+    iox2_port_factory_subscriber_builder_set_degradation_handler(port_factory_handle, handler, ctx)
+
+Sets the degradation handler for the subscriber
+
+# Arguments
+
+* `port_factory_handle` - Must be a valid [[`iox2_port_factory_subscriber_builder_h_ref`](@ref)] obtained by [[`iox2_port_factory_pub_sub_subscriber_builder`](@ref)](crate::[`iox2_port_factory_pub_sub_subscriber_builder`](@ref)). * `handler` is the [[`iox2_degradation_handler`](@ref)](crate::[`iox2_degradation_handler`](@ref)) * `ctx` is an user defined [[`iox2_callback_context`](@ref)](crate::[`iox2_callback_context`](@ref))
+
+# Safety
+
+* `port_factory_handle` must be valid handles * `ctx` is stored for later use; if the subscriber, including the receive function, is accessed from multiple threads, the `ctx` must be thread-safe
+
+### Prototype
+```c
+void iox2_port_factory_subscriber_builder_set_degradation_handler(iox2_port_factory_subscriber_builder_h_ref port_factory_handle, iox2_degradation_handler handler, iox2_callback_context ctx);
+```
+"""
+@inline function iox2_port_factory_subscriber_builder_set_degradation_handler(port_factory_handle, handler, ctx)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_subscriber_builder_set_degradation_handler(port_factory_handle::iox2_port_factory_subscriber_builder_h_ref, handler::iox2_degradation_handler, ctx::iox2_callback_context)::Cvoid
+end
+
+"""
+    iox2_port_factory_subscriber_builder_set_name(port_factory_handle, port_name_ptr)
+
+Sets the port name for the `Subscriber`
+
+# Arguments
+
+* `port_factory_handle` - Must be a valid [[`iox2_port_factory_subscriber_builder_h_ref`](@ref)] obtained by [[`iox2_port_factory_pub_sub_subscriber_builder`](@ref)](crate::[`iox2_port_factory_pub_sub_subscriber_builder`](@ref)). * `port_name_ptr` - Must be a valid [[`iox2_port_name_ptr`](@ref)], e.g. obtained by [[`iox2_port_name_new`](@ref)](crate::[`iox2_port_name_new`](@ref)) and converted by [[`iox2_cast_port_name_ptr`](@ref)](crate::[`iox2_cast_port_name_ptr`](@ref)) # Safety
+
+* `port_factory_handle` as well as `port_name_ptr` must be valid handles
+
+### Prototype
+```c
+void iox2_port_factory_subscriber_builder_set_name(iox2_port_factory_subscriber_builder_h_ref port_factory_handle, iox2_port_name_ptr port_name_ptr);
+```
+"""
+@inline function iox2_port_factory_subscriber_builder_set_name(port_factory_handle, port_name_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_subscriber_builder_set_name(port_factory_handle::iox2_port_factory_subscriber_builder_h_ref, port_name_ptr::iox2_port_name_ptr)::Cvoid
 end
 
 """
@@ -10958,7 +13145,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_subscriber_create_error_e`](@re
 int iox2_port_factory_subscriber_builder_create(iox2_port_factory_subscriber_builder_h port_factory_handle, struct iox2_subscriber_t *subscriber_struct_ptr, iox2_subscriber_h *subscriber_handle_ptr);
 ```
 """
-function iox2_port_factory_subscriber_builder_create(port_factory_handle, subscriber_struct_ptr, subscriber_handle_ptr)
+@inline function iox2_port_factory_subscriber_builder_create(port_factory_handle, subscriber_struct_ptr, subscriber_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_subscriber_builder_create(port_factory_handle::iox2_port_factory_subscriber_builder_h, subscriber_struct_ptr::Ptr{iox2_subscriber_t}, subscriber_handle_ptr::Ptr{iox2_subscriber_h})::Cint
 end
 
@@ -10984,8 +13171,28 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_writer_create_error_string(enum iox2_writer_create_error_e error);
 ```
 """
-function iox2_writer_create_error_string(error)
+@inline function iox2_writer_create_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_writer_create_error_string(error::iox2_writer_create_error_e)::Cstring
+end
+
+"""
+    iox2_port_factory_writer_builder_set_name(port_factory_handle, port_name_ptr)
+
+Sets the port name for the `Writer`
+
+# Arguments
+
+* `port_factory_handle` - Must be a valid [[`iox2_port_factory_writer_builder_h_ref`](@ref)] obtained by [[`iox2_port_factory_blackboard_writer_builder`](@ref)](crate::[`iox2_port_factory_blackboard_writer_builder`](@ref)). * `port_name_ptr` - Must be a valid [[`iox2_port_name_ptr`](@ref)], e.g. obtained by [[`iox2_port_name_new`](@ref)](crate::[`iox2_port_name_new`](@ref)) and converted by [[`iox2_cast_port_name_ptr`](@ref)](crate::[`iox2_cast_port_name_ptr`](@ref)) # Safety
+
+* `port_factory_handle` as well as `port_name_ptr` must be valid handles
+
+### Prototype
+```c
+void iox2_port_factory_writer_builder_set_name(iox2_port_factory_writer_builder_h_ref port_factory_handle, iox2_port_name_ptr port_name_ptr);
+```
+"""
+@inline function iox2_port_factory_writer_builder_set_name(port_factory_handle, port_name_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_port_factory_writer_builder_set_name(port_factory_handle::iox2_port_factory_writer_builder_h_ref, port_name_ptr::iox2_port_name_ptr)::Cvoid
 end
 
 """
@@ -11008,8 +13215,574 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_writer_create_error_e`](@ref)] 
 int iox2_port_factory_writer_builder_create(iox2_port_factory_writer_builder_h port_factory_handle, struct iox2_writer_t *writer_struct_ptr, iox2_writer_h *writer_handle_ptr);
 ```
 """
-function iox2_port_factory_writer_builder_create(port_factory_handle, writer_struct_ptr, writer_handle_ptr)
+@inline function iox2_port_factory_writer_builder_create(port_factory_handle, writer_struct_ptr, writer_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_port_factory_writer_builder_create(port_factory_handle::iox2_port_factory_writer_builder_h, writer_struct_ptr::Ptr{iox2_writer_t}, writer_handle_ptr::Ptr{iox2_writer_h})::Cint
+end
+
+"""
+    iox2_port_name_new(port_name_struct_ptr, port_name_str, port_name_len, port_name_handle_ptr)
+
+This function create a new port name!
+
+# Arguments
+
+* `port_name_struct_ptr` - Must be either a NULL pointer or a pointer to a valid [[`iox2_port_name_t`](@ref)]. If it is a NULL pointer, the storage will be allocated on the heap. * `port_name_str` - Must be valid port name string. * `port_name_len` - The length of the port name string, not including a null termination. * `port_name_handle_ptr` - An uninitialized or dangling [[`iox2_port_name_h`](@ref)] handle which will be initialized by this function call.
+
+Returns [`IOX2_OK`](@ref) on success, an [[`iox2_semantic_string_error_e`](@ref)](crate::[`iox2_semantic_string_error_e`](@ref)) otherwise.
+
+# Safety
+
+* Terminates if `port_name_str` or `port_name_handle_ptr` is a NULL pointer! * It is undefined behavior to pass a `port_name_len` which is larger than the actual length of `port_name_str`!
+
+### Prototype
+```c
+int iox2_port_name_new(struct iox2_port_name_t *port_name_struct_ptr, const char *port_name_str, c_size_t port_name_len, iox2_port_name_h *port_name_handle_ptr);
+```
+"""
+@inline function iox2_port_name_new(port_name_struct_ptr, port_name_str, port_name_len, port_name_handle_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_port_name_new(port_name_struct_ptr::Ptr{iox2_port_name_t}, port_name_str::Cstring, port_name_len::c_size_t, port_name_handle_ptr::Ptr{iox2_port_name_h})::Cint
+end
+
+"""
+    iox2_cast_port_name_ptr(port_name_handle)
+
+This function casts a [[`iox2_port_name_h`](@ref)] into a [[`iox2_port_name_ptr`](@ref)]
+
+# Arguments
+
+* `port_name_handle` obtained by [[`iox2_port_name_new`](@ref)]
+
+Returns a [[`iox2_port_name_ptr`](@ref)]
+
+# Safety
+
+* The `port_name_handle` must be a valid handle. * The `port_name_handle` is still valid after the call to this function.
+
+### Prototype
+```c
+iox2_port_name_ptr iox2_cast_port_name_ptr(iox2_port_name_h port_name_handle);
+```
+"""
+@inline function iox2_cast_port_name_ptr(port_name_handle)
+    @ccall libiceoryx2_ffi_c.iox2_cast_port_name_ptr(port_name_handle::iox2_port_name_h)::iox2_port_name_ptr
+end
+
+"""
+    iox2_port_name_as_chars(port_name_ptr, port_name_len)
+
+This function gives access to the port name as a non-zero-terminated char array
+
+# Arguments
+
+* `port_name_ptr` obtained by e.g. [[`iox2_cast_port_name_ptr`](@ref)] or a function returning a [[`iox2_port_name_ptr`](@ref)] * `port_name_len` must be used to get the length of the char array
+
+Returns a non-zero-terminated char array
+
+# Safety
+
+* The `port_name_ptr` must be a valid pointer to a port name. * The `port_name_len` must be a valid pointer to a size\\_t.
+
+### Prototype
+```c
+const char *iox2_port_name_as_chars(iox2_port_name_ptr port_name_ptr, c_size_t *port_name_len);
+```
+"""
+@inline function iox2_port_name_as_chars(port_name_ptr, port_name_len)
+    @ccall libiceoryx2_ffi_c.iox2_port_name_as_chars(port_name_ptr::iox2_port_name_ptr, port_name_len::Ptr{c_size_t})::Cstring
+end
+
+"""
+    iox2_port_name_drop(port_name_handle)
+
+This function needs to be called to destroy the port name!
+
+# Arguments
+
+* `port_name_handle` - A valid [[`iox2_port_name_h`](@ref)]
+
+# Safety
+
+* The `port_name_handle` is invalid after the return of this function and leads to undefined behavior if used in another function call! * The corresponding [[`iox2_port_name_t`](@ref)] can be re-used with a call to [[`iox2_port_name_new`](@ref)]!
+
+### Prototype
+```c
+void iox2_port_name_drop(iox2_port_name_h port_name_handle);
+```
+"""
+@inline function iox2_port_name_drop(port_name_handle)
+    @ccall libiceoryx2_ffi_c.iox2_port_name_drop(port_name_handle::iox2_port_name_h)::Cvoid
+end
+
+"""
+    iox2_progressive_write_error_string(error)
+
+Returns a string literal describing a progressive writer error.
+
+# Safety
+
+`error` must contain a valid [[`iox2_progressive_write_error_e`](@ref)] value.
+
+### Prototype
+```c
+const char *iox2_progressive_write_error_string(enum iox2_progressive_write_error_e error);
+```
+"""
+@inline function iox2_progressive_write_error_string(error)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_write_error_string(error::iox2_progressive_write_error_e)::Cstring
+end
+
+"""
+    iox2_progressive_publisher_loan_slice_uninit(publisher_handle, sample_struct_ptr, sample_handle_ptr, capacity)
+
+Loans a private uninitialized byte slice with `capacity` bytes.
+
+# Safety
+
+`publisher_handle` must be valid and `sample_handle_ptr` must be writable. `sample_struct_ptr` must be null or point to uninitialized storage.
+
+### Prototype
+```c
+int iox2_progressive_publisher_loan_slice_uninit(iox2_progressive_publisher_h_ref publisher_handle, struct iox2_progressive_sample_mut_uninit_t *sample_struct_ptr, iox2_progressive_sample_mut_uninit_h *sample_handle_ptr, c_size_t capacity);
+```
+"""
+@inline function iox2_progressive_publisher_loan_slice_uninit(publisher_handle, sample_struct_ptr, sample_handle_ptr, capacity)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_publisher_loan_slice_uninit(publisher_handle::iox2_progressive_publisher_h_ref, sample_struct_ptr::Ptr{iox2_progressive_sample_mut_uninit_t}, sample_handle_ptr::Ptr{iox2_progressive_sample_mut_uninit_h}, capacity::c_size_t)::Cint
+end
+
+"""
+    iox2_progressive_sample_mut_uninit_payload_mut(sample_handle, payload_ptr, capacity)
+
+Returns the mutable payload pointer and byte capacity while the loan is private.
+
+The caller may retain the pointer after `announce` for use by the single external writer while the returned active-writer handle remains alive. The external writer must stop before `complete`, `abort`, active-writer drop, private-loan drop, or deallocation.
+
+# Safety
+
+`sample_handle` and `payload_ptr` must be valid. If non-null, `capacity` must be writable. All writes must remain in bounds, and bytes below a successfully committed boundary must never be modified again.
+
+### Prototype
+```c
+void iox2_progressive_sample_mut_uninit_payload_mut(iox2_progressive_sample_mut_uninit_h_ref sample_handle, void **payload_ptr, c_size_t *capacity);
+```
+"""
+@inline function iox2_progressive_sample_mut_uninit_payload_mut(sample_handle, payload_ptr, capacity)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_sample_mut_uninit_payload_mut(sample_handle::iox2_progressive_sample_mut_uninit_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, capacity::Ptr{c_size_t})::Cvoid
+end
+
+"""
+    iox2_progressive_sample_mut_uninit_user_header_mut(sample_handle)
+
+Returns the mutable application user header while the sample is private.
+
+# Safety
+
+`sample_handle` must be valid. The returned pointer has the layout configured on the service builder and remains valid only until the private loan is sent or dropped.
+
+### Prototype
+```c
+void *iox2_progressive_sample_mut_uninit_user_header_mut(iox2_progressive_sample_mut_uninit_h_ref sample_handle);
+```
+"""
+@inline function iox2_progressive_sample_mut_uninit_user_header_mut(sample_handle)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_sample_mut_uninit_user_header_mut(sample_handle::iox2_progressive_sample_mut_uninit_h_ref)::Ptr{Cvoid}
+end
+
+"""
+    iox2_progressive_sample_mut_uninit_announce(sample_handle, writer_struct_ptr, writer_handle_ptr, number_of_recipients)
+
+Announces the offset once and transfers the exact publisher loan into an active writer handle. The private-loan handle is consumed even when delivery fails.
+
+# Safety
+
+`sample_handle` must be a valid owning handle and is consumed. `writer_handle_ptr` must be writable. `writer_struct_ptr` must be null or point to uninitialized storage. `number_of_recipients` can be null or must point to a valid [[`c_size_t`](@ref)] to store the number of subscribers that received the sample when it was announced.
+
+### Prototype
+```c
+int iox2_progressive_sample_mut_uninit_announce(iox2_progressive_sample_mut_uninit_h sample_handle, struct iox2_progressive_sample_mut_t *writer_struct_ptr, iox2_progressive_sample_mut_h *writer_handle_ptr, c_size_t *number_of_recipients);
+```
+"""
+@inline function iox2_progressive_sample_mut_uninit_announce(sample_handle, writer_struct_ptr, writer_handle_ptr, number_of_recipients)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_sample_mut_uninit_announce(sample_handle::iox2_progressive_sample_mut_uninit_h, writer_struct_ptr::Ptr{iox2_progressive_sample_mut_t}, writer_handle_ptr::Ptr{iox2_progressive_sample_mut_h}, number_of_recipients::Ptr{c_size_t})::Cint
+end
+
+"""
+    iox2_progressive_sample_mut_uninit_drop(sample_handle)
+
+Drops an unsent private loan and returns its publisher reference.
+
+# Safety
+
+`sample_handle` must be a valid owning handle and becomes invalid after this call.
+
+### Prototype
+```c
+void iox2_progressive_sample_mut_uninit_drop(iox2_progressive_sample_mut_uninit_h sample_handle);
+```
+"""
+@inline function iox2_progressive_sample_mut_uninit_drop(sample_handle)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_sample_mut_uninit_drop(sample_handle::iox2_progressive_sample_mut_uninit_h)::Cvoid
+end
+
+"""
+    iox2_progressive_sample_mut_payload_capacity(writer_handle)
+
+Returns the active writer's total capacity.
+
+# Safety
+
+`writer_handle` must be a valid non-owning active-writer handle.
+
+### Prototype
+```c
+c_size_t iox2_progressive_sample_mut_payload_capacity(iox2_progressive_sample_mut_h_ref writer_handle);
+```
+"""
+@inline function iox2_progressive_sample_mut_payload_capacity(writer_handle)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_sample_mut_payload_capacity(writer_handle::iox2_progressive_sample_mut_h_ref)::c_size_t
+end
+
+"""
+    iox2_progressive_sample_mut_committed_len(writer_handle)
+
+Acquire-loads the active writer's current committed length.
+
+# Safety
+
+`writer_handle` must be a valid non-owning active-writer handle.
+
+### Prototype
+```c
+c_size_t iox2_progressive_sample_mut_committed_len(iox2_progressive_sample_mut_h_ref writer_handle);
+```
+"""
+@inline function iox2_progressive_sample_mut_committed_len(writer_handle)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_sample_mut_committed_len(writer_handle::iox2_progressive_sample_mut_h_ref)::c_size_t
+end
+
+"""
+    iox2_progressive_sample_mut_user_header(writer_handle)
+
+Returns the immutable user header after announcement.
+
+# Safety
+
+`writer_handle` must be valid. The returned pointer remains valid only while the writer handle owns the sample and has the user-header layout configured on the service.
+
+### Prototype
+```c
+const void *iox2_progressive_sample_mut_user_header(iox2_progressive_sample_mut_h_ref writer_handle);
+```
+"""
+@inline function iox2_progressive_sample_mut_user_header(writer_handle)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_sample_mut_user_header(writer_handle::iox2_progressive_sample_mut_h_ref)::Ptr{Cvoid}
+end
+
+"""
+    iox2_progressive_sample_mut_write_from_slice(writer_handle, bytes, len)
+
+Copies bytes into the uncommitted suffix and release-commits the enlarged prefix.
+
+# Safety
+
+`writer_handle` must be valid. When `len` is nonzero, `bytes` must point to at least `len` readable bytes and must not overlap the destination sample allocation.
+
+### Prototype
+```c
+int iox2_progressive_sample_mut_write_from_slice(iox2_progressive_sample_mut_h_ref writer_handle, const uint8_t *bytes, c_size_t len);
+```
+"""
+@inline function iox2_progressive_sample_mut_write_from_slice(writer_handle, bytes, len)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_sample_mut_write_from_slice(writer_handle::iox2_progressive_sample_mut_h_ref, bytes::Ptr{UInt8}, len::c_size_t)::Cint
+end
+
+"""
+    iox2_progressive_sample_mut_commit_until(writer_handle, new_len)
+
+Release-commits a new contiguous byte boundary for externally initialized data.
+
+# Safety
+
+Before calling, the C caller must ensure every byte below `new_len` is initialized and visible to CPU readers and will never be modified again. This function does not establish DMA cache coherency.
+
+### Prototype
+```c
+int iox2_progressive_sample_mut_commit_until(iox2_progressive_sample_mut_h_ref writer_handle, c_size_t new_len);
+```
+"""
+@inline function iox2_progressive_sample_mut_commit_until(writer_handle, new_len)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_sample_mut_commit_until(writer_handle::iox2_progressive_sample_mut_h_ref, new_len::c_size_t)::Cint
+end
+
+"""
+    iox2_progressive_sample_mut_complete(writer_handle)
+
+Marks the sample complete, releases the publisher loan, and consumes the writer handle.
+
+# Safety
+
+`writer_handle` must be a valid owning handle and is consumed even when an error is returned.
+
+### Prototype
+```c
+int iox2_progressive_sample_mut_complete(iox2_progressive_sample_mut_h writer_handle);
+```
+"""
+@inline function iox2_progressive_sample_mut_complete(writer_handle)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_sample_mut_complete(writer_handle::iox2_progressive_sample_mut_h)::Cint
+end
+
+"""
+    iox2_progressive_sample_mut_abort(writer_handle)
+
+Marks the sample aborted, releases the publisher loan, and consumes the writer handle.
+
+# Safety
+
+`writer_handle` must be a valid owning handle and is consumed even when an error is returned.
+
+### Prototype
+```c
+int iox2_progressive_sample_mut_abort(iox2_progressive_sample_mut_h writer_handle);
+```
+"""
+@inline function iox2_progressive_sample_mut_abort(writer_handle)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_sample_mut_abort(writer_handle::iox2_progressive_sample_mut_h)::Cint
+end
+
+"""
+    iox2_progressive_sample_mut_drop(writer_handle)
+
+Drops an active writer. An active sample becomes aborted and its publisher loan is released.
+
+# Safety
+
+`writer_handle` must be a valid owning handle and becomes invalid after this call.
+
+### Prototype
+```c
+void iox2_progressive_sample_mut_drop(iox2_progressive_sample_mut_h writer_handle);
+```
+"""
+@inline function iox2_progressive_sample_mut_drop(writer_handle)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_sample_mut_drop(writer_handle::iox2_progressive_sample_mut_h)::Cvoid
+end
+
+"""
+    iox2_progressive_publisher_drop(publisher_handle)
+
+Drops a progressive publisher.
+
+# Safety
+
+`publisher_handle` must be a valid owning handle and becomes invalid after this call.
+
+### Prototype
+```c
+void iox2_progressive_publisher_drop(iox2_progressive_publisher_h publisher_handle);
+```
+"""
+@inline function iox2_progressive_publisher_drop(publisher_handle)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_publisher_drop(publisher_handle::iox2_progressive_publisher_h)::Cvoid
+end
+
+"""
+    iox2_progressive_subscriber_receive(subscriber_handle, sample_struct_ptr, sample_handle_ptr)
+
+Receives a progressive sample offset once. An empty queue returns [`IOX2_OK`](@ref) and a null handle.
+
+# Safety
+
+`subscriber_handle` must be valid and `sample_handle_ptr` must be writable. `sample_struct_ptr` must be null or point to uninitialized storage.
+
+### Prototype
+```c
+int iox2_progressive_subscriber_receive(iox2_progressive_subscriber_h_ref subscriber_handle, struct iox2_progressive_sample_t *sample_struct_ptr, iox2_progressive_sample_h *sample_handle_ptr);
+```
+"""
+@inline function iox2_progressive_subscriber_receive(subscriber_handle, sample_struct_ptr, sample_handle_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_subscriber_receive(subscriber_handle::iox2_progressive_subscriber_h_ref, sample_struct_ptr::Ptr{iox2_progressive_sample_t}, sample_handle_ptr::Ptr{iox2_progressive_sample_h})::Cint
+end
+
+"""
+    iox2_progressive_subscriber_has_samples(subscriber_handle, result_ptr)
+
+Reports whether at least one progressive sample is queued.
+
+# Safety
+
+`subscriber_handle` must be valid and `result_ptr` must be writable.
+
+### Prototype
+```c
+int iox2_progressive_subscriber_has_samples(iox2_progressive_subscriber_h_ref subscriber_handle, bool *result_ptr);
+```
+"""
+@inline function iox2_progressive_subscriber_has_samples(subscriber_handle, result_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_subscriber_has_samples(subscriber_handle::iox2_progressive_subscriber_h_ref, result_ptr::Ptr{Bool})::Cint
+end
+
+"""
+    iox2_progressive_sample_snapshot(sample_handle, snapshot_ptr)
+
+Acquire-loads the committed length and lifecycle state as one atomic snapshot.
+
+# Safety
+
+`sample_handle` must be valid and `snapshot_ptr` must be writable.
+
+### Prototype
+```c
+void iox2_progressive_sample_snapshot(iox2_progressive_sample_h_ref sample_handle, struct iox2_progressive_sample_snapshot_t *snapshot_ptr);
+```
+"""
+@inline function iox2_progressive_sample_snapshot(sample_handle, snapshot_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_sample_snapshot(sample_handle::iox2_progressive_sample_h_ref, snapshot_ptr::Ptr{iox2_progressive_sample_snapshot_t})::Cvoid
+end
+
+"""
+    iox2_progressive_sample_snapshot_with_publisher_liveness(sample_handle, snapshot_ptr)
+
+Returns one snapshot while accounting for abrupt publisher death. This may perform operating-system calls when the shared state is still active.
+
+# Safety
+
+`sample_handle` must be valid and `snapshot_ptr` must be writable.
+
+### Prototype
+```c
+int iox2_progressive_sample_snapshot_with_publisher_liveness(iox2_progressive_sample_h_ref sample_handle, struct iox2_progressive_sample_snapshot_t *snapshot_ptr);
+```
+"""
+@inline function iox2_progressive_sample_snapshot_with_publisher_liveness(sample_handle, snapshot_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_sample_snapshot_with_publisher_liveness(sample_handle::iox2_progressive_sample_h_ref, snapshot_ptr::Ptr{iox2_progressive_sample_snapshot_t})::Cint
+end
+
+"""
+    iox2_progressive_sample_payload(sample_handle, payload_ptr, committed_len)
+
+Returns one acquire-bounded immutable committed payload prefix.
+
+The returned pointer is valid only while the sample handle remains alive. The publisher may extend the prefix, but never mutates bytes already included in this snapshot.
+
+# Safety
+
+`sample_handle` must be valid. `payload_ptr` and `committed_len` must be writable.
+
+### Prototype
+```c
+void iox2_progressive_sample_payload(iox2_progressive_sample_h_ref sample_handle, const uint8_t **payload_ptr, c_size_t *committed_len);
+```
+"""
+@inline function iox2_progressive_sample_payload(sample_handle, payload_ptr, committed_len)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_sample_payload(sample_handle::iox2_progressive_sample_h_ref, payload_ptr::Ptr{Ptr{UInt8}}, committed_len::Ptr{c_size_t})::Cvoid
+end
+
+"""
+    iox2_progressive_sample_payload_capacity(sample_handle)
+
+Returns the total allocation capacity in bytes.
+
+# Safety
+
+`sample_handle` must be a valid non-owning received-sample handle.
+
+### Prototype
+```c
+c_size_t iox2_progressive_sample_payload_capacity(iox2_progressive_sample_h_ref sample_handle);
+```
+"""
+@inline function iox2_progressive_sample_payload_capacity(sample_handle)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_sample_payload_capacity(sample_handle::iox2_progressive_sample_h_ref)::c_size_t
+end
+
+"""
+    iox2_progressive_sample_user_header(sample_handle)
+
+Returns the immutable application user header.
+
+# Safety
+
+`sample_handle` must be valid. The returned pointer remains valid only while the sample handle owns its lease and has the user-header layout configured on the service.
+
+### Prototype
+```c
+const void *iox2_progressive_sample_user_header(iox2_progressive_sample_h_ref sample_handle);
+```
+"""
+@inline function iox2_progressive_sample_user_header(sample_handle)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_sample_user_header(sample_handle::iox2_progressive_sample_h_ref)::Ptr{Cvoid}
+end
+
+"""
+    iox2_progressive_sample_state(sample_handle)
+
+Acquire-loads the progressive sample state without performing liveness checks.
+
+# Safety
+
+`sample_handle` must be a valid non-owning received-sample handle.
+
+### Prototype
+```c
+enum iox2_progressive_sample_state_e iox2_progressive_sample_state(iox2_progressive_sample_h_ref sample_handle);
+```
+"""
+@inline function iox2_progressive_sample_state(sample_handle)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_sample_state(sample_handle::iox2_progressive_sample_h_ref)::iox2_progressive_sample_state_e
+end
+
+"""
+    iox2_progressive_sample_state_with_publisher_liveness(sample_handle, state_ptr)
+
+Returns the sample state while accounting for abrupt publisher death. This may perform operating-system calls when the shared state is still active.
+
+# Safety
+
+`sample_handle` must be valid and `state_ptr` must be writable.
+
+### Prototype
+```c
+int iox2_progressive_sample_state_with_publisher_liveness(iox2_progressive_sample_h_ref sample_handle, enum iox2_progressive_sample_state_e *state_ptr);
+```
+"""
+@inline function iox2_progressive_sample_state_with_publisher_liveness(sample_handle, state_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_sample_state_with_publisher_liveness(sample_handle::iox2_progressive_sample_h_ref, state_ptr::Ptr{iox2_progressive_sample_state_e})::Cint
+end
+
+"""
+    iox2_progressive_sample_drop(sample_handle)
+
+Releases the subscriber's whole-sample reference and consumes the sample handle.
+
+# Safety
+
+`sample_handle` must be a valid owning handle and becomes invalid after this call.
+
+### Prototype
+```c
+void iox2_progressive_sample_drop(iox2_progressive_sample_h sample_handle);
+```
+"""
+@inline function iox2_progressive_sample_drop(sample_handle)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_sample_drop(sample_handle::iox2_progressive_sample_h)::Cvoid
+end
+
+"""
+    iox2_progressive_subscriber_drop(subscriber_handle)
+
+Drops a progressive subscriber.
+
+# Safety
+
+`subscriber_handle` must be a valid owning handle and becomes invalid after this call.
+
+### Prototype
+```c
+void iox2_progressive_subscriber_drop(iox2_progressive_subscriber_h subscriber_handle);
+```
+"""
+@inline function iox2_progressive_subscriber_drop(subscriber_handle)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_subscriber_drop(subscriber_handle::iox2_progressive_subscriber_h)::Cvoid
 end
 
 """
@@ -11026,7 +13799,7 @@ This function needs to be called to destroy the publish\\_subscribe\\_header!
 void iox2_publish_subscribe_header_drop(iox2_publish_subscribe_header_h handle);
 ```
 """
-function iox2_publish_subscribe_header_drop(handle)
+@inline function iox2_publish_subscribe_header_drop(handle)
     @ccall libiceoryx2_ffi_c.iox2_publish_subscribe_header_drop(handle::iox2_publish_subscribe_header_h)::Cvoid
 end
 
@@ -11048,7 +13821,7 @@ Returns the unique publisher id of the source of the sample.
 void iox2_publish_subscribe_header_publisher_id(iox2_publish_subscribe_header_h_ref header_handle, struct iox2_unique_publisher_id_t *id_struct_ptr, iox2_unique_publisher_id_h *id_handle_ptr);
 ```
 """
-function iox2_publish_subscribe_header_publisher_id(header_handle, id_struct_ptr, id_handle_ptr)
+@inline function iox2_publish_subscribe_header_publisher_id(header_handle, id_struct_ptr, id_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_publish_subscribe_header_publisher_id(header_handle::iox2_publish_subscribe_header_h_ref, id_struct_ptr::Ptr{iox2_unique_publisher_id_t}, id_handle_ptr::Ptr{iox2_unique_publisher_id_h})::Cvoid
 end
 
@@ -11070,8 +13843,30 @@ Returns the number of elements of the payload. The element size is defined via t
 uint64_t iox2_publish_subscribe_header_number_of_elements(iox2_publish_subscribe_header_h_ref header_handle);
 ```
 """
-function iox2_publish_subscribe_header_number_of_elements(header_handle)
+@inline function iox2_publish_subscribe_header_number_of_elements(header_handle)
     @ccall libiceoryx2_ffi_c.iox2_publish_subscribe_header_number_of_elements(header_handle::iox2_publish_subscribe_header_h_ref)::UInt64
+end
+
+"""
+    iox2_publish_subscribe_header_payload_offset(header_handle)
+
+Returns the payload offset when it does not start at the beginning.
+
+# Arguments
+
+* `header_handle` is valid, non-null and was initialized with [`[`iox2_sample_header`](@ref)()`](crate::[`iox2_sample_header`](@ref))
+
+# Safety
+
+* `header_handle` is valid and non-null
+
+### Prototype
+```c
+uint64_t iox2_publish_subscribe_header_payload_offset(iox2_publish_subscribe_header_h_ref header_handle);
+```
+"""
+@inline function iox2_publish_subscribe_header_payload_offset(header_handle)
+    @ccall libiceoryx2_ffi_c.iox2_publish_subscribe_header_payload_offset(header_handle::iox2_publish_subscribe_header_h_ref)::UInt64
 end
 
 """
@@ -11096,7 +13891,7 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_send_error_string(enum iox2_send_error_e error);
 ```
 """
-function iox2_send_error_string(error)
+@inline function iox2_send_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_send_error_string(error::iox2_send_error_e)::Cstring
 end
 
@@ -11122,12 +13917,12 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_loan_error_string(enum iox2_loan_error_e error);
 ```
 """
-function iox2_loan_error_string(error)
+@inline function iox2_loan_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_loan_error_string(error::iox2_loan_error_e)::Cstring
 end
 
 """
-    iox2_publisher_unable_to_deliver_strategy(publisher_handle)
+    iox2_publisher_backpressure_strategy(publisher_handle)
 
 Returns the strategy the publisher follows when a sample cannot be delivered since the subscribers buffer is full.
 
@@ -11135,7 +13930,7 @@ Returns the strategy the publisher follows when a sample cannot be delivered sin
 
 * `handle` obtained by [[`iox2_port_factory_publisher_builder_create`](@ref)](crate::[`iox2_port_factory_publisher_builder_create`](@ref))
 
-Returns [[`iox2_unable_to_deliver_strategy_e`](@ref)].
+Returns [[`iox2_backpressure_strategy_e`](@ref)].
 
 # Safety
 
@@ -11143,11 +13938,11 @@ Returns [[`iox2_unable_to_deliver_strategy_e`](@ref)].
 
 ### Prototype
 ```c
-enum iox2_unable_to_deliver_strategy_e iox2_publisher_unable_to_deliver_strategy(iox2_publisher_h_ref publisher_handle);
+enum iox2_backpressure_strategy_e iox2_publisher_backpressure_strategy(iox2_publisher_h_ref publisher_handle);
 ```
 """
-function iox2_publisher_unable_to_deliver_strategy(publisher_handle)
-    @ccall libiceoryx2_ffi_c.iox2_publisher_unable_to_deliver_strategy(publisher_handle::iox2_publisher_h_ref)::iox2_unable_to_deliver_strategy_e
+@inline function iox2_publisher_backpressure_strategy(publisher_handle)
+    @ccall libiceoryx2_ffi_c.iox2_publisher_backpressure_strategy(publisher_handle::iox2_publisher_h_ref)::iox2_backpressure_strategy_e
 end
 
 """
@@ -11170,7 +13965,7 @@ Returns the maximum number of elements as a [[`c_size_t`](@ref)].
 c_size_t iox2_publisher_initial_max_slice_len(iox2_publisher_h_ref publisher_handle);
 ```
 """
-function iox2_publisher_initial_max_slice_len(publisher_handle)
+@inline function iox2_publisher_initial_max_slice_len(publisher_handle)
     @ccall libiceoryx2_ffi_c.iox2_publisher_initial_max_slice_len(publisher_handle::iox2_publisher_h_ref)::c_size_t
 end
 
@@ -11192,8 +13987,30 @@ Returns the unique port id of the publisher.
 void iox2_publisher_id(iox2_publisher_h_ref publisher_handle, struct iox2_unique_publisher_id_t *id_struct_ptr, iox2_unique_publisher_id_h *id_handle_ptr);
 ```
 """
-function iox2_publisher_id(publisher_handle, id_struct_ptr, id_handle_ptr)
+@inline function iox2_publisher_id(publisher_handle, id_struct_ptr, id_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_publisher_id(publisher_handle::iox2_publisher_h_ref, id_struct_ptr::Ptr{iox2_unique_publisher_id_t}, id_handle_ptr::Ptr{iox2_unique_publisher_id_h})::Cvoid
+end
+
+"""
+    iox2_publisher_name(publisher_handle)
+
+Returns the [[`iox2_port_name_ptr`](@ref)](crate::[`iox2_port_name_ptr`](@ref)), an immutable pointer to the port name.
+
+# Arguments
+
+* `publisher_handle` must be a valid [[`iox2_publisher_h_ref`](@ref)] obtained by [[`iox2_port_factory_publisher_builder_create`](@ref)](crate::[`iox2_port_factory_publisher_builder_create`](@ref))
+
+# Safety
+
+* `publisher_handle` is valid, non-null and was obtained via [[`iox2_port_factory_publisher_builder_create`](@ref)](crate::[`iox2_port_factory_publisher_builder_create`](@ref)).
+
+### Prototype
+```c
+iox2_port_name_ptr iox2_publisher_name(iox2_publisher_h_ref publisher_handle);
+```
+"""
+@inline function iox2_publisher_name(publisher_handle)
+    @ccall libiceoryx2_ffi_c.iox2_publisher_name(publisher_handle::iox2_publisher_h_ref)::iox2_port_name_ptr
 end
 
 """
@@ -11218,7 +14035,7 @@ Returns [`IOX2_OK`](@ref) on success, otherwise an error code from [`iox2_send_e
 int iox2_publisher_send_slice_copy(iox2_publisher_h_ref publisher_handle, const void *data_ptr, size_t size_of_element, size_t number_of_elements, size_t *number_of_recipients);
 ```
 """
-function iox2_publisher_send_slice_copy(publisher_handle, data_ptr, size_of_element, number_of_elements, number_of_recipients)
+@inline function iox2_publisher_send_slice_copy(publisher_handle, data_ptr, size_of_element, number_of_elements, number_of_recipients)
     @ccall libiceoryx2_ffi_c.iox2_publisher_send_slice_copy(publisher_handle::iox2_publisher_h_ref, data_ptr::Ptr{Cvoid}, size_of_element::Csize_t, number_of_elements::Csize_t, number_of_recipients::Ptr{Csize_t})::Cint
 end
 
@@ -11242,7 +14059,7 @@ Return [[`IOX2_OK`](@ref)] on success, otherwise [[`iox2_send_error_e`](@ref)].
 int iox2_publisher_send_copy(iox2_publisher_h_ref publisher_handle, const void *data_ptr, size_t data_len, size_t *number_of_recipients);
 ```
 """
-function iox2_publisher_send_copy(publisher_handle, data_ptr, data_len, number_of_recipients)
+@inline function iox2_publisher_send_copy(publisher_handle, data_ptr, data_len, number_of_recipients)
     @ccall libiceoryx2_ffi_c.iox2_publisher_send_copy(publisher_handle::iox2_publisher_h_ref, data_ptr::Ptr{Cvoid}, data_len::Csize_t, number_of_recipients::Ptr{Csize_t})::Cint
 end
 
@@ -11266,7 +14083,7 @@ Return [[`IOX2_OK`](@ref)] on success, otherwise [[`iox2_loan_error_e`](@ref)].
 int iox2_publisher_loan_slice_uninit(iox2_publisher_h_ref publisher_handle, struct iox2_sample_mut_t *sample_struct_ptr, iox2_sample_mut_h *sample_handle_ptr, size_t number_of_elements);
 ```
 """
-function iox2_publisher_loan_slice_uninit(publisher_handle, sample_struct_ptr, sample_handle_ptr, number_of_elements)
+@inline function iox2_publisher_loan_slice_uninit(publisher_handle, sample_struct_ptr, sample_handle_ptr, number_of_elements)
     @ccall libiceoryx2_ffi_c.iox2_publisher_loan_slice_uninit(publisher_handle::iox2_publisher_h_ref, sample_struct_ptr::Ptr{iox2_sample_mut_t}, sample_handle_ptr::Ptr{iox2_sample_mut_h}, number_of_elements::Csize_t)::Cint
 end
 
@@ -11288,7 +14105,7 @@ Updates all connections to new and obsolete subscriber ports and automatically d
 int iox2_publisher_update_connections(iox2_publisher_h_ref publisher_handle);
 ```
 """
-function iox2_publisher_update_connections(publisher_handle)
+@inline function iox2_publisher_update_connections(publisher_handle)
     @ccall libiceoryx2_ffi_c.iox2_publisher_update_connections(publisher_handle::iox2_publisher_h_ref)::Cint
 end
 
@@ -11310,7 +14127,7 @@ This function needs to be called to destroy the publisher!
 void iox2_publisher_drop(iox2_publisher_h publisher_handle);
 ```
 """
-function iox2_publisher_drop(publisher_handle)
+@inline function iox2_publisher_drop(publisher_handle)
     @ccall libiceoryx2_ffi_c.iox2_publisher_drop(publisher_handle::iox2_publisher_h)::Cvoid
 end
 
@@ -11328,14 +14145,14 @@ Returns the unique port id of the publisher.
 void iox2_publisher_details_publisher_id(iox2_publisher_details_ptr handle, struct iox2_unique_publisher_id_t *id_struct_ptr, iox2_unique_publisher_id_h *id_handle_ptr);
 ```
 """
-function iox2_publisher_details_publisher_id(handle, id_struct_ptr, id_handle_ptr)
+@inline function iox2_publisher_details_publisher_id(handle, id_struct_ptr, id_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_publisher_details_publisher_id(handle::iox2_publisher_details_ptr, id_struct_ptr::Ptr{iox2_unique_publisher_id_t}, id_handle_ptr::Ptr{iox2_unique_publisher_id_h})::Cvoid
 end
 
 """
     iox2_publisher_details_node_id(handle)
 
-Returns the [[`iox2_node_id_ptr`](@ref)](crate::[`iox2_node_id_ptr`](@ref)), an immutable pointer to the node id.
+Returns the [[`iox2_unique_node_id_ptr`](@ref)](crate::[`iox2_unique_node_id_ptr`](@ref)), an immutable pointer to the node id.
 
 # Safety
 
@@ -11343,11 +14160,11 @@ Returns the [[`iox2_node_id_ptr`](@ref)](crate::[`iox2_node_id_ptr`](@ref)), an 
 
 ### Prototype
 ```c
-iox2_node_id_ptr iox2_publisher_details_node_id(iox2_publisher_details_ptr handle);
+iox2_unique_node_id_ptr iox2_publisher_details_node_id(iox2_publisher_details_ptr handle);
 ```
 """
-function iox2_publisher_details_node_id(handle)
-    @ccall libiceoryx2_ffi_c.iox2_publisher_details_node_id(handle::iox2_publisher_details_ptr)::iox2_node_id_ptr
+@inline function iox2_publisher_details_node_id(handle)
+    @ccall libiceoryx2_ffi_c.iox2_publisher_details_node_id(handle::iox2_publisher_details_ptr)::iox2_unique_node_id_ptr
 end
 
 """
@@ -11364,7 +14181,7 @@ Returns the total number of samples contained in the publishers data segment.
 c_size_t iox2_publisher_details_number_of_samples(iox2_publisher_details_ptr handle);
 ```
 """
-function iox2_publisher_details_number_of_samples(handle)
+@inline function iox2_publisher_details_number_of_samples(handle)
     @ccall libiceoryx2_ffi_c.iox2_publisher_details_number_of_samples(handle::iox2_publisher_details_ptr)::c_size_t
 end
 
@@ -11382,7 +14199,7 @@ Returns the current maximum length of a slice.
 c_size_t iox2_publisher_details_max_slice_len(iox2_publisher_details_ptr handle);
 ```
 """
-function iox2_publisher_details_max_slice_len(handle)
+@inline function iox2_publisher_details_max_slice_len(handle)
     @ccall libiceoryx2_ffi_c.iox2_publisher_details_max_slice_len(handle::iox2_publisher_details_ptr)::c_size_t
 end
 
@@ -11735,6 +14552,42 @@ function __iox2_internal_request_send_error_stub()
 end
 
 """
+    __iox2_internal_iox2_degradation_action_stub()
+
+### Prototype
+```c
+enum iox2_degradation_action_e __iox2_internal_iox2_degradation_action_stub(void);
+```
+"""
+function __iox2_internal_iox2_degradation_action_stub()
+    @ccall libiceoryx2_ffi_c.__iox2_internal_iox2_degradation_action_stub()::iox2_degradation_action_e
+end
+
+"""
+    __iox2_internal_iox2_iox2_degradation_cause_stub()
+
+### Prototype
+```c
+enum iox2_degradation_cause_e __iox2_internal_iox2_iox2_degradation_cause_stub(void);
+```
+"""
+function __iox2_internal_iox2_iox2_degradation_cause_stub()
+    @ccall libiceoryx2_ffi_c.__iox2_internal_iox2_iox2_degradation_cause_stub()::iox2_degradation_cause_e
+end
+
+"""
+    __iox2_internal_iox2_service_remove_error_stub()
+
+### Prototype
+```c
+enum iox2_service_remove_error_e __iox2_internal_iox2_service_remove_error_stub(void);
+```
+"""
+function __iox2_internal_iox2_service_remove_error_stub()
+    @ccall libiceoryx2_ffi_c.__iox2_internal_iox2_service_remove_error_stub()::iox2_service_remove_error_e
+end
+
+"""
     iox2_entry_handle_error_string(error)
 
 Returns a string literal describing the provided [[`iox2_entry_handle_error_e`](@ref)].
@@ -11756,7 +14609,7 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_entry_handle_error_string(enum iox2_entry_handle_error_e error);
 ```
 """
-function iox2_entry_handle_error_string(error)
+@inline function iox2_entry_handle_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_entry_handle_error_string(error::iox2_entry_handle_error_e)::Cstring
 end
 
@@ -11778,8 +14631,30 @@ Returns the unique port id of the reader.
 void iox2_reader_id(iox2_reader_h_ref reader_handle, struct iox2_unique_reader_id_t *id_struct_ptr, iox2_unique_reader_id_h *id_handle_ptr);
 ```
 """
-function iox2_reader_id(reader_handle, id_struct_ptr, id_handle_ptr)
+@inline function iox2_reader_id(reader_handle, id_struct_ptr, id_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_reader_id(reader_handle::iox2_reader_h_ref, id_struct_ptr::Ptr{iox2_unique_reader_id_t}, id_handle_ptr::Ptr{iox2_unique_reader_id_h})::Cvoid
+end
+
+"""
+    iox2_reader_name(reader_handle)
+
+Returns the [[`iox2_port_name_ptr`](@ref)](crate::[`iox2_port_name_ptr`](@ref)), an immutable pointer to the port name.
+
+# Arguments
+
+* `reader_handle` must be a valid [[`iox2_reader_h_ref`](@ref)] obtained by [[`iox2_port_factory_reader_builder_create`](@ref)](crate::[`iox2_port_factory_reader_builder_create`](@ref))
+
+# Safety
+
+* `reader_handle` is valid, non-null and was obtained via [[`iox2_port_factory_reader_builder_create`](@ref)](crate::[`iox2_port_factory_reader_builder_create`](@ref)).
+
+### Prototype
+```c
+iox2_port_name_ptr iox2_reader_name(iox2_reader_h_ref reader_handle);
+```
+"""
+@inline function iox2_reader_name(reader_handle)
+    @ccall libiceoryx2_ffi_c.iox2_reader_name(reader_handle::iox2_reader_h_ref)::iox2_port_name_ptr
 end
 
 """
@@ -11800,7 +14675,7 @@ Acquires an entry handle for direct read access to the stored value.
 int iox2_reader_entry(iox2_reader_h_ref reader_handle, struct iox2_entry_handle_t *entry_handle_struct_ptr, iox2_entry_handle_h *entry_handle_handle_ptr, const void *key, const char *value_type_name_str, c_size_t value_type_name_len, c_size_t value_size, c_size_t value_alignment);
 ```
 """
-function iox2_reader_entry(reader_handle, entry_handle_struct_ptr, entry_handle_handle_ptr, key, value_type_name_str, value_type_name_len, value_size, value_alignment)
+@inline function iox2_reader_entry(reader_handle, entry_handle_struct_ptr, entry_handle_handle_ptr, key, value_type_name_str, value_type_name_len, value_size, value_alignment)
     @ccall libiceoryx2_ffi_c.iox2_reader_entry(reader_handle::iox2_reader_h_ref, entry_handle_struct_ptr::Ptr{iox2_entry_handle_t}, entry_handle_handle_ptr::Ptr{iox2_entry_handle_h}, key::Ptr{Cvoid}, value_type_name_str::Cstring, value_type_name_len::c_size_t, value_size::c_size_t, value_alignment::c_size_t)::Cint
 end
 
@@ -11822,7 +14697,7 @@ This function needs to be called to destroy the reader!
 void iox2_reader_drop(iox2_reader_h reader_handle);
 ```
 """
-function iox2_reader_drop(reader_handle)
+@inline function iox2_reader_drop(reader_handle)
     @ccall libiceoryx2_ffi_c.iox2_reader_drop(reader_handle::iox2_reader_h)::Cvoid
 end
 
@@ -11840,14 +14715,14 @@ Returns the unique port id of the reader.
 void iox2_reader_details_reader_id(iox2_reader_details_ptr handle, struct iox2_unique_reader_id_t *id_struct_ptr, iox2_unique_reader_id_h *id_handle_ptr);
 ```
 """
-function iox2_reader_details_reader_id(handle, id_struct_ptr, id_handle_ptr)
+@inline function iox2_reader_details_reader_id(handle, id_struct_ptr, id_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_reader_details_reader_id(handle::iox2_reader_details_ptr, id_struct_ptr::Ptr{iox2_unique_reader_id_t}, id_handle_ptr::Ptr{iox2_unique_reader_id_h})::Cvoid
 end
 
 """
     iox2_reader_details_node_id(handle)
 
-Returns the [[`iox2_node_id_ptr`](@ref)](crate::[`iox2_node_id_ptr`](@ref)), an immutable pointer to the node id.
+Returns the [[`iox2_unique_node_id_ptr`](@ref)](crate::[`iox2_unique_node_id_ptr`](@ref)), an immutable pointer to the node id.
 
 # Safety
 
@@ -11855,11 +14730,11 @@ Returns the [[`iox2_node_id_ptr`](@ref)](crate::[`iox2_node_id_ptr`](@ref)), an 
 
 ### Prototype
 ```c
-iox2_node_id_ptr iox2_reader_details_node_id(iox2_reader_details_ptr handle);
+iox2_unique_node_id_ptr iox2_reader_details_node_id(iox2_reader_details_ptr handle);
 ```
 """
-function iox2_reader_details_node_id(handle)
-    @ccall libiceoryx2_ffi_c.iox2_reader_details_node_id(handle::iox2_reader_details_ptr)::iox2_node_id_ptr
+@inline function iox2_reader_details_node_id(handle)
+    @ccall libiceoryx2_ffi_c.iox2_reader_details_node_id(handle::iox2_reader_details_ptr)::iox2_unique_node_id_ptr
 end
 
 """
@@ -11876,7 +14751,7 @@ This function needs to be called to destroy the request\\_header!
 void iox2_request_header_drop(iox2_request_header_h handle);
 ```
 """
-function iox2_request_header_drop(handle)
+@inline function iox2_request_header_drop(handle)
     @ccall libiceoryx2_ffi_c.iox2_request_header_drop(handle::iox2_request_header_h)::Cvoid
 end
 
@@ -11898,7 +14773,7 @@ Returns the unique client id of the source of the request.
 void iox2_request_header_client_id(iox2_request_header_h_ref header_handle, struct iox2_unique_client_id_t *id_struct_ptr, iox2_unique_client_id_h *id_handle_ptr);
 ```
 """
-function iox2_request_header_client_id(header_handle, id_struct_ptr, id_handle_ptr)
+@inline function iox2_request_header_client_id(header_handle, id_struct_ptr, id_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_request_header_client_id(header_handle::iox2_request_header_h_ref, id_struct_ptr::Ptr{iox2_unique_client_id_t}, id_handle_ptr::Ptr{iox2_unique_client_id_h})::Cvoid
 end
 
@@ -11920,7 +14795,7 @@ Returns the number of elements of the payload. The element size is defined via t
 uint64_t iox2_request_header_number_of_elements(iox2_request_header_h_ref header_handle);
 ```
 """
-function iox2_request_header_number_of_elements(header_handle)
+@inline function iox2_request_header_number_of_elements(header_handle)
     @ccall libiceoryx2_ffi_c.iox2_request_header_number_of_elements(header_handle::iox2_request_header_h_ref)::UInt64
 end
 
@@ -11946,7 +14821,7 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_request_send_error_string(enum iox2_request_send_error_e error);
 ```
 """
-function iox2_request_send_error_string(error)
+@inline function iox2_request_send_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_request_send_error_string(error::iox2_request_send_error_e)::Cstring
 end
 
@@ -11964,7 +14839,7 @@ Acquires the requests user header.
 void iox2_request_mut_user_header(iox2_request_mut_h_ref handle, const void **header_ptr);
 ```
 """
-function iox2_request_mut_user_header(handle, header_ptr)
+@inline function iox2_request_mut_user_header(handle, header_ptr)
     @ccall libiceoryx2_ffi_c.iox2_request_mut_user_header(handle::iox2_request_mut_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
 end
 
@@ -11982,7 +14857,7 @@ Acquires the requests header.
 void iox2_request_mut_header(iox2_request_mut_h_ref handle, struct iox2_request_header_t *header_struct_ptr, iox2_request_header_h *header_handle_ptr);
 ```
 """
-function iox2_request_mut_header(handle, header_struct_ptr, header_handle_ptr)
+@inline function iox2_request_mut_header(handle, header_struct_ptr, header_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_request_mut_header(handle::iox2_request_mut_h_ref, header_struct_ptr::Ptr{iox2_request_header_t}, header_handle_ptr::Ptr{iox2_request_header_h})::Cvoid
 end
 
@@ -12000,7 +14875,7 @@ Acquires the requests mutable user header.
 void iox2_request_mut_user_header_mut(iox2_request_mut_h_ref handle, void **header_ptr);
 ```
 """
-function iox2_request_mut_user_header_mut(handle, header_ptr)
+@inline function iox2_request_mut_user_header_mut(handle, header_ptr)
     @ccall libiceoryx2_ffi_c.iox2_request_mut_user_header_mut(handle::iox2_request_mut_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
 end
 
@@ -12018,7 +14893,7 @@ Acquires the requests mutable payload.
 void iox2_request_mut_payload_mut(iox2_request_mut_h_ref handle, void **payload_ptr, c_size_t *number_of_elements);
 ```
 """
-function iox2_request_mut_payload_mut(handle, payload_ptr, number_of_elements)
+@inline function iox2_request_mut_payload_mut(handle, payload_ptr, number_of_elements)
     @ccall libiceoryx2_ffi_c.iox2_request_mut_payload_mut(handle::iox2_request_mut_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
 end
 
@@ -12036,8 +14911,26 @@ Acquires the request payload.
 void iox2_request_mut_payload(iox2_request_mut_h_ref handle, const void **payload_ptr, c_size_t *number_of_elements);
 ```
 """
-function iox2_request_mut_payload(handle, payload_ptr, number_of_elements)
+@inline function iox2_request_mut_payload(handle, payload_ptr, number_of_elements)
     @ccall libiceoryx2_ffi_c.iox2_request_mut_payload(handle::iox2_request_mut_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
+end
+
+"""
+    iox2_request_mut_payload_number_of_bytes(handle)
+
+Returns the number of bytes of the request payload.
+
+# Safety
+
+* `handle` obtained by [`[`iox2_client_loan_slice_uninit`](@ref)()`](crate::[`iox2_client_loan_slice_uninit`](@ref)())
+
+### Prototype
+```c
+c_size_t iox2_request_mut_payload_number_of_bytes(iox2_request_mut_h_ref handle);
+```
+"""
+@inline function iox2_request_mut_payload_number_of_bytes(handle)
+    @ccall libiceoryx2_ffi_c.iox2_request_mut_payload_number_of_bytes(handle::iox2_request_mut_h_ref)::c_size_t
 end
 
 """
@@ -12054,7 +14947,7 @@ Takes the ownership of the request and sends it
 int iox2_request_mut_send(iox2_request_mut_h handle, struct iox2_pending_response_t *pending_response_struct_ptr, iox2_pending_response_h *pending_response_handle_ptr);
 ```
 """
-function iox2_request_mut_send(handle, pending_response_struct_ptr, pending_response_handle_ptr)
+@inline function iox2_request_mut_send(handle, pending_response_struct_ptr, pending_response_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_request_mut_send(handle::iox2_request_mut_h, pending_response_struct_ptr::Ptr{iox2_pending_response_t}, pending_response_handle_ptr::Ptr{iox2_pending_response_h})::Cint
 end
 
@@ -12076,8 +14969,80 @@ This function needs to be called to destroy the request!
 void iox2_request_mut_drop(iox2_request_mut_h handle);
 ```
 """
-function iox2_request_mut_drop(handle)
+@inline function iox2_request_mut_drop(handle)
     @ccall libiceoryx2_ffi_c.iox2_request_mut_drop(handle::iox2_request_mut_h)::Cvoid
+end
+
+"""
+    iox2_resizable_memory_publish_subscribe_grow_downwards(handle, new_size, in_use_front, new_ptr)
+
+Resizes the underlying memory downwards. All contents are copied to the end of the resized memory chunk. When `in\\_use\\_front != 0` those first bytes are copied to the beginning of the resized memory chunk. The `new_size` argument must be greater than the previous size, otherwise this function will fail.
+
+# Safety
+
+* `handle` is valid and non-null * `new_ptr` must be a valid pointer pointing to `*mut u8`
+
+### Prototype
+```c
+int iox2_resizable_memory_publish_subscribe_grow_downwards(iox2_resizable_memory_publish_subscribe_h_ref handle, size_t new_size, size_t in_use_front, uint8_t **new_ptr);
+```
+"""
+@inline function iox2_resizable_memory_publish_subscribe_grow_downwards(handle, new_size, in_use_front, new_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_resizable_memory_publish_subscribe_grow_downwards(handle::iox2_resizable_memory_publish_subscribe_h_ref, new_size::Csize_t, in_use_front::Csize_t, new_ptr::Ptr{Ptr{UInt8}})::Cint
+end
+
+"""
+    iox2_resizable_memory_publish_subscribe_ptr(handle)
+
+Returns the current payload pointer that is managed by the resizable memory.
+
+# Safety
+
+* `handle` is valid and non-null
+
+### Prototype
+```c
+uint8_t *iox2_resizable_memory_publish_subscribe_ptr(iox2_resizable_memory_publish_subscribe_h_ref handle);
+```
+"""
+@inline function iox2_resizable_memory_publish_subscribe_ptr(handle)
+    @ccall libiceoryx2_ffi_c.iox2_resizable_memory_publish_subscribe_ptr(handle::iox2_resizable_memory_publish_subscribe_h_ref)::Ptr{UInt8}
+end
+
+"""
+    iox2_resizable_memory_publish_subscribe_len(handle)
+
+Returns the current length of the memory that is managed by the resizable memory.
+
+# Safety
+
+* `handle` is valid and non-null
+
+### Prototype
+```c
+size_t iox2_resizable_memory_publish_subscribe_len(iox2_resizable_memory_publish_subscribe_h_ref handle);
+```
+"""
+@inline function iox2_resizable_memory_publish_subscribe_len(handle)
+    @ccall libiceoryx2_ffi_c.iox2_resizable_memory_publish_subscribe_len(handle::iox2_resizable_memory_publish_subscribe_h_ref)::Csize_t
+end
+
+"""
+    iox2_resizable_memory_publish_subscribe_drop(handle)
+
+Cleans up the resizable memory.
+
+# Safety
+
+* `handle` is valid and non-null * after this call the `handle` is no longer valid
+
+### Prototype
+```c
+void iox2_resizable_memory_publish_subscribe_drop(iox2_resizable_memory_publish_subscribe_h handle);
+```
+"""
+@inline function iox2_resizable_memory_publish_subscribe_drop(handle)
+    @ccall libiceoryx2_ffi_c.iox2_resizable_memory_publish_subscribe_drop(handle::iox2_resizable_memory_publish_subscribe_h)::Cvoid
 end
 
 """
@@ -12094,7 +15059,7 @@ Acquires the responses header.
 void iox2_response_header(iox2_response_h_ref handle, struct iox2_response_header_t *header_struct_ptr, iox2_response_header_h *header_handle_ptr);
 ```
 """
-function iox2_response_header(handle, header_struct_ptr, header_handle_ptr)
+@inline function iox2_response_header(handle, header_struct_ptr, header_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_response_header(handle::iox2_response_h_ref, header_struct_ptr::Ptr{iox2_response_header_t}, header_handle_ptr::Ptr{iox2_response_header_h})::Cvoid
 end
 
@@ -12112,7 +15077,7 @@ Acquires the responses user header.
 void iox2_response_user_header(iox2_response_h_ref handle, const void **header_ptr);
 ```
 """
-function iox2_response_user_header(handle, header_ptr)
+@inline function iox2_response_user_header(handle, header_ptr)
     @ccall libiceoryx2_ffi_c.iox2_response_user_header(handle::iox2_response_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
 end
 
@@ -12130,8 +15095,26 @@ Acquires the responses payload.
 void iox2_response_payload(iox2_response_h_ref handle, const void **payload_ptr, c_size_t *number_of_elements);
 ```
 """
-function iox2_response_payload(handle, payload_ptr, number_of_elements)
+@inline function iox2_response_payload(handle, payload_ptr, number_of_elements)
     @ccall libiceoryx2_ffi_c.iox2_response_payload(handle::iox2_response_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
+end
+
+"""
+    iox2_response_payload_number_of_bytes(handle)
+
+Returns the number of bytes of the response payload.
+
+# Safety
+
+* `handle` obtained by [`[`iox2_pending_response_receive`](@ref)()`](crate::[`iox2_pending_response_receive`](@ref)())
+
+### Prototype
+```c
+c_size_t iox2_response_payload_number_of_bytes(iox2_response_h_ref handle);
+```
+"""
+@inline function iox2_response_payload_number_of_bytes(handle)
+    @ccall libiceoryx2_ffi_c.iox2_response_payload_number_of_bytes(handle::iox2_response_h_ref)::c_size_t
 end
 
 """
@@ -12148,7 +15131,7 @@ Destroys the response.
 void iox2_response_drop(iox2_response_h handle);
 ```
 """
-function iox2_response_drop(handle)
+@inline function iox2_response_drop(handle)
     @ccall libiceoryx2_ffi_c.iox2_response_drop(handle::iox2_response_h)::Cvoid
 end
 
@@ -12166,7 +15149,7 @@ This function needs to be called to destroy the response\\_header!
 void iox2_response_header_drop(iox2_response_header_h handle);
 ```
 """
-function iox2_response_header_drop(handle)
+@inline function iox2_response_header_drop(handle)
     @ccall libiceoryx2_ffi_c.iox2_response_header_drop(handle::iox2_response_header_h)::Cvoid
 end
 
@@ -12188,7 +15171,7 @@ Returns the unique server id of the source of the response.
 void iox2_response_header_server_id(iox2_response_header_h_ref header_handle, struct iox2_unique_server_id_t *id_struct_ptr, iox2_unique_server_id_h *id_handle_ptr);
 ```
 """
-function iox2_response_header_server_id(header_handle, id_struct_ptr, id_handle_ptr)
+@inline function iox2_response_header_server_id(header_handle, id_struct_ptr, id_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_response_header_server_id(header_handle::iox2_response_header_h_ref, id_struct_ptr::Ptr{iox2_unique_server_id_t}, id_handle_ptr::Ptr{iox2_unique_server_id_h})::Cvoid
 end
 
@@ -12210,7 +15193,7 @@ Returns the number of elements of the payload. The element size is defined via t
 uint64_t iox2_response_header_number_of_elements(iox2_response_header_h_ref header_handle);
 ```
 """
-function iox2_response_header_number_of_elements(header_handle)
+@inline function iox2_response_header_number_of_elements(header_handle)
     @ccall libiceoryx2_ffi_c.iox2_response_header_number_of_elements(header_handle::iox2_response_header_h_ref)::UInt64
 end
 
@@ -12228,7 +15211,7 @@ Acquires the responses header.
 void iox2_response_mut_header(iox2_response_mut_h_ref handle, struct iox2_response_header_t *header_struct_ptr, iox2_response_header_h *header_handle_ptr);
 ```
 """
-function iox2_response_mut_header(handle, header_struct_ptr, header_handle_ptr)
+@inline function iox2_response_mut_header(handle, header_struct_ptr, header_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_response_mut_header(handle::iox2_response_mut_h_ref, header_struct_ptr::Ptr{iox2_response_header_t}, header_handle_ptr::Ptr{iox2_response_header_h})::Cvoid
 end
 
@@ -12246,7 +15229,7 @@ Acquires the responses user header.
 void iox2_response_mut_user_header(iox2_response_mut_h_ref handle, const void **header_ptr);
 ```
 """
-function iox2_response_mut_user_header(handle, header_ptr)
+@inline function iox2_response_mut_user_header(handle, header_ptr)
     @ccall libiceoryx2_ffi_c.iox2_response_mut_user_header(handle::iox2_response_mut_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
 end
 
@@ -12264,7 +15247,7 @@ Acquires the responses mutable user header.
 void iox2_response_mut_user_header_mut(iox2_response_mut_h_ref handle, void **header_ptr);
 ```
 """
-function iox2_response_mut_user_header_mut(handle, header_ptr)
+@inline function iox2_response_mut_user_header_mut(handle, header_ptr)
     @ccall libiceoryx2_ffi_c.iox2_response_mut_user_header_mut(handle::iox2_response_mut_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
 end
 
@@ -12282,7 +15265,7 @@ Acquires the responses payload.
 void iox2_response_mut_payload(iox2_response_mut_h_ref handle, const void **payload_ptr, c_size_t *number_of_elements);
 ```
 """
-function iox2_response_mut_payload(handle, payload_ptr, number_of_elements)
+@inline function iox2_response_mut_payload(handle, payload_ptr, number_of_elements)
     @ccall libiceoryx2_ffi_c.iox2_response_mut_payload(handle::iox2_response_mut_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
 end
 
@@ -12300,8 +15283,26 @@ Acquires the responses mutable payload.
 void iox2_response_mut_payload_mut(iox2_response_mut_h_ref handle, void **payload_ptr, c_size_t *number_of_elements);
 ```
 """
-function iox2_response_mut_payload_mut(handle, payload_ptr, number_of_elements)
+@inline function iox2_response_mut_payload_mut(handle, payload_ptr, number_of_elements)
     @ccall libiceoryx2_ffi_c.iox2_response_mut_payload_mut(handle::iox2_response_mut_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
+end
+
+"""
+    iox2_response_mut_payload_number_of_bytes(handle)
+
+Returns the number of bytes of the response payload.
+
+# Safety
+
+* `handle` obtained by [`[`iox2_active_request_loan_slice_uninit`](@ref)()`](crate::[`iox2_active_request_loan_slice_uninit`](@ref)())
+
+### Prototype
+```c
+c_size_t iox2_response_mut_payload_number_of_bytes(iox2_response_mut_h_ref handle);
+```
+"""
+@inline function iox2_response_mut_payload_number_of_bytes(handle)
+    @ccall libiceoryx2_ffi_c.iox2_response_mut_payload_number_of_bytes(handle::iox2_response_mut_h_ref)::c_size_t
 end
 
 """
@@ -12318,7 +15319,7 @@ Sends the response. Returns [`IOX2_OK`](@ref) on success otherwise [[`iox2_send_
 int iox2_response_mut_send(iox2_response_mut_h response_handle);
 ```
 """
-function iox2_response_mut_send(response_handle)
+@inline function iox2_response_mut_send(response_handle)
     @ccall libiceoryx2_ffi_c.iox2_response_mut_send(response_handle::iox2_response_mut_h)::Cint
 end
 
@@ -12336,7 +15337,7 @@ Destroys the response without sending it.
 void iox2_response_mut_drop(iox2_response_mut_h response_handle);
 ```
 """
-function iox2_response_mut_drop(response_handle)
+@inline function iox2_response_mut_drop(response_handle)
     @ccall libiceoryx2_ffi_c.iox2_response_mut_drop(response_handle::iox2_response_mut_h)::Cvoid
 end
 
@@ -12354,7 +15355,7 @@ Acquires the samples header.
 void iox2_sample_header(iox2_sample_h_ref handle, struct iox2_publish_subscribe_header_t *header_struct_ptr, iox2_publish_subscribe_header_h *header_handle_ptr);
 ```
 """
-function iox2_sample_header(handle, header_struct_ptr, header_handle_ptr)
+@inline function iox2_sample_header(handle, header_struct_ptr, header_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_sample_header(handle::iox2_sample_h_ref, header_struct_ptr::Ptr{iox2_publish_subscribe_header_t}, header_handle_ptr::Ptr{iox2_publish_subscribe_header_h})::Cvoid
 end
 
@@ -12372,7 +15373,7 @@ Acquires the samples user header.
 void iox2_sample_user_header(iox2_sample_h_ref handle, const void **header_ptr);
 ```
 """
-function iox2_sample_user_header(handle, header_ptr)
+@inline function iox2_sample_user_header(handle, header_ptr)
     @ccall libiceoryx2_ffi_c.iox2_sample_user_header(handle::iox2_sample_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
 end
 
@@ -12383,15 +15384,33 @@ Acquires the samples payload.
 
 # Safety
 
-* `handle` obtained by [`[`iox2_subscriber_receive`](@ref)()`](crate::[`iox2_subscriber_receive`](@ref)()) * `payload_ptr` a valid, non-null pointer pointing to a [`*const c\\_void`] pointer. * `number_of_elements` (optional) either a null poitner or a valid pointer pointing to a [[`c_size_t`](@ref)] with the number of elements of the underlying type
+* `handle` obtained by [`[`iox2_subscriber_receive`](@ref)()`](crate::[`iox2_subscriber_receive`](@ref)()) * `payload_ptr` a valid, non-null pointer pointing to a [`*const c\\_void`] pointer. * `number_of_elements` (optional) either a null pointer or a valid pointer pointing to a [[`c_size_t`](@ref)] with the number of elements of the underlying type
 
 ### Prototype
 ```c
 void iox2_sample_payload(iox2_sample_h_ref handle, const void **payload_ptr, c_size_t *number_of_elements);
 ```
 """
-function iox2_sample_payload(handle, payload_ptr, number_of_elements)
+@inline function iox2_sample_payload(handle, payload_ptr, number_of_elements)
     @ccall libiceoryx2_ffi_c.iox2_sample_payload(handle::iox2_sample_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
+end
+
+"""
+    iox2_sample_payload_number_of_bytes(handle)
+
+Returns the number of bytes of the sample's payload.
+
+# Safety
+
+* `handle` obtained by [`[`iox2_subscriber_receive`](@ref)()`](crate::[`iox2_subscriber_receive`](@ref)())
+
+### Prototype
+```c
+c_size_t iox2_sample_payload_number_of_bytes(iox2_sample_h_ref handle);
+```
+"""
+@inline function iox2_sample_payload_number_of_bytes(handle)
+    @ccall libiceoryx2_ffi_c.iox2_sample_payload_number_of_bytes(handle::iox2_sample_h_ref)::c_size_t
 end
 
 """
@@ -12412,7 +15431,7 @@ This function needs to be called to destroy the sample!
 void iox2_sample_drop(iox2_sample_h sample_handle);
 ```
 """
-function iox2_sample_drop(sample_handle)
+@inline function iox2_sample_drop(sample_handle)
     @ccall libiceoryx2_ffi_c.iox2_sample_drop(sample_handle::iox2_sample_h)::Cvoid
 end
 
@@ -12430,7 +15449,7 @@ Acquires the samples user header.
 void iox2_sample_mut_user_header(iox2_sample_mut_h_ref handle, const void **header_ptr);
 ```
 """
-function iox2_sample_mut_user_header(handle, header_ptr)
+@inline function iox2_sample_mut_user_header(handle, header_ptr)
     @ccall libiceoryx2_ffi_c.iox2_sample_mut_user_header(handle::iox2_sample_mut_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
 end
 
@@ -12448,7 +15467,7 @@ Acquires the samples header.
 void iox2_sample_mut_header(iox2_sample_mut_h_ref handle, struct iox2_publish_subscribe_header_t *header_struct_ptr, iox2_publish_subscribe_header_h *header_handle_ptr);
 ```
 """
-function iox2_sample_mut_header(handle, header_struct_ptr, header_handle_ptr)
+@inline function iox2_sample_mut_header(handle, header_struct_ptr, header_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_sample_mut_header(handle::iox2_sample_mut_h_ref, header_struct_ptr::Ptr{iox2_publish_subscribe_header_t}, header_handle_ptr::Ptr{iox2_publish_subscribe_header_h})::Cvoid
 end
 
@@ -12466,7 +15485,7 @@ Acquires the samples mutable user header.
 void iox2_sample_mut_user_header_mut(iox2_sample_mut_h_ref handle, void **header_ptr);
 ```
 """
-function iox2_sample_mut_user_header_mut(handle, header_ptr)
+@inline function iox2_sample_mut_user_header_mut(handle, header_ptr)
     @ccall libiceoryx2_ffi_c.iox2_sample_mut_user_header_mut(handle::iox2_sample_mut_h_ref, header_ptr::Ptr{Ptr{Cvoid}})::Cvoid
 end
 
@@ -12477,14 +15496,14 @@ Acquires the samples mutable payload.
 
 # Safety
 
-* `handle` obtained by [`[`iox2_publisher_loan_slice_uninit`](@ref)()`](crate::[`iox2_publisher_loan_slice_uninit`](@ref)()) * `payload_ptr` a valid, non-null pointer pointing to a [`*const c\\_void`] pointer. * `payload_len` (optional) either a null poitner or a valid pointer pointing to a [[`c_size_t`](@ref)].
+* `handle` obtained by [`[`iox2_publisher_loan_slice_uninit`](@ref)()`](crate::[`iox2_publisher_loan_slice_uninit`](@ref)()) * `payload_ptr` a valid, non-null pointer pointing to a [`*const c\\_void`] pointer. * `payload_len` (optional) either a null pointer or a valid pointer pointing to a [[`c_size_t`](@ref)].
 
 ### Prototype
 ```c
 void iox2_sample_mut_payload_mut(iox2_sample_mut_h_ref handle, void **payload_ptr, c_size_t *number_of_elements);
 ```
 """
-function iox2_sample_mut_payload_mut(handle, payload_ptr, number_of_elements)
+@inline function iox2_sample_mut_payload_mut(handle, payload_ptr, number_of_elements)
     @ccall libiceoryx2_ffi_c.iox2_sample_mut_payload_mut(handle::iox2_sample_mut_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
 end
 
@@ -12495,15 +15514,33 @@ Acquires the samples payload.
 
 # Safety
 
-* `handle` obtained by [`[`iox2_publisher_loan_slice_uninit`](@ref)()`](crate::[`iox2_publisher_loan_slice_uninit`](@ref)()) * `payload_ptr` a valid, non-null pointer pointing to a [`*const c\\_void`] pointer. * `payload_len` (optional) either a null poitner or a valid pointer pointing to a [[`c_size_t`](@ref)].
+* `handle` obtained by [`[`iox2_publisher_loan_slice_uninit`](@ref)()`](crate::[`iox2_publisher_loan_slice_uninit`](@ref)()) * `payload_ptr` a valid, non-null pointer pointing to a [`*const c\\_void`] pointer. * `payload_len` (optional) either a null pointer or a valid pointer pointing to a [[`c_size_t`](@ref)].
 
 ### Prototype
 ```c
 void iox2_sample_mut_payload(iox2_sample_mut_h_ref handle, const void **payload_ptr, c_size_t *number_of_elements);
 ```
 """
-function iox2_sample_mut_payload(handle, payload_ptr, number_of_elements)
+@inline function iox2_sample_mut_payload(handle, payload_ptr, number_of_elements)
     @ccall libiceoryx2_ffi_c.iox2_sample_mut_payload(handle::iox2_sample_mut_h_ref, payload_ptr::Ptr{Ptr{Cvoid}}, number_of_elements::Ptr{c_size_t})::Cvoid
+end
+
+"""
+    iox2_sample_mut_payload_number_of_bytes(handle)
+
+Returns the number of bytes of the sample's payload.
+
+# Safety
+
+* `handle` obtained by [`[`iox2_publisher_loan_slice_uninit`](@ref)()`](crate::[`iox2_publisher_loan_slice_uninit`](@ref)())
+
+### Prototype
+```c
+c_size_t iox2_sample_mut_payload_number_of_bytes(iox2_sample_mut_h_ref handle);
+```
+"""
+@inline function iox2_sample_mut_payload_number_of_bytes(handle)
+    @ccall libiceoryx2_ffi_c.iox2_sample_mut_payload_number_of_bytes(handle::iox2_sample_mut_h_ref)::c_size_t
 end
 
 """
@@ -12520,8 +15557,44 @@ Takes the ownership of the sample and sends it
 int iox2_sample_mut_send(iox2_sample_mut_h sample_handle, c_size_t *number_of_recipients);
 ```
 """
-function iox2_sample_mut_send(sample_handle, number_of_recipients)
+@inline function iox2_sample_mut_send(sample_handle, number_of_recipients)
     @ccall libiceoryx2_ffi_c.iox2_sample_mut_send(sample_handle::iox2_sample_mut_h, number_of_recipients::Ptr{c_size_t})::Cint
+end
+
+"""
+    iox2_sample_mut_finish_serialized(handle, payload_ptr)
+
+Finalizes a sample that was populated through serialization. Based on the provided `payload_ptr` and `allocation_size` the offset to the start of the payload is calculated.
+
+# Safety
+
+* `handle` obtained by [`[`iox2_publisher_loan_slice_uninit`](@ref)()`](crate::[`iox2_publisher_loan_slice_uninit`](@ref)()) * `payload_ptr` is a valid pointer into the managed payload of this sample. * `allocation_size` is the size that was allocated through the resizable memory.
+
+### Prototype
+```c
+void iox2_sample_mut_finish_serialized(iox2_sample_mut_h_ref handle, const uint8_t *payload_ptr);
+```
+"""
+@inline function iox2_sample_mut_finish_serialized(handle, payload_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_sample_mut_finish_serialized(handle::iox2_sample_mut_h_ref, payload_ptr::Ptr{UInt8})::Cvoid
+end
+
+"""
+    iox2_sample_mut_create_resizable_memory_builder(handle, struct_ptr, handle_ptr)
+
+Returns a resizable memory builder required for dynamic allocation within the sample.
+
+# Safety
+
+* `handle` obtained by [`[`iox2_publisher_loan_slice_uninit`](@ref)()`](crate::[`iox2_publisher_loan_slice_uninit`](@ref)()) * `struct_ptr` - Must be either a NULL pointer or a pointer to a valid [[`iox2_resizable_memory_publish_subscribe_t`](@ref)]. If it is a NULL pointer, the storage will be allocated on the heap. * `handle_ptr` - An uninitialized or dangling [[`iox2_resizable_memory_publish_subscribe_h`](@ref)] handle which will be initialized by this function call.
+
+### Prototype
+```c
+void iox2_sample_mut_create_resizable_memory_builder(iox2_sample_mut_h_ref handle, struct iox2_resizable_memory_publish_subscribe_t *struct_ptr, iox2_resizable_memory_publish_subscribe_h *handle_ptr);
+```
+"""
+@inline function iox2_sample_mut_create_resizable_memory_builder(handle, struct_ptr, handle_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_sample_mut_create_resizable_memory_builder(handle::iox2_sample_mut_h_ref, struct_ptr::Ptr{iox2_resizable_memory_publish_subscribe_t}, handle_ptr::Ptr{iox2_resizable_memory_publish_subscribe_h})::Cvoid
 end
 
 """
@@ -12542,7 +15615,7 @@ This function needs to be called to destroy the sample!
 void iox2_sample_mut_drop(iox2_sample_mut_h sample_handle);
 ```
 """
-function iox2_sample_mut_drop(sample_handle)
+@inline function iox2_sample_mut_drop(sample_handle)
     @ccall libiceoryx2_ffi_c.iox2_sample_mut_drop(sample_handle::iox2_sample_mut_h)::Cvoid
 end
 
@@ -12564,8 +15637,30 @@ Returns the unique port id of the server.
 void iox2_server_id(iox2_server_h_ref handle, struct iox2_unique_server_id_t *id_struct_ptr, iox2_unique_server_id_h *id_handle_ptr);
 ```
 """
-function iox2_server_id(handle, id_struct_ptr, id_handle_ptr)
+@inline function iox2_server_id(handle, id_struct_ptr, id_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_server_id(handle::iox2_server_h_ref, id_struct_ptr::Ptr{iox2_unique_server_id_t}, id_handle_ptr::Ptr{iox2_unique_server_id_h})::Cvoid
+end
+
+"""
+    iox2_server_name(handle)
+
+Returns the [[`iox2_port_name_ptr`](@ref)](crate::[`iox2_port_name_ptr`](@ref)), an immutable pointer to the port name.
+
+# Arguments
+
+* `handle` must be a valid [[`iox2_server_h_ref`](@ref)] obtained by [[`iox2_port_factory_subscriber_builder_create`](@ref)](crate::[`iox2_port_factory_subscriber_builder_create`](@ref)).
+
+# Safety
+
+* `handle` is valid, non-null and was obtained via [[`iox2_port_factory_server_builder_create`](@ref)](crate::[`iox2_port_factory_server_builder_create`](@ref)).
+
+### Prototype
+```c
+iox2_port_name_ptr iox2_server_name(iox2_server_h_ref handle);
+```
+"""
+@inline function iox2_server_name(handle)
+    @ccall libiceoryx2_ffi_c.iox2_server_name(handle::iox2_server_h_ref)::iox2_port_name_ptr
 end
 
 """
@@ -12588,14 +15683,14 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_connection_failure_e`](@ref)](c
 int iox2_server_has_requests(iox2_server_h_ref handle, bool *result_ptr);
 ```
 """
-function iox2_server_has_requests(handle, result_ptr)
+@inline function iox2_server_has_requests(handle, result_ptr)
     @ccall libiceoryx2_ffi_c.iox2_server_has_requests(handle::iox2_server_h_ref, result_ptr::Ptr{Bool})::Cint
 end
 
 """
     iox2_server_initial_max_slice_len(handle)
 
-Returns the initial max slice len of the server. In the dynamic memory case, slice lenght might increase over time.
+Returns the initial max slice len of the server. In the dynamic memory case, slice length might increase over time.
 
 # Safety
 
@@ -12606,7 +15701,7 @@ Returns the initial max slice len of the server. In the dynamic memory case, sli
 c_size_t iox2_server_initial_max_slice_len(iox2_server_h_ref handle);
 ```
 """
-function iox2_server_initial_max_slice_len(handle)
+@inline function iox2_server_initial_max_slice_len(handle)
     @ccall libiceoryx2_ffi_c.iox2_server_initial_max_slice_len(handle::iox2_server_h_ref)::c_size_t
 end
 
@@ -12630,7 +15725,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_receive_error_e`](@ref)](crate:
 int iox2_server_receive(iox2_server_h_ref server_handle, struct iox2_active_request_t *active_request_struct_ptr, iox2_active_request_h *active_request_handle_ptr);
 ```
 """
-function iox2_server_receive(server_handle, active_request_struct_ptr, active_request_handle_ptr)
+@inline function iox2_server_receive(server_handle, active_request_struct_ptr, active_request_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_server_receive(server_handle::iox2_server_h_ref, active_request_struct_ptr::Ptr{iox2_active_request_t}, active_request_handle_ptr::Ptr{iox2_active_request_h})::Cint
 end
 
@@ -12652,7 +15747,7 @@ This function needs to be called to destroy the server!
 void iox2_server_drop(iox2_server_h handle);
 ```
 """
-function iox2_server_drop(handle)
+@inline function iox2_server_drop(handle)
     @ccall libiceoryx2_ffi_c.iox2_server_drop(handle::iox2_server_h)::Cvoid
 end
 
@@ -12670,14 +15765,14 @@ Returns the unique port id of the server.
 void iox2_server_details_server_id(iox2_server_details_ptr handle, struct iox2_unique_server_id_t *id_struct_ptr, iox2_unique_server_id_h *id_handle_ptr);
 ```
 """
-function iox2_server_details_server_id(handle, id_struct_ptr, id_handle_ptr)
+@inline function iox2_server_details_server_id(handle, id_struct_ptr, id_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_server_details_server_id(handle::iox2_server_details_ptr, id_struct_ptr::Ptr{iox2_unique_server_id_t}, id_handle_ptr::Ptr{iox2_unique_server_id_h})::Cvoid
 end
 
 """
     iox2_server_details_node_id(handle)
 
-Returns the [[`iox2_node_id_ptr`](@ref)](crate::[`iox2_node_id_ptr`](@ref)), an immutable pointer to the node id.
+Returns the [[`iox2_unique_node_id_ptr`](@ref)](crate::[`iox2_unique_node_id_ptr`](@ref)), an immutable pointer to the node id.
 
 # Safety
 
@@ -12685,11 +15780,11 @@ Returns the [[`iox2_node_id_ptr`](@ref)](crate::[`iox2_node_id_ptr`](@ref)), an 
 
 ### Prototype
 ```c
-iox2_node_id_ptr iox2_server_details_node_id(iox2_server_details_ptr handle);
+iox2_unique_node_id_ptr iox2_server_details_node_id(iox2_server_details_ptr handle);
 ```
 """
-function iox2_server_details_node_id(handle)
-    @ccall libiceoryx2_ffi_c.iox2_server_details_node_id(handle::iox2_server_details_ptr)::iox2_node_id_ptr
+@inline function iox2_server_details_node_id(handle)
+    @ccall libiceoryx2_ffi_c.iox2_server_details_node_id(handle::iox2_server_details_ptr)::iox2_unique_node_id_ptr
 end
 
 """
@@ -12706,7 +15801,7 @@ Returns the receive buffer size for incoming requests.
 c_size_t iox2_server_details_request_buffer_size(iox2_server_details_ptr handle);
 ```
 """
-function iox2_server_details_request_buffer_size(handle)
+@inline function iox2_server_details_request_buffer_size(handle)
     @ccall libiceoryx2_ffi_c.iox2_server_details_request_buffer_size(handle::iox2_server_details_ptr)::c_size_t
 end
 
@@ -12724,7 +15819,7 @@ Returns the total number of responses available in the servers data segment
 c_size_t iox2_server_details_number_of_responses(iox2_server_details_ptr handle);
 ```
 """
-function iox2_server_details_number_of_responses(handle)
+@inline function iox2_server_details_number_of_responses(handle)
     @ccall libiceoryx2_ffi_c.iox2_server_details_number_of_responses(handle::iox2_server_details_ptr)::c_size_t
 end
 
@@ -12742,7 +15837,7 @@ The current maximum length of a slice.
 c_size_t iox2_server_details_max_slice_len(iox2_server_details_ptr handle);
 ```
 """
-function iox2_server_details_max_slice_len(handle)
+@inline function iox2_server_details_max_slice_len(handle)
     @ccall libiceoryx2_ffi_c.iox2_server_details_max_slice_len(handle::iox2_server_details_ptr)::c_size_t
 end
 
@@ -12768,7 +15863,7 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_service_details_error_string(enum iox2_service_details_error_e error);
 ```
 """
-function iox2_service_details_error_string(error)
+@inline function iox2_service_details_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_service_details_error_string(error::iox2_service_details_error_e)::Cstring
 end
 
@@ -12794,7 +15889,7 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_service_list_error_string(enum iox2_service_list_error_e error);
 ```
 """
-function iox2_service_list_error_string(error)
+@inline function iox2_service_list_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_service_list_error_string(error::iox2_service_list_error_e)::Cstring
 end
 
@@ -12812,7 +15907,7 @@ Checks if a specified service exists. If the service exists `does_exist` will co
 int iox2_service_does_exist(enum iox2_service_type_e service_type, iox2_service_name_ptr service_name, iox2_config_ptr config, enum iox2_messaging_pattern_e messaging_pattern, bool *does_exist);
 ```
 """
-function iox2_service_does_exist(service_type, service_name, config, messaging_pattern, does_exist)
+@inline function iox2_service_does_exist(service_type, service_name, config, messaging_pattern, does_exist)
     @ccall libiceoryx2_ffi_c.iox2_service_does_exist(service_type::iox2_service_type_e, service_name::iox2_service_name_ptr, config::iox2_config_ptr, messaging_pattern::iox2_messaging_pattern_e, does_exist::Ptr{Bool})::Cint
 end
 
@@ -12830,7 +15925,7 @@ Acquires the service details of a specified service. If the service exists `serv
 int iox2_service_details(enum iox2_service_type_e service_type, iox2_service_name_ptr service_name, iox2_config_ptr config, enum iox2_messaging_pattern_e messaging_pattern, struct iox2_static_config_t *service_details, bool *does_exist);
 ```
 """
-function iox2_service_details(service_type, service_name, config, messaging_pattern, service_details, does_exist)
+@inline function iox2_service_details(service_type, service_name, config, messaging_pattern, service_details, does_exist)
     @ccall libiceoryx2_ffi_c.iox2_service_details(service_type::iox2_service_type_e, service_name::iox2_service_name_ptr, config::iox2_config_ptr, messaging_pattern::iox2_messaging_pattern_e, service_details::Ptr{iox2_static_config_t}, does_exist::Ptr{Bool})::Cint
 end
 
@@ -12848,7 +15943,7 @@ Iterates over the all accessible services and calls the provided callback for ev
 int iox2_service_list(enum iox2_service_type_e service_type, iox2_config_ptr config_ptr, iox2_service_list_callback callback, iox2_callback_context callback_ctx);
 ```
 """
-function iox2_service_list(service_type, config_ptr, callback, callback_ctx)
+@inline function iox2_service_list(service_type, config_ptr, callback, callback_ctx)
     @ccall libiceoryx2_ffi_c.iox2_service_list(service_type::iox2_service_type_e, config_ptr::iox2_config_ptr, callback::iox2_service_list_callback, callback_ctx::iox2_callback_context)::Cint
 end
 
@@ -12872,7 +15967,7 @@ Returns a [[`iox2_service_builder_event_h`](@ref)] for the event service builder
 iox2_service_builder_event_h iox2_service_builder_event(iox2_service_builder_h service_builder_handle);
 ```
 """
-function iox2_service_builder_event(service_builder_handle)
+@inline function iox2_service_builder_event(service_builder_handle)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_event(service_builder_handle::iox2_service_builder_h)::iox2_service_builder_event_h
 end
 
@@ -12896,8 +15991,28 @@ Returns a [[`iox2_service_builder_pub_sub_h`](@ref)] for the publish-subscribe s
 iox2_service_builder_pub_sub_h iox2_service_builder_pub_sub(iox2_service_builder_h service_builder_handle);
 ```
 """
-function iox2_service_builder_pub_sub(service_builder_handle)
+@inline function iox2_service_builder_pub_sub(service_builder_handle)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub(service_builder_handle::iox2_service_builder_h)::iox2_service_builder_pub_sub_h
+end
+
+"""
+    iox2_service_builder_progressive_pub_sub(service_builder_handle)
+
+Transforms a base service builder into an experimental progressive byte-slice publish-subscribe service builder.
+
+The resulting service always has one publisher, no history, and no safe overflow.
+
+# Safety
+
+* `service_builder_handle` must be a valid owning handle obtained from [[`iox2_node_service_builder`](@ref)](crate::[`iox2_node_service_builder`](@ref)). * The input handle is invalid after this call and ownership is transferred to the returned handle.
+
+### Prototype
+```c
+iox2_service_builder_progressive_pub_sub_h iox2_service_builder_progressive_pub_sub(iox2_service_builder_h service_builder_handle);
+```
+"""
+@inline function iox2_service_builder_progressive_pub_sub(service_builder_handle)
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_progressive_pub_sub(service_builder_handle::iox2_service_builder_h)::iox2_service_builder_progressive_pub_sub_h
 end
 
 """
@@ -12920,7 +16035,7 @@ Returns a [[`iox2_service_builder_request_response_h`](@ref)] for the request-re
 iox2_service_builder_request_response_h iox2_service_builder_request_response(iox2_service_builder_h service_builder_handle);
 ```
 """
-function iox2_service_builder_request_response(service_builder_handle)
+@inline function iox2_service_builder_request_response(service_builder_handle)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response(service_builder_handle::iox2_service_builder_h)::iox2_service_builder_request_response_h
 end
 
@@ -12944,7 +16059,7 @@ Returns a [[`iox2_service_builder_blackboard_creator_h`](@ref)] for the blackboa
 iox2_service_builder_blackboard_creator_h iox2_service_builder_blackboard_creator(iox2_service_builder_h service_builder_handle);
 ```
 """
-function iox2_service_builder_blackboard_creator(service_builder_handle)
+@inline function iox2_service_builder_blackboard_creator(service_builder_handle)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_creator(service_builder_handle::iox2_service_builder_h)::iox2_service_builder_blackboard_creator_h
 end
 
@@ -12968,7 +16083,7 @@ Returns a [[`iox2_service_builder_blackboard_opener_h`](@ref)] for the blackboar
 iox2_service_builder_blackboard_opener_h iox2_service_builder_blackboard_opener(iox2_service_builder_h service_builder_handle);
 ```
 """
-function iox2_service_builder_blackboard_opener(service_builder_handle)
+@inline function iox2_service_builder_blackboard_opener(service_builder_handle)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_opener(service_builder_handle::iox2_service_builder_h)::iox2_service_builder_blackboard_opener_h
 end
 
@@ -12994,7 +16109,7 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_blackboard_open_error_string(enum iox2_blackboard_open_error_e error);
 ```
 """
-function iox2_blackboard_open_error_string(error)
+@inline function iox2_blackboard_open_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_blackboard_open_error_string(error::iox2_blackboard_open_error_e)::Cstring
 end
 
@@ -13020,7 +16135,7 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_blackboard_create_error_string(enum iox2_blackboard_create_error_e error);
 ```
 """
-function iox2_blackboard_create_error_string(error)
+@inline function iox2_blackboard_create_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_blackboard_create_error_string(error::iox2_blackboard_create_error_e)::Cstring
 end
 
@@ -13044,7 +16159,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_type_detail_error_e`](@ref)](cr
 int iox2_service_builder_blackboard_creator_set_key_type_details(iox2_service_builder_blackboard_creator_h_ref service_builder_handle, const char *type_name_str, c_size_t type_name_len, c_size_t size, c_size_t alignment);
 ```
 """
-function iox2_service_builder_blackboard_creator_set_key_type_details(service_builder_handle, type_name_str, type_name_len, size, alignment)
+@inline function iox2_service_builder_blackboard_creator_set_key_type_details(service_builder_handle, type_name_str, type_name_len, size, alignment)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_creator_set_key_type_details(service_builder_handle::iox2_service_builder_blackboard_creator_h_ref, type_name_str::Cstring, type_name_len::c_size_t, size::c_size_t, alignment::c_size_t)::Cint
 end
 
@@ -13068,14 +16183,14 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_type_detail_error_e`](@ref)](cr
 int iox2_service_builder_blackboard_opener_set_key_type_details(iox2_service_builder_blackboard_opener_h_ref service_builder_handle, const char *type_name_str, c_size_t type_name_len, c_size_t size, c_size_t alignment);
 ```
 """
-function iox2_service_builder_blackboard_opener_set_key_type_details(service_builder_handle, type_name_str, type_name_len, size, alignment)
+@inline function iox2_service_builder_blackboard_opener_set_key_type_details(service_builder_handle, type_name_str, type_name_len, size, alignment)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_opener_set_key_type_details(service_builder_handle::iox2_service_builder_blackboard_opener_h_ref, type_name_str::Cstring, type_name_len::c_size_t, size::c_size_t, alignment::c_size_t)::Cint
 end
 
 """
     iox2_service_builder_blackboard_creator_set_key_eq_comparison_function(service_builder_handle, key_eq_func)
 
-Sets the key eqaulity comparison function.
+Sets the key equality comparison function for the creator.
 
 # Arguments
 
@@ -13090,8 +16205,30 @@ Sets the key eqaulity comparison function.
 void iox2_service_builder_blackboard_creator_set_key_eq_comparison_function(iox2_service_builder_blackboard_creator_h_ref service_builder_handle, iox2_service_blackboard_key_eq_cmp_func key_eq_func);
 ```
 """
-function iox2_service_builder_blackboard_creator_set_key_eq_comparison_function(service_builder_handle, key_eq_func)
+@inline function iox2_service_builder_blackboard_creator_set_key_eq_comparison_function(service_builder_handle, key_eq_func)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_creator_set_key_eq_comparison_function(service_builder_handle::iox2_service_builder_blackboard_creator_h_ref, key_eq_func::iox2_service_blackboard_key_eq_cmp_func)::Cvoid
+end
+
+"""
+    iox2_service_builder_blackboard_opener_set_key_eq_comparison_function(service_builder_handle, key_eq_func)
+
+Sets the key equality comparison function for the opener.
+
+# Arguments
+
+* `service_builder_handle` - Must be a valid [[`iox2_service_builder_blackboard_opener_h_ref`](@ref)] obtained by [[`iox2_service_builder_blackboard_opener`](@ref)](crate::[`iox2_service_builder_blackboard_opener`](@ref)). * `key_eq_func` - The function to compare blackboard keys.
+
+# Safety
+
+* `service_builder_handle` must be a valid handle
+
+### Prototype
+```c
+void iox2_service_builder_blackboard_opener_set_key_eq_comparison_function(iox2_service_builder_blackboard_opener_h_ref service_builder_handle, iox2_service_blackboard_key_eq_cmp_func key_eq_func);
+```
+"""
+@inline function iox2_service_builder_blackboard_opener_set_key_eq_comparison_function(service_builder_handle, key_eq_func)
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_opener_set_key_eq_comparison_function(service_builder_handle::iox2_service_builder_blackboard_opener_h_ref, key_eq_func::iox2_service_blackboard_key_eq_cmp_func)::Cvoid
 end
 
 """
@@ -13112,7 +16249,7 @@ Sets the max readers for the creator
 void iox2_service_builder_blackboard_creator_set_max_readers(iox2_service_builder_blackboard_creator_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_blackboard_creator_set_max_readers(service_builder_handle, value)
+@inline function iox2_service_builder_blackboard_creator_set_max_readers(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_creator_set_max_readers(service_builder_handle::iox2_service_builder_blackboard_creator_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -13134,7 +16271,7 @@ Sets the max readers for the opener
 void iox2_service_builder_blackboard_opener_set_max_readers(iox2_service_builder_blackboard_opener_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_blackboard_opener_set_max_readers(service_builder_handle, value)
+@inline function iox2_service_builder_blackboard_opener_set_max_readers(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_opener_set_max_readers(service_builder_handle::iox2_service_builder_blackboard_opener_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -13156,7 +16293,7 @@ Sets the max nodes for the creator
 void iox2_service_builder_blackboard_creator_set_max_nodes(iox2_service_builder_blackboard_creator_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_blackboard_creator_set_max_nodes(service_builder_handle, value)
+@inline function iox2_service_builder_blackboard_creator_set_max_nodes(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_creator_set_max_nodes(service_builder_handle::iox2_service_builder_blackboard_creator_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -13178,7 +16315,7 @@ Sets the max nodes for the opener
 void iox2_service_builder_blackboard_opener_set_max_nodes(iox2_service_builder_blackboard_opener_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_blackboard_opener_set_max_nodes(service_builder_handle, value)
+@inline function iox2_service_builder_blackboard_opener_set_max_nodes(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_opener_set_max_nodes(service_builder_handle::iox2_service_builder_blackboard_opener_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -13200,7 +16337,7 @@ Adds key-value pairs to the blackboard.
 void iox2_service_builder_blackboard_creator_add(iox2_service_builder_blackboard_creator_h_ref service_builder_handle, const void *key, void *value_ptr, iox2_service_blackboard_creator_add_release_callback release_callback, const char *type_name, size_t type_name_len, size_t type_size, size_t type_align);
 ```
 """
-function iox2_service_builder_blackboard_creator_add(service_builder_handle, key, value_ptr, release_callback, type_name, type_name_len, type_size, type_align)
+@inline function iox2_service_builder_blackboard_creator_add(service_builder_handle, key, value_ptr, release_callback, type_name, type_name_len, type_size, type_align)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_creator_add(service_builder_handle::iox2_service_builder_blackboard_creator_h_ref, key::Ptr{Cvoid}, value_ptr::Ptr{Cvoid}, release_callback::iox2_service_blackboard_creator_add_release_callback, type_name::Cstring, type_name_len::Csize_t, type_size::Csize_t, type_align::Csize_t)::Cvoid
 end
 
@@ -13224,7 +16361,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_blackboard_open_error_e`](@ref)
 int iox2_service_builder_blackboard_open(iox2_service_builder_blackboard_opener_h service_builder_handle, struct iox2_port_factory_blackboard_t *port_factory_struct_ptr, iox2_port_factory_blackboard_h *port_factory_handle_ptr);
 ```
 """
-function iox2_service_builder_blackboard_open(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
+@inline function iox2_service_builder_blackboard_open(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_open(service_builder_handle::iox2_service_builder_blackboard_opener_h, port_factory_struct_ptr::Ptr{iox2_port_factory_blackboard_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_blackboard_h})::Cint
 end
 
@@ -13248,7 +16385,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_blackboard_open_error_e`](@ref)
 int iox2_service_builder_blackboard_open_with_attributes(iox2_service_builder_blackboard_opener_h service_builder_handle, iox2_attribute_verifier_h_ref attribute_verifier_handle, struct iox2_port_factory_blackboard_t *port_factory_struct_ptr, iox2_port_factory_blackboard_h *port_factory_handle_ptr);
 ```
 """
-function iox2_service_builder_blackboard_open_with_attributes(service_builder_handle, attribute_verifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
+@inline function iox2_service_builder_blackboard_open_with_attributes(service_builder_handle, attribute_verifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_open_with_attributes(service_builder_handle::iox2_service_builder_blackboard_opener_h, attribute_verifier_handle::iox2_attribute_verifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_blackboard_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_blackboard_h})::Cint
 end
 
@@ -13272,7 +16409,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_blackboard_create_error_e`](@re
 int iox2_service_builder_blackboard_create(iox2_service_builder_blackboard_creator_h service_builder_handle, struct iox2_port_factory_blackboard_t *port_factory_struct_ptr, iox2_port_factory_blackboard_h *port_factory_handle_ptr);
 ```
 """
-function iox2_service_builder_blackboard_create(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
+@inline function iox2_service_builder_blackboard_create(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_create(service_builder_handle::iox2_service_builder_blackboard_creator_h, port_factory_struct_ptr::Ptr{iox2_port_factory_blackboard_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_blackboard_h})::Cint
 end
 
@@ -13296,7 +16433,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_blackboard_create_error_e`](@re
 int iox2_service_builder_blackboard_create_with_attributes(iox2_service_builder_blackboard_creator_h service_builder_handle, iox2_attribute_specifier_h_ref attribute_specifier_handle, struct iox2_port_factory_blackboard_t *port_factory_struct_ptr, iox2_port_factory_blackboard_h *port_factory_handle_ptr);
 ```
 """
-function iox2_service_builder_blackboard_create_with_attributes(service_builder_handle, attribute_specifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
+@inline function iox2_service_builder_blackboard_create_with_attributes(service_builder_handle, attribute_specifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_blackboard_create_with_attributes(service_builder_handle::iox2_service_builder_blackboard_creator_h, attribute_specifier_handle::iox2_attribute_specifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_blackboard_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_blackboard_h})::Cint
 end
 
@@ -13322,7 +16459,7 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_event_open_or_create_error_string(enum iox2_event_open_or_create_error_e error);
 ```
 """
-function iox2_event_open_or_create_error_string(error)
+@inline function iox2_event_open_or_create_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_event_open_or_create_error_string(error::iox2_event_open_or_create_error_e)::Cstring
 end
 
@@ -13344,7 +16481,7 @@ Enables the deadline property of the service. There must be a notification emitt
 void iox2_service_builder_event_set_deadline(iox2_service_builder_event_h_ref service_builder_handle, uint64_t seconds, uint32_t nanoseconds);
 ```
 """
-function iox2_service_builder_event_set_deadline(service_builder_handle, seconds, nanoseconds)
+@inline function iox2_service_builder_event_set_deadline(service_builder_handle, seconds, nanoseconds)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_event_set_deadline(service_builder_handle::iox2_service_builder_event_h_ref, seconds::UInt64, nanoseconds::UInt32)::Cvoid
 end
 
@@ -13366,7 +16503,7 @@ Disables the deadline property of the service.
 void iox2_service_builder_event_disable_deadline(iox2_service_builder_event_h_ref service_builder_handle);
 ```
 """
-function iox2_service_builder_event_disable_deadline(service_builder_handle)
+@inline function iox2_service_builder_event_disable_deadline(service_builder_handle)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_event_disable_deadline(service_builder_handle::iox2_service_builder_event_h_ref)::Cvoid
 end
 
@@ -13388,7 +16525,7 @@ Sets the event id value that shall be emitted if a notifier was identified as de
 void iox2_service_builder_event_set_notifier_dead_event(iox2_service_builder_event_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_event_set_notifier_dead_event(service_builder_handle, value)
+@inline function iox2_service_builder_event_set_notifier_dead_event(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_event_set_notifier_dead_event(service_builder_handle::iox2_service_builder_event_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -13410,7 +16547,7 @@ Disables event id notification when a notifier was identified as dead.
 void iox2_service_builder_event_disable_notifier_dead_event(iox2_service_builder_event_h_ref service_builder_handle);
 ```
 """
-function iox2_service_builder_event_disable_notifier_dead_event(service_builder_handle)
+@inline function iox2_service_builder_event_disable_notifier_dead_event(service_builder_handle)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_event_disable_notifier_dead_event(service_builder_handle::iox2_service_builder_event_h_ref)::Cvoid
 end
 
@@ -13432,7 +16569,7 @@ Sets the event id value that shall be emitted after a notifier was created.
 void iox2_service_builder_event_set_notifier_created_event(iox2_service_builder_event_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_event_set_notifier_created_event(service_builder_handle, value)
+@inline function iox2_service_builder_event_set_notifier_created_event(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_event_set_notifier_created_event(service_builder_handle::iox2_service_builder_event_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -13454,7 +16591,7 @@ Disables the event id value that shall be emitted after a notifier was created.
 void iox2_service_builder_event_disable_notifier_created_event(iox2_service_builder_event_h_ref service_builder_handle);
 ```
 """
-function iox2_service_builder_event_disable_notifier_created_event(service_builder_handle)
+@inline function iox2_service_builder_event_disable_notifier_created_event(service_builder_handle)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_event_disable_notifier_created_event(service_builder_handle::iox2_service_builder_event_h_ref)::Cvoid
 end
 
@@ -13476,7 +16613,7 @@ Sets the event id value that shall be emitted before a notifier is dropped.
 void iox2_service_builder_event_set_notifier_dropped_event(iox2_service_builder_event_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_event_set_notifier_dropped_event(service_builder_handle, value)
+@inline function iox2_service_builder_event_set_notifier_dropped_event(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_event_set_notifier_dropped_event(service_builder_handle::iox2_service_builder_event_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -13498,7 +16635,7 @@ Disables the event id value that shall be emitted before a notifier is dropped.
 void iox2_service_builder_event_disable_notifier_dropped_event(iox2_service_builder_event_h_ref service_builder_handle);
 ```
 """
-function iox2_service_builder_event_disable_notifier_dropped_event(service_builder_handle)
+@inline function iox2_service_builder_event_disable_notifier_dropped_event(service_builder_handle)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_event_disable_notifier_dropped_event(service_builder_handle::iox2_service_builder_event_h_ref)::Cvoid
 end
 
@@ -13520,7 +16657,7 @@ Sets the max notifiers for the builder
 void iox2_service_builder_event_set_max_notifiers(iox2_service_builder_event_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_event_set_max_notifiers(service_builder_handle, value)
+@inline function iox2_service_builder_event_set_max_notifiers(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_event_set_max_notifiers(service_builder_handle::iox2_service_builder_event_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -13542,7 +16679,7 @@ Sets the max nodes for the builder
 void iox2_service_builder_event_set_max_nodes(iox2_service_builder_event_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_event_set_max_nodes(service_builder_handle, value)
+@inline function iox2_service_builder_event_set_max_nodes(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_event_set_max_nodes(service_builder_handle::iox2_service_builder_event_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -13564,7 +16701,7 @@ Sets the max event id value for the builder
 void iox2_service_builder_event_set_event_id_max_value(iox2_service_builder_event_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_event_set_event_id_max_value(service_builder_handle, value)
+@inline function iox2_service_builder_event_set_event_id_max_value(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_event_set_event_id_max_value(service_builder_handle::iox2_service_builder_event_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -13586,7 +16723,7 @@ Sets the max listeners for the builder
 void iox2_service_builder_event_set_max_listeners(iox2_service_builder_event_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_event_set_max_listeners(service_builder_handle, value)
+@inline function iox2_service_builder_event_set_max_listeners(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_event_set_max_listeners(service_builder_handle::iox2_service_builder_event_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -13610,7 +16747,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_event_open_or_create_error_e`](
 int iox2_service_builder_event_open_or_create(iox2_service_builder_event_h service_builder_handle, struct iox2_port_factory_event_t *port_factory_struct_ptr, iox2_port_factory_event_h *port_factory_handle_ptr);
 ```
 """
-function iox2_service_builder_event_open_or_create(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
+@inline function iox2_service_builder_event_open_or_create(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_event_open_or_create(service_builder_handle::iox2_service_builder_event_h, port_factory_struct_ptr::Ptr{iox2_port_factory_event_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_event_h})::Cint
 end
 
@@ -13634,7 +16771,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_event_open_or_create_error_e`](
 int iox2_service_builder_event_open_or_create_with_attributes(iox2_service_builder_event_h service_builder_handle, iox2_attribute_verifier_h_ref attribute_verifier_handle, struct iox2_port_factory_event_t *port_factory_struct_ptr, iox2_port_factory_event_h *port_factory_handle_ptr);
 ```
 """
-function iox2_service_builder_event_open_or_create_with_attributes(service_builder_handle, attribute_verifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
+@inline function iox2_service_builder_event_open_or_create_with_attributes(service_builder_handle, attribute_verifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_event_open_or_create_with_attributes(service_builder_handle::iox2_service_builder_event_h, attribute_verifier_handle::iox2_attribute_verifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_event_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_event_h})::Cint
 end
 
@@ -13658,7 +16795,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_event_open_or_create_error_e`](
 int iox2_service_builder_event_open(iox2_service_builder_event_h service_builder_handle, struct iox2_port_factory_event_t *port_factory_struct_ptr, iox2_port_factory_event_h *port_factory_handle_ptr);
 ```
 """
-function iox2_service_builder_event_open(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
+@inline function iox2_service_builder_event_open(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_event_open(service_builder_handle::iox2_service_builder_event_h, port_factory_struct_ptr::Ptr{iox2_port_factory_event_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_event_h})::Cint
 end
 
@@ -13682,7 +16819,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_event_open_or_create_error_e`](
 int iox2_service_builder_event_open_with_attributes(iox2_service_builder_event_h service_builder_handle, iox2_attribute_verifier_h_ref attribute_verifier_handle, struct iox2_port_factory_event_t *port_factory_struct_ptr, iox2_port_factory_event_h *port_factory_handle_ptr);
 ```
 """
-function iox2_service_builder_event_open_with_attributes(service_builder_handle, attribute_verifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
+@inline function iox2_service_builder_event_open_with_attributes(service_builder_handle, attribute_verifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_event_open_with_attributes(service_builder_handle::iox2_service_builder_event_h, attribute_verifier_handle::iox2_attribute_verifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_event_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_event_h})::Cint
 end
 
@@ -13706,7 +16843,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_event_open_or_create_error_e`](
 int iox2_service_builder_event_create(iox2_service_builder_event_h service_builder_handle, struct iox2_port_factory_event_t *port_factory_struct_ptr, iox2_port_factory_event_h *port_factory_handle_ptr);
 ```
 """
-function iox2_service_builder_event_create(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
+@inline function iox2_service_builder_event_create(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_event_create(service_builder_handle::iox2_service_builder_event_h, port_factory_struct_ptr::Ptr{iox2_port_factory_event_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_event_h})::Cint
 end
 
@@ -13730,8 +16867,170 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_event_open_or_create_error_e`](
 int iox2_service_builder_event_create_with_attributes(iox2_service_builder_event_h service_builder_handle, iox2_attribute_specifier_h_ref attribute_specifier_handle, struct iox2_port_factory_event_t *port_factory_struct_ptr, iox2_port_factory_event_h *port_factory_handle_ptr);
 ```
 """
-function iox2_service_builder_event_create_with_attributes(service_builder_handle, attribute_specifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
+@inline function iox2_service_builder_event_create_with_attributes(service_builder_handle, attribute_specifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_event_create_with_attributes(service_builder_handle::iox2_service_builder_event_h, attribute_specifier_handle::iox2_attribute_specifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_event_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_event_h})::Cint
+end
+
+"""
+    iox2_service_builder_progressive_pub_sub_set_user_header_type_details(builder_handle, type_variant, type_name_str, type_name_len, size, alignment)
+
+Sets the application user-header ABI for a progressive service.
+
+# Safety
+
+`builder_handle` and `type_name_str` must be valid. `type_name_str` must point to `type_name_len` UTF-8 bytes, and `size`/`alignment` must form a valid layout.
+
+### Prototype
+```c
+int iox2_service_builder_progressive_pub_sub_set_user_header_type_details(iox2_service_builder_progressive_pub_sub_h_ref builder_handle, enum iox2_type_variant_e type_variant, const char *type_name_str, c_size_t type_name_len, c_size_t size, c_size_t alignment);
+```
+"""
+@inline function iox2_service_builder_progressive_pub_sub_set_user_header_type_details(builder_handle, type_variant, type_name_str, type_name_len, size, alignment)
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_progressive_pub_sub_set_user_header_type_details(builder_handle::iox2_service_builder_progressive_pub_sub_h_ref, type_variant::iox2_type_variant_e, type_name_str::Cstring, type_name_len::c_size_t, size::c_size_t, alignment::c_size_t)::Cint
+end
+
+"""
+    iox2_service_builder_progressive_pub_sub_set_max_nodes(builder_handle, value)
+
+Sets the maximum number of nodes that may use the progressive service.
+
+# Safety
+
+`builder_handle` must be a valid non-owning progressive service-builder handle.
+
+### Prototype
+```c
+void iox2_service_builder_progressive_pub_sub_set_max_nodes(iox2_service_builder_progressive_pub_sub_h_ref builder_handle, c_size_t value);
+```
+"""
+@inline function iox2_service_builder_progressive_pub_sub_set_max_nodes(builder_handle, value)
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_progressive_pub_sub_set_max_nodes(builder_handle::iox2_service_builder_progressive_pub_sub_h_ref, value::c_size_t)::Cvoid
+end
+
+"""
+    iox2_service_builder_progressive_pub_sub_set_max_subscribers(builder_handle, value)
+
+Sets the maximum number of progressive subscribers.
+
+# Safety
+
+`builder_handle` must be a valid non-owning progressive service-builder handle.
+
+### Prototype
+```c
+void iox2_service_builder_progressive_pub_sub_set_max_subscribers(iox2_service_builder_progressive_pub_sub_h_ref builder_handle, c_size_t value);
+```
+"""
+@inline function iox2_service_builder_progressive_pub_sub_set_max_subscribers(builder_handle, value)
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_progressive_pub_sub_set_max_subscribers(builder_handle::iox2_service_builder_progressive_pub_sub_h_ref, value::c_size_t)::Cvoid
+end
+
+"""
+    iox2_service_builder_progressive_pub_sub_set_subscriber_max_buffer_size(builder_handle, value)
+
+Sets the maximum queue capacity supported by each progressive subscriber.
+
+# Safety
+
+`builder_handle` must be a valid non-owning progressive service-builder handle.
+
+### Prototype
+```c
+void iox2_service_builder_progressive_pub_sub_set_subscriber_max_buffer_size(iox2_service_builder_progressive_pub_sub_h_ref builder_handle, c_size_t value);
+```
+"""
+@inline function iox2_service_builder_progressive_pub_sub_set_subscriber_max_buffer_size(builder_handle, value)
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_progressive_pub_sub_set_subscriber_max_buffer_size(builder_handle::iox2_service_builder_progressive_pub_sub_h_ref, value::c_size_t)::Cvoid
+end
+
+"""
+    iox2_service_builder_progressive_pub_sub_set_subscriber_max_borrowed_samples(builder_handle, value)
+
+Sets the maximum number of samples a progressive subscriber may borrow concurrently.
+
+# Safety
+
+`builder_handle` must be a valid non-owning progressive service-builder handle.
+
+### Prototype
+```c
+void iox2_service_builder_progressive_pub_sub_set_subscriber_max_borrowed_samples(iox2_service_builder_progressive_pub_sub_h_ref builder_handle, c_size_t value);
+```
+"""
+@inline function iox2_service_builder_progressive_pub_sub_set_subscriber_max_borrowed_samples(builder_handle, value)
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_progressive_pub_sub_set_subscriber_max_borrowed_samples(builder_handle::iox2_service_builder_progressive_pub_sub_h_ref, value::c_size_t)::Cvoid
+end
+
+"""
+    iox2_service_builder_progressive_pub_sub_set_payload_alignment(builder_handle, value)
+
+Requests a payload alignment. Progressive mode always enforces at least 128 bytes.
+
+# Safety
+
+`builder_handle` must be valid. `value` is validated before it is used as an alignment.
+
+### Prototype
+```c
+int iox2_service_builder_progressive_pub_sub_set_payload_alignment(iox2_service_builder_progressive_pub_sub_h_ref builder_handle, c_size_t value);
+```
+"""
+@inline function iox2_service_builder_progressive_pub_sub_set_payload_alignment(builder_handle, value)
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_progressive_pub_sub_set_payload_alignment(builder_handle::iox2_service_builder_progressive_pub_sub_h_ref, value::c_size_t)::Cint
+end
+
+"""
+    iox2_service_builder_progressive_pub_sub_open_or_create(builder_handle, factory_struct_ptr, factory_handle_ptr)
+
+Opens or creates an experimental progressive publish-subscribe service.
+
+# Safety
+
+`builder_handle` must be a valid owning handle and is consumed. `factory_handle_ptr` must be writable. `factory_struct_ptr` must be null or point to uninitialized storage.
+
+### Prototype
+```c
+int iox2_service_builder_progressive_pub_sub_open_or_create(iox2_service_builder_progressive_pub_sub_h builder_handle, struct iox2_port_factory_progressive_pub_sub_t *factory_struct_ptr, iox2_port_factory_progressive_pub_sub_h *factory_handle_ptr);
+```
+"""
+@inline function iox2_service_builder_progressive_pub_sub_open_or_create(builder_handle, factory_struct_ptr, factory_handle_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_progressive_pub_sub_open_or_create(builder_handle::iox2_service_builder_progressive_pub_sub_h, factory_struct_ptr::Ptr{iox2_port_factory_progressive_pub_sub_t}, factory_handle_ptr::Ptr{iox2_port_factory_progressive_pub_sub_h})::Cint
+end
+
+"""
+    iox2_service_builder_progressive_pub_sub_open(builder_handle, factory_struct_ptr, factory_handle_ptr)
+
+Opens an existing experimental progressive publish-subscribe service.
+
+# Safety
+
+`builder_handle` must be a valid owning handle and is consumed. `factory_handle_ptr` must be writable. `factory_struct_ptr` must be null or point to uninitialized storage.
+
+### Prototype
+```c
+int iox2_service_builder_progressive_pub_sub_open(iox2_service_builder_progressive_pub_sub_h builder_handle, struct iox2_port_factory_progressive_pub_sub_t *factory_struct_ptr, iox2_port_factory_progressive_pub_sub_h *factory_handle_ptr);
+```
+"""
+@inline function iox2_service_builder_progressive_pub_sub_open(builder_handle, factory_struct_ptr, factory_handle_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_progressive_pub_sub_open(builder_handle::iox2_service_builder_progressive_pub_sub_h, factory_struct_ptr::Ptr{iox2_port_factory_progressive_pub_sub_t}, factory_handle_ptr::Ptr{iox2_port_factory_progressive_pub_sub_h})::Cint
+end
+
+"""
+    iox2_service_builder_progressive_pub_sub_create(builder_handle, factory_struct_ptr, factory_handle_ptr)
+
+Creates an experimental progressive publish-subscribe service.
+
+# Safety
+
+`builder_handle` must be a valid owning handle and is consumed. `factory_handle_ptr` must be writable. `factory_struct_ptr` must be null or point to uninitialized storage.
+
+### Prototype
+```c
+int iox2_service_builder_progressive_pub_sub_create(iox2_service_builder_progressive_pub_sub_h builder_handle, struct iox2_port_factory_progressive_pub_sub_t *factory_struct_ptr, iox2_port_factory_progressive_pub_sub_h *factory_handle_ptr);
+```
+"""
+@inline function iox2_service_builder_progressive_pub_sub_create(builder_handle, factory_struct_ptr, factory_handle_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_progressive_pub_sub_create(builder_handle::iox2_service_builder_progressive_pub_sub_h, factory_struct_ptr::Ptr{iox2_port_factory_progressive_pub_sub_t}, factory_handle_ptr::Ptr{iox2_port_factory_progressive_pub_sub_h})::Cint
 end
 
 """
@@ -13756,7 +17055,7 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_pub_sub_open_or_create_error_string(enum iox2_pub_sub_open_or_create_error_e error);
 ```
 """
-function iox2_pub_sub_open_or_create_error_string(error)
+@inline function iox2_pub_sub_open_or_create_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_pub_sub_open_or_create_error_string(error::iox2_pub_sub_open_or_create_error_e)::Cstring
 end
 
@@ -13780,7 +17079,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_type_detail_error_e`](@ref)] ot
 int iox2_service_builder_pub_sub_set_user_header_type_details(iox2_service_builder_pub_sub_h_ref service_builder_handle, enum iox2_type_variant_e type_variant, const char *type_name_str, c_size_t type_name_len, c_size_t size, c_size_t alignment);
 ```
 """
-function iox2_service_builder_pub_sub_set_user_header_type_details(service_builder_handle, type_variant, type_name_str, type_name_len, size, alignment)
+@inline function iox2_service_builder_pub_sub_set_user_header_type_details(service_builder_handle, type_variant, type_name_str, type_name_len, size, alignment)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_set_user_header_type_details(service_builder_handle::iox2_service_builder_pub_sub_h_ref, type_variant::iox2_type_variant_e, type_name_str::Cstring, type_name_len::c_size_t, size::c_size_t, alignment::c_size_t)::Cint
 end
 
@@ -13804,8 +17103,32 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_type_detail_error_e`](@ref)] ot
 int iox2_service_builder_pub_sub_set_payload_type_details(iox2_service_builder_pub_sub_h_ref service_builder_handle, enum iox2_type_variant_e type_variant, const char *type_name_str, c_size_t type_name_len, c_size_t size, c_size_t alignment);
 ```
 """
-function iox2_service_builder_pub_sub_set_payload_type_details(service_builder_handle, type_variant, type_name_str, type_name_len, size, alignment)
+@inline function iox2_service_builder_pub_sub_set_payload_type_details(service_builder_handle, type_variant, type_name_str, type_name_len, size, alignment)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_set_payload_type_details(service_builder_handle::iox2_service_builder_pub_sub_h_ref, type_variant::iox2_type_variant_e, type_name_str::Cstring, type_name_len::c_size_t, size::c_size_t, alignment::c_size_t)::Cint
+end
+
+"""
+    iox2_service_builder_pub_sub_set_flatbuffer_schema_path(service_builder_handle, path_str)
+
+Sets flatbuffer schema path for the builder. Only allowed when the payload is a flatbuffer.
+
+# Arguments
+
+* `service_builder_handle` - Must be a valid [[`iox2_service_builder_pub_sub_h_ref`](@ref)] obtained by [[`iox2_service_builder_pub_sub`](@ref)](crate::[`iox2_service_builder_pub_sub`](@ref)). * `path_str` - Null-terminated string of the flatbuffer path.
+
+Returns [`IOX2_OK`](@ref) on success, an [[`iox2_type_detail_error_e`](@ref)] otherwise.
+
+# Safety
+
+* `service_builder_handle` must be valid handles * `path_str` must be a valid pointer to an utf8 string
+
+### Prototype
+```c
+int iox2_service_builder_pub_sub_set_flatbuffer_schema_path(iox2_service_builder_pub_sub_h_ref service_builder_handle, const char *path_str);
+```
+"""
+@inline function iox2_service_builder_pub_sub_set_flatbuffer_schema_path(service_builder_handle, path_str)
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_set_flatbuffer_schema_path(service_builder_handle::iox2_service_builder_pub_sub_h_ref, path_str::Cstring)::Cint
 end
 
 """
@@ -13826,7 +17149,7 @@ Sets the max nodes for the builder
 void iox2_service_builder_pub_sub_set_max_nodes(iox2_service_builder_pub_sub_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_pub_sub_set_max_nodes(service_builder_handle, value)
+@inline function iox2_service_builder_pub_sub_set_max_nodes(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_set_max_nodes(service_builder_handle::iox2_service_builder_pub_sub_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -13848,7 +17171,7 @@ Sets the max publishers for the builder
 void iox2_service_builder_pub_sub_set_max_publishers(iox2_service_builder_pub_sub_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_pub_sub_set_max_publishers(service_builder_handle, value)
+@inline function iox2_service_builder_pub_sub_set_max_publishers(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_set_max_publishers(service_builder_handle::iox2_service_builder_pub_sub_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -13870,7 +17193,7 @@ Sets the max subscribers for the builder
 void iox2_service_builder_pub_sub_set_max_subscribers(iox2_service_builder_pub_sub_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_pub_sub_set_max_subscribers(service_builder_handle, value)
+@inline function iox2_service_builder_pub_sub_set_max_subscribers(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_set_max_subscribers(service_builder_handle::iox2_service_builder_pub_sub_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -13892,7 +17215,7 @@ Sets the payload alignment for the builder
 void iox2_service_builder_pub_sub_set_payload_alignment(iox2_service_builder_pub_sub_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_pub_sub_set_payload_alignment(service_builder_handle, value)
+@inline function iox2_service_builder_pub_sub_set_payload_alignment(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_set_payload_alignment(service_builder_handle::iox2_service_builder_pub_sub_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -13914,7 +17237,7 @@ Sets the history size
 void iox2_service_builder_pub_sub_set_history_size(iox2_service_builder_pub_sub_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_pub_sub_set_history_size(service_builder_handle, value)
+@inline function iox2_service_builder_pub_sub_set_history_size(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_set_history_size(service_builder_handle::iox2_service_builder_pub_sub_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -13936,7 +17259,7 @@ Sets the subscriber max buffer size
 void iox2_service_builder_pub_sub_set_subscriber_max_buffer_size(iox2_service_builder_pub_sub_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_pub_sub_set_subscriber_max_buffer_size(service_builder_handle, value)
+@inline function iox2_service_builder_pub_sub_set_subscriber_max_buffer_size(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_set_subscriber_max_buffer_size(service_builder_handle::iox2_service_builder_pub_sub_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -13958,7 +17281,7 @@ Sets the subscriber max borrowed samples
 void iox2_service_builder_pub_sub_set_subscriber_max_borrowed_samples(iox2_service_builder_pub_sub_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_pub_sub_set_subscriber_max_borrowed_samples(service_builder_handle, value)
+@inline function iox2_service_builder_pub_sub_set_subscriber_max_borrowed_samples(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_set_subscriber_max_borrowed_samples(service_builder_handle::iox2_service_builder_pub_sub_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -13980,7 +17303,7 @@ Enables/disables safe overflow for the service
 void iox2_service_builder_pub_sub_set_enable_safe_overflow(iox2_service_builder_pub_sub_h_ref service_builder_handle, bool value);
 ```
 """
-function iox2_service_builder_pub_sub_set_enable_safe_overflow(service_builder_handle, value)
+@inline function iox2_service_builder_pub_sub_set_enable_safe_overflow(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_set_enable_safe_overflow(service_builder_handle::iox2_service_builder_pub_sub_h_ref, value::Bool)::Cvoid
 end
 
@@ -14004,7 +17327,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_pub_sub_open_or_create_error_e`
 int iox2_service_builder_pub_sub_open_or_create(iox2_service_builder_pub_sub_h service_builder_handle, struct iox2_port_factory_pub_sub_t *port_factory_struct_ptr, iox2_port_factory_pub_sub_h *port_factory_handle_ptr);
 ```
 """
-function iox2_service_builder_pub_sub_open_or_create(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
+@inline function iox2_service_builder_pub_sub_open_or_create(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_open_or_create(service_builder_handle::iox2_service_builder_pub_sub_h, port_factory_struct_ptr::Ptr{iox2_port_factory_pub_sub_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_pub_sub_h})::Cint
 end
 
@@ -14028,7 +17351,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_pub_sub_open_or_create_error_e`
 int iox2_service_builder_pub_sub_open_or_create_with_attributes(iox2_service_builder_pub_sub_h service_builder_handle, iox2_attribute_verifier_h_ref attribute_verifier_handle, struct iox2_port_factory_pub_sub_t *port_factory_struct_ptr, iox2_port_factory_pub_sub_h *port_factory_handle_ptr);
 ```
 """
-function iox2_service_builder_pub_sub_open_or_create_with_attributes(service_builder_handle, attribute_verifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
+@inline function iox2_service_builder_pub_sub_open_or_create_with_attributes(service_builder_handle, attribute_verifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_open_or_create_with_attributes(service_builder_handle::iox2_service_builder_pub_sub_h, attribute_verifier_handle::iox2_attribute_verifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_pub_sub_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_pub_sub_h})::Cint
 end
 
@@ -14052,7 +17375,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_pub_sub_open_or_create_error_e`
 int iox2_service_builder_pub_sub_open(iox2_service_builder_pub_sub_h service_builder_handle, struct iox2_port_factory_pub_sub_t *port_factory_struct_ptr, iox2_port_factory_pub_sub_h *port_factory_handle_ptr);
 ```
 """
-function iox2_service_builder_pub_sub_open(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
+@inline function iox2_service_builder_pub_sub_open(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_open(service_builder_handle::iox2_service_builder_pub_sub_h, port_factory_struct_ptr::Ptr{iox2_port_factory_pub_sub_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_pub_sub_h})::Cint
 end
 
@@ -14076,7 +17399,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_pub_sub_open_or_create_error_e`
 int iox2_service_builder_pub_sub_open_with_attributes(iox2_service_builder_pub_sub_h service_builder_handle, iox2_attribute_verifier_h_ref attribute_verifier_handle, struct iox2_port_factory_pub_sub_t *port_factory_struct_ptr, iox2_port_factory_pub_sub_h *port_factory_handle_ptr);
 ```
 """
-function iox2_service_builder_pub_sub_open_with_attributes(service_builder_handle, attribute_verifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
+@inline function iox2_service_builder_pub_sub_open_with_attributes(service_builder_handle, attribute_verifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_open_with_attributes(service_builder_handle::iox2_service_builder_pub_sub_h, attribute_verifier_handle::iox2_attribute_verifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_pub_sub_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_pub_sub_h})::Cint
 end
 
@@ -14100,7 +17423,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_pub_sub_open_or_create_error_e`
 int iox2_service_builder_pub_sub_create(iox2_service_builder_pub_sub_h service_builder_handle, struct iox2_port_factory_pub_sub_t *port_factory_struct_ptr, iox2_port_factory_pub_sub_h *port_factory_handle_ptr);
 ```
 """
-function iox2_service_builder_pub_sub_create(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
+@inline function iox2_service_builder_pub_sub_create(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_create(service_builder_handle::iox2_service_builder_pub_sub_h, port_factory_struct_ptr::Ptr{iox2_port_factory_pub_sub_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_pub_sub_h})::Cint
 end
 
@@ -14124,8 +17447,48 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_pub_sub_open_or_create_error_e`
 int iox2_service_builder_pub_sub_create_with_attributes(iox2_service_builder_pub_sub_h service_builder_handle, iox2_attribute_specifier_h_ref attribute_specifier_handle, struct iox2_port_factory_pub_sub_t *port_factory_struct_ptr, iox2_port_factory_pub_sub_h *port_factory_handle_ptr);
 ```
 """
-function iox2_service_builder_pub_sub_create_with_attributes(service_builder_handle, attribute_specifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
+@inline function iox2_service_builder_pub_sub_create_with_attributes(service_builder_handle, attribute_specifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_create_with_attributes(service_builder_handle::iox2_service_builder_pub_sub_h, attribute_specifier_handle::iox2_attribute_specifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_pub_sub_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_pub_sub_h})::Cint
+end
+
+"""
+    iox2_service_builder_pub_sub_config(handle)
+
+Returns the [[`iox2_config_ptr`](@ref)](crate::[`iox2_config_ptr`](@ref)), an immutable pointer to the config.
+
+# Safety
+
+* The `handle` must be valid * The returned [`iox2_config_ptr`](@ref) is valid until the node that owns it goes out-of-scope.
+
+### Prototype
+```c
+iox2_config_ptr iox2_service_builder_pub_sub_config(iox2_service_builder_pub_sub_h_ref handle);
+```
+"""
+@inline function iox2_service_builder_pub_sub_config(handle)
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_config(handle::iox2_service_builder_pub_sub_h_ref)::iox2_config_ptr
+end
+
+"""
+    iox2_service_builder_pub_sub_type_definition_name_hint(service_builder_handle, name, name_len, namespace_, namespace_len)
+
+Sets the type definition name hint. This enables the type definition auto-lookup.
+
+# Arguments
+
+* `service_builder_handle` - Must be a valid [[`iox2_service_builder_pub_sub_h_ref`](@ref)] obtained by [[`iox2_service_builder_pub_sub`](@ref)](crate::[`iox2_service_builder_pub_sub`](@ref)). * `name` - Pointer to a valid string literal * `name_len` - The length of the name * `namespace` - Pointer to a valid string literal * `namespace_len` - The length of the namespace
+
+# Safety
+
+* `service_builder_handle` must be valid handles
+
+### Prototype
+```c
+void iox2_service_builder_pub_sub_type_definition_name_hint(iox2_service_builder_pub_sub_h_ref service_builder_handle, const char *name, c_size_t name_len, const char *namespace_, c_size_t namespace_len);
+```
+"""
+@inline function iox2_service_builder_pub_sub_type_definition_name_hint(service_builder_handle, name, name_len, namespace_, namespace_len)
+    @ccall libiceoryx2_ffi_c.iox2_service_builder_pub_sub_type_definition_name_hint(service_builder_handle::iox2_service_builder_pub_sub_h_ref, name::Cstring, name_len::c_size_t, namespace_::Cstring, namespace_len::c_size_t)::Cvoid
 end
 
 """
@@ -14150,7 +17513,7 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_request_response_open_or_create_error_string(enum iox2_request_response_open_or_create_error_e error);
 ```
 """
-function iox2_request_response_open_or_create_error_string(error)
+@inline function iox2_request_response_open_or_create_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_request_response_open_or_create_error_string(error::iox2_request_response_open_or_create_error_e)::Cstring
 end
 
@@ -14174,7 +17537,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_type_detail_error_e`](@ref)] ot
 int iox2_service_builder_request_response_set_request_header_type_details(iox2_service_builder_request_response_h_ref service_builder_handle, enum iox2_type_variant_e type_variant, const char *type_name_str, c_size_t type_name_len, c_size_t size, c_size_t alignment);
 ```
 """
-function iox2_service_builder_request_response_set_request_header_type_details(service_builder_handle, type_variant, type_name_str, type_name_len, size, alignment)
+@inline function iox2_service_builder_request_response_set_request_header_type_details(service_builder_handle, type_variant, type_name_str, type_name_len, size, alignment)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_set_request_header_type_details(service_builder_handle::iox2_service_builder_request_response_h_ref, type_variant::iox2_type_variant_e, type_name_str::Cstring, type_name_len::c_size_t, size::c_size_t, alignment::c_size_t)::Cint
 end
 
@@ -14198,7 +17561,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_type_detail_error_e`](@ref)] ot
 int iox2_service_builder_request_response_set_response_header_type_details(iox2_service_builder_request_response_h_ref service_builder_handle, enum iox2_type_variant_e type_variant, const char *type_name_str, c_size_t type_name_len, c_size_t size, c_size_t alignment);
 ```
 """
-function iox2_service_builder_request_response_set_response_header_type_details(service_builder_handle, type_variant, type_name_str, type_name_len, size, alignment)
+@inline function iox2_service_builder_request_response_set_response_header_type_details(service_builder_handle, type_variant, type_name_str, type_name_len, size, alignment)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_set_response_header_type_details(service_builder_handle::iox2_service_builder_request_response_h_ref, type_variant::iox2_type_variant_e, type_name_str::Cstring, type_name_len::c_size_t, size::c_size_t, alignment::c_size_t)::Cint
 end
 
@@ -14222,7 +17585,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_type_detail_error_e`](@ref)] ot
 int iox2_service_builder_request_response_set_request_payload_type_details(iox2_service_builder_request_response_h_ref service_builder_handle, enum iox2_type_variant_e type_variant, const char *type_name_str, c_size_t type_name_len, c_size_t size, c_size_t alignment);
 ```
 """
-function iox2_service_builder_request_response_set_request_payload_type_details(service_builder_handle, type_variant, type_name_str, type_name_len, size, alignment)
+@inline function iox2_service_builder_request_response_set_request_payload_type_details(service_builder_handle, type_variant, type_name_str, type_name_len, size, alignment)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_set_request_payload_type_details(service_builder_handle::iox2_service_builder_request_response_h_ref, type_variant::iox2_type_variant_e, type_name_str::Cstring, type_name_len::c_size_t, size::c_size_t, alignment::c_size_t)::Cint
 end
 
@@ -14246,7 +17609,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_type_detail_error_e`](@ref)] ot
 int iox2_service_builder_request_response_set_response_payload_type_details(iox2_service_builder_request_response_h_ref service_builder_handle, enum iox2_type_variant_e type_variant, const char *type_name_str, c_size_t type_name_len, c_size_t size, c_size_t alignment);
 ```
 """
-function iox2_service_builder_request_response_set_response_payload_type_details(service_builder_handle, type_variant, type_name_str, type_name_len, size, alignment)
+@inline function iox2_service_builder_request_response_set_response_payload_type_details(service_builder_handle, type_variant, type_name_str, type_name_len, size, alignment)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_set_response_payload_type_details(service_builder_handle::iox2_service_builder_request_response_h_ref, type_variant::iox2_type_variant_e, type_name_str::Cstring, type_name_len::c_size_t, size::c_size_t, alignment::c_size_t)::Cint
 end
 
@@ -14264,7 +17627,7 @@ Enables/disables fire and forget requests
 void iox2_service_builder_request_response_enable_fire_and_forget_requests(iox2_service_builder_request_response_h_ref service_builder_handle, bool value);
 ```
 """
-function iox2_service_builder_request_response_enable_fire_and_forget_requests(service_builder_handle, value)
+@inline function iox2_service_builder_request_response_enable_fire_and_forget_requests(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_enable_fire_and_forget_requests(service_builder_handle::iox2_service_builder_request_response_h_ref, value::Bool)::Cvoid
 end
 
@@ -14282,7 +17645,7 @@ Enables/disables safe overflow for requests
 void iox2_service_builder_request_response_enable_safe_overflow_for_requests(iox2_service_builder_request_response_h_ref service_builder_handle, bool value);
 ```
 """
-function iox2_service_builder_request_response_enable_safe_overflow_for_requests(service_builder_handle, value)
+@inline function iox2_service_builder_request_response_enable_safe_overflow_for_requests(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_enable_safe_overflow_for_requests(service_builder_handle::iox2_service_builder_request_response_h_ref, value::Bool)::Cvoid
 end
 
@@ -14300,7 +17663,7 @@ Enables/disables safe overflow for responses
 void iox2_service_builder_request_response_enable_safe_overflow_for_responses(iox2_service_builder_request_response_h_ref service_builder_handle, bool value);
 ```
 """
-function iox2_service_builder_request_response_enable_safe_overflow_for_responses(service_builder_handle, value)
+@inline function iox2_service_builder_request_response_enable_safe_overflow_for_responses(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_enable_safe_overflow_for_responses(service_builder_handle::iox2_service_builder_request_response_h_ref, value::Bool)::Cvoid
 end
 
@@ -14318,7 +17681,7 @@ Sets the maximum amount of active requests a client can have
 void iox2_service_builder_request_response_max_active_requests_per_client(iox2_service_builder_request_response_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_request_response_max_active_requests_per_client(service_builder_handle, value)
+@inline function iox2_service_builder_request_response_max_active_requests_per_client(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_max_active_requests_per_client(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -14336,7 +17699,7 @@ Sets the maximum amount responses a client can borrow from a pending response
 void iox2_service_builder_request_response_max_borrowed_responses_per_pending_response(iox2_service_builder_request_response_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_request_response_max_borrowed_responses_per_pending_response(service_builder_handle, value)
+@inline function iox2_service_builder_request_response_max_borrowed_responses_per_pending_response(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_max_borrowed_responses_per_pending_response(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -14354,7 +17717,7 @@ Sets the maximum number of clients the service will support
 void iox2_service_builder_request_response_max_clients(iox2_service_builder_request_response_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_request_response_max_clients(service_builder_handle, value)
+@inline function iox2_service_builder_request_response_max_clients(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_max_clients(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -14372,7 +17735,7 @@ Sets the maximum number of requests a client can loan at the same time
 void iox2_service_builder_request_response_max_loaned_requests(iox2_service_builder_request_response_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_request_response_max_loaned_requests(service_builder_handle, value)
+@inline function iox2_service_builder_request_response_max_loaned_requests(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_max_loaned_requests(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -14390,7 +17753,7 @@ Sets the maximum number of nodes that can open the service
 void iox2_service_builder_request_response_set_max_nodes(iox2_service_builder_request_response_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_request_response_set_max_nodes(service_builder_handle, value)
+@inline function iox2_service_builder_request_response_set_max_nodes(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_set_max_nodes(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -14408,7 +17771,7 @@ Sets the maximum buffer size for responses on the client side
 void iox2_service_builder_request_response_max_response_buffer_size(iox2_service_builder_request_response_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_request_response_max_response_buffer_size(service_builder_handle, value)
+@inline function iox2_service_builder_request_response_max_response_buffer_size(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_max_response_buffer_size(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -14426,7 +17789,7 @@ Sets the maximum number of servers the service will support
 void iox2_service_builder_request_response_max_servers(iox2_service_builder_request_response_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_request_response_max_servers(service_builder_handle, value)
+@inline function iox2_service_builder_request_response_max_servers(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_max_servers(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -14444,7 +17807,7 @@ Overrides the alignment of the provided request payload.
 void iox2_service_builder_request_response_request_payload_alignment(iox2_service_builder_request_response_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_request_response_request_payload_alignment(service_builder_handle, value)
+@inline function iox2_service_builder_request_response_request_payload_alignment(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_request_payload_alignment(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -14462,7 +17825,7 @@ Overrides the alignment of the provided response payload.
 void iox2_service_builder_request_response_response_payload_alignment(iox2_service_builder_request_response_h_ref service_builder_handle, c_size_t value);
 ```
 """
-function iox2_service_builder_request_response_response_payload_alignment(service_builder_handle, value)
+@inline function iox2_service_builder_request_response_response_payload_alignment(service_builder_handle, value)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_response_payload_alignment(service_builder_handle::iox2_service_builder_request_response_h_ref, value::c_size_t)::Cvoid
 end
 
@@ -14486,7 +17849,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_request_response_open_or_create
 int iox2_service_builder_request_response_open_or_create(iox2_service_builder_request_response_h service_builder_handle, struct iox2_port_factory_request_response_t *port_factory_struct_ptr, iox2_port_factory_request_response_h *port_factory_handle_ptr);
 ```
 """
-function iox2_service_builder_request_response_open_or_create(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
+@inline function iox2_service_builder_request_response_open_or_create(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_open_or_create(service_builder_handle::iox2_service_builder_request_response_h, port_factory_struct_ptr::Ptr{iox2_port_factory_request_response_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_request_response_h})::Cint
 end
 
@@ -14510,7 +17873,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_request_response_open_or_create
 int iox2_service_builder_request_response_open_or_create_with_attributes(iox2_service_builder_request_response_h service_builder_handle, iox2_attribute_verifier_h_ref attribute_verifier_handle, struct iox2_port_factory_request_response_t *port_factory_struct_ptr, iox2_port_factory_request_response_h *port_factory_handle_ptr);
 ```
 """
-function iox2_service_builder_request_response_open_or_create_with_attributes(service_builder_handle, attribute_verifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
+@inline function iox2_service_builder_request_response_open_or_create_with_attributes(service_builder_handle, attribute_verifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_open_or_create_with_attributes(service_builder_handle::iox2_service_builder_request_response_h, attribute_verifier_handle::iox2_attribute_verifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_request_response_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_request_response_h})::Cint
 end
 
@@ -14534,7 +17897,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_request_response_open_or_create
 int iox2_service_builder_request_response_open(iox2_service_builder_request_response_h service_builder_handle, struct iox2_port_factory_request_response_t *port_factory_struct_ptr, iox2_port_factory_request_response_h *port_factory_handle_ptr);
 ```
 """
-function iox2_service_builder_request_response_open(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
+@inline function iox2_service_builder_request_response_open(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_open(service_builder_handle::iox2_service_builder_request_response_h, port_factory_struct_ptr::Ptr{iox2_port_factory_request_response_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_request_response_h})::Cint
 end
 
@@ -14558,7 +17921,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_request_response_open_or_create
 int iox2_service_builder_request_response_open_with_attributes(iox2_service_builder_request_response_h service_builder_handle, iox2_attribute_verifier_h_ref attribute_verifier_handle, struct iox2_port_factory_request_response_t *port_factory_struct_ptr, iox2_port_factory_request_response_h *port_factory_handle_ptr);
 ```
 """
-function iox2_service_builder_request_response_open_with_attributes(service_builder_handle, attribute_verifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
+@inline function iox2_service_builder_request_response_open_with_attributes(service_builder_handle, attribute_verifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_open_with_attributes(service_builder_handle::iox2_service_builder_request_response_h, attribute_verifier_handle::iox2_attribute_verifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_request_response_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_request_response_h})::Cint
 end
 
@@ -14582,7 +17945,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_request_response_open_or_create
 int iox2_service_builder_request_response_create(iox2_service_builder_request_response_h service_builder_handle, struct iox2_port_factory_request_response_t *port_factory_struct_ptr, iox2_port_factory_request_response_h *port_factory_handle_ptr);
 ```
 """
-function iox2_service_builder_request_response_create(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
+@inline function iox2_service_builder_request_response_create(service_builder_handle, port_factory_struct_ptr, port_factory_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_create(service_builder_handle::iox2_service_builder_request_response_h, port_factory_struct_ptr::Ptr{iox2_port_factory_request_response_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_request_response_h})::Cint
 end
 
@@ -14606,7 +17969,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_request_response_open_or_create
 int iox2_service_builder_request_response_create_with_attributes(iox2_service_builder_request_response_h service_builder_handle, iox2_attribute_specifier_h_ref attribute_specifier_handle, struct iox2_port_factory_request_response_t *port_factory_struct_ptr, iox2_port_factory_request_response_h *port_factory_handle_ptr);
 ```
 """
-function iox2_service_builder_request_response_create_with_attributes(service_builder_handle, attribute_specifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
+@inline function iox2_service_builder_request_response_create_with_attributes(service_builder_handle, attribute_specifier_handle, port_factory_struct_ptr, port_factory_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_service_builder_request_response_create_with_attributes(service_builder_handle::iox2_service_builder_request_response_h, attribute_specifier_handle::iox2_attribute_specifier_h_ref, port_factory_struct_ptr::Ptr{iox2_port_factory_request_response_t}, port_factory_handle_ptr::Ptr{iox2_port_factory_request_response_h})::Cint
 end
 
@@ -14630,7 +17993,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_semantic_string_error_e`](@ref)
 int iox2_service_name_new(struct iox2_service_name_t *service_name_struct_ptr, const char *service_name_str, c_size_t service_name_len, iox2_service_name_h *service_name_handle_ptr);
 ```
 """
-function iox2_service_name_new(service_name_struct_ptr, service_name_str, service_name_len, service_name_handle_ptr)
+@inline function iox2_service_name_new(service_name_struct_ptr, service_name_str, service_name_len, service_name_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_service_name_new(service_name_struct_ptr::Ptr{iox2_service_name_t}, service_name_str::Cstring, service_name_len::c_size_t, service_name_handle_ptr::Ptr{iox2_service_name_h})::Cint
 end
 
@@ -14654,7 +18017,7 @@ Returns a [[`iox2_service_name_ptr`](@ref)]
 iox2_service_name_ptr iox2_cast_service_name_ptr(iox2_service_name_h service_name_handle);
 ```
 """
-function iox2_cast_service_name_ptr(service_name_handle)
+@inline function iox2_cast_service_name_ptr(service_name_handle)
     @ccall libiceoryx2_ffi_c.iox2_cast_service_name_ptr(service_name_handle::iox2_service_name_h)::iox2_service_name_ptr
 end
 
@@ -14678,7 +18041,7 @@ Returns non-zero-terminated char array
 const char *iox2_service_name_as_chars(iox2_service_name_ptr service_name_ptr, c_size_t *service_name_len);
 ```
 """
-function iox2_service_name_as_chars(service_name_ptr, service_name_len)
+@inline function iox2_service_name_as_chars(service_name_ptr, service_name_len)
     @ccall libiceoryx2_ffi_c.iox2_service_name_as_chars(service_name_ptr::iox2_service_name_ptr, service_name_len::Ptr{c_size_t})::Cstring
 end
 
@@ -14702,7 +18065,7 @@ In general, this function is not required to call, since [[`iox2_node_builder_se
 void iox2_service_name_drop(iox2_service_name_h service_name_handle);
 ```
 """
-function iox2_service_name_drop(service_name_handle)
+@inline function iox2_service_name_drop(service_name_handle)
     @ccall libiceoryx2_ffi_c.iox2_service_name_drop(service_name_handle::iox2_service_name_h)::Cvoid
 end
 
@@ -14728,7 +18091,7 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_receive_error_string(enum iox2_receive_error_e error);
 ```
 """
-function iox2_receive_error_string(error)
+@inline function iox2_receive_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_receive_error_string(error::iox2_receive_error_e)::Cstring
 end
 
@@ -14754,7 +18117,7 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_connection_failure_string(enum iox2_connection_failure_e error);
 ```
 """
-function iox2_connection_failure_string(error)
+@inline function iox2_connection_failure_string(error)
     @ccall libiceoryx2_ffi_c.iox2_connection_failure_string(error::iox2_connection_failure_e)::Cstring
 end
 
@@ -14776,7 +18139,7 @@ Returns the buffer size of the subscriber
 c_size_t iox2_subscriber_buffer_size(iox2_subscriber_h_ref subscriber_handle);
 ```
 """
-function iox2_subscriber_buffer_size(subscriber_handle)
+@inline function iox2_subscriber_buffer_size(subscriber_handle)
     @ccall libiceoryx2_ffi_c.iox2_subscriber_buffer_size(subscriber_handle::iox2_subscriber_h_ref)::c_size_t
 end
 
@@ -14798,8 +18161,30 @@ Returns the unique port id of the subscriber.
 void iox2_subscriber_id(iox2_subscriber_h_ref subscriber_handle, struct iox2_unique_subscriber_id_t *id_struct_ptr, iox2_unique_subscriber_id_h *id_handle_ptr);
 ```
 """
-function iox2_subscriber_id(subscriber_handle, id_struct_ptr, id_handle_ptr)
+@inline function iox2_subscriber_id(subscriber_handle, id_struct_ptr, id_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_subscriber_id(subscriber_handle::iox2_subscriber_h_ref, id_struct_ptr::Ptr{iox2_unique_subscriber_id_t}, id_handle_ptr::Ptr{iox2_unique_subscriber_id_h})::Cvoid
+end
+
+"""
+    iox2_subscriber_name(subscriber_handle)
+
+Returns the [[`iox2_port_name_ptr`](@ref)](crate::[`iox2_port_name_ptr`](@ref)), an immutable pointer to the port name.
+
+# Arguments
+
+* `subscriber_handle` must be a valid [[`iox2_subscriber_h_ref`](@ref)] obtained by [[`iox2_port_factory_subscriber_builder_create`](@ref)](crate::[`iox2_port_factory_subscriber_builder_create`](@ref))
+
+# Safety
+
+* `subscriber_handle` is valid, non-null and was obtained via [[`iox2_port_factory_subscriber_builder_create`](@ref)](crate::[`iox2_port_factory_subscriber_builder_create`](@ref)).
+
+### Prototype
+```c
+iox2_port_name_ptr iox2_subscriber_name(iox2_subscriber_h_ref subscriber_handle);
+```
+"""
+@inline function iox2_subscriber_name(subscriber_handle)
+    @ccall libiceoryx2_ffi_c.iox2_subscriber_name(subscriber_handle::iox2_subscriber_h_ref)::iox2_port_name_ptr
 end
 
 """
@@ -14822,7 +18207,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_receive_error_e`](@ref)] otherw
 int iox2_subscriber_receive(iox2_subscriber_h_ref subscriber_handle, struct iox2_sample_t *sample_struct_ptr, iox2_sample_h *sample_handle_ptr);
 ```
 """
-function iox2_subscriber_receive(subscriber_handle, sample_struct_ptr, sample_handle_ptr)
+@inline function iox2_subscriber_receive(subscriber_handle, sample_struct_ptr, sample_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_subscriber_receive(subscriber_handle::iox2_subscriber_h_ref, sample_struct_ptr::Ptr{iox2_sample_t}, sample_handle_ptr::Ptr{iox2_sample_h})::Cint
 end
 
@@ -14846,7 +18231,7 @@ Returns [`IOX2_OK`](@ref) on success, an [[`iox2_connection_failure_e`](@ref)] o
 int iox2_subscriber_has_samples(iox2_subscriber_h_ref subscriber_handle, bool *result_ptr);
 ```
 """
-function iox2_subscriber_has_samples(subscriber_handle, result_ptr)
+@inline function iox2_subscriber_has_samples(subscriber_handle, result_ptr)
     @ccall libiceoryx2_ffi_c.iox2_subscriber_has_samples(subscriber_handle::iox2_subscriber_h_ref, result_ptr::Ptr{Bool})::Cint
 end
 
@@ -14868,7 +18253,7 @@ This function needs to be called to destroy the subscriber!
 void iox2_subscriber_drop(iox2_subscriber_h subscriber_handle);
 ```
 """
-function iox2_subscriber_drop(subscriber_handle)
+@inline function iox2_subscriber_drop(subscriber_handle)
     @ccall libiceoryx2_ffi_c.iox2_subscriber_drop(subscriber_handle::iox2_subscriber_h)::Cvoid
 end
 
@@ -14886,14 +18271,14 @@ Returns the unique port id of the subscriber.
 void iox2_subscriber_details_subscriber_id(iox2_subscriber_details_ptr handle, struct iox2_unique_subscriber_id_t *id_struct_ptr, iox2_unique_subscriber_id_h *id_handle_ptr);
 ```
 """
-function iox2_subscriber_details_subscriber_id(handle, id_struct_ptr, id_handle_ptr)
+@inline function iox2_subscriber_details_subscriber_id(handle, id_struct_ptr, id_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_subscriber_details_subscriber_id(handle::iox2_subscriber_details_ptr, id_struct_ptr::Ptr{iox2_unique_subscriber_id_t}, id_handle_ptr::Ptr{iox2_unique_subscriber_id_h})::Cvoid
 end
 
 """
     iox2_subscriber_details_node_id(handle)
 
-Returns the [[`iox2_node_id_ptr`](@ref)](crate::[`iox2_node_id_ptr`](@ref)), an immutable pointer to the node id.
+Returns the [[`iox2_unique_node_id_ptr`](@ref)](crate::[`iox2_unique_node_id_ptr`](@ref)), an immutable pointer to the node id.
 
 # Safety
 
@@ -14901,11 +18286,11 @@ Returns the [[`iox2_node_id_ptr`](@ref)](crate::[`iox2_node_id_ptr`](@ref)), an 
 
 ### Prototype
 ```c
-iox2_node_id_ptr iox2_subscriber_details_node_id(iox2_subscriber_details_ptr handle);
+iox2_unique_node_id_ptr iox2_subscriber_details_node_id(iox2_subscriber_details_ptr handle);
 ```
 """
-function iox2_subscriber_details_node_id(handle)
-    @ccall libiceoryx2_ffi_c.iox2_subscriber_details_node_id(handle::iox2_subscriber_details_ptr)::iox2_node_id_ptr
+@inline function iox2_subscriber_details_node_id(handle)
+    @ccall libiceoryx2_ffi_c.iox2_subscriber_details_node_id(handle::iox2_subscriber_details_ptr)::iox2_unique_node_id_ptr
 end
 
 """
@@ -14922,8 +18307,94 @@ Returns the size of the receive buffer that stores the incoming samples.
 c_size_t iox2_subscriber_details_buffer_size(iox2_subscriber_details_ptr handle);
 ```
 """
-function iox2_subscriber_details_buffer_size(handle)
+@inline function iox2_subscriber_details_buffer_size(handle)
     @ccall libiceoryx2_ffi_c.iox2_subscriber_details_buffer_size(handle::iox2_subscriber_details_ptr)::c_size_t
+end
+
+"""
+    iox2_subscriber_details_history_request(handle)
+
+Returns the amount of requested history samples.
+
+# Safety
+
+* `handle` valid pointer to the subscriber details
+
+### Prototype
+```c
+c_size_t iox2_subscriber_details_history_request(iox2_subscriber_details_ptr handle);
+```
+"""
+@inline function iox2_subscriber_details_history_request(handle)
+    @ccall libiceoryx2_ffi_c.iox2_subscriber_details_history_request(handle::iox2_subscriber_details_ptr)::c_size_t
+end
+
+"""
+    iox2_testing_create_test_directory()
+
+Creates a directory to store test artifacts.
+
+### Prototype
+```c
+void iox2_testing_create_test_directory(void);
+```
+"""
+@inline function iox2_testing_create_test_directory()
+    @ccall libiceoryx2_ffi_c.iox2_testing_create_test_directory()::Cvoid
+end
+
+"""
+    iox2_testing_generate_file_name(name, buffer_len)
+
+Generates a random and all time unique file name.
+
+# Safety
+
+* `name` must point to a valid memory location with a capacity of `buffer_len`
+
+### Prototype
+```c
+void iox2_testing_generate_file_name(char *name, size_t buffer_len);
+```
+"""
+@inline function iox2_testing_generate_file_name(name, buffer_len)
+    @ccall libiceoryx2_ffi_c.iox2_testing_generate_file_name(name::Cstring, buffer_len::Csize_t)::Cvoid
+end
+
+"""
+    iox2_testing_generate_file_path(name, buffer_len)
+
+Generates a random and all time unique file name inside the test directory.
+
+# Safety
+
+* `name` must point to a valid memory location with a capacity of `buffer_len`
+
+### Prototype
+```c
+void iox2_testing_generate_file_path(char *name, size_t buffer_len);
+```
+"""
+@inline function iox2_testing_generate_file_path(name, buffer_len)
+    @ccall libiceoryx2_ffi_c.iox2_testing_generate_file_path(name::Cstring, buffer_len::Csize_t)::Cvoid
+end
+
+"""
+    iox2_testing_test_directory_path(name, buffer_len)
+
+Returns the test directory path.
+
+# Safety
+
+* `name` must point to a valid memory location with a capacity of `buffer_len`
+
+### Prototype
+```c
+void iox2_testing_test_directory_path(char *name, size_t buffer_len);
+```
+"""
+@inline function iox2_testing_test_directory_path(name, buffer_len)
+    @ccall libiceoryx2_ffi_c.iox2_testing_test_directory_path(name::Cstring, buffer_len::Csize_t)::Cvoid
 end
 
 """
@@ -14944,7 +18415,7 @@ Retrieves the value of a unique client ID.
 void iox2_unique_client_id_value(iox2_unique_client_id_h handle, uint8_t *id_ptr, size_t id_length);
 ```
 """
-function iox2_unique_client_id_value(handle, id_ptr, id_length)
+@inline function iox2_unique_client_id_value(handle, id_ptr, id_length)
     @ccall libiceoryx2_ffi_c.iox2_unique_client_id_value(handle::iox2_unique_client_id_h, id_ptr::Ptr{UInt8}, id_length::Csize_t)::Cvoid
 end
 
@@ -14966,7 +18437,7 @@ This function needs to be called to destroy the unique client id!
 void iox2_unique_client_id_drop(iox2_unique_client_id_h handle);
 ```
 """
-function iox2_unique_client_id_drop(handle)
+@inline function iox2_unique_client_id_drop(handle)
     @ccall libiceoryx2_ffi_c.iox2_unique_client_id_drop(handle::iox2_unique_client_id_h)::Cvoid
 end
 
@@ -14984,7 +18455,7 @@ Checks two [[`iox2_unique_client_id_t`](@ref)] for equality.
 bool iox2_unique_client_id_eq(iox2_unique_client_id_h_ref lhs, iox2_unique_client_id_h_ref rhs);
 ```
 """
-function iox2_unique_client_id_eq(lhs, rhs)
+@inline function iox2_unique_client_id_eq(lhs, rhs)
     @ccall libiceoryx2_ffi_c.iox2_unique_client_id_eq(lhs::iox2_unique_client_id_h_ref, rhs::iox2_unique_client_id_h_ref)::Bool
 end
 
@@ -15002,7 +18473,7 @@ Checks the ordering of two [[`iox2_unique_client_id_t`](@ref)].
 bool iox2_unique_client_id_less(iox2_unique_client_id_h_ref lhs, iox2_unique_client_id_h_ref rhs);
 ```
 """
-function iox2_unique_client_id_less(lhs, rhs)
+@inline function iox2_unique_client_id_less(lhs, rhs)
     @ccall libiceoryx2_ffi_c.iox2_unique_client_id_less(lhs::iox2_unique_client_id_h_ref, rhs::iox2_unique_client_id_h_ref)::Bool
 end
 
@@ -15024,7 +18495,7 @@ Retrieves the value of a unique listener ID.
 void iox2_unique_listener_id_value(iox2_unique_listener_id_h handle, uint8_t *id_ptr, size_t id_length);
 ```
 """
-function iox2_unique_listener_id_value(handle, id_ptr, id_length)
+@inline function iox2_unique_listener_id_value(handle, id_ptr, id_length)
     @ccall libiceoryx2_ffi_c.iox2_unique_listener_id_value(handle::iox2_unique_listener_id_h, id_ptr::Ptr{UInt8}, id_length::Csize_t)::Cvoid
 end
 
@@ -15046,7 +18517,7 @@ This function needs to be called to destroy the unique listener id!
 void iox2_unique_listener_id_drop(iox2_unique_listener_id_h handle);
 ```
 """
-function iox2_unique_listener_id_drop(handle)
+@inline function iox2_unique_listener_id_drop(handle)
     @ccall libiceoryx2_ffi_c.iox2_unique_listener_id_drop(handle::iox2_unique_listener_id_h)::Cvoid
 end
 
@@ -15064,7 +18535,7 @@ Checks two [[`iox2_unique_listener_id_t`](@ref)] for equality.
 bool iox2_unique_listener_id_eq(iox2_unique_listener_id_h_ref lhs, iox2_unique_listener_id_h_ref rhs);
 ```
 """
-function iox2_unique_listener_id_eq(lhs, rhs)
+@inline function iox2_unique_listener_id_eq(lhs, rhs)
     @ccall libiceoryx2_ffi_c.iox2_unique_listener_id_eq(lhs::iox2_unique_listener_id_h_ref, rhs::iox2_unique_listener_id_h_ref)::Bool
 end
 
@@ -15082,8 +18553,134 @@ Checks the ordering of two [[`iox2_unique_listener_id_t`](@ref)].
 bool iox2_unique_listener_id_less(iox2_unique_listener_id_h_ref lhs, iox2_unique_listener_id_h_ref rhs);
 ```
 """
-function iox2_unique_listener_id_less(lhs, rhs)
+@inline function iox2_unique_listener_id_less(lhs, rhs)
     @ccall libiceoryx2_ffi_c.iox2_unique_listener_id_less(lhs::iox2_unique_listener_id_h_ref, rhs::iox2_unique_listener_id_h_ref)::Bool
+end
+
+"""
+    iox2_unique_node_id_clone_from_ptr(node_id_struct_ptr, node_id_ptr, node_id_handle_ptr)
+
+Creates a new [[`iox2_unique_node_id_h`](@ref)] by cloning a [[`iox2_unique_node_id_ptr`](@ref)].
+
+# Safety
+
+* `node_id_struct_ptr` - Must be either a NULL pointer or a pointer to a valid [[`iox2_unique_node_id_t`](@ref)]. If it is a NULL pointer, the storage will be allocated on the heap. * `node_id_ptr` - Must be a valid [[`iox2_unique_node_id_ptr`](@ref)] * `node_id_handle_ptr` - Must point to a valid [[`iox2_unique_node_id_h`](@ref)].
+
+### Prototype
+```c
+void iox2_unique_node_id_clone_from_ptr(struct iox2_unique_node_id_t *node_id_struct_ptr, iox2_unique_node_id_ptr node_id_ptr, iox2_unique_node_id_h *node_id_handle_ptr);
+```
+"""
+@inline function iox2_unique_node_id_clone_from_ptr(node_id_struct_ptr, node_id_ptr, node_id_handle_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_unique_node_id_clone_from_ptr(node_id_struct_ptr::Ptr{iox2_unique_node_id_t}, node_id_ptr::iox2_unique_node_id_ptr, node_id_handle_ptr::Ptr{iox2_unique_node_id_h})::Cvoid
+end
+
+"""
+    iox2_unique_node_id_clone_from_handle(node_id_struct_ptr, node_id_handle, node_id_handle_ptr)
+
+Creates a new [[`iox2_unique_node_id_h`](@ref)] by cloning a [[`iox2_unique_node_id_h_ref`](@ref)].
+
+# Safety
+
+* `node_id_struct_ptr` - Must be either a NULL pointer or a pointer to a valid [[`iox2_unique_node_id_t`](@ref)]. If it is a NULL pointer, the storage will be allocated on the heap. * `node_id_handle` - Must be a valid [[`iox2_unique_node_id_h_ref`](@ref)] * `node_id_handle_ptr` - Must point to a valid [[`iox2_unique_node_id_h`](@ref)].
+
+### Prototype
+```c
+void iox2_unique_node_id_clone_from_handle(struct iox2_unique_node_id_t *node_id_struct_ptr, iox2_unique_node_id_h_ref node_id_handle, iox2_unique_node_id_h *node_id_handle_ptr);
+```
+"""
+@inline function iox2_unique_node_id_clone_from_handle(node_id_struct_ptr, node_id_handle, node_id_handle_ptr)
+    @ccall libiceoryx2_ffi_c.iox2_unique_node_id_clone_from_handle(node_id_struct_ptr::Ptr{iox2_unique_node_id_t}, node_id_handle::iox2_unique_node_id_h_ref, node_id_handle_ptr::Ptr{iox2_unique_node_id_h})::Cvoid
+end
+
+"""
+    iox2_unique_node_id_value_high(node_id_handle)
+
+Returns the high bits of the underlying value of the [[`iox2_unique_node_id_h`](@ref)].
+
+# Safety
+
+* `node_id_handle` - Must be a valid [[`iox2_unique_node_id_h_ref`](@ref)]
+
+### Prototype
+```c
+uint64_t iox2_unique_node_id_value_high(iox2_unique_node_id_h_ref node_id_handle);
+```
+"""
+@inline function iox2_unique_node_id_value_high(node_id_handle)
+    @ccall libiceoryx2_ffi_c.iox2_unique_node_id_value_high(node_id_handle::iox2_unique_node_id_h_ref)::UInt64
+end
+
+"""
+    iox2_unique_node_id_value_low(node_id_handle)
+
+Returns the low bits of the underlying value of the [[`iox2_unique_node_id_h`](@ref)].
+
+# Safety
+
+* `node_id_handle` - Must be a valid [[`iox2_unique_node_id_h_ref`](@ref)]
+
+### Prototype
+```c
+uint64_t iox2_unique_node_id_value_low(iox2_unique_node_id_h_ref node_id_handle);
+```
+"""
+@inline function iox2_unique_node_id_value_low(node_id_handle)
+    @ccall libiceoryx2_ffi_c.iox2_unique_node_id_value_low(node_id_handle::iox2_unique_node_id_h_ref)::UInt64
+end
+
+"""
+    iox2_unique_node_id_pid(node_id_handle)
+
+Returns the process id of the [[`iox2_unique_node_id_h`](@ref)].
+
+# Safety
+
+* `node_id_handle` - Must be a valid [[`iox2_unique_node_id_h_ref`](@ref)]
+
+### Prototype
+```c
+int32_t iox2_unique_node_id_pid(iox2_unique_node_id_h_ref node_id_handle);
+```
+"""
+@inline function iox2_unique_node_id_pid(node_id_handle)
+    @ccall libiceoryx2_ffi_c.iox2_unique_node_id_pid(node_id_handle::iox2_unique_node_id_h_ref)::Int32
+end
+
+"""
+    iox2_unique_node_id_creation_time(node_id_handle, seconds, nanoseconds)
+
+Returns the creation time of the [[`iox2_unique_node_id_h`](@ref)].
+
+# Safety
+
+* `node_id_handle` - Must be a valid [[`iox2_unique_node_id_h_ref`](@ref)] * `seconds` - Must point to a valid memory location * `nanoseconds` - Must point to a valid memory location
+
+### Prototype
+```c
+void iox2_unique_node_id_creation_time(iox2_unique_node_id_h_ref node_id_handle, uint64_t *seconds, uint32_t *nanoseconds);
+```
+"""
+@inline function iox2_unique_node_id_creation_time(node_id_handle, seconds, nanoseconds)
+    @ccall libiceoryx2_ffi_c.iox2_unique_node_id_creation_time(node_id_handle::iox2_unique_node_id_h_ref, seconds::Ptr{UInt64}, nanoseconds::Ptr{UInt32})::Cvoid
+end
+
+"""
+    iox2_unique_node_id_drop(node_id_handle)
+
+Takes ownership of the handle to delete and remove the underlying resources of a [[`iox2_unique_node_id_h`](@ref)].
+
+# Safety
+
+* `node_id_handle` - Must be a valid [[`iox2_unique_node_id_h`](@ref)]
+
+### Prototype
+```c
+void iox2_unique_node_id_drop(iox2_unique_node_id_h node_id_handle);
+```
+"""
+@inline function iox2_unique_node_id_drop(node_id_handle)
+    @ccall libiceoryx2_ffi_c.iox2_unique_node_id_drop(node_id_handle::iox2_unique_node_id_h)::Cvoid
 end
 
 """
@@ -15104,7 +18701,7 @@ Retrieves the value of a unique notifier ID.
 void iox2_unique_notifier_id_value(iox2_unique_notifier_id_h handle, uint8_t *id_ptr, size_t id_length);
 ```
 """
-function iox2_unique_notifier_id_value(handle, id_ptr, id_length)
+@inline function iox2_unique_notifier_id_value(handle, id_ptr, id_length)
     @ccall libiceoryx2_ffi_c.iox2_unique_notifier_id_value(handle::iox2_unique_notifier_id_h, id_ptr::Ptr{UInt8}, id_length::Csize_t)::Cvoid
 end
 
@@ -15126,7 +18723,7 @@ This function needs to be called to destroy the unique notifier id!
 void iox2_unique_notifier_id_drop(iox2_unique_notifier_id_h handle);
 ```
 """
-function iox2_unique_notifier_id_drop(handle)
+@inline function iox2_unique_notifier_id_drop(handle)
     @ccall libiceoryx2_ffi_c.iox2_unique_notifier_id_drop(handle::iox2_unique_notifier_id_h)::Cvoid
 end
 
@@ -15144,7 +18741,7 @@ Checks two [[`iox2_unique_notifier_id_t`](@ref)] for equality.
 bool iox2_unique_notifier_id_eq(iox2_unique_notifier_id_h_ref lhs, iox2_unique_notifier_id_h_ref rhs);
 ```
 """
-function iox2_unique_notifier_id_eq(lhs, rhs)
+@inline function iox2_unique_notifier_id_eq(lhs, rhs)
     @ccall libiceoryx2_ffi_c.iox2_unique_notifier_id_eq(lhs::iox2_unique_notifier_id_h_ref, rhs::iox2_unique_notifier_id_h_ref)::Bool
 end
 
@@ -15162,7 +18759,7 @@ Checks the ordering of two [[`iox2_unique_notifier_id_t`](@ref)].
 bool iox2_unique_notifier_id_less(iox2_unique_notifier_id_h_ref lhs, iox2_unique_notifier_id_h_ref rhs);
 ```
 """
-function iox2_unique_notifier_id_less(lhs, rhs)
+@inline function iox2_unique_notifier_id_less(lhs, rhs)
     @ccall libiceoryx2_ffi_c.iox2_unique_notifier_id_less(lhs::iox2_unique_notifier_id_h_ref, rhs::iox2_unique_notifier_id_h_ref)::Bool
 end
 
@@ -15184,7 +18781,7 @@ Retrieves the value of a unique publisher ID.
 void iox2_unique_publisher_id_value(iox2_unique_publisher_id_h handle, uint8_t *id_ptr, size_t id_length);
 ```
 """
-function iox2_unique_publisher_id_value(handle, id_ptr, id_length)
+@inline function iox2_unique_publisher_id_value(handle, id_ptr, id_length)
     @ccall libiceoryx2_ffi_c.iox2_unique_publisher_id_value(handle::iox2_unique_publisher_id_h, id_ptr::Ptr{UInt8}, id_length::Csize_t)::Cvoid
 end
 
@@ -15206,7 +18803,7 @@ This function needs to be called to destroy the unique publisher id!
 void iox2_unique_publisher_id_drop(iox2_unique_publisher_id_h handle);
 ```
 """
-function iox2_unique_publisher_id_drop(handle)
+@inline function iox2_unique_publisher_id_drop(handle)
     @ccall libiceoryx2_ffi_c.iox2_unique_publisher_id_drop(handle::iox2_unique_publisher_id_h)::Cvoid
 end
 
@@ -15224,7 +18821,7 @@ Checks two [[`iox2_unique_publisher_id_t`](@ref)] for equality.
 bool iox2_unique_publisher_id_eq(iox2_unique_publisher_id_h_ref lhs, iox2_unique_publisher_id_h_ref rhs);
 ```
 """
-function iox2_unique_publisher_id_eq(lhs, rhs)
+@inline function iox2_unique_publisher_id_eq(lhs, rhs)
     @ccall libiceoryx2_ffi_c.iox2_unique_publisher_id_eq(lhs::iox2_unique_publisher_id_h_ref, rhs::iox2_unique_publisher_id_h_ref)::Bool
 end
 
@@ -15242,7 +18839,7 @@ Checks the ordering of two [[`iox2_unique_publisher_id_t`](@ref)].
 bool iox2_unique_publisher_id_less(iox2_unique_publisher_id_h_ref lhs, iox2_unique_publisher_id_h_ref rhs);
 ```
 """
-function iox2_unique_publisher_id_less(lhs, rhs)
+@inline function iox2_unique_publisher_id_less(lhs, rhs)
     @ccall libiceoryx2_ffi_c.iox2_unique_publisher_id_less(lhs::iox2_unique_publisher_id_h_ref, rhs::iox2_unique_publisher_id_h_ref)::Bool
 end
 
@@ -15264,7 +18861,7 @@ Retrieves the value of a unique reader ID.
 void iox2_unique_reader_id_value(iox2_unique_reader_id_h handle, uint8_t *id_ptr, size_t id_length);
 ```
 """
-function iox2_unique_reader_id_value(handle, id_ptr, id_length)
+@inline function iox2_unique_reader_id_value(handle, id_ptr, id_length)
     @ccall libiceoryx2_ffi_c.iox2_unique_reader_id_value(handle::iox2_unique_reader_id_h, id_ptr::Ptr{UInt8}, id_length::Csize_t)::Cvoid
 end
 
@@ -15286,7 +18883,7 @@ This function needs to be called to destroy the unique reader id!
 void iox2_unique_reader_id_drop(iox2_unique_reader_id_h handle);
 ```
 """
-function iox2_unique_reader_id_drop(handle)
+@inline function iox2_unique_reader_id_drop(handle)
     @ccall libiceoryx2_ffi_c.iox2_unique_reader_id_drop(handle::iox2_unique_reader_id_h)::Cvoid
 end
 
@@ -15304,7 +18901,7 @@ Checks two [[`iox2_unique_reader_id_t`](@ref)] for equality.
 bool iox2_unique_reader_id_eq(iox2_unique_reader_id_h_ref lhs, iox2_unique_reader_id_h_ref rhs);
 ```
 """
-function iox2_unique_reader_id_eq(lhs, rhs)
+@inline function iox2_unique_reader_id_eq(lhs, rhs)
     @ccall libiceoryx2_ffi_c.iox2_unique_reader_id_eq(lhs::iox2_unique_reader_id_h_ref, rhs::iox2_unique_reader_id_h_ref)::Bool
 end
 
@@ -15322,7 +18919,7 @@ Checks the ordering of two [[`iox2_unique_reader_id_t`](@ref)].
 bool iox2_unique_reader_id_less(iox2_unique_reader_id_h_ref lhs, iox2_unique_reader_id_h_ref rhs);
 ```
 """
-function iox2_unique_reader_id_less(lhs, rhs)
+@inline function iox2_unique_reader_id_less(lhs, rhs)
     @ccall libiceoryx2_ffi_c.iox2_unique_reader_id_less(lhs::iox2_unique_reader_id_h_ref, rhs::iox2_unique_reader_id_h_ref)::Bool
 end
 
@@ -15344,7 +18941,7 @@ Retrieves the value of a unique server ID.
 void iox2_unique_server_id_value(iox2_unique_server_id_h handle, uint8_t *id_ptr, size_t id_length);
 ```
 """
-function iox2_unique_server_id_value(handle, id_ptr, id_length)
+@inline function iox2_unique_server_id_value(handle, id_ptr, id_length)
     @ccall libiceoryx2_ffi_c.iox2_unique_server_id_value(handle::iox2_unique_server_id_h, id_ptr::Ptr{UInt8}, id_length::Csize_t)::Cvoid
 end
 
@@ -15366,7 +18963,7 @@ This function needs to be called to destroy the unique server id!
 void iox2_unique_server_id_drop(iox2_unique_server_id_h handle);
 ```
 """
-function iox2_unique_server_id_drop(handle)
+@inline function iox2_unique_server_id_drop(handle)
     @ccall libiceoryx2_ffi_c.iox2_unique_server_id_drop(handle::iox2_unique_server_id_h)::Cvoid
 end
 
@@ -15384,7 +18981,7 @@ Checks two [[`iox2_unique_server_id_t`](@ref)] for equality.
 bool iox2_unique_server_id_eq(iox2_unique_server_id_h_ref lhs, iox2_unique_server_id_h_ref rhs);
 ```
 """
-function iox2_unique_server_id_eq(lhs, rhs)
+@inline function iox2_unique_server_id_eq(lhs, rhs)
     @ccall libiceoryx2_ffi_c.iox2_unique_server_id_eq(lhs::iox2_unique_server_id_h_ref, rhs::iox2_unique_server_id_h_ref)::Bool
 end
 
@@ -15402,7 +18999,7 @@ Checks the ordering of two [[`iox2_unique_server_id_t`](@ref)].
 bool iox2_unique_server_id_less(iox2_unique_server_id_h_ref lhs, iox2_unique_server_id_h_ref rhs);
 ```
 """
-function iox2_unique_server_id_less(lhs, rhs)
+@inline function iox2_unique_server_id_less(lhs, rhs)
     @ccall libiceoryx2_ffi_c.iox2_unique_server_id_less(lhs::iox2_unique_server_id_h_ref, rhs::iox2_unique_server_id_h_ref)::Bool
 end
 
@@ -15424,7 +19021,7 @@ Retrieves the value of a unique subscriber ID.
 void iox2_unique_subscriber_id_value(iox2_unique_subscriber_id_h handle, uint8_t *id_ptr, size_t id_length);
 ```
 """
-function iox2_unique_subscriber_id_value(handle, id_ptr, id_length)
+@inline function iox2_unique_subscriber_id_value(handle, id_ptr, id_length)
     @ccall libiceoryx2_ffi_c.iox2_unique_subscriber_id_value(handle::iox2_unique_subscriber_id_h, id_ptr::Ptr{UInt8}, id_length::Csize_t)::Cvoid
 end
 
@@ -15446,7 +19043,7 @@ This function needs to be called to destroy the unique subscriber id!
 void iox2_unique_subscriber_id_drop(iox2_unique_subscriber_id_h handle);
 ```
 """
-function iox2_unique_subscriber_id_drop(handle)
+@inline function iox2_unique_subscriber_id_drop(handle)
     @ccall libiceoryx2_ffi_c.iox2_unique_subscriber_id_drop(handle::iox2_unique_subscriber_id_h)::Cvoid
 end
 
@@ -15464,7 +19061,7 @@ Checks two [[`iox2_unique_subscriber_id_t`](@ref)] for equality.
 bool iox2_unique_subscriber_id_eq(iox2_unique_subscriber_id_h_ref lhs, iox2_unique_subscriber_id_h_ref rhs);
 ```
 """
-function iox2_unique_subscriber_id_eq(lhs, rhs)
+@inline function iox2_unique_subscriber_id_eq(lhs, rhs)
     @ccall libiceoryx2_ffi_c.iox2_unique_subscriber_id_eq(lhs::iox2_unique_subscriber_id_h_ref, rhs::iox2_unique_subscriber_id_h_ref)::Bool
 end
 
@@ -15482,7 +19079,7 @@ Checks the ordering of two [[`iox2_unique_subscriber_id_t`](@ref)].
 bool iox2_unique_subscriber_id_less(iox2_unique_subscriber_id_h_ref lhs, iox2_unique_subscriber_id_h_ref rhs);
 ```
 """
-function iox2_unique_subscriber_id_less(lhs, rhs)
+@inline function iox2_unique_subscriber_id_less(lhs, rhs)
     @ccall libiceoryx2_ffi_c.iox2_unique_subscriber_id_less(lhs::iox2_unique_subscriber_id_h_ref, rhs::iox2_unique_subscriber_id_h_ref)::Bool
 end
 
@@ -15504,7 +19101,7 @@ Retrieves the value of a unique writer ID.
 void iox2_unique_writer_id_value(iox2_unique_writer_id_h handle, uint8_t *id_ptr, size_t id_length);
 ```
 """
-function iox2_unique_writer_id_value(handle, id_ptr, id_length)
+@inline function iox2_unique_writer_id_value(handle, id_ptr, id_length)
     @ccall libiceoryx2_ffi_c.iox2_unique_writer_id_value(handle::iox2_unique_writer_id_h, id_ptr::Ptr{UInt8}, id_length::Csize_t)::Cvoid
 end
 
@@ -15526,7 +19123,7 @@ This function needs to be called to destroy the unique writer id!
 void iox2_unique_writer_id_drop(iox2_unique_writer_id_h handle);
 ```
 """
-function iox2_unique_writer_id_drop(handle)
+@inline function iox2_unique_writer_id_drop(handle)
     @ccall libiceoryx2_ffi_c.iox2_unique_writer_id_drop(handle::iox2_unique_writer_id_h)::Cvoid
 end
 
@@ -15544,7 +19141,7 @@ Checks two [[`iox2_unique_writer_id_t`](@ref)] for equality.
 bool iox2_unique_writer_id_eq(iox2_unique_writer_id_h_ref lhs, iox2_unique_writer_id_h_ref rhs);
 ```
 """
-function iox2_unique_writer_id_eq(lhs, rhs)
+@inline function iox2_unique_writer_id_eq(lhs, rhs)
     @ccall libiceoryx2_ffi_c.iox2_unique_writer_id_eq(lhs::iox2_unique_writer_id_h_ref, rhs::iox2_unique_writer_id_h_ref)::Bool
 end
 
@@ -15562,7 +19159,7 @@ Checks the ordering of two [[`iox2_unique_writer_id_t`](@ref)].
 bool iox2_unique_writer_id_less(iox2_unique_writer_id_h_ref lhs, iox2_unique_writer_id_h_ref rhs);
 ```
 """
-function iox2_unique_writer_id_less(lhs, rhs)
+@inline function iox2_unique_writer_id_less(lhs, rhs)
     @ccall libiceoryx2_ffi_c.iox2_unique_writer_id_less(lhs::iox2_unique_writer_id_h_ref, rhs::iox2_unique_writer_id_h_ref)::Bool
 end
 
@@ -15588,7 +19185,7 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_waitset_create_error_string(enum iox2_waitset_create_error_e error);
 ```
 """
-function iox2_waitset_create_error_string(error)
+@inline function iox2_waitset_create_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_waitset_create_error_string(error::iox2_waitset_create_error_e)::Cstring
 end
 
@@ -15614,7 +19211,7 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_waitset_attachment_error_string(enum iox2_waitset_attachment_error_e error);
 ```
 """
-function iox2_waitset_attachment_error_string(error)
+@inline function iox2_waitset_attachment_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_waitset_attachment_error_string(error::iox2_waitset_attachment_error_e)::Cstring
 end
 
@@ -15640,7 +19237,7 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_waitset_run_error_string(enum iox2_waitset_run_error_e error);
 ```
 """
-function iox2_waitset_run_error_string(error)
+@inline function iox2_waitset_run_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_waitset_run_error_string(error::iox2_waitset_run_error_e)::Cstring
 end
 
@@ -15658,7 +19255,7 @@ Drops a [[`iox2_waitset_h`](@ref)] and calls all corresponding cleanup functions
 void iox2_waitset_drop(iox2_waitset_h handle);
 ```
 """
-function iox2_waitset_drop(handle)
+@inline function iox2_waitset_drop(handle)
     @ccall libiceoryx2_ffi_c.iox2_waitset_drop(handle::iox2_waitset_h)::Cvoid
 end
 
@@ -15676,7 +19273,7 @@ Returns `true` if the [[`iox2_waitset_h`](@ref)] is empty, otherwise false.
 bool iox2_waitset_is_empty(iox2_waitset_h_ref handle);
 ```
 """
-function iox2_waitset_is_empty(handle)
+@inline function iox2_waitset_is_empty(handle)
     @ccall libiceoryx2_ffi_c.iox2_waitset_is_empty(handle::iox2_waitset_h_ref)::Bool
 end
 
@@ -15694,7 +19291,7 @@ Returns the [[`iox2_signal_handling_mode_e`](@ref)] with which the waitset was c
 enum iox2_signal_handling_mode_e iox2_waitset_signal_handling_mode(iox2_waitset_h_ref handle);
 ```
 """
-function iox2_waitset_signal_handling_mode(handle)
+@inline function iox2_waitset_signal_handling_mode(handle)
     @ccall libiceoryx2_ffi_c.iox2_waitset_signal_handling_mode(handle::iox2_waitset_h_ref)::iox2_signal_handling_mode_e
 end
 
@@ -15712,7 +19309,7 @@ Returns the number of attachments of the [[`iox2_waitset_h`](@ref)].
 c_size_t iox2_waitset_len(iox2_waitset_h_ref handle);
 ```
 """
-function iox2_waitset_len(handle)
+@inline function iox2_waitset_len(handle)
     @ccall libiceoryx2_ffi_c.iox2_waitset_len(handle::iox2_waitset_h_ref)::c_size_t
 end
 
@@ -15730,7 +19327,7 @@ Returns the capacity of the [[`iox2_waitset_h`](@ref)].
 c_size_t iox2_waitset_capacity(iox2_waitset_h_ref handle);
 ```
 """
-function iox2_waitset_capacity(handle)
+@inline function iox2_waitset_capacity(handle)
     @ccall libiceoryx2_ffi_c.iox2_waitset_capacity(handle::iox2_waitset_h_ref)::c_size_t
 end
 
@@ -15754,7 +19351,7 @@ With [`[`iox2_waitset_attachment_id_has_event_from`](@ref)()`](crate::[`iox2_wai
 int iox2_waitset_attach_notification(iox2_waitset_h_ref handle, iox2_file_descriptor_ptr fd, struct iox2_waitset_guard_t *guard_struct_ptr, iox2_waitset_guard_h *guard_handle_ptr);
 ```
 """
-function iox2_waitset_attach_notification(handle, fd, guard_struct_ptr, guard_handle_ptr)
+@inline function iox2_waitset_attach_notification(handle, fd, guard_struct_ptr, guard_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_waitset_attach_notification(handle::iox2_waitset_h_ref, fd::iox2_file_descriptor_ptr, guard_struct_ptr::Ptr{iox2_waitset_guard_t}, guard_handle_ptr::Ptr{iox2_waitset_guard_h})::Cint
 end
 
@@ -15778,7 +19375,7 @@ With [`[`iox2_waitset_attachment_id_has_event_from`](@ref)()`](crate::[`iox2_wai
 int iox2_waitset_attach_deadline(iox2_waitset_h_ref handle, iox2_file_descriptor_ptr fd, uint64_t seconds, uint32_t nanoseconds, struct iox2_waitset_guard_t *guard_struct_ptr, iox2_waitset_guard_h *guard_handle_ptr);
 ```
 """
-function iox2_waitset_attach_deadline(handle, fd, seconds, nanoseconds, guard_struct_ptr, guard_handle_ptr)
+@inline function iox2_waitset_attach_deadline(handle, fd, seconds, nanoseconds, guard_struct_ptr, guard_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_waitset_attach_deadline(handle::iox2_waitset_h_ref, fd::iox2_file_descriptor_ptr, seconds::UInt64, nanoseconds::UInt32, guard_struct_ptr::Ptr{iox2_waitset_guard_t}, guard_handle_ptr::Ptr{iox2_waitset_guard_h})::Cint
 end
 
@@ -15802,7 +19399,7 @@ With [`[`iox2_waitset_attachment_id_has_event_from`](@ref)()`](crate::[`iox2_wai
 int iox2_waitset_attach_interval(iox2_waitset_h_ref handle, uint64_t seconds, uint32_t nanoseconds, struct iox2_waitset_guard_t *guard_struct_ptr, iox2_waitset_guard_h *guard_handle_ptr);
 ```
 """
-function iox2_waitset_attach_interval(handle, seconds, nanoseconds, guard_struct_ptr, guard_handle_ptr)
+@inline function iox2_waitset_attach_interval(handle, seconds, nanoseconds, guard_struct_ptr, guard_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_waitset_attach_interval(handle::iox2_waitset_h_ref, seconds::UInt64, nanoseconds::UInt32, guard_struct_ptr::Ptr{iox2_waitset_guard_t}, guard_handle_ptr::Ptr{iox2_waitset_guard_h})::Cint
 end
 
@@ -15815,7 +19412,13 @@ The provided callback must return [`[`iox2_callback_progression_e`](@ref)::CONTI
 
 If an interrupt- (`SIGINT`) or a termination-signal (`SIGTERM`) was received, it will exit the loop and inform the user with [`[`iox2_waitset_run_result_e`](@ref)::INTERRUPT`] or [`[`iox2_waitset_run_result_e`](@ref)::TERMINATION\\_REQUEST`].
 
-When no signal was received and all events were handled, it will return [`[`iox2_waitset_run_result_e`](@ref)::ALL\\_EVENTS\\_HANDLED`]. # Return
+When no signal was received and all events were handled, it will return [`[`iox2_waitset_run_result_e`](@ref)::ALL\\_EVENTS\\_HANDLED`].
+
+**Important:** The `WaitSet` only reports that an attachment is ready; it does not consume the notification or data that caused the wake-up. If the callback returns without consuming any pending input, the attachment remains ready and the `WaitSet` wakes up again immediately. Repeating this can cause a busy loop and high CPU usage.
+
+For a `Listener`, consume pending notifications with `[`iox2_listener_try_wait`](@ref)()`. For a socket or another file-descriptor-based attachment, consume the pending data using its corresponding read or receive API.
+
+# Return
 
 [`IOX2_OK`](@ref) on success, otherwise [[`iox2_waitset_run_error_e`](@ref)].
 
@@ -15828,7 +19431,7 @@ When no signal was received and all events were handled, it will return [`[`iox2
 int iox2_waitset_wait_and_process_once(iox2_waitset_h_ref handle, iox2_waitset_run_callback callback, iox2_callback_context callback_ctx, enum iox2_waitset_run_result_e *result);
 ```
 """
-function iox2_waitset_wait_and_process_once(handle, callback, callback_ctx, result)
+@inline function iox2_waitset_wait_and_process_once(handle, callback, callback_ctx, result)
     @ccall libiceoryx2_ffi_c.iox2_waitset_wait_and_process_once(handle::iox2_waitset_h_ref, callback::iox2_waitset_run_callback, callback_ctx::iox2_callback_context, result::Ptr{iox2_waitset_run_result_e})::Cint
 end
 
@@ -15841,7 +19444,13 @@ The provided callback must return [`[`iox2_callback_progression_e`](@ref)::CONTI
 
 If an interrupt- (`SIGINT`) or a termination-signal (`SIGTERM`) was received, it will exit the loop and inform the user with [`[`iox2_waitset_run_result_e`](@ref)::INTERRUPT`] or [`[`iox2_waitset_run_result_e`](@ref)::TERMINATION\\_REQUEST`].
 
-When no signal was received and all events were handled, it will return [`[`iox2_waitset_run_result_e`](@ref)::ALL\\_EVENTS\\_HANDLED`]. # Return
+When no signal was received and all events were handled, it will return [`[`iox2_waitset_run_result_e`](@ref)::ALL\\_EVENTS\\_HANDLED`].
+
+**Important:** The `WaitSet` only reports that an attachment is ready; it does not consume the notification or data that caused the wake-up. If the callback returns without consuming any pending input, the attachment remains ready and the `WaitSet` wakes up again immediately. Repeating this can cause a busy loop and high CPU usage.
+
+For a `Listener`, consume pending notifications with `[`iox2_listener_try_wait`](@ref)()`. For a socket or another file-descriptor-based attachment, consume the pending data using its corresponding read or receive API.
+
+# Return
 
 [`IOX2_OK`](@ref) on success, otherwise [[`iox2_waitset_run_error_e`](@ref)].
 
@@ -15854,7 +19463,7 @@ When no signal was received and all events were handled, it will return [`[`iox2
 int iox2_waitset_wait_and_process_once_with_timeout(iox2_waitset_h_ref handle, iox2_waitset_run_callback callback, iox2_callback_context callback_ctx, uint64_t seconds, uint32_t nanoseconds, enum iox2_waitset_run_result_e *result);
 ```
 """
-function iox2_waitset_wait_and_process_once_with_timeout(handle, callback, callback_ctx, seconds, nanoseconds, result)
+@inline function iox2_waitset_wait_and_process_once_with_timeout(handle, callback, callback_ctx, seconds, nanoseconds, result)
     @ccall libiceoryx2_ffi_c.iox2_waitset_wait_and_process_once_with_timeout(handle::iox2_waitset_h_ref, callback::iox2_waitset_run_callback, callback_ctx::iox2_callback_context, seconds::UInt64, nanoseconds::UInt32, result::Ptr{iox2_waitset_run_result_e})::Cint
 end
 
@@ -15864,6 +19473,10 @@ end
 Checks the [[`iox2_waitset_h`](@ref)] for new events in an infinite loop. The provided `callback` is called for every events that was received and the corresponding owning [[`iox2_waitset_attachment_id_h`](@ref)] is provided as input argument, as well as the `callback_ctx`. The infinite loop is interrupted either by a `SIGINT` or `SIGTERM` signal or when the user callback returned [`[`iox2_callback_progression_e`](@ref)::STOP`].
 
 With [`[`iox2_waitset_attachment_id_has_event_from`](@ref)()`](crate::[`iox2_waitset_attachment_id_has_event_from`](@ref)()) the origin of the event can be determined from its corresponding [[`iox2_waitset_guard_h`](@ref)]. If the deadline was hit the function [`[`iox2_waitset_attachment_id_has_missed_deadline`](@ref)()`](crate::[`iox2_waitset_attachment_id_has_missed_deadline`](@ref)()) can be used to identify it.
+
+**Important:** The `WaitSet` only reports that an attachment is ready; it does not consume the notification or data that caused the wake-up. If the callback returns without consuming any pending input, the attachment remains ready and the `WaitSet` wakes up again immediately. Repeating this can cause a busy loop and high CPU usage.
+
+For a `Listener`, consume pending notifications with `[`iox2_listener_try_wait`](@ref)()`. For a socket or another file-descriptor-based attachment, consume the pending data using its corresponding read or receive API.
 
 # Return
 
@@ -15878,7 +19491,7 @@ With [`[`iox2_waitset_attachment_id_has_event_from`](@ref)()`](crate::[`iox2_wai
 int iox2_waitset_wait_and_process(iox2_waitset_h_ref handle, iox2_waitset_run_callback callback, iox2_callback_context callback_ctx, enum iox2_waitset_run_result_e *result);
 ```
 """
-function iox2_waitset_wait_and_process(handle, callback, callback_ctx, result)
+@inline function iox2_waitset_wait_and_process(handle, callback, callback_ctx, result)
     @ccall libiceoryx2_ffi_c.iox2_waitset_wait_and_process(handle::iox2_waitset_h_ref, callback::iox2_waitset_run_callback, callback_ctx::iox2_callback_context, result::Ptr{iox2_waitset_run_result_e})::Cint
 end
 
@@ -15894,7 +19507,7 @@ Release an [[`iox2_waitset_attachment_id_h`](@ref)] that was acquired by calling
 void iox2_waitset_attachment_id_drop(iox2_waitset_attachment_id_h handle);
 ```
 """
-function iox2_waitset_attachment_id_drop(handle)
+@inline function iox2_waitset_attachment_id_drop(handle)
     @ccall libiceoryx2_ffi_c.iox2_waitset_attachment_id_drop(handle::iox2_waitset_attachment_id_h)::Cvoid
 end
 
@@ -15910,7 +19523,7 @@ Checks if two provided [[`iox2_waitset_attachment_id_h_ref`](@ref)] are semantic
 bool iox2_waitset_attachment_id_equal(iox2_waitset_attachment_id_h_ref lhs, iox2_waitset_attachment_id_h_ref rhs);
 ```
 """
-function iox2_waitset_attachment_id_equal(lhs, rhs)
+@inline function iox2_waitset_attachment_id_equal(lhs, rhs)
     @ccall libiceoryx2_ffi_c.iox2_waitset_attachment_id_equal(lhs::iox2_waitset_attachment_id_h_ref, rhs::iox2_waitset_attachment_id_h_ref)::Bool
 end
 
@@ -15926,7 +19539,7 @@ Checks the ordering of two provided [[`iox2_waitset_attachment_id_h_ref`](@ref)]
 bool iox2_waitset_attachment_id_less(iox2_waitset_attachment_id_h_ref lhs, iox2_waitset_attachment_id_h_ref rhs);
 ```
 """
-function iox2_waitset_attachment_id_less(lhs, rhs)
+@inline function iox2_waitset_attachment_id_less(lhs, rhs)
     @ccall libiceoryx2_ffi_c.iox2_waitset_attachment_id_less(lhs::iox2_waitset_attachment_id_h_ref, rhs::iox2_waitset_attachment_id_h_ref)::Bool
 end
 
@@ -15942,7 +19555,7 @@ Checks if the event corresponding to [[`iox2_waitset_guard_h_ref`](@ref)] was or
 bool iox2_waitset_attachment_id_has_event_from(iox2_waitset_attachment_id_h_ref handle, iox2_waitset_guard_h_ref guard);
 ```
 """
-function iox2_waitset_attachment_id_has_event_from(handle, guard)
+@inline function iox2_waitset_attachment_id_has_event_from(handle, guard)
     @ccall libiceoryx2_ffi_c.iox2_waitset_attachment_id_has_event_from(handle::iox2_waitset_attachment_id_h_ref, guard::iox2_waitset_guard_h_ref)::Bool
 end
 
@@ -15958,7 +19571,7 @@ Checks if the deadline corresponding to [[`iox2_waitset_guard_h_ref`](@ref)] was
 bool iox2_waitset_attachment_id_has_missed_deadline(iox2_waitset_attachment_id_h_ref handle, iox2_waitset_guard_h_ref guard);
 ```
 """
-function iox2_waitset_attachment_id_has_missed_deadline(handle, guard)
+@inline function iox2_waitset_attachment_id_has_missed_deadline(handle, guard)
     @ccall libiceoryx2_ffi_c.iox2_waitset_attachment_id_has_missed_deadline(handle::iox2_waitset_attachment_id_h_ref, guard::iox2_waitset_guard_h_ref)::Bool
 end
 
@@ -15974,7 +19587,7 @@ Creates a new [[`iox2_waitset_attachment_id_t`](@ref)] from an existing [[`iox2_
 void iox2_waitset_attachment_id_from_guard(iox2_waitset_guard_h_ref guard, struct iox2_waitset_attachment_id_t *attachment_id_struct_ptr, iox2_waitset_attachment_id_h *attachment_id_handle_ptr);
 ```
 """
-function iox2_waitset_attachment_id_from_guard(guard, attachment_id_struct_ptr, attachment_id_handle_ptr)
+@inline function iox2_waitset_attachment_id_from_guard(guard, attachment_id_struct_ptr, attachment_id_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_waitset_attachment_id_from_guard(guard::iox2_waitset_guard_h_ref, attachment_id_struct_ptr::Ptr{iox2_waitset_attachment_id_t}, attachment_id_handle_ptr::Ptr{iox2_waitset_attachment_id_h})::Cvoid
 end
 
@@ -15990,7 +19603,7 @@ Stores the debug output in the provided `debug_output` variable that must provid
 bool iox2_waitset_attachment_id_debug(iox2_waitset_attachment_id_h_ref handle, char *debug_output, c_size_t debug_len);
 ```
 """
-function iox2_waitset_attachment_id_debug(handle, debug_output, debug_len)
+@inline function iox2_waitset_attachment_id_debug(handle, debug_output, debug_len)
     @ccall libiceoryx2_ffi_c.iox2_waitset_attachment_id_debug(handle::iox2_waitset_attachment_id_h_ref, debug_output::Cstring, debug_len::c_size_t)::Bool
 end
 
@@ -16006,7 +19619,7 @@ Returns the length of the debug output. Shall be used before calling [`[`iox2_wa
 c_size_t iox2_waitset_attachment_id_debug_len(iox2_waitset_attachment_id_h_ref handle);
 ```
 """
-function iox2_waitset_attachment_id_debug_len(handle)
+@inline function iox2_waitset_attachment_id_debug_len(handle)
     @ccall libiceoryx2_ffi_c.iox2_waitset_attachment_id_debug_len(handle::iox2_waitset_attachment_id_h_ref)::c_size_t
 end
 
@@ -16024,7 +19637,7 @@ Creates a new [[`iox2_waitset_builder_t`](@ref)] to create a [[`iox2_waitset_t`]
 void iox2_waitset_builder_new(struct iox2_waitset_builder_t *struct_ptr, iox2_waitset_builder_h *handle_ptr);
 ```
 """
-function iox2_waitset_builder_new(struct_ptr, handle_ptr)
+@inline function iox2_waitset_builder_new(struct_ptr, handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_waitset_builder_new(struct_ptr::Ptr{iox2_waitset_builder_t}, handle_ptr::Ptr{iox2_waitset_builder_h})::Cvoid
 end
 
@@ -16042,7 +19655,7 @@ Drops a [[`iox2_waitset_builder_h`](@ref)] and calls all corresponding cleanup f
 void iox2_waitset_builder_drop(iox2_waitset_builder_h handle);
 ```
 """
-function iox2_waitset_builder_drop(handle)
+@inline function iox2_waitset_builder_drop(handle)
     @ccall libiceoryx2_ffi_c.iox2_waitset_builder_drop(handle::iox2_waitset_builder_h)::Cvoid
 end
 
@@ -16064,7 +19677,7 @@ Creates a new [[`iox2_waitset_t`](@ref)].
 int iox2_waitset_builder_create(iox2_waitset_builder_h handle, enum iox2_service_type_e service_type, struct iox2_waitset_t *struct_ptr, iox2_waitset_h *handle_ptr);
 ```
 """
-function iox2_waitset_builder_create(handle, service_type, struct_ptr, handle_ptr)
+@inline function iox2_waitset_builder_create(handle, service_type, struct_ptr, handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_waitset_builder_create(handle::iox2_waitset_builder_h, service_type::iox2_service_type_e, struct_ptr::Ptr{iox2_waitset_t}, handle_ptr::Ptr{iox2_waitset_h})::Cint
 end
 
@@ -16086,7 +19699,7 @@ Sets the [[`iox2_signal_handling_mode_e`](@ref)] for the [[`iox2_waitset_h`](@re
 void iox2_waitset_builder_set_signal_handling_mode(iox2_waitset_builder_h_ref waitset_builder_handle, enum iox2_signal_handling_mode_e signal_handling_mode);
 ```
 """
-function iox2_waitset_builder_set_signal_handling_mode(waitset_builder_handle, signal_handling_mode)
+@inline function iox2_waitset_builder_set_signal_handling_mode(waitset_builder_handle, signal_handling_mode)
     @ccall libiceoryx2_ffi_c.iox2_waitset_builder_set_signal_handling_mode(waitset_builder_handle::iox2_waitset_builder_h_ref, signal_handling_mode::iox2_signal_handling_mode_e)::Cvoid
 end
 
@@ -16104,7 +19717,7 @@ Drops a [[`iox2_waitset_guard_h`](@ref)] that was successfully acquired with * [
 void iox2_waitset_guard_drop(iox2_waitset_guard_h handle);
 ```
 """
-function iox2_waitset_guard_drop(handle)
+@inline function iox2_waitset_guard_drop(handle)
     @ccall libiceoryx2_ffi_c.iox2_waitset_guard_drop(handle::iox2_waitset_guard_h)::Cvoid
 end
 
@@ -16130,7 +19743,7 @@ The returned pointer must not be modified or freed and is valid as long as the p
 const char *iox2_entry_handle_mut_error_string(enum iox2_entry_handle_mut_error_e error);
 ```
 """
-function iox2_entry_handle_mut_error_string(error)
+@inline function iox2_entry_handle_mut_error_string(error)
     @ccall libiceoryx2_ffi_c.iox2_entry_handle_mut_error_string(error::iox2_entry_handle_mut_error_e)::Cstring
 end
 
@@ -16152,8 +19765,30 @@ Returns the unique port id of the writer.
 void iox2_writer_id(iox2_writer_h_ref writer_handle, struct iox2_unique_writer_id_t *id_struct_ptr, iox2_unique_writer_id_h *id_handle_ptr);
 ```
 """
-function iox2_writer_id(writer_handle, id_struct_ptr, id_handle_ptr)
+@inline function iox2_writer_id(writer_handle, id_struct_ptr, id_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_writer_id(writer_handle::iox2_writer_h_ref, id_struct_ptr::Ptr{iox2_unique_writer_id_t}, id_handle_ptr::Ptr{iox2_unique_writer_id_h})::Cvoid
+end
+
+"""
+    iox2_writer_name(writer_handle)
+
+Returns the [[`iox2_port_name_ptr`](@ref)](crate::[`iox2_port_name_ptr`](@ref)), an immutable pointer to the port name.
+
+# Arguments
+
+* `writer_handle` must be a valid [[`iox2_writer_h_ref`](@ref)] obtained by [[`iox2_port_factory_writer_builder_create`](@ref)](crate::[`iox2_port_factory_writer_builder_create`](@ref))
+
+# Safety
+
+* `writer_handle` is valid, non-null and was obtained via [[`iox2_port_factory_writer_builder_create`](@ref)](crate::[`iox2_port_factory_writer_builder_create`](@ref)).
+
+### Prototype
+```c
+iox2_port_name_ptr iox2_writer_name(iox2_writer_h_ref writer_handle);
+```
+"""
+@inline function iox2_writer_name(writer_handle)
+    @ccall libiceoryx2_ffi_c.iox2_writer_name(writer_handle::iox2_writer_h_ref)::iox2_port_name_ptr
 end
 
 """
@@ -16174,7 +19809,7 @@ Acquires an entry handle mut for direct write access to the stored value.
 int iox2_writer_entry(iox2_writer_h_ref writer_handle, struct iox2_entry_handle_mut_t *entry_handle_mut_struct_ptr, iox2_entry_handle_mut_h *entry_handle_mut_handle_ptr, const void *key, const char *value_type_name_str, c_size_t value_type_name_len, c_size_t value_size, c_size_t value_alignment);
 ```
 """
-function iox2_writer_entry(writer_handle, entry_handle_mut_struct_ptr, entry_handle_mut_handle_ptr, key, value_type_name_str, value_type_name_len, value_size, value_alignment)
+@inline function iox2_writer_entry(writer_handle, entry_handle_mut_struct_ptr, entry_handle_mut_handle_ptr, key, value_type_name_str, value_type_name_len, value_size, value_alignment)
     @ccall libiceoryx2_ffi_c.iox2_writer_entry(writer_handle::iox2_writer_h_ref, entry_handle_mut_struct_ptr::Ptr{iox2_entry_handle_mut_t}, entry_handle_mut_handle_ptr::Ptr{iox2_entry_handle_mut_h}, key::Ptr{Cvoid}, value_type_name_str::Cstring, value_type_name_len::c_size_t, value_size::c_size_t, value_alignment::c_size_t)::Cint
 end
 
@@ -16196,7 +19831,7 @@ This function needs to be called to destroy the writer!
 void iox2_writer_drop(iox2_writer_h writer_handle);
 ```
 """
-function iox2_writer_drop(writer_handle)
+@inline function iox2_writer_drop(writer_handle)
     @ccall libiceoryx2_ffi_c.iox2_writer_drop(writer_handle::iox2_writer_h)::Cvoid
 end
 
@@ -16214,14 +19849,14 @@ Returns the unique port id of the writer.
 void iox2_writer_details_writer_id(iox2_writer_details_ptr handle, struct iox2_unique_writer_id_t *id_struct_ptr, iox2_unique_writer_id_h *id_handle_ptr);
 ```
 """
-function iox2_writer_details_writer_id(handle, id_struct_ptr, id_handle_ptr)
+@inline function iox2_writer_details_writer_id(handle, id_struct_ptr, id_handle_ptr)
     @ccall libiceoryx2_ffi_c.iox2_writer_details_writer_id(handle::iox2_writer_details_ptr, id_struct_ptr::Ptr{iox2_unique_writer_id_t}, id_handle_ptr::Ptr{iox2_unique_writer_id_h})::Cvoid
 end
 
 """
     iox2_writer_details_node_id(handle)
 
-Returns the [[`iox2_node_id_ptr`](@ref)](crate::[`iox2_node_id_ptr`](@ref)), an immutable pointer to the node id.
+Returns the [[`iox2_unique_node_id_ptr`](@ref)](crate::[`iox2_unique_node_id_ptr`](@ref)), an immutable pointer to the node id.
 
 # Safety
 
@@ -16229,11 +19864,23 @@ Returns the [[`iox2_node_id_ptr`](@ref)](crate::[`iox2_node_id_ptr`](@ref)), an 
 
 ### Prototype
 ```c
-iox2_node_id_ptr iox2_writer_details_node_id(iox2_writer_details_ptr handle);
+iox2_unique_node_id_ptr iox2_writer_details_node_id(iox2_writer_details_ptr handle);
 ```
 """
-function iox2_writer_details_node_id(handle)
-    @ccall libiceoryx2_ffi_c.iox2_writer_details_node_id(handle::iox2_writer_details_ptr)::iox2_node_id_ptr
+@inline function iox2_writer_details_node_id(handle)
+    @ccall libiceoryx2_ffi_c.iox2_writer_details_node_id(handle::iox2_writer_details_ptr)::iox2_unique_node_id_ptr
+end
+
+"""
+    rust_eh_personality()
+
+### Prototype
+```c
+void rust_eh_personality(void);
+```
+"""
+function rust_eh_personality()
+    @ccall libiceoryx2_ffi_c.rust_eh_personality()::Cvoid
 end
 
 const IOX2_OK = 0
@@ -16246,9 +19893,11 @@ const IOX2_MAX_ATTRIBUTES_PER_SERVICE = 8
 
 const IOX2_NODE_NAME_LENGTH = 128
 
+const IOX2_PORT_NAME_LENGTH = 64
+
 const IOX2_SERVICE_NAME_LENGTH = 255
 
-const IOX2_SERVICE_ID_LENGTH = 64
+const IOX2_SERVICE_HASH_LENGTH = 64
 
 const IOX2_TYPE_NAME_LENGTH = 256
 

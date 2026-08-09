@@ -41,53 +41,60 @@ function file_descriptor(listener::Listener)
 end
 
 """
-    attach_notification(waitset, fd) -> WaitsetGuard
+    attach_notification(waitset, fd) -> WaitSetGuard
 
-Attach a file descriptor notification to the waitset.
+Attach a file descriptor notification to the WaitSet.
 """
-function attach_notification(waitset::Waitset{S}, fd::Union{FileDescriptor, FileDescriptorView}) where {S}
+function attach_notification(waitset::WaitSet{S}, fd::Union{
+        FileDescriptor, FileDescriptorView}) where {S}
     _require_valid(unsafe_handle(waitset), "waitset")
     guard_ref = Ref{Iceoryx2FFI.iox2_waitset_guard_h}(_IOX2_NULL)
-    ret = Iceoryx2FFI.iox2_waitset_attach_notification(Ref{Iceoryx2FFI.iox2_waitset_h}(unsafe_handle(waitset)), _file_descriptor_ptr(fd), C_NULL, guard_ref)
+    ret = Iceoryx2FFI.iox2_waitset_attach_notification(
+        Ref{Iceoryx2FFI.iox2_waitset_h}(unsafe_handle(waitset)),
+        _file_descriptor_ptr(fd), C_NULL, guard_ref)
     check_ok(ret, Iceoryx2FFI.iox2_waitset_attachment_error_e)
-    return WaitsetGuard{S}(guard_ref[])
+    return WaitSetGuard{S}(guard_ref[])
 end
 
 """
-    attach_deadline(waitset, fd, seconds, nanoseconds) -> WaitsetGuard
+    attach_deadline(waitset, fd, seconds, nanoseconds) -> WaitSetGuard
 
-Attach a file descriptor deadline to the waitset.
+Attach a file descriptor deadline to the WaitSet.
 """
-function attach_deadline(waitset::Waitset{S}, fd::Union{FileDescriptor, FileDescriptorView}, seconds::Integer, nanoseconds::Integer) where {S}
+function attach_deadline(
+        waitset::WaitSet{S}, fd::Union{FileDescriptor, FileDescriptorView},
+        seconds::Integer, nanoseconds::Integer) where {S}
     _require_valid(unsafe_handle(waitset), "waitset")
+    secs, nanos = _timeout_parts(seconds, nanoseconds)
     guard_ref = Ref{Iceoryx2FFI.iox2_waitset_guard_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_waitset_attach_deadline(
         Ref{Iceoryx2FFI.iox2_waitset_h}(unsafe_handle(waitset)),
         _file_descriptor_ptr(fd),
-        UInt64(seconds),
-        UInt32(nanoseconds),
+        secs,
+        nanos,
         C_NULL,
-        guard_ref,
+        guard_ref
     )
     check_ok(ret, Iceoryx2FFI.iox2_waitset_attachment_error_e)
-    return WaitsetGuard{S}(guard_ref[])
+    return WaitSetGuard{S}(guard_ref[])
 end
 
 """
-    attach_interval(waitset, seconds, nanoseconds) -> WaitsetGuard
+    attach_interval(waitset, seconds, nanoseconds) -> WaitSetGuard
 
-Attach a periodic interval to the waitset.
+Attach a periodic interval to the WaitSet.
 """
-function attach_interval(waitset::Waitset{S}, seconds::Integer, nanoseconds::Integer) where {S}
+function attach_interval(waitset::WaitSet{S}, seconds::Integer, nanoseconds::Integer) where {S}
     _require_valid(unsafe_handle(waitset), "waitset")
+    secs, nanos = _timeout_parts(seconds, nanoseconds)
     guard_ref = Ref{Iceoryx2FFI.iox2_waitset_guard_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_waitset_attach_interval(
         Ref{Iceoryx2FFI.iox2_waitset_h}(unsafe_handle(waitset)),
-        UInt64(seconds),
-        UInt32(nanoseconds),
+        secs,
+        nanos,
         C_NULL,
-        guard_ref,
+        guard_ref
     )
     check_ok(ret, Iceoryx2FFI.iox2_waitset_attachment_error_e)
-    return WaitsetGuard{S}(guard_ref[])
+    return WaitSetGuard{S}(guard_ref[])
 end
