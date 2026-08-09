@@ -6,8 +6,18 @@ const _IOX2_OK = Iceoryx2FFI.IOX2_OK
     return string(code)
 end
 
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_attribute_definition_error_e}, code::Iceoryx2FFI.iox2_attribute_definition_error_e)
+    text = string(code)
+    return startswith(text, "iox2_attribute_definition_error_e_") ? Symbol(text[35:end]) : Symbol(text)
+end
+
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_attribute_verification_error_e}, code::Iceoryx2FFI.iox2_attribute_verification_error_e)
     return string(code)
+end
+
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_attribute_verification_error_e}, code::Iceoryx2FFI.iox2_attribute_verification_error_e)
+    text = string(code)
+    return startswith(text, "iox2_attribute_verification_error_e_") ? Symbol(text[37:end]) : Symbol(text)
 end
 
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_blackboard_create_error_e}, code::Iceoryx2FFI.iox2_blackboard_create_error_e)
@@ -15,9 +25,19 @@ end
     return unsafe_string(ptr)
 end
 
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_blackboard_create_error_e}, code::Iceoryx2FFI.iox2_blackboard_create_error_e)
+    text = string(code)
+    return startswith(text, "iox2_blackboard_create_error_e_") ? Symbol(text[32:end]) : Symbol(text)
+end
+
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_blackboard_open_error_e}, code::Iceoryx2FFI.iox2_blackboard_open_error_e)
     ptr = Iceoryx2FFI.iox2_blackboard_open_error_string(code)
     return unsafe_string(ptr)
+end
+
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_blackboard_open_error_e}, code::Iceoryx2FFI.iox2_blackboard_open_error_e)
+    text = string(code)
+    return startswith(text, "iox2_blackboard_open_error_e_") ? Symbol(text[30:end]) : Symbol(text)
 end
 
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_client_create_error_e}, code::Iceoryx2FFI.iox2_client_create_error_e)
@@ -25,9 +45,19 @@ end
     return unsafe_string(ptr)
 end
 
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_client_create_error_e}, code::Iceoryx2FFI.iox2_client_create_error_e)
+    text = string(code)
+    return startswith(text, "iox2_client_create_error_e_") ? Symbol(text[28:end]) : Symbol(text)
+end
+
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_config_creation_error_e}, code::Iceoryx2FFI.iox2_config_creation_error_e)
     ptr = Iceoryx2FFI.iox2_config_creation_error_string(code)
     return unsafe_string(ptr)
+end
+
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_config_creation_error_e}, code::Iceoryx2FFI.iox2_config_creation_error_e)
+    text = string(code)
+    return startswith(text, "iox2_config_creation_error_e_") ? Symbol(text[30:end]) : Symbol(text)
 end
 
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_connection_failure_e}, code::Iceoryx2FFI.iox2_connection_failure_e)
@@ -35,9 +65,19 @@ end
     return unsafe_string(ptr)
 end
 
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_connection_failure_e}, code::Iceoryx2FFI.iox2_connection_failure_e)
+    text = string(code)
+    return startswith(text, "iox2_connection_failure_e_") ? Symbol(text[27:end]) : Symbol(text)
+end
+
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_entry_handle_error_e}, code::Iceoryx2FFI.iox2_entry_handle_error_e)
     ptr = Iceoryx2FFI.iox2_entry_handle_error_string(code)
     return unsafe_string(ptr)
+end
+
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_entry_handle_error_e}, code::Iceoryx2FFI.iox2_entry_handle_error_e)
+    text = string(code)
+    return startswith(text, "iox2_entry_handle_error_e_") ? Symbol(text[27:end]) : Symbol(text)
 end
 
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_entry_handle_mut_error_e}, code::Iceoryx2FFI.iox2_entry_handle_mut_error_e)
@@ -45,9 +85,19 @@ end
     return unsafe_string(ptr)
 end
 
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_entry_handle_mut_error_e}, code::Iceoryx2FFI.iox2_entry_handle_mut_error_e)
+    text = string(code)
+    return startswith(text, "iox2_entry_handle_mut_error_e_") ? Symbol(text[31:end]) : Symbol(text)
+end
+
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_event_open_or_create_error_e}, code::Iceoryx2FFI.iox2_event_open_or_create_error_e)
     ptr = Iceoryx2FFI.iox2_event_open_or_create_error_string(code)
     return unsafe_string(ptr)
+end
+
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_event_open_or_create_error_e}, code::Iceoryx2FFI.iox2_event_open_or_create_error_e)
+    text = string(code)
+    return startswith(text, "iox2_event_open_or_create_error_e_") ? Symbol(text[35:end]) : Symbol(text)
 end
 
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_listener_create_error_e}, code::Iceoryx2FFI.iox2_listener_create_error_e)
@@ -55,9 +105,19 @@ end
     return unsafe_string(ptr)
 end
 
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_listener_create_error_e}, code::Iceoryx2FFI.iox2_listener_create_error_e)
+    text = string(code)
+    return startswith(text, "iox2_listener_create_error_e_") ? Symbol(text[30:end]) : Symbol(text)
+end
+
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_listener_wait_error_e}, code::Iceoryx2FFI.iox2_listener_wait_error_e)
     ptr = Iceoryx2FFI.iox2_listener_wait_error_string(code)
     return unsafe_string(ptr)
+end
+
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_listener_wait_error_e}, code::Iceoryx2FFI.iox2_listener_wait_error_e)
+    text = string(code)
+    return startswith(text, "iox2_listener_wait_error_e_") ? Symbol(text[28:end]) : Symbol(text)
 end
 
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_loan_error_e}, code::Iceoryx2FFI.iox2_loan_error_e)
@@ -65,8 +125,18 @@ end
     return unsafe_string(ptr)
 end
 
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_loan_error_e}, code::Iceoryx2FFI.iox2_loan_error_e)
+    text = string(code)
+    return startswith(text, "iox2_loan_error_e_") ? Symbol(text[19:end]) : Symbol(text)
+end
+
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_node_cleanup_failure_e}, code::Iceoryx2FFI.iox2_node_cleanup_failure_e)
     return string(code)
+end
+
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_node_cleanup_failure_e}, code::Iceoryx2FFI.iox2_node_cleanup_failure_e)
+    text = string(code)
+    return startswith(text, "iox2_node_cleanup_failure_e_") ? Symbol(text[29:end]) : Symbol(text)
 end
 
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_node_creation_failure_e}, code::Iceoryx2FFI.iox2_node_creation_failure_e)
@@ -74,9 +144,19 @@ end
     return unsafe_string(ptr)
 end
 
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_node_creation_failure_e}, code::Iceoryx2FFI.iox2_node_creation_failure_e)
+    text = string(code)
+    return startswith(text, "iox2_node_creation_failure_e_") ? Symbol(text[30:end]) : Symbol(text)
+end
+
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_node_list_failure_e}, code::Iceoryx2FFI.iox2_node_list_failure_e)
     ptr = Iceoryx2FFI.iox2_node_list_failure_string(code)
     return unsafe_string(ptr)
+end
+
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_node_list_failure_e}, code::Iceoryx2FFI.iox2_node_list_failure_e)
+    text = string(code)
+    return startswith(text, "iox2_node_list_failure_e_") ? Symbol(text[26:end]) : Symbol(text)
 end
 
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_node_wait_failure_e}, code::Iceoryx2FFI.iox2_node_wait_failure_e)
@@ -84,9 +164,19 @@ end
     return unsafe_string(ptr)
 end
 
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_node_wait_failure_e}, code::Iceoryx2FFI.iox2_node_wait_failure_e)
+    text = string(code)
+    return startswith(text, "iox2_node_wait_failure_e_") ? Symbol(text[26:end]) : Symbol(text)
+end
+
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_notifier_create_error_e}, code::Iceoryx2FFI.iox2_notifier_create_error_e)
     ptr = Iceoryx2FFI.iox2_notifier_create_error_string(code)
     return unsafe_string(ptr)
+end
+
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_notifier_create_error_e}, code::Iceoryx2FFI.iox2_notifier_create_error_e)
+    text = string(code)
+    return startswith(text, "iox2_notifier_create_error_e_") ? Symbol(text[30:end]) : Symbol(text)
 end
 
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_notifier_notify_error_e}, code::Iceoryx2FFI.iox2_notifier_notify_error_e)
@@ -94,9 +184,29 @@ end
     return unsafe_string(ptr)
 end
 
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_notifier_notify_error_e}, code::Iceoryx2FFI.iox2_notifier_notify_error_e)
+    text = string(code)
+    return startswith(text, "iox2_notifier_notify_error_e_") ? Symbol(text[30:end]) : Symbol(text)
+end
+
+@noinline function _error_message(::Type{Iceoryx2FFI.iox2_progressive_write_error_e}, code::Iceoryx2FFI.iox2_progressive_write_error_e)
+    ptr = Iceoryx2FFI.iox2_progressive_write_error_string(code)
+    return unsafe_string(ptr)
+end
+
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_progressive_write_error_e}, code::Iceoryx2FFI.iox2_progressive_write_error_e)
+    text = string(code)
+    return startswith(text, "iox2_progressive_write_error_e_") ? Symbol(text[32:end]) : Symbol(text)
+end
+
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e}, code::Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
     ptr = Iceoryx2FFI.iox2_pub_sub_open_or_create_error_string(code)
     return unsafe_string(ptr)
+end
+
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e}, code::Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
+    text = string(code)
+    return startswith(text, "iox2_pub_sub_open_or_create_error_e_") ? Symbol(text[37:end]) : Symbol(text)
 end
 
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_publisher_create_error_e}, code::Iceoryx2FFI.iox2_publisher_create_error_e)
@@ -104,9 +214,19 @@ end
     return unsafe_string(ptr)
 end
 
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_publisher_create_error_e}, code::Iceoryx2FFI.iox2_publisher_create_error_e)
+    text = string(code)
+    return startswith(text, "iox2_publisher_create_error_e_") ? Symbol(text[31:end]) : Symbol(text)
+end
+
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_reader_create_error_e}, code::Iceoryx2FFI.iox2_reader_create_error_e)
     ptr = Iceoryx2FFI.iox2_reader_create_error_string(code)
     return unsafe_string(ptr)
+end
+
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_reader_create_error_e}, code::Iceoryx2FFI.iox2_reader_create_error_e)
+    text = string(code)
+    return startswith(text, "iox2_reader_create_error_e_") ? Symbol(text[28:end]) : Symbol(text)
 end
 
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_receive_error_e}, code::Iceoryx2FFI.iox2_receive_error_e)
@@ -114,9 +234,19 @@ end
     return unsafe_string(ptr)
 end
 
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_receive_error_e}, code::Iceoryx2FFI.iox2_receive_error_e)
+    text = string(code)
+    return startswith(text, "iox2_receive_error_e_") ? Symbol(text[22:end]) : Symbol(text)
+end
+
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_request_response_open_or_create_error_e}, code::Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
     ptr = Iceoryx2FFI.iox2_request_response_open_or_create_error_string(code)
     return unsafe_string(ptr)
+end
+
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_request_response_open_or_create_error_e}, code::Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
+    text = string(code)
+    return startswith(text, "iox2_request_response_open_or_create_error_e_") ? Symbol(text[46:end]) : Symbol(text)
 end
 
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_request_send_error_e}, code::Iceoryx2FFI.iox2_request_send_error_e)
@@ -124,9 +254,19 @@ end
     return unsafe_string(ptr)
 end
 
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_request_send_error_e}, code::Iceoryx2FFI.iox2_request_send_error_e)
+    text = string(code)
+    return startswith(text, "iox2_request_send_error_e_") ? Symbol(text[27:end]) : Symbol(text)
+end
+
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_semantic_string_error_e}, code::Iceoryx2FFI.iox2_semantic_string_error_e)
     ptr = Iceoryx2FFI.iox2_semantic_string_error_string(code)
     return unsafe_string(ptr)
+end
+
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_semantic_string_error_e}, code::Iceoryx2FFI.iox2_semantic_string_error_e)
+    text = string(code)
+    return startswith(text, "iox2_semantic_string_error_e_") ? Symbol(text[30:end]) : Symbol(text)
 end
 
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_send_error_e}, code::Iceoryx2FFI.iox2_send_error_e)
@@ -134,9 +274,19 @@ end
     return unsafe_string(ptr)
 end
 
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_send_error_e}, code::Iceoryx2FFI.iox2_send_error_e)
+    text = string(code)
+    return startswith(text, "iox2_send_error_e_") ? Symbol(text[19:end]) : Symbol(text)
+end
+
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_server_create_error_e}, code::Iceoryx2FFI.iox2_server_create_error_e)
     ptr = Iceoryx2FFI.iox2_server_create_error_string(code)
     return unsafe_string(ptr)
+end
+
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_server_create_error_e}, code::Iceoryx2FFI.iox2_server_create_error_e)
+    text = string(code)
+    return startswith(text, "iox2_server_create_error_e_") ? Symbol(text[28:end]) : Symbol(text)
 end
 
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_service_details_error_e}, code::Iceoryx2FFI.iox2_service_details_error_e)
@@ -144,9 +294,28 @@ end
     return unsafe_string(ptr)
 end
 
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_service_details_error_e}, code::Iceoryx2FFI.iox2_service_details_error_e)
+    text = string(code)
+    return startswith(text, "iox2_service_details_error_e_") ? Symbol(text[30:end]) : Symbol(text)
+end
+
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_service_list_error_e}, code::Iceoryx2FFI.iox2_service_list_error_e)
     ptr = Iceoryx2FFI.iox2_service_list_error_string(code)
     return unsafe_string(ptr)
+end
+
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_service_list_error_e}, code::Iceoryx2FFI.iox2_service_list_error_e)
+    text = string(code)
+    return startswith(text, "iox2_service_list_error_e_") ? Symbol(text[27:end]) : Symbol(text)
+end
+
+@noinline function _error_message(::Type{Iceoryx2FFI.iox2_service_remove_error_e}, code::Iceoryx2FFI.iox2_service_remove_error_e)
+    return string(code)
+end
+
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_service_remove_error_e}, code::Iceoryx2FFI.iox2_service_remove_error_e)
+    text = string(code)
+    return startswith(text, "iox2_service_remove_error_e_") ? Symbol(text[29:end]) : Symbol(text)
 end
 
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_subscriber_create_error_e}, code::Iceoryx2FFI.iox2_subscriber_create_error_e)
@@ -154,8 +323,18 @@ end
     return unsafe_string(ptr)
 end
 
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_subscriber_create_error_e}, code::Iceoryx2FFI.iox2_subscriber_create_error_e)
+    text = string(code)
+    return startswith(text, "iox2_subscriber_create_error_e_") ? Symbol(text[32:end]) : Symbol(text)
+end
+
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_type_detail_error_e}, code::Iceoryx2FFI.iox2_type_detail_error_e)
     return string(code)
+end
+
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_type_detail_error_e}, code::Iceoryx2FFI.iox2_type_detail_error_e)
+    text = string(code)
+    return startswith(text, "iox2_type_detail_error_e_") ? Symbol(text[26:end]) : Symbol(text)
 end
 
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_waitset_attachment_error_e}, code::Iceoryx2FFI.iox2_waitset_attachment_error_e)
@@ -163,9 +342,19 @@ end
     return unsafe_string(ptr)
 end
 
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_waitset_attachment_error_e}, code::Iceoryx2FFI.iox2_waitset_attachment_error_e)
+    text = string(code)
+    return startswith(text, "iox2_waitset_attachment_error_e_") ? Symbol(text[33:end]) : Symbol(text)
+end
+
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_waitset_create_error_e}, code::Iceoryx2FFI.iox2_waitset_create_error_e)
     ptr = Iceoryx2FFI.iox2_waitset_create_error_string(code)
     return unsafe_string(ptr)
+end
+
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_waitset_create_error_e}, code::Iceoryx2FFI.iox2_waitset_create_error_e)
+    text = string(code)
+    return startswith(text, "iox2_waitset_create_error_e_") ? Symbol(text[29:end]) : Symbol(text)
 end
 
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_waitset_run_error_e}, code::Iceoryx2FFI.iox2_waitset_run_error_e)
@@ -173,18 +362,29 @@ end
     return unsafe_string(ptr)
 end
 
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_waitset_run_error_e}, code::Iceoryx2FFI.iox2_waitset_run_error_e)
+    text = string(code)
+    return startswith(text, "iox2_waitset_run_error_e_") ? Symbol(text[26:end]) : Symbol(text)
+end
+
 @noinline function _error_message(::Type{Iceoryx2FFI.iox2_writer_create_error_e}, code::Iceoryx2FFI.iox2_writer_create_error_e)
     ptr = Iceoryx2FFI.iox2_writer_create_error_string(code)
     return unsafe_string(ptr)
 end
 
+@noinline function _error_code_symbol(::Type{Iceoryx2FFI.iox2_writer_create_error_e}, code::Iceoryx2FFI.iox2_writer_create_error_e)
+    text = string(code)
+    return startswith(text, "iox2_writer_create_error_e_") ? Symbol(text[28:end]) : Symbol(text)
+end
+
 struct AttributeDefinitionError <: Exception
-    code::Iceoryx2FFI.iox2_attribute_definition_error_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function AttributeDefinitionError(code::Iceoryx2FFI.iox2_attribute_definition_error_e)
-    return AttributeDefinitionError(code, _error_message(Iceoryx2FFI.iox2_attribute_definition_error_e, code))
+    return AttributeDefinitionError(_error_code_symbol(Iceoryx2FFI.iox2_attribute_definition_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_attribute_definition_error_e, code))
 end
 
 function Base.showerror(io::IO, err::AttributeDefinitionError)
@@ -192,12 +392,13 @@ function Base.showerror(io::IO, err::AttributeDefinitionError)
 end
 
 struct AttributeVerificationError <: Exception
-    code::Iceoryx2FFI.iox2_attribute_verification_error_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function AttributeVerificationError(code::Iceoryx2FFI.iox2_attribute_verification_error_e)
-    return AttributeVerificationError(code, _error_message(Iceoryx2FFI.iox2_attribute_verification_error_e, code))
+    return AttributeVerificationError(_error_code_symbol(Iceoryx2FFI.iox2_attribute_verification_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_attribute_verification_error_e, code))
 end
 
 function Base.showerror(io::IO, err::AttributeVerificationError)
@@ -205,12 +406,13 @@ function Base.showerror(io::IO, err::AttributeVerificationError)
 end
 
 struct BlackboardCreateError <: Exception
-    code::Iceoryx2FFI.iox2_blackboard_create_error_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function BlackboardCreateError(code::Iceoryx2FFI.iox2_blackboard_create_error_e)
-    return BlackboardCreateError(code, _error_message(Iceoryx2FFI.iox2_blackboard_create_error_e, code))
+    return BlackboardCreateError(_error_code_symbol(Iceoryx2FFI.iox2_blackboard_create_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_blackboard_create_error_e, code))
 end
 
 function Base.showerror(io::IO, err::BlackboardCreateError)
@@ -218,12 +420,13 @@ function Base.showerror(io::IO, err::BlackboardCreateError)
 end
 
 struct BlackboardOpenError <: Exception
-    code::Iceoryx2FFI.iox2_blackboard_open_error_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function BlackboardOpenError(code::Iceoryx2FFI.iox2_blackboard_open_error_e)
-    return BlackboardOpenError(code, _error_message(Iceoryx2FFI.iox2_blackboard_open_error_e, code))
+    return BlackboardOpenError(_error_code_symbol(Iceoryx2FFI.iox2_blackboard_open_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_blackboard_open_error_e, code))
 end
 
 function Base.showerror(io::IO, err::BlackboardOpenError)
@@ -231,12 +434,13 @@ function Base.showerror(io::IO, err::BlackboardOpenError)
 end
 
 struct ClientCreateError <: Exception
-    code::Iceoryx2FFI.iox2_client_create_error_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function ClientCreateError(code::Iceoryx2FFI.iox2_client_create_error_e)
-    return ClientCreateError(code, _error_message(Iceoryx2FFI.iox2_client_create_error_e, code))
+    return ClientCreateError(_error_code_symbol(Iceoryx2FFI.iox2_client_create_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_client_create_error_e, code))
 end
 
 function Base.showerror(io::IO, err::ClientCreateError)
@@ -244,12 +448,13 @@ function Base.showerror(io::IO, err::ClientCreateError)
 end
 
 struct ConfigCreationError <: Exception
-    code::Iceoryx2FFI.iox2_config_creation_error_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function ConfigCreationError(code::Iceoryx2FFI.iox2_config_creation_error_e)
-    return ConfigCreationError(code, _error_message(Iceoryx2FFI.iox2_config_creation_error_e, code))
+    return ConfigCreationError(_error_code_symbol(Iceoryx2FFI.iox2_config_creation_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_config_creation_error_e, code))
 end
 
 function Base.showerror(io::IO, err::ConfigCreationError)
@@ -257,12 +462,13 @@ function Base.showerror(io::IO, err::ConfigCreationError)
 end
 
 struct ConnectionFailure <: Exception
-    code::Iceoryx2FFI.iox2_connection_failure_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function ConnectionFailure(code::Iceoryx2FFI.iox2_connection_failure_e)
-    return ConnectionFailure(code, _error_message(Iceoryx2FFI.iox2_connection_failure_e, code))
+    return ConnectionFailure(_error_code_symbol(Iceoryx2FFI.iox2_connection_failure_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_connection_failure_e, code))
 end
 
 function Base.showerror(io::IO, err::ConnectionFailure)
@@ -270,12 +476,13 @@ function Base.showerror(io::IO, err::ConnectionFailure)
 end
 
 struct EntryHandleError <: Exception
-    code::Iceoryx2FFI.iox2_entry_handle_error_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function EntryHandleError(code::Iceoryx2FFI.iox2_entry_handle_error_e)
-    return EntryHandleError(code, _error_message(Iceoryx2FFI.iox2_entry_handle_error_e, code))
+    return EntryHandleError(_error_code_symbol(Iceoryx2FFI.iox2_entry_handle_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_entry_handle_error_e, code))
 end
 
 function Base.showerror(io::IO, err::EntryHandleError)
@@ -283,12 +490,13 @@ function Base.showerror(io::IO, err::EntryHandleError)
 end
 
 struct EntryHandleMutError <: Exception
-    code::Iceoryx2FFI.iox2_entry_handle_mut_error_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function EntryHandleMutError(code::Iceoryx2FFI.iox2_entry_handle_mut_error_e)
-    return EntryHandleMutError(code, _error_message(Iceoryx2FFI.iox2_entry_handle_mut_error_e, code))
+    return EntryHandleMutError(_error_code_symbol(Iceoryx2FFI.iox2_entry_handle_mut_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_entry_handle_mut_error_e, code))
 end
 
 function Base.showerror(io::IO, err::EntryHandleMutError)
@@ -296,12 +504,13 @@ function Base.showerror(io::IO, err::EntryHandleMutError)
 end
 
 struct EventOpenOrCreateError <: Exception
-    code::Iceoryx2FFI.iox2_event_open_or_create_error_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function EventOpenOrCreateError(code::Iceoryx2FFI.iox2_event_open_or_create_error_e)
-    return EventOpenOrCreateError(code, _error_message(Iceoryx2FFI.iox2_event_open_or_create_error_e, code))
+    return EventOpenOrCreateError(_error_code_symbol(Iceoryx2FFI.iox2_event_open_or_create_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_event_open_or_create_error_e, code))
 end
 
 function Base.showerror(io::IO, err::EventOpenOrCreateError)
@@ -309,12 +518,13 @@ function Base.showerror(io::IO, err::EventOpenOrCreateError)
 end
 
 struct ListenerCreateError <: Exception
-    code::Iceoryx2FFI.iox2_listener_create_error_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function ListenerCreateError(code::Iceoryx2FFI.iox2_listener_create_error_e)
-    return ListenerCreateError(code, _error_message(Iceoryx2FFI.iox2_listener_create_error_e, code))
+    return ListenerCreateError(_error_code_symbol(Iceoryx2FFI.iox2_listener_create_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_listener_create_error_e, code))
 end
 
 function Base.showerror(io::IO, err::ListenerCreateError)
@@ -322,12 +532,13 @@ function Base.showerror(io::IO, err::ListenerCreateError)
 end
 
 struct ListenerWaitError <: Exception
-    code::Iceoryx2FFI.iox2_listener_wait_error_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function ListenerWaitError(code::Iceoryx2FFI.iox2_listener_wait_error_e)
-    return ListenerWaitError(code, _error_message(Iceoryx2FFI.iox2_listener_wait_error_e, code))
+    return ListenerWaitError(_error_code_symbol(Iceoryx2FFI.iox2_listener_wait_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_listener_wait_error_e, code))
 end
 
 function Base.showerror(io::IO, err::ListenerWaitError)
@@ -335,12 +546,13 @@ function Base.showerror(io::IO, err::ListenerWaitError)
 end
 
 struct LoanError <: Exception
-    code::Iceoryx2FFI.iox2_loan_error_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function LoanError(code::Iceoryx2FFI.iox2_loan_error_e)
-    return LoanError(code, _error_message(Iceoryx2FFI.iox2_loan_error_e, code))
+    return LoanError(_error_code_symbol(Iceoryx2FFI.iox2_loan_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_loan_error_e, code))
 end
 
 function Base.showerror(io::IO, err::LoanError)
@@ -348,12 +560,13 @@ function Base.showerror(io::IO, err::LoanError)
 end
 
 struct NodeCleanupFailure <: Exception
-    code::Iceoryx2FFI.iox2_node_cleanup_failure_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function NodeCleanupFailure(code::Iceoryx2FFI.iox2_node_cleanup_failure_e)
-    return NodeCleanupFailure(code, _error_message(Iceoryx2FFI.iox2_node_cleanup_failure_e, code))
+    return NodeCleanupFailure(_error_code_symbol(Iceoryx2FFI.iox2_node_cleanup_failure_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_node_cleanup_failure_e, code))
 end
 
 function Base.showerror(io::IO, err::NodeCleanupFailure)
@@ -361,12 +574,13 @@ function Base.showerror(io::IO, err::NodeCleanupFailure)
 end
 
 struct NodeCreationFailure <: Exception
-    code::Iceoryx2FFI.iox2_node_creation_failure_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function NodeCreationFailure(code::Iceoryx2FFI.iox2_node_creation_failure_e)
-    return NodeCreationFailure(code, _error_message(Iceoryx2FFI.iox2_node_creation_failure_e, code))
+    return NodeCreationFailure(_error_code_symbol(Iceoryx2FFI.iox2_node_creation_failure_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_node_creation_failure_e, code))
 end
 
 function Base.showerror(io::IO, err::NodeCreationFailure)
@@ -374,12 +588,13 @@ function Base.showerror(io::IO, err::NodeCreationFailure)
 end
 
 struct NodeListFailure <: Exception
-    code::Iceoryx2FFI.iox2_node_list_failure_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function NodeListFailure(code::Iceoryx2FFI.iox2_node_list_failure_e)
-    return NodeListFailure(code, _error_message(Iceoryx2FFI.iox2_node_list_failure_e, code))
+    return NodeListFailure(_error_code_symbol(Iceoryx2FFI.iox2_node_list_failure_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_node_list_failure_e, code))
 end
 
 function Base.showerror(io::IO, err::NodeListFailure)
@@ -387,12 +602,13 @@ function Base.showerror(io::IO, err::NodeListFailure)
 end
 
 struct NodeWaitFailure <: Exception
-    code::Iceoryx2FFI.iox2_node_wait_failure_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function NodeWaitFailure(code::Iceoryx2FFI.iox2_node_wait_failure_e)
-    return NodeWaitFailure(code, _error_message(Iceoryx2FFI.iox2_node_wait_failure_e, code))
+    return NodeWaitFailure(_error_code_symbol(Iceoryx2FFI.iox2_node_wait_failure_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_node_wait_failure_e, code))
 end
 
 function Base.showerror(io::IO, err::NodeWaitFailure)
@@ -400,12 +616,13 @@ function Base.showerror(io::IO, err::NodeWaitFailure)
 end
 
 struct NotifierCreateError <: Exception
-    code::Iceoryx2FFI.iox2_notifier_create_error_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function NotifierCreateError(code::Iceoryx2FFI.iox2_notifier_create_error_e)
-    return NotifierCreateError(code, _error_message(Iceoryx2FFI.iox2_notifier_create_error_e, code))
+    return NotifierCreateError(_error_code_symbol(Iceoryx2FFI.iox2_notifier_create_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_notifier_create_error_e, code))
 end
 
 function Base.showerror(io::IO, err::NotifierCreateError)
@@ -413,25 +630,41 @@ function Base.showerror(io::IO, err::NotifierCreateError)
 end
 
 struct NotifierNotifyError <: Exception
-    code::Iceoryx2FFI.iox2_notifier_notify_error_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function NotifierNotifyError(code::Iceoryx2FFI.iox2_notifier_notify_error_e)
-    return NotifierNotifyError(code, _error_message(Iceoryx2FFI.iox2_notifier_notify_error_e, code))
+    return NotifierNotifyError(_error_code_symbol(Iceoryx2FFI.iox2_notifier_notify_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_notifier_notify_error_e, code))
 end
 
 function Base.showerror(io::IO, err::NotifierNotifyError)
     print(io, "NotifierNotifyError: ", err.message, " (", err.code, ")")
 end
 
+struct ProgressiveWriteError <: Exception
+    code::Symbol
+    raw_code::UInt32
+    message::String
+end
+
+@noinline function ProgressiveWriteError(code::Iceoryx2FFI.iox2_progressive_write_error_e)
+    return ProgressiveWriteError(_error_code_symbol(Iceoryx2FFI.iox2_progressive_write_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_progressive_write_error_e, code))
+end
+
+function Base.showerror(io::IO, err::ProgressiveWriteError)
+    print(io, "ProgressiveWriteError: ", err.message, " (", err.code, ")")
+end
+
 struct PubSubOpenOrCreateError <: Exception
-    code::Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function PubSubOpenOrCreateError(code::Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e)
-    return PubSubOpenOrCreateError(code, _error_message(Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e, code))
+    return PubSubOpenOrCreateError(_error_code_symbol(Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e, code))
 end
 
 function Base.showerror(io::IO, err::PubSubOpenOrCreateError)
@@ -439,38 +672,41 @@ function Base.showerror(io::IO, err::PubSubOpenOrCreateError)
 end
 
 struct PublisherCreateError <: Exception
-    code::Iceoryx2FFI.iox2_publisher_create_error_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function PublisherCreateError(code::Iceoryx2FFI.iox2_publisher_create_error_e)
-    return PublisherCreateError(code, _error_message(Iceoryx2FFI.iox2_publisher_create_error_e, code))
+    return PublisherCreateError(_error_code_symbol(Iceoryx2FFI.iox2_publisher_create_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_publisher_create_error_e, code))
 end
 
 function Base.showerror(io::IO, err::PublisherCreateError)
     print(io, "PublisherCreateError: ", err.message, " (", err.code, ")")
 end
 
-struct EntryReaderCreateError <: Exception
-    code::Iceoryx2FFI.iox2_reader_create_error_e
+struct ReaderCreateError <: Exception
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
-@noinline function EntryReaderCreateError(code::Iceoryx2FFI.iox2_reader_create_error_e)
-    return EntryReaderCreateError(code, _error_message(Iceoryx2FFI.iox2_reader_create_error_e, code))
+@noinline function ReaderCreateError(code::Iceoryx2FFI.iox2_reader_create_error_e)
+    return ReaderCreateError(_error_code_symbol(Iceoryx2FFI.iox2_reader_create_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_reader_create_error_e, code))
 end
 
-function Base.showerror(io::IO, err::EntryReaderCreateError)
-    print(io, "EntryReaderCreateError: ", err.message, " (", err.code, ")")
+function Base.showerror(io::IO, err::ReaderCreateError)
+    print(io, "ReaderCreateError: ", err.message, " (", err.code, ")")
 end
 
 struct ReceiveError <: Exception
-    code::Iceoryx2FFI.iox2_receive_error_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function ReceiveError(code::Iceoryx2FFI.iox2_receive_error_e)
-    return ReceiveError(code, _error_message(Iceoryx2FFI.iox2_receive_error_e, code))
+    return ReceiveError(_error_code_symbol(Iceoryx2FFI.iox2_receive_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_receive_error_e, code))
 end
 
 function Base.showerror(io::IO, err::ReceiveError)
@@ -478,12 +714,13 @@ function Base.showerror(io::IO, err::ReceiveError)
 end
 
 struct RequestResponseOpenOrCreateError <: Exception
-    code::Iceoryx2FFI.iox2_request_response_open_or_create_error_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function RequestResponseOpenOrCreateError(code::Iceoryx2FFI.iox2_request_response_open_or_create_error_e)
-    return RequestResponseOpenOrCreateError(code, _error_message(Iceoryx2FFI.iox2_request_response_open_or_create_error_e, code))
+    return RequestResponseOpenOrCreateError(_error_code_symbol(Iceoryx2FFI.iox2_request_response_open_or_create_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_request_response_open_or_create_error_e, code))
 end
 
 function Base.showerror(io::IO, err::RequestResponseOpenOrCreateError)
@@ -491,12 +728,13 @@ function Base.showerror(io::IO, err::RequestResponseOpenOrCreateError)
 end
 
 struct RequestSendError <: Exception
-    code::Iceoryx2FFI.iox2_request_send_error_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function RequestSendError(code::Iceoryx2FFI.iox2_request_send_error_e)
-    return RequestSendError(code, _error_message(Iceoryx2FFI.iox2_request_send_error_e, code))
+    return RequestSendError(_error_code_symbol(Iceoryx2FFI.iox2_request_send_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_request_send_error_e, code))
 end
 
 function Base.showerror(io::IO, err::RequestSendError)
@@ -504,12 +742,13 @@ function Base.showerror(io::IO, err::RequestSendError)
 end
 
 struct SemanticStringError <: Exception
-    code::Iceoryx2FFI.iox2_semantic_string_error_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function SemanticStringError(code::Iceoryx2FFI.iox2_semantic_string_error_e)
-    return SemanticStringError(code, _error_message(Iceoryx2FFI.iox2_semantic_string_error_e, code))
+    return SemanticStringError(_error_code_symbol(Iceoryx2FFI.iox2_semantic_string_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_semantic_string_error_e, code))
 end
 
 function Base.showerror(io::IO, err::SemanticStringError)
@@ -517,12 +756,13 @@ function Base.showerror(io::IO, err::SemanticStringError)
 end
 
 struct SendError <: Exception
-    code::Iceoryx2FFI.iox2_send_error_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function SendError(code::Iceoryx2FFI.iox2_send_error_e)
-    return SendError(code, _error_message(Iceoryx2FFI.iox2_send_error_e, code))
+    return SendError(_error_code_symbol(Iceoryx2FFI.iox2_send_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_send_error_e, code))
 end
 
 function Base.showerror(io::IO, err::SendError)
@@ -530,12 +770,13 @@ function Base.showerror(io::IO, err::SendError)
 end
 
 struct ServerCreateError <: Exception
-    code::Iceoryx2FFI.iox2_server_create_error_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function ServerCreateError(code::Iceoryx2FFI.iox2_server_create_error_e)
-    return ServerCreateError(code, _error_message(Iceoryx2FFI.iox2_server_create_error_e, code))
+    return ServerCreateError(_error_code_symbol(Iceoryx2FFI.iox2_server_create_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_server_create_error_e, code))
 end
 
 function Base.showerror(io::IO, err::ServerCreateError)
@@ -543,12 +784,13 @@ function Base.showerror(io::IO, err::ServerCreateError)
 end
 
 struct ServiceDetailsError <: Exception
-    code::Iceoryx2FFI.iox2_service_details_error_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function ServiceDetailsError(code::Iceoryx2FFI.iox2_service_details_error_e)
-    return ServiceDetailsError(code, _error_message(Iceoryx2FFI.iox2_service_details_error_e, code))
+    return ServiceDetailsError(_error_code_symbol(Iceoryx2FFI.iox2_service_details_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_service_details_error_e, code))
 end
 
 function Base.showerror(io::IO, err::ServiceDetailsError)
@@ -556,25 +798,41 @@ function Base.showerror(io::IO, err::ServiceDetailsError)
 end
 
 struct ServiceListError <: Exception
-    code::Iceoryx2FFI.iox2_service_list_error_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function ServiceListError(code::Iceoryx2FFI.iox2_service_list_error_e)
-    return ServiceListError(code, _error_message(Iceoryx2FFI.iox2_service_list_error_e, code))
+    return ServiceListError(_error_code_symbol(Iceoryx2FFI.iox2_service_list_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_service_list_error_e, code))
 end
 
 function Base.showerror(io::IO, err::ServiceListError)
     print(io, "ServiceListError: ", err.message, " (", err.code, ")")
 end
 
+struct ServiceRemoveError <: Exception
+    code::Symbol
+    raw_code::UInt32
+    message::String
+end
+
+@noinline function ServiceRemoveError(code::Iceoryx2FFI.iox2_service_remove_error_e)
+    return ServiceRemoveError(_error_code_symbol(Iceoryx2FFI.iox2_service_remove_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_service_remove_error_e, code))
+end
+
+function Base.showerror(io::IO, err::ServiceRemoveError)
+    print(io, "ServiceRemoveError: ", err.message, " (", err.code, ")")
+end
+
 struct SubscriberCreateError <: Exception
-    code::Iceoryx2FFI.iox2_subscriber_create_error_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function SubscriberCreateError(code::Iceoryx2FFI.iox2_subscriber_create_error_e)
-    return SubscriberCreateError(code, _error_message(Iceoryx2FFI.iox2_subscriber_create_error_e, code))
+    return SubscriberCreateError(_error_code_symbol(Iceoryx2FFI.iox2_subscriber_create_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_subscriber_create_error_e, code))
 end
 
 function Base.showerror(io::IO, err::SubscriberCreateError)
@@ -582,68 +840,73 @@ function Base.showerror(io::IO, err::SubscriberCreateError)
 end
 
 struct TypeDetailError <: Exception
-    code::Iceoryx2FFI.iox2_type_detail_error_e
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
 @noinline function TypeDetailError(code::Iceoryx2FFI.iox2_type_detail_error_e)
-    return TypeDetailError(code, _error_message(Iceoryx2FFI.iox2_type_detail_error_e, code))
+    return TypeDetailError(_error_code_symbol(Iceoryx2FFI.iox2_type_detail_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_type_detail_error_e, code))
 end
 
 function Base.showerror(io::IO, err::TypeDetailError)
     print(io, "TypeDetailError: ", err.message, " (", err.code, ")")
 end
 
-struct WaitsetAttachmentError <: Exception
-    code::Iceoryx2FFI.iox2_waitset_attachment_error_e
+struct WaitSetAttachmentError <: Exception
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
-@noinline function WaitsetAttachmentError(code::Iceoryx2FFI.iox2_waitset_attachment_error_e)
-    return WaitsetAttachmentError(code, _error_message(Iceoryx2FFI.iox2_waitset_attachment_error_e, code))
+@noinline function WaitSetAttachmentError(code::Iceoryx2FFI.iox2_waitset_attachment_error_e)
+    return WaitSetAttachmentError(_error_code_symbol(Iceoryx2FFI.iox2_waitset_attachment_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_waitset_attachment_error_e, code))
 end
 
-function Base.showerror(io::IO, err::WaitsetAttachmentError)
-    print(io, "WaitsetAttachmentError: ", err.message, " (", err.code, ")")
+function Base.showerror(io::IO, err::WaitSetAttachmentError)
+    print(io, "WaitSetAttachmentError: ", err.message, " (", err.code, ")")
 end
 
-struct WaitsetCreateError <: Exception
-    code::Iceoryx2FFI.iox2_waitset_create_error_e
+struct WaitSetCreateError <: Exception
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
-@noinline function WaitsetCreateError(code::Iceoryx2FFI.iox2_waitset_create_error_e)
-    return WaitsetCreateError(code, _error_message(Iceoryx2FFI.iox2_waitset_create_error_e, code))
+@noinline function WaitSetCreateError(code::Iceoryx2FFI.iox2_waitset_create_error_e)
+    return WaitSetCreateError(_error_code_symbol(Iceoryx2FFI.iox2_waitset_create_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_waitset_create_error_e, code))
 end
 
-function Base.showerror(io::IO, err::WaitsetCreateError)
-    print(io, "WaitsetCreateError: ", err.message, " (", err.code, ")")
+function Base.showerror(io::IO, err::WaitSetCreateError)
+    print(io, "WaitSetCreateError: ", err.message, " (", err.code, ")")
 end
 
-struct WaitsetRunError <: Exception
-    code::Iceoryx2FFI.iox2_waitset_run_error_e
+struct WaitSetRunError <: Exception
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
-@noinline function WaitsetRunError(code::Iceoryx2FFI.iox2_waitset_run_error_e)
-    return WaitsetRunError(code, _error_message(Iceoryx2FFI.iox2_waitset_run_error_e, code))
+@noinline function WaitSetRunError(code::Iceoryx2FFI.iox2_waitset_run_error_e)
+    return WaitSetRunError(_error_code_symbol(Iceoryx2FFI.iox2_waitset_run_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_waitset_run_error_e, code))
 end
 
-function Base.showerror(io::IO, err::WaitsetRunError)
-    print(io, "WaitsetRunError: ", err.message, " (", err.code, ")")
+function Base.showerror(io::IO, err::WaitSetRunError)
+    print(io, "WaitSetRunError: ", err.message, " (", err.code, ")")
 end
 
-struct EntryWriterCreateError <: Exception
-    code::Iceoryx2FFI.iox2_writer_create_error_e
+struct WriterCreateError <: Exception
+    code::Symbol
+    raw_code::UInt32
     message::String
 end
 
-@noinline function EntryWriterCreateError(code::Iceoryx2FFI.iox2_writer_create_error_e)
-    return EntryWriterCreateError(code, _error_message(Iceoryx2FFI.iox2_writer_create_error_e, code))
+@noinline function WriterCreateError(code::Iceoryx2FFI.iox2_writer_create_error_e)
+    return WriterCreateError(_error_code_symbol(Iceoryx2FFI.iox2_writer_create_error_e, code), UInt32(code), _error_message(Iceoryx2FFI.iox2_writer_create_error_e, code))
 end
 
-function Base.showerror(io::IO, err::EntryWriterCreateError)
-    print(io, "EntryWriterCreateError: ", err.message, " (", err.code, ")")
+function Base.showerror(io::IO, err::WriterCreateError)
+    print(io, "WriterCreateError: ", err.message, " (", err.code, ")")
 end
 
 @inline function check_ok(code::Cint, ::Type{Iceoryx2FFI.iox2_attribute_definition_error_e})
@@ -798,6 +1061,14 @@ end
     throw(NotifierNotifyError(err))
 end
 
+@inline function check_ok(code::Cint, ::Type{Iceoryx2FFI.iox2_progressive_write_error_e})
+    if code == _IOX2_OK
+        return nothing
+    end
+    err = Iceoryx2FFI.iox2_progressive_write_error_e(code)
+    throw(ProgressiveWriteError(err))
+end
+
 @inline function check_ok(code::Cint, ::Type{Iceoryx2FFI.iox2_pub_sub_open_or_create_error_e})
     if code == _IOX2_OK
         return nothing
@@ -819,7 +1090,7 @@ end
         return nothing
     end
     err = Iceoryx2FFI.iox2_reader_create_error_e(code)
-    throw(EntryReaderCreateError(err))
+    throw(ReaderCreateError(err))
 end
 
 @inline function check_ok(code::Cint, ::Type{Iceoryx2FFI.iox2_receive_error_e})
@@ -886,6 +1157,14 @@ end
     throw(ServiceListError(err))
 end
 
+@inline function check_ok(code::Cint, ::Type{Iceoryx2FFI.iox2_service_remove_error_e})
+    if code == _IOX2_OK
+        return nothing
+    end
+    err = Iceoryx2FFI.iox2_service_remove_error_e(code)
+    throw(ServiceRemoveError(err))
+end
+
 @inline function check_ok(code::Cint, ::Type{Iceoryx2FFI.iox2_subscriber_create_error_e})
     if code == _IOX2_OK
         return nothing
@@ -907,7 +1186,7 @@ end
         return nothing
     end
     err = Iceoryx2FFI.iox2_waitset_attachment_error_e(code)
-    throw(WaitsetAttachmentError(err))
+    throw(WaitSetAttachmentError(err))
 end
 
 @inline function check_ok(code::Cint, ::Type{Iceoryx2FFI.iox2_waitset_create_error_e})
@@ -915,7 +1194,7 @@ end
         return nothing
     end
     err = Iceoryx2FFI.iox2_waitset_create_error_e(code)
-    throw(WaitsetCreateError(err))
+    throw(WaitSetCreateError(err))
 end
 
 @inline function check_ok(code::Cint, ::Type{Iceoryx2FFI.iox2_waitset_run_error_e})
@@ -923,7 +1202,7 @@ end
         return nothing
     end
     err = Iceoryx2FFI.iox2_waitset_run_error_e(code)
-    throw(WaitsetRunError(err))
+    throw(WaitSetRunError(err))
 end
 
 @inline function check_ok(code::Cint, ::Type{Iceoryx2FFI.iox2_writer_create_error_e})
@@ -931,6 +1210,6 @@ end
         return nothing
     end
     err = Iceoryx2FFI.iox2_writer_create_error_e(code)
-    throw(EntryWriterCreateError(err))
+    throw(WriterCreateError(err))
 end
 

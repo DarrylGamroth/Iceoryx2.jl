@@ -5,10 +5,11 @@ include(joinpath(@__DIR__, "pubsub_event.jl"))
 const REACTION_BUFFER_MILLIS = 100
 const CYCLE_TIME_1_MILLIS = 1000 + REACTION_BUFFER_MILLIS
 const CYCLE_TIME_2_MILLIS = 1500 + REACTION_BUFFER_MILLIS
-const NODE_DEAD = Iceoryx2.Iceoryx2FFI.iox2_node_state_e_DEAD
+const NODE_DEAD = NodeStateDead
 
 function find_and_cleanup_dead_nodes()
-    list_nodes(service_type=ServiceType.IPC, config=global_config()) do state, node_id_view, _node_id_str, node_name, _cfg
+    list_nodes(service_type = ServiceType.IPC,
+        config = global_config()) do state, node_id_view, _node_id_str, node_name, _cfg
         if state == NODE_DEAD
             print("detected dead node: ")
             if isvalid(node_name)
@@ -16,7 +17,7 @@ function find_and_cleanup_dead_nodes()
             end
             println()
             node_id = to_owned(node_id_view)
-            remove_stale_resources(node_id; service_type=ServiceType.IPC)
+            remove_stale_resources(node_id; service_type = ServiceType.IPC)
             close(node_id)
         end
         return :continue
@@ -25,12 +26,12 @@ function find_and_cleanup_dead_nodes()
 end
 
 function handle_incoming_events(
-    listener::Listener,
-    subscriber::Subscriber{UInt64,Nothing},
-    sample::Sample{UInt64,Nothing},
-    service_name::AbstractString,
-)
-    try_wait_all(listener) do event_id
+        listener::Listener{S},
+        subscriber::Subscriber{S, UInt64, Nothing},
+        sample::Sample{UInt64, Nothing},
+        service_name::AbstractString
+) where {S}
+    try_wait(listener) do event_id, _count
         if Int(event_id) == Int(PubSubEvent.ProcessDied)
             println("$(service_name): process died!")
         elseif Int(event_id) == Int(PubSubEvent.PublisherConnected)
@@ -70,13 +71,15 @@ function main()
     listener_1 = create(listener_builder(service_1.event))
     listener_2 = create(listener_builder(service_2.event))
 
-    waitset = create(WaitsetBuilder(ServiceType.IPC))
+    waitset = create(WaitSetBuilder(ServiceType.IPC))
 
     deadline_1 = deadline(listener_1)
     deadline_2 = deadline(listener_2)
 
-    seconds_1, nanos_1 = deadline_1 === nothing ? (0, CYCLE_TIME_1_MILLIS * 1_000_000) : deadline_1
-    seconds_2, nanos_2 = deadline_2 === nothing ? (0, CYCLE_TIME_2_MILLIS * 1_000_000) : deadline_2
+    seconds_1, nanos_1 = deadline_1 === nothing ? (0, CYCLE_TIME_1_MILLIS * 1_000_000) :
+                         deadline_1
+    seconds_2, nanos_2 = deadline_2 === nothing ? (0, CYCLE_TIME_2_MILLIS * 1_000_000) :
+                         deadline_2
 
     listener_1_guard = attach_deadline(waitset, file_descriptor(listener_1), seconds_1, nanos_1)
     listener_2_guard = attach_deadline(waitset, file_descriptor(listener_2), seconds_2, nanos_2)

@@ -2,19 +2,25 @@ using Pkg
 
 Pkg.instantiate()
 
-include(joinpath(@__DIR__, "gen-bindings.jl"))
-
 root = joinpath(@__DIR__, "..")
-files = [
-    "src/generated/Iceoryx2FFI.jl",
-    "src/generated/handles.jl",
-    "src/generated/errors.jl",
-    "src/generated/wrappers.jl",
-]
+generated = joinpath(root, "src", "generated")
+files = ["Iceoryx2FFI.jl", "handles.jl", "errors.jl", "wrappers.jl"]
 
-cd(root) do
-    if !success(`git diff --exit-code -- $(files...)`)
-        run(`git --no-pager diff --stat -- $(files...)`)
-        error("Generated files out of date. Run: julia --project=gen gen/gen-bindings.jl")
+mktempdir() do output_dir
+    command = addenv(
+        `$(Base.julia_cmd()) --startup-file=no --project=$(@__DIR__) $(joinpath(@__DIR__, "gen-bindings.jl"))`,
+        "IOX2_GENERATED_DIR" => output_dir
+    )
+    run(command)
+
+    stale = String[]
+    for file in files
+        read(joinpath(output_dir, file)) == read(joinpath(generated, file)) ||
+            push!(stale, file)
     end
+
+    isempty(stale) || error(
+        "Generated files out of date ($(join(stale, ", "))). Run: " *
+        "julia --startup-file=no --project=gen gen/gen-bindings.jl",
+    )
 end

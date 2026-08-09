@@ -6,14 +6,20 @@
     Iceoryx2.log(:warn, "warn", "me")
     Iceoryx2.log(:error, "error", "me")
     Iceoryx2.log(:fatal, "fatal", "me")
+    Iceoryx2.log(Iceoryx2.LogLevelInfo, "enum", "message")
+    @test_throws MethodError Iceoryx2.log(
+        Iceoryx2.Iceoryx2FFI.iox2_log_level_e_INFO,
+        "raw",
+        "enum",
+    )
 
     levels = [
-        (:trace, Iceoryx2.Iceoryx2FFI.iox2_log_level_e_TRACE),
-        (:debug, Iceoryx2.Iceoryx2FFI.iox2_log_level_e_DEBUG),
-        (:info, Iceoryx2.Iceoryx2FFI.iox2_log_level_e_INFO),
-        (:warn, Iceoryx2.Iceoryx2FFI.iox2_log_level_e_WARN),
-        (:error, Iceoryx2.Iceoryx2FFI.iox2_log_level_e_ERROR),
-        (:fatal, Iceoryx2.Iceoryx2FFI.iox2_log_level_e_FATAL),
+        (:trace, Iceoryx2.LogLevelTrace),
+        (:debug, Iceoryx2.LogLevelDebug),
+        (:info, Iceoryx2.LogLevelInfo),
+        (:warn, Iceoryx2.LogLevelWarn),
+        (:error, Iceoryx2.LogLevelError),
+        (:fatal, Iceoryx2.LogLevelFatal),
     ]
 
     for (level, enum) in levels
@@ -21,5 +27,11 @@
         @test Iceoryx2.log_level() == enum
         Iceoryx2.set_log_level_from_env_or(level)
         @test Iceoryx2.log_level() == enum
+        Iceoryx2.set_log_level(enum)
+        @test Iceoryx2.log_level() == enum
     end
+
+    @test_throws MethodError Iceoryx2.set_log_level(
+        Iceoryx2.Iceoryx2FFI.iox2_log_level_e_INFO,
+    )
 end

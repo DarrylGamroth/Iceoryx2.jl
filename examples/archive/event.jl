@@ -15,11 +15,11 @@ function main()
                 Iceoryx2.create(Iceoryx2.listener_builder(factory)) do listener
                     Iceoryx2.notify!(notifier, Iceoryx2.EventId(7))
 
-                    event_id = Iceoryx2.timed_wait_one(listener, 1, 0)
-                    if event_id === nothing
+                    received = Iceoryx2.timed_wait(listener, 1, 0) do event_id, count
+                        println("received event: ", Int(event_id), " (", count, " times)")
+                    end
+                    if received == 0
                         println("no event received")
-                    else
-                        println("received event: ", Int(event_id))
                     end
                 end
             end

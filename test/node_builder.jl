@@ -8,7 +8,7 @@
 
     Iceoryx2.config!(builder, config)
 
-    node = Iceoryx2.create(builder, Iceoryx2.ServiceType.IPC)
+    node = Iceoryx2.create(builder, TEST_SERVICE_TYPE)
     @test !isvalid(builder)
     @test isvalid(node)
 

@@ -1,60 +1,50 @@
 # WaitSet wrappers.
 
-@inline _signal_handling_mode(value::Iceoryx2FFI.iox2_signal_handling_mode_e) = value
-
-@inline function _signal_handling_mode(value::Symbol)
-    if value === :handle_termination_requests
-        return Iceoryx2FFI.iox2_signal_handling_mode_e_HANDLE_TERMINATION_REQUESTS
-    elseif value === :disabled
-        return Iceoryx2FFI.iox2_signal_handling_mode_e_DISABLED
-    end
-    throw(ArgumentError("unsupported signal handling mode: $value"))
-end
-
-@inline _signal_handling_mode(value) = throw(ArgumentError("unsupported signal handling mode: $value"))
-
 """
-    WaitsetBuilder(service_type::ServiceType) -> WaitsetBuilder
+    WaitSetBuilder(service_type::ServiceType) -> WaitSetBuilder
 
-Create a waitset builder for the given service type.
+Create a WaitSet builder for the given service type.
 """
-function WaitsetBuilder(service_type::ServiceType)
+function WaitSetBuilder(service_type::ServiceType)
     handle_ref = Ref{Iceoryx2FFI.iox2_waitset_builder_h}(_IOX2_NULL)
     Iceoryx2FFI.iox2_waitset_builder_new(C_NULL, handle_ref)
-    return WaitsetBuilder{service_type}(handle_ref[])
+    return WaitSetBuilder{service_type}(handle_ref[])
 end
 
 """
-    signal_handling_mode!(builder::WaitsetBuilder, mode)
+    signal_handling_mode!(builder::WaitSetBuilder, mode)
 
-Configure signal handling on the waitset builder.
+Configure signal handling on the WaitSet builder.
 """
-function signal_handling_mode!(builder::WaitsetBuilder, mode::Union{Symbol, Iceoryx2FFI.iox2_signal_handling_mode_e})
-    _require_valid(unsafe_handle(builder), "waitset builder")
-    Iceoryx2FFI.iox2_waitset_builder_set_signal_handling_mode(Ref{Iceoryx2FFI.iox2_waitset_builder_h}(unsafe_handle(builder)), _signal_handling_mode(mode))
+function signal_handling_mode!(builder::WaitSetBuilder, mode::Union{
+        Symbol, SignalHandlingMode})
+    _require_valid(unsafe_handle(builder), "WaitSet builder")
+    Iceoryx2FFI.iox2_waitset_builder_set_signal_handling_mode(
+        Ref{Iceoryx2FFI.iox2_waitset_builder_h}(unsafe_handle(builder)),
+        _signal_handling_mode(mode))
     return builder
 end
 
 """
-    create(builder::WaitsetBuilder{S}) -> Waitset{S}
+    create(builder::WaitSetBuilder{S}) -> WaitSet{S}
 
-Create a waitset and consume the builder.
+Create a WaitSet and consume the builder.
 """
-function create(builder::WaitsetBuilder{S}) where {S}
-    _require_valid(unsafe_handle(builder), "waitset builder")
+function create(builder::WaitSetBuilder{S}) where {S}
+    _require_valid(unsafe_handle(builder), "WaitSet builder")
     handle_ref = Ref{Iceoryx2FFI.iox2_waitset_h}(_IOX2_NULL)
     ret = Iceoryx2FFI.iox2_waitset_builder_create(unsafe_handle(builder), _service_type(S), C_NULL, handle_ref)
-    check_ok(ret, Iceoryx2FFI.iox2_waitset_create_error_e)
     invalidate!(builder)
-    return Waitset{S}(handle_ref[])
+    check_ok(ret, Iceoryx2FFI.iox2_waitset_create_error_e)
+    return WaitSet{S}(handle_ref[])
 end
 
 """
-    create(f::Function, builder::WaitsetBuilder{S})
+    create(f::Function, builder::WaitSetBuilder{S})
 
-Create a waitset, call `f(waitset)`, and close it in a `finally` block.
+Create a WaitSet, call `f(waitset)`, and close it in a `finally` block.
 """
-function create(f::Function, builder::WaitsetBuilder{S}) where {S}
+function create(f::Function, builder::WaitSetBuilder{S}) where {S}
     waitset = create(builder)
     try
         return f(waitset)
@@ -64,37 +54,39 @@ function create(f::Function, builder::WaitsetBuilder{S}) where {S}
 end
 
 """
-    signal_handling_mode(waitset::Waitset)
+    signal_handling_mode(waitset::WaitSet)
 
-Return the waitset signal handling mode.
+Return the WaitSet signal handling mode.
 """
-@inline function signal_handling_mode(waitset::Waitset)
-    return Iceoryx2FFI.iox2_waitset_signal_handling_mode(Ref{Iceoryx2FFI.iox2_waitset_h}(unsafe_handle(waitset)))
+@inline function signal_handling_mode(waitset::WaitSet)
+    return _signal_handling_mode_enum(
+        Iceoryx2FFI.iox2_waitset_signal_handling_mode(Ref{Iceoryx2FFI.iox2_waitset_h}(unsafe_handle(waitset))),
+    )
 end
 
 """
-    isempty(waitset::Waitset) -> Bool
+    isempty(waitset::WaitSet) -> Bool
 
-Return whether the waitset has no attached objects.
+Return whether the WaitSet has no attached objects.
 """
-@inline function Base.isempty(waitset::Waitset)
+@inline function Base.isempty(waitset::WaitSet)
     return Iceoryx2FFI.iox2_waitset_is_empty(Ref{Iceoryx2FFI.iox2_waitset_h}(unsafe_handle(waitset)))
 end
 
 """
-    length(waitset::Waitset) -> Int
+    length(waitset::WaitSet) -> Int
 
-Return the number of attachments in the waitset.
+Return the number of attachments in the WaitSet.
 """
-@inline function Base.length(waitset::Waitset)
+@inline function Base.length(waitset::WaitSet)
     return Int(Iceoryx2FFI.iox2_waitset_len(Ref{Iceoryx2FFI.iox2_waitset_h}(unsafe_handle(waitset))))
 end
 
 """
-    capacity(waitset::Waitset) -> Int
+    capacity(waitset::WaitSet) -> Int
 
-Return the waitset capacity.
+Return the WaitSet capacity.
 """
-@inline function capacity(waitset::Waitset)
+@inline function capacity(waitset::WaitSet)
     return Int(Iceoryx2FFI.iox2_waitset_capacity(Ref{Iceoryx2FFI.iox2_waitset_h}(unsafe_handle(waitset))))
 end

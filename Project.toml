@@ -1,6 +1,6 @@
 name = "Iceoryx2"
 uuid = "8777d856-1a0f-47d8-8008-62bebd9d2784"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Darryl Gamroth <dgamroth@rubus.ca>"]
 
 [deps]
@@ -15,6 +15,12 @@ StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 [extensions]
 Iceoryx2StaticArraysExt = "StaticArrays"
 
+[compat]
+CEnum = "0.5"
+Iceoryx2_jll = "=0.9.999"
+StaticArrays = "1"
+StringViews = "1"
+julia = "1.10"
 
 [extras]
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"

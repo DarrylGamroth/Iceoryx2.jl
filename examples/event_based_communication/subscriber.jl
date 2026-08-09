@@ -10,7 +10,7 @@ function main()
 
     subscriber = create_custom_subscriber(node, "My/Funk/ServiceName")
 
-    waitset = create(WaitsetBuilder(ServiceType.IPC))
+    waitset = create(WaitSetBuilder(ServiceType.IPC))
     subscriber_guard = attach_deadline(waitset, file_descriptor(subscriber.listener), DEADLINE_SECONDS, 0)
 
     on_event = function (attachment_id)

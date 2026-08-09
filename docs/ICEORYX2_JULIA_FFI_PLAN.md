@@ -1,5 +1,7 @@
 # iceoryx2 Julia FFI Plan (Comprehensive)
 
+Current binding baseline: `Iceoryx2_jll v0.9.999+2` (682/682 C functions).
+
 ## Goals
 - Full API coverage of the C ABI (`iceoryx2-ffi/c`) with stable, auto-generated low-level bindings.
 - Idiomatic Julia layer that mirrors C++ ergonomics (RAII-style cleanup, builder patterns, typed payloads, `do`-blocks).
@@ -23,7 +25,7 @@
 Hot path refers to any API that is called per message/event or inside tight loops, including:
 - `Publisher`/`Subscriber` send/receive paths and `loan!`/`loan_uninit!`/`loan_slice!` paths.
 - `Client`/`Server` request/response send/receive paths.
-- `EntryReader`/`EntryWriter` entry access and payload accessors.
+- `Reader`/`Writer` entry access and payload accessors.
 - `WaitSet` event processing (`wait_and_process*`) and callback dispatch.
 - Any `*_details`, `id`, `header`, or `payload` accessor invoked at high frequency in loops.
 
@@ -114,7 +116,7 @@ Hot path refers to any API that is called per message/event or inside tight loop
 
 ## Phase 7: Messaging Patterns & Payloads
 - Publish/Subscribe, Request/Response, Event, Blackboard all mirror C++ API:
-  - `ServiceBuilder`, `PortFactory*`, `Publisher`, `Subscriber`, `Client`, `Server`, `EntryReader`, `EntryWriter`.
+  - `ServiceBuilder`, `PortFactory*`, `Publisher`, `Subscriber`, `Client`, `Server`, `Reader`, `Writer`.
 - Typed payloads:
   - Require `isbits` structs for zero-copy payloads.
   - Use `sizeof`, `Base.datatype_alignment` to set type details.
@@ -210,7 +212,8 @@ Hot path refers to any API that is called per message/event or inside tight loop
     `max_loaned_responses_per_request`, `max_response_buffer_size`,
     `enable_safe_overflow_for_requests`, `enable_safe_overflow_for_responses`.
 - Add listener wait helpers that mirror higher-level APIs:
-  - `blocking_wait_one`, `try_wait_one`, `timed_wait_one`, and `wait_all` with callbacks.
+  - v0.9.999 `blocking_wait`, `try_wait`, and `timed_wait` with grouped
+    `(event_id, count)` callbacks.
 - Add higher-level convenience helpers present in Python/C++:
   - Connection status helpers (`has_requests`, `has_samples`, etc.) where missing.
   - Convenience `send_copy` overloads and `do`-block helpers for common ownership types.
@@ -223,7 +226,7 @@ Hot path refers to any API that is called per message/event or inside tight loop
   - Update (2026-01-27): removed handle collisions with blackboard entry types, added entry-value uninit path, added slice keepalive + iteration interfaces, and hardened type-detail cache for multi-threaded use.
   - Update (2026-01-27): added scalar `loan_uninit!` helpers and `write_payload!` overloads for pub/sub and request/response; added `unsafe_payload_ptr`/`unsafe_payload_mut_ptr` convenience accessors.
   - Update (2026-01-29): switched hot-path loan/receive APIs to reuse-based `receive!`/`loan_uninit!`/`loan_slice_uninit!`, removed allocating variants, and updated examples/tests to close samples explicitly.
-  - Update (2026-01-27): added StringViews-based attribute accessors (`key_view!`, `value_view!`, `key_value_view!`) with `AttributeScratch` for reuse.
+  - Update (2026-01-27): added StringViews-based attribute accessors (`key_view!`, `value_view!`, `key_value_view!`) with reusable caller-provided `UInt8` buffers.
   - Update (2026-01-27): typed port factories and blackboard (payload/key types enforced at builder/factory boundaries).
 
 ## Correctness & Ownership Hardening
@@ -234,7 +237,7 @@ Hot path refers to any API that is called per message/event or inside tight loop
 - [x] Publish/subscribe header accessors (`publisher_id`, `number_of_elements`). (`src/messaging.jl:398`, `src/messaging.jl:408`)
 - [x] Request/response header accessors (`client_id`, `server_id`, `number_of_elements`). (`src/messaging.jl:805`, `src/messaging.jl:815`, `src/messaging.jl:947`, `src/messaging.jl:957`)
 - [x] `node_wait` wrapper. (`src/nodes.jl:14`)
-- [x] Event port-factory accessors: `attributes`, `nodes`, `service_name`, `service_id`, `static_config`. (`src/generated/wrappers.jl:997`, `src/callbacks.jl:96`, `src/generated/wrappers.jl:1021`, `src/messaging.jl:1148`, `src/generated/wrappers.jl:115`)
+- [x] Event port-factory accessors: `attributes`, `nodes`, `service_name`, `service_hash`, `static_config`. (`src/generated/wrappers.jl:997`, `src/callbacks.jl:96`, `src/generated/wrappers.jl:1021`, `src/messaging.jl:1148`, `src/generated/wrappers.jl:115`)
 - [x] Event service-builder attribute-based open/create and notifier/deadline toggles. (`src/messaging.jl:1177`, `src/messaging.jl:1277`, `src/generated/wrappers.jl:778`)
 - [x] Notifier `deadline` accessor. (`src/generated/wrappers.jl:808`)
 - [x] Config helpers: `config_from_file`, `config_clone`, `config_from_ptr`. (`src/config.jl:61`, `src/config.jl:77`, `src/config.jl:71`)

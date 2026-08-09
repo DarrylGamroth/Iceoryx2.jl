@@ -1,32 +1,27 @@
-using Test
+module CommonTests
+
 using Iceoryx2
 
-include("testutils.jl")
+include("common_suite.jl")
 
-include("node_name.jl")
-include("type_names.jl")
-include("service_name.jl")
-include("enum_conversion.jl")
-include("logging.jl")
-include("type_variants.jl")
-include("node_builder.jl")
-include("node.jl")
-include("node_state.jl")
-include("service_builder.jl")
-include("builder_tuning.jl")
-include("pubsub.jl")
-include("request_response.jl")
-include("service_event.jl")
-include("listener_wait.jl")
-include("service_blackboard.jl")
-include("blackboard_entries.jl")
-include("list_nodes.jl")
-include("service_listing.jl")
-include("waitset_interval.jl")
-include("waitset_notification.jl")
-include("file_descriptor.jl")
-include("unique_port_id.jl")
-include("attributes.jl")
-include("config.jl")
-include("perf_gates.jl")
-include("allocations_hotpath.jl")
+end
+
+module IPCTransportTests
+
+using Iceoryx2
+
+const TEST_SERVICE_TYPE = Iceoryx2.ServiceType.IPC
+
+include("service_type_suite.jl")
+
+end
+
+module LocalTransportTests
+
+using Iceoryx2
+
+const TEST_SERVICE_TYPE = Iceoryx2.ServiceType.LOCAL
+
+include("service_type_suite.jl")
+
+end

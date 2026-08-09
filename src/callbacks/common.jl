@@ -1,7 +1,5 @@
 # Callback and iteration helpers.
 
-@inline _callback_progression(value::Iceoryx2FFI.iox2_callback_progression_e) = value
-
 @inline function _callback_progression(value::Bool)
     return value ? Iceoryx2FFI.iox2_callback_progression_e_CONTINUE :
            Iceoryx2FFI.iox2_callback_progression_e_STOP

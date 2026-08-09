@@ -5,11 +5,11 @@ include(joinpath(@__DIR__, "pubsub_event.jl"))
 
 const HISTORY_SIZE = 20
 
-struct CustomSubscriber
-    subscriber::Subscriber{TransmissionData,Nothing}
-    notifier::Notifier
-    listener::Listener
-    sample::Sample{TransmissionData,Nothing}
+struct CustomSubscriber{S}
+    subscriber::Subscriber{S, TransmissionData, Nothing}
+    notifier::Notifier{S}
+    listener::Listener{S}
+    sample::Sample{TransmissionData, Nothing}
 end
 
 function pubsub_event_from_id(id::EventId)
@@ -47,33 +47,44 @@ function receive_with_ack(custom::CustomSubscriber)
     return false
 end
 
-function handle_event!(custom::CustomSubscriber)
-    event_id = try_wait_one(custom.listener)
-    while event_id !== nothing
-        event = pubsub_event_from_id(event_id)
-        if event == PubSubEvent.SentHistory
-            println("History delivered")
-            while receive_with_ack(custom)
-                try
-                    println("  history: ", payload(custom.sample)[1].x)
-                finally
-                    close(custom.sample)
-                end
+function handle_event!(custom::CustomSubscriber, event_id::EventId, _count::UInt64)
+    event = pubsub_event_from_id(event_id)
+    if event == PubSubEvent.SentHistory
+        println("History delivered")
+        while receive_with_ack(custom)
+            try
+                println("  history: ", payload(custom.sample)[1].x)
+            finally
+                close(custom.sample)
             end
-        elseif event == PubSubEvent.SentSample
-            while receive_with_ack(custom)
-                try
-                    println("received: ", payload(custom.sample)[1].x)
-                finally
-                    close(custom.sample)
-                end
-            end
-        elseif event == PubSubEvent.PublisherConnected
-            println("new publisher connected")
-        elseif event == PubSubEvent.PublisherDisconnected
-            println("publisher disconnected")
         end
-        event_id = try_wait_one(custom.listener)
+    elseif event == PubSubEvent.SentSample
+        while receive_with_ack(custom)
+            try
+                println("received: ", payload(custom.sample)[1].x)
+            finally
+                close(custom.sample)
+            end
+        end
+    elseif event == PubSubEvent.PublisherConnected
+        println("new publisher connected")
+    elseif event == PubSubEvent.PublisherDisconnected
+        println("publisher disconnected")
     end
     return nothing
+end
+
+struct CustomSubscriberEventHandler{S}
+    custom::CustomSubscriber{S}
+end
+
+function (handler::CustomSubscriberEventHandler)(event_id::EventId, count::UInt64)
+    handle_event!(handler.custom, event_id, count)
+end
+
+function handle_event!(custom::CustomSubscriber)
+    return try_wait(
+        custom.listener,
+        ListenerWaitHandler(CustomSubscriberEventHandler(custom))
+    )
 end

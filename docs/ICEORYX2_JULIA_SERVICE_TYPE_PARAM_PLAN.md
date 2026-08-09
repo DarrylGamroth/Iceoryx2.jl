@@ -27,12 +27,12 @@ through Node → ServiceBuilder → PortFactory → Port APIs, matching the stat
   - `PortFactoryEvent{S}`
   - `PortFactoryPubSub{S,T,UH}` / `Publisher{S,T,UH}` / `Subscriber{S,T,UH}`
   - `PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH}` / `Client{S,...}` / `Server{S,...}`
-  - `PortFactoryBlackboard{S,K}` / `EntryWriter{S,...}` / `EntryReader{S,...}`
-- `Waitset{S}` only if it is semantically tied to a service type; otherwise keep untyped and accept `ServiceType` at create.
+  - `PortFactoryBlackboard{S,K}` / `Writer{S,...}` / `Reader{S,...}`
+- `WaitSet{S}` only if it is semantically tied to a service type; otherwise keep untyped and accept `ServiceType` at create.
 
 ## API surface changes
 - `create(::NodeBuilder, ::ServiceType)` (service type is provided at creation)
-- `create(::WaitsetBuilder{S})` (service type is in the builder type parameter)
+- `create(::WaitSetBuilder{S})` (service type is in the builder type parameter)
 - `list_nodes(; service_type::ServiceType)`
 - `service_does_exist`, `service_details`, `list_services`, config helpers, etc. accept `ServiceType`.
 - Remove `Union{Symbol, Iceoryx2FFI.iox2_service_type_e}` from all signatures.
@@ -70,7 +70,7 @@ through Node → ServiceBuilder → PortFactory → Port APIs, matching the stat
    - Run benchmarks to validate no regression.
 
 ## Notes
-- If `Waitset` should be service-typed for parity with C++/Rust, we can introduce `Waitset{S}`; otherwise, keep `Waitset` untyped and accept `ServiceType` at creation to minimize propagation.
+- If `WaitSet` should be service-typed for parity with C++/Rust, we can introduce `WaitSet{S}`; otherwise, keep `WaitSet` untyped and accept `ServiceType` at creation to minimize propagation.
 - This is a breaking API change; consider a release note and migration guide.
 
 ## Status

@@ -1,10 +1,10 @@
 @testset "ServiceEvent" begin
     service_name = unique_service_name()
-    @test !Iceoryx2.service_does_exist(service_name; service_type=Iceoryx2.ServiceType.IPC, messaging_pattern=:event)
+    @test !Iceoryx2.service_does_exist(service_name; service_type=TEST_SERVICE_TYPE, messaging_pattern=:event)
 
     node_builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(node_builder, unique_node_name())
-    node = Iceoryx2.create(node_builder, Iceoryx2.ServiceType.IPC)
+    node = Iceoryx2.create(node_builder, TEST_SERVICE_TYPE)
 
     svc_builder = Iceoryx2.service_builder(node, service_name)
     event_builder = Iceoryx2.event(svc_builder)
@@ -18,9 +18,9 @@
     Iceoryx2.disable_notifier_dropped_event!(event_builder)
     factory = Iceoryx2.open_or_create(event_builder)
 
-    @test Iceoryx2.service_does_exist(service_name; service_type=Iceoryx2.ServiceType.IPC, messaging_pattern=:event)
+    @test Iceoryx2.service_does_exist(service_name; service_type=TEST_SERVICE_TYPE, messaging_pattern=:event)
     @test string(Iceoryx2.service_name(factory)) == service_name
-    @test !isempty(Iceoryx2.service_id(factory))
+    @test !isempty(Iceoryx2.service_hash(factory))
     @test Iceoryx2.static_config(factory) isa Iceoryx2.StaticConfigEvent
     @test Iceoryx2.number_of_attributes(Iceoryx2.attributes(factory)) >= 0
 
@@ -73,7 +73,7 @@ end
 
     node_builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(node_builder, unique_node_name())
-    node = Iceoryx2.create(node_builder, Iceoryx2.ServiceType.IPC)
+    node = Iceoryx2.create(node_builder, TEST_SERVICE_TYPE)
 
     specifier = Iceoryx2.AttributeSpecifier()
     Iceoryx2.define!(specifier, "role", "primary")

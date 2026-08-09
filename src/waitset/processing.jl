@@ -1,32 +1,35 @@
 """
-    AbstractWaitsetHandler
+    AbstractWaitSetHandler
 
 Abstract callback handler for waitset processing.
 """
-abstract type AbstractWaitsetHandler end
+abstract type AbstractWaitSetHandler end
 
-on_waitset_event(::AbstractWaitsetHandler) =
-    throw(ArgumentError("Waitset handler must implement on_waitset_event(handler)"))
+function on_waitset_event(::AbstractWaitSetHandler)
+    throw(ArgumentError("WaitSet handler must implement on_waitset_event(handler)"))
+end
 
 """
-    WaitsetHandler(f, waitset)
-    WaitsetHandler(f, ::Type{S})
+    WaitSetHandler(f, waitset)
+    WaitSetHandler(f, ::Type{S})
 
 Wrap a callable `f(attachment_id)` for use with `wait_and_process*`.
 """
-mutable struct WaitsetHandler{S,T} <: AbstractWaitsetHandler
+mutable struct WaitSetHandler{S, T} <: AbstractWaitSetHandler
     on_event::T
-    attachment::WaitsetAttachmentId{S}
-    ref::Base.RefValue{WaitsetHandler{S,T}}
+    attachment::WaitSetAttachmentId{S}
+    ref::Base.RefValue{WaitSetHandler{S, T}}
     result_ref::Base.RefValue{Iceoryx2FFI.iox2_waitset_run_result_e}
     result_ptr::Ptr{Iceoryx2FFI.iox2_waitset_run_result_e}
-    function WaitsetHandler{S}(on_event::T) where {S,T}
-        obj = new{S,T}(
+    last_exception::Base.RefValue{_CallbackException}
+    function WaitSetHandler{S}(on_event::T) where {S, T}
+        obj = new{S, T}(
             on_event,
-            WaitsetAttachmentId{S}(_IOX2_NULL),
-            Ref{WaitsetHandler{S,T}}(),
+            WaitSetAttachmentId{S}(_IOX2_NULL),
+            Ref{WaitSetHandler{S, T}}(),
             Ref{Iceoryx2FFI.iox2_waitset_run_result_e}(),
             C_NULL,
+            _callback_exception_ref()
         )
         obj.ref[] = obj
         obj.result_ptr = Base.unsafe_convert(Ptr{Iceoryx2FFI.iox2_waitset_run_result_e}, obj.result_ref)
@@ -34,13 +37,14 @@ mutable struct WaitsetHandler{S,T} <: AbstractWaitsetHandler
     end
 end
 
-WaitsetHandler(on_event::T, ::Type{S}) where {S,T} = WaitsetHandler{S}(on_event)
+WaitSetHandler(on_event::T, ::Type{S}) where {S, T} = WaitSetHandler{S}(on_event)
 
-WaitsetHandler(on_event::T, waitset::Waitset{S}) where {S,T} = WaitsetHandler{S}(on_event)
+WaitSetHandler(on_event::T, waitset::WaitSet{S}) where {S, T} = WaitSetHandler{S}(on_event)
 
-on_waitset_event(h::WaitsetHandler) = h.on_event
+on_waitset_event(h::WaitSetHandler) = h.on_event
+@inline last_callback_exception(handler::WaitSetHandler) = handler.last_exception[]
 
-@inline function _waitset_attachment_cleanup!(attachment::WaitsetAttachmentId)
+@inline function _waitset_attachment_cleanup!(attachment::WaitSetAttachmentId)
     if attachment.handle != _IOX2_NULL
         Iceoryx2FFI.iox2_waitset_attachment_id_drop(attachment.handle)
         attachment.handle = _IOX2_NULL
@@ -48,56 +52,61 @@ on_waitset_event(h::WaitsetHandler) = h.on_event
     return nothing
 end
 
-@inline function _waitset_wrapper(attachment::Iceoryx2FFI.iox2_waitset_attachment_id_h, handler::WaitsetHandler)
+@inline function _waitset_wrapper(attachment::Iceoryx2FFI.iox2_waitset_attachment_id_h, handler::WaitSetHandler)
     handler.attachment.handle = attachment
-    result = _callback_progression(on_waitset_event(handler)(handler.attachment))
-    _waitset_attachment_cleanup!(handler.attachment)
-    return result
+    try
+        return _callback_progression(on_waitset_event(handler)(handler.attachment))
+    catch err
+        _record_callback_exception!(handler, err)
+        return Iceoryx2FFI.iox2_callback_progression_e_STOP
+    finally
+        _waitset_attachment_cleanup!(handler.attachment)
+    end
 end
 
-function _waitset_cfunction(::T) where {T<:AbstractWaitsetHandler}
-    @cfunction(
-        _waitset_wrapper,
+function _waitset_cfunction(::T) where {T <: AbstractWaitSetHandler}
+    @cfunction(_waitset_wrapper,
         Iceoryx2FFI.iox2_callback_progression_e,
-        (Iceoryx2FFI.iox2_waitset_attachment_id_h, Ref{T}),
-    )
+        (Iceoryx2FFI.iox2_waitset_attachment_id_h, Ref{T}),)
 end
 
-@inline function _waitset_run_result(handler::WaitsetHandler)
-    return unsafe_load(handler.result_ptr)
+@inline function _waitset_run_result(handler::WaitSetHandler)
+    return _waitset_run_result_enum(unsafe_load(handler.result_ptr))
 end
 
 """
-    wait_and_process_once(waitset, handler) -> iox2_waitset_run_result_e
+    wait_and_process_once(waitset, handler) -> WaitSetRunResult
 
 Wait for one event and process it with `handler`.
 """
-function wait_and_process_once(waitset::Waitset{S}, handler::WaitsetHandler{S}) where {S}
+function wait_and_process_once(waitset::WaitSet{S}, handler::WaitSetHandler{S}) where {S}
     _require_valid(unsafe_handle(waitset), "waitset")
+    _clear_callback_exception!(handler)
     handler_ref = handler.ref
     GC.@preserve handler_ref begin
         ret = Iceoryx2FFI.iox2_waitset_wait_and_process_once(
             Ref{Iceoryx2FFI.iox2_waitset_h}(unsafe_handle(waitset)),
             _waitset_cfunction(handler),
             handler_ref,
-            handler.result_ref,
+            handler.result_ref
         )
         check_ok(ret, Iceoryx2FFI.iox2_waitset_run_error_e)
     end
+    _rethrow_callback_exception!(handler)
     return _waitset_run_result(handler)
 end
 
 """
-    wait_and_process_once(f::Function, waitset::Waitset)
+    wait_and_process_once(f::Function, waitset::WaitSet)
 
 `do`-block variant for a single wait-and-process iteration.
 """
-function wait_and_process_once(f::Function, waitset::Waitset{S}) where {S}
-    return wait_and_process_once(waitset, WaitsetHandler{S}(f))
+function wait_and_process_once(f::Function, waitset::WaitSet{S}) where {S}
+    return wait_and_process_once(waitset, WaitSetHandler{S}(f))
 end
 
-function wait_and_process_once(waitset::Waitset{S}, handler::AbstractWaitsetHandler) where {S}
-    return wait_and_process_once(waitset, WaitsetHandler{S}(on_waitset_event(handler)))
+function wait_and_process_once(waitset::WaitSet{S}, handler::AbstractWaitSetHandler) where {S}
+    return wait_and_process_once(waitset, WaitSetHandler{S}(on_waitset_event(handler)))
 end
 
 """
@@ -105,79 +114,88 @@ end
 
 Wait with timeout and process at most one event.
 """
-function wait_and_process_once(waitset::Waitset{S}, seconds::Integer, nanoseconds::Integer, handler::WaitsetHandler{S}) where {S}
+function wait_and_process_once(waitset::WaitSet{S}, seconds::Integer,
+        nanoseconds::Integer, handler::WaitSetHandler{S}) where {S}
     _require_valid(unsafe_handle(waitset), "waitset")
+    secs, nanos = _timeout_parts(seconds, nanoseconds)
+    _clear_callback_exception!(handler)
     handler_ref = handler.ref
     GC.@preserve handler_ref begin
         ret = Iceoryx2FFI.iox2_waitset_wait_and_process_once_with_timeout(
             Ref{Iceoryx2FFI.iox2_waitset_h}(unsafe_handle(waitset)),
             _waitset_cfunction(handler),
             handler_ref,
-            UInt64(seconds),
-            UInt32(nanoseconds),
-            handler.result_ref,
+            secs,
+            nanos,
+            handler.result_ref
         )
         check_ok(ret, Iceoryx2FFI.iox2_waitset_run_error_e)
     end
+    _rethrow_callback_exception!(handler)
     return _waitset_run_result(handler)
 end
 
 """
-    wait_and_process_once(f::Function, waitset::Waitset, seconds, nanoseconds)
+    wait_and_process_once(f::Function, waitset::WaitSet, seconds, nanoseconds)
 
 `do`-block variant with timeout.
 """
-function wait_and_process_once(f::Function, waitset::Waitset{S}, seconds::Integer, nanoseconds::Integer) where {S}
-    return wait_and_process_once(waitset, seconds, nanoseconds, WaitsetHandler{S}(f))
+function wait_and_process_once(
+        f::Function, waitset::WaitSet{S}, seconds::Integer, nanoseconds::Integer) where {S}
+    return wait_and_process_once(waitset, seconds, nanoseconds, WaitSetHandler{S}(f))
 end
 
-function wait_and_process_once(waitset::Waitset{S}, seconds::Integer, nanoseconds::Integer, handler::AbstractWaitsetHandler) where {S}
-    return wait_and_process_once(waitset, seconds, nanoseconds, WaitsetHandler{S}(on_waitset_event(handler)))
+function wait_and_process_once(waitset::WaitSet{S}, seconds::Integer, nanoseconds::Integer,
+        handler::AbstractWaitSetHandler) where {S}
+    return wait_and_process_once(waitset, seconds, nanoseconds, WaitSetHandler{S}(on_waitset_event(handler)))
 end
 
 """
-    wait_and_process(waitset, handler) -> iox2_waitset_run_result_e
+    wait_and_process(waitset, handler) -> WaitSetRunResult
 
-Block and process events until the waitset run result indicates termination.
+Block and process events until the WaitSet run result indicates termination.
 """
-function wait_and_process(waitset::Waitset{S}, handler::WaitsetHandler{S}) where {S}
+function wait_and_process(waitset::WaitSet{S}, handler::WaitSetHandler{S}) where {S}
     _require_valid(unsafe_handle(waitset), "waitset")
+    _clear_callback_exception!(handler)
     handler_ref = handler.ref
     GC.@preserve handler_ref begin
         ret = Iceoryx2FFI.iox2_waitset_wait_and_process(
             Ref{Iceoryx2FFI.iox2_waitset_h}(unsafe_handle(waitset)),
             _waitset_cfunction(handler),
             handler_ref,
-            handler.result_ref,
+            handler.result_ref
         )
         check_ok(ret, Iceoryx2FFI.iox2_waitset_run_error_e)
     end
+    _rethrow_callback_exception!(handler)
     return _waitset_run_result(handler)
 end
 
 """
-    wait_and_process(f::Function, waitset::Waitset)
+    wait_and_process(f::Function, waitset::WaitSet)
 
 `do`-block variant for `wait_and_process`.
 """
-function wait_and_process(f::Function, waitset::Waitset{S}) where {S}
-    return wait_and_process(waitset, WaitsetHandler{S}(f))
+function wait_and_process(f::Function, waitset::WaitSet{S}) where {S}
+    return wait_and_process(waitset, WaitSetHandler{S}(f))
 end
 
-function wait_and_process(waitset::Waitset{S}, handler::AbstractWaitsetHandler) where {S}
-    return wait_and_process(waitset, WaitsetHandler{S}(on_waitset_event(handler)))
+function wait_and_process(waitset::WaitSet{S}, handler::AbstractWaitSetHandler) where {S}
+    return wait_and_process(waitset, WaitSetHandler{S}(on_waitset_event(handler)))
 end
 
 """
-    attachment_id(guard::WaitsetGuard) -> WaitsetAttachmentId
+    attachment_id(guard::WaitSetGuard) -> WaitSetAttachmentId
 
 Create an attachment ID from a guard for querying events.
 """
-function attachment_id(guard::WaitsetGuard{S}) where {S}
-    _require_valid(unsafe_handle(guard), "waitset guard")
+function attachment_id(guard::WaitSetGuard{S}) where {S}
+    _require_valid(unsafe_handle(guard), "WaitSet guard")
     handle_ref = Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(_IOX2_NULL)
-    Iceoryx2FFI.iox2_waitset_attachment_id_from_guard(Ref{Iceoryx2FFI.iox2_waitset_guard_h}(unsafe_handle(guard)), C_NULL, handle_ref)
-    return WaitsetAttachmentId{S}(handle_ref[])
+    Iceoryx2FFI.iox2_waitset_attachment_id_from_guard(
+        Ref{Iceoryx2FFI.iox2_waitset_guard_h}(unsafe_handle(guard)), C_NULL, handle_ref)
+    return WaitSetAttachmentId{S}(handle_ref[])
 end
 
 """
@@ -185,10 +203,11 @@ end
 
 Return whether `guard` signaled the attachment.
 """
-@inline function has_event_from(id::Union{WaitsetAttachmentId{S}, WaitsetAttachmentIdRef}, guard::WaitsetGuard{S}) where {S}
+@inline function has_event_from(id::Union{WaitSetAttachmentId{S}, WaitSetAttachmentIdRef},
+        guard::WaitSetGuard{S}) where {S}
     return Iceoryx2FFI.iox2_waitset_attachment_id_has_event_from(
         Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(id)),
-        Ref{Iceoryx2FFI.iox2_waitset_guard_h}(unsafe_handle(guard)),
+        Ref{Iceoryx2FFI.iox2_waitset_guard_h}(unsafe_handle(guard))
     )
 end
 
@@ -197,71 +216,74 @@ end
 
 Return whether the attachment missed its deadline.
 """
-@inline function has_missed_deadline(id::Union{WaitsetAttachmentId{S}, WaitsetAttachmentIdRef}, guard::WaitsetGuard{S}) where {S}
+@inline function has_missed_deadline(
+        id::Union{WaitSetAttachmentId{S}, WaitSetAttachmentIdRef},
+        guard::WaitSetGuard{S}) where {S}
     return Iceoryx2FFI.iox2_waitset_attachment_id_has_missed_deadline(
         Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(id)),
-        Ref{Iceoryx2FFI.iox2_waitset_guard_h}(unsafe_handle(guard)),
+        Ref{Iceoryx2FFI.iox2_waitset_guard_h}(unsafe_handle(guard))
     )
 end
 
-@inline function Base.:(==)(lhs::WaitsetAttachmentId{S}, rhs::WaitsetAttachmentId{S}) where {S}
+@inline function Base.:(==)(lhs::WaitSetAttachmentId{S}, rhs::WaitSetAttachmentId{S}) where {S}
     return Iceoryx2FFI.iox2_waitset_attachment_id_equal(
         Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(lhs)),
-        Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(rhs)),
+        Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(rhs))
     )
 end
 
-@inline function Base.:(==)(lhs::WaitsetAttachmentIdRef, rhs::WaitsetAttachmentIdRef)
+@inline function Base.:(==)(lhs::WaitSetAttachmentIdRef, rhs::WaitSetAttachmentIdRef)
     return Iceoryx2FFI.iox2_waitset_attachment_id_equal(
         Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(lhs)),
-        Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(rhs)),
+        Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(rhs))
     )
 end
 
-@inline function Base.:(==)(lhs::WaitsetAttachmentIdRef, rhs::WaitsetAttachmentId{S}) where {S}
+@inline function Base.:(==)(lhs::WaitSetAttachmentIdRef, rhs::WaitSetAttachmentId{S}) where {S}
     return Iceoryx2FFI.iox2_waitset_attachment_id_equal(
         Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(lhs)),
-        Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(rhs)),
+        Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(rhs))
     )
 end
 
-@inline Base.:(==)(lhs::WaitsetAttachmentId{S}, rhs::WaitsetAttachmentIdRef) where {S} = rhs == lhs
+@inline Base.:(==)(lhs::WaitSetAttachmentId{S}, rhs::WaitSetAttachmentIdRef) where {S} = rhs ==
+                                                                                         lhs
 
-@inline function Base.isless(lhs::WaitsetAttachmentId{S}, rhs::WaitsetAttachmentId{S}) where {S}
+@inline function Base.isless(lhs::WaitSetAttachmentId{S}, rhs::WaitSetAttachmentId{S}) where {S}
     return Iceoryx2FFI.iox2_waitset_attachment_id_less(
         Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(lhs)),
-        Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(rhs)),
+        Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(rhs))
     )
 end
 
-@inline function Base.isless(lhs::WaitsetAttachmentIdRef, rhs::WaitsetAttachmentIdRef)
+@inline function Base.isless(lhs::WaitSetAttachmentIdRef, rhs::WaitSetAttachmentIdRef)
     return Iceoryx2FFI.iox2_waitset_attachment_id_less(
         Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(lhs)),
-        Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(rhs)),
+        Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(rhs))
     )
 end
 
-@inline function Base.isless(lhs::WaitsetAttachmentIdRef, rhs::WaitsetAttachmentId{S}) where {S}
+@inline function Base.isless(lhs::WaitSetAttachmentIdRef, rhs::WaitSetAttachmentId{S}) where {S}
     return Iceoryx2FFI.iox2_waitset_attachment_id_less(
         Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(lhs)),
-        Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(rhs)),
+        Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(rhs))
     )
 end
 
-@inline function Base.isless(lhs::WaitsetAttachmentId{S}, rhs::WaitsetAttachmentIdRef) where {S}
+@inline function Base.isless(lhs::WaitSetAttachmentId{S}, rhs::WaitSetAttachmentIdRef) where {S}
     return Iceoryx2FFI.iox2_waitset_attachment_id_less(
         Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(lhs)),
-        Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(rhs)),
+        Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(rhs))
     )
 end
 
-function debug_string(id::WaitsetAttachmentId{S}) where {S}
+function debug_string(id::WaitSetAttachmentId{S}) where {S}
     len = Iceoryx2FFI.iox2_waitset_attachment_id_debug_len(Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(id)))
     buf = Vector{UInt8}(undef, Int(len))
     ok = Iceoryx2FFI.iox2_waitset_attachment_id_debug(
         Ref{Iceoryx2FFI.iox2_waitset_attachment_id_h}(unsafe_handle(id)),
         pointer(buf),
-        Iceoryx2FFI.c_size_t(len),
+        Iceoryx2FFI.c_size_t(len)
     )
     ok || return ""
     return unsafe_string(pointer(buf))

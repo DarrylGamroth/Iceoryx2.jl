@@ -42,7 +42,8 @@ function find_header(root::AbstractString, header::AbstractString)
     return nothing
 end
 
-fallback_path = joinpath(@__DIR__, "..", "..", "iceoryx2", "iceoryx2-ffi", "c", "iceoryx2.h")
+fallback_path = joinpath(
+    @__DIR__, "..", "..", "iceoryx2", "iceoryx2-ffi", "c", "iceoryx2.h")
 header_path = get(ENV, "IOX2_HEADER", fallback_path)
 if !isfile(header_path)
     include_dir = joinpath(Iceoryx2_jll.artifact_dir, "include")
@@ -51,7 +52,8 @@ if !isfile(header_path)
 end
 ffi_path = joinpath(@__DIR__, "..", "src", "generated", "Iceoryx2FFI.jl")
 
-isfile(header_path) || error("header not found: $(header_path). Set IOX2_HEADER to a generated iceoryx2.h.")
+isfile(header_path) ||
+    error("header not found: $(header_path). Set IOX2_HEADER to a generated iceoryx2.h.")
 isfile(ffi_path) || error("FFI file not found: $(ffi_path)")
 
 header = strip_comments(read(header_path, String))
@@ -68,7 +70,7 @@ for stmt in split(header, ';')
 end
 
 ffi_names = Set{String}()
-for m in eachmatch(r"^function\s+(iox2_[A-Za-z0-9_]+)\s*\("m, ffi)
+for m in eachmatch(r"^(?:@inline\s+)?function\s+(iox2_[A-Za-z0-9_]+)\s*\("m, ffi)
     push!(ffi_names, m.captures[1])
 end
 
@@ -92,4 +94,4 @@ if !isempty(extra)
     end
 end
 
-isempty(missing) || exit(1)
+isempty(missing) && isempty(extra) || exit(1)

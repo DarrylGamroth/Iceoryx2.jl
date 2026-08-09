@@ -1,5 +1,5 @@
-@testset "WaitsetInterval" begin
-    builder = Iceoryx2.WaitsetBuilder(Iceoryx2.ServiceType.IPC)
+@testset "WaitSetInterval" begin
+    builder = Iceoryx2.WaitSetBuilder(TEST_SERVICE_TYPE)
     waitset = Iceoryx2.create(builder)
     guard = Iceoryx2.attach_interval(waitset, 0, 10_000_000)
 
@@ -11,8 +11,8 @@
     end
 
     @test called[]
-    @test result == Iceoryx2.Iceoryx2FFI.iox2_waitset_run_result_e_STOP_REQUEST ||
-          result == Iceoryx2.Iceoryx2FFI.iox2_waitset_run_result_e_ALL_EVENTS_HANDLED
+    @test result == Iceoryx2.WaitSetRunResultStopRequest ||
+          result == Iceoryx2.WaitSetRunResultAllEventsHandled
 
     close(guard)
     close(waitset)

@@ -17,10 +17,11 @@ function main()
 
     try
         while true
-            event_id = timed_wait_one(listener, CYCLE_SECONDS, 0)
-            if event_id !== nothing && event_id == Iceoryx2.entry_id(entry_handle)
-                value, _generation = Iceoryx2.get(entry_handle)
-                println("read: $(value) for entry id $(Int(event_id))")
+            timed_wait(listener, CYCLE_SECONDS, 0) do event_id, _count
+                if event_id == Iceoryx2.entry_id(entry_handle)
+                    value, _generation = Iceoryx2.get(entry_handle)
+                    println("read: $(value) for entry id $(Int(event_id))")
+                end
             end
         end
     catch err

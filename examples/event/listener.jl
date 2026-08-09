@@ -13,9 +13,9 @@ function main()
 
     try
         while true
-            event_id = timed_wait_one(listener, CYCLE_SECONDS, 0)
-            if event_id !== nothing
-                println("event was triggered with id: ", Int(event_id))
+            timed_wait(listener, CYCLE_SECONDS, 0) do event_id, count
+                println(
+                    "event was triggered with id: ", Int(event_id), " (", count, " times)")
             end
         end
     catch err

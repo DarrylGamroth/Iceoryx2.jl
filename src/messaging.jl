@@ -1,5 +1,6 @@
 include("messaging/common.jl")
 include("messaging/publish_subscribe.jl")
+include("messaging/progressive_publish_subscribe.jl")
 include("messaging/request_response.jl")
 include("messaging/event.jl")
 include("messaging/blackboard.jl")

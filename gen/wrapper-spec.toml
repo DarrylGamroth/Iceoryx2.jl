@@ -156,6 +156,11 @@ name = "global_node_cleanup_dead_nodes_on_destruction"
 get = "iox2_config_global_node_cleanup_dead_nodes_on_destruction"
 set = "iox2_config_global_node_set_cleanup_dead_nodes_on_destruction"
 
+[[bool_getset.items]]
+name = "global_service_cleanup_dead_nodes_on_open"
+get = "iox2_config_global_service_cleanup_dead_nodes_on_open"
+set = "iox2_config_global_service_set_cleanup_dead_nodes_on_open"
+
 [string_getset.defaults]
 receiver_sig = "config::Union{Config, ConfigRef}"
 handle_expr = "_config_h_ref(config)"
@@ -182,9 +187,19 @@ get = "iox2_config_global_node_monitor_suffix"
 set = "iox2_config_global_node_set_monitor_suffix"
 
 [[string_getset.items]]
+name = "global_node_global_mgmt_suffix"
+get = "iox2_config_global_node_global_mgmt_suffix"
+set = "iox2_config_global_node_set_global_mgmt_suffix"
+
+[[string_getset.items]]
 name = "global_node_static_config_suffix"
 get = "iox2_config_global_node_static_config_suffix"
 set = "iox2_config_global_node_set_static_config_suffix"
+
+[[string_getset.items]]
+name = "global_node_port_tag_suffix"
+get = "iox2_config_global_node_port_tag_suffix"
+set = "iox2_config_global_node_set_port_tag_suffix"
 
 [[string_getset.items]]
 name = "global_node_service_tag_suffix"
@@ -234,23 +249,25 @@ set = "iox2_config_global_service_set_blackboard_data_suffix"
 [enum_getset.defaults]
 receiver_sig = "config::Union{Config, ConfigRef}"
 handle_expr = "_config_h_ref(config)"
-enum_type = "Iceoryx2FFI.iox2_unable_to_deliver_strategy_e"
-convert_fn = "_unable_to_deliver_strategy"
+enum_type = "Iceoryx2FFI.iox2_backpressure_strategy_e"
+convert_fn = "_backpressure_strategy"
+return_convert_fn = "_backpressure_strategy_enum"
+value_type = "Union{Symbol, BackpressureStrategy}"
 
 [[enum_getset.items]]
-name = "defaults_publish_subscribe_unable_to_deliver_strategy"
-get = "iox2_config_defaults_publish_subscribe_unable_to_deliver_strategy"
-set = "iox2_config_defaults_publish_subscribe_set_unable_to_deliver_strategy"
+name = "defaults_publish_subscribe_backpressure_strategy"
+get = "iox2_config_defaults_publish_subscribe_backpressure_strategy"
+set = "iox2_config_defaults_publish_subscribe_set_backpressure_strategy"
 
 [[enum_getset.items]]
-name = "defaults_request_response_client_unable_to_deliver_strategy"
-get = "iox2_config_defaults_request_response_client_unable_to_deliver_strategy"
-set = "iox2_config_defaults_request_response_set_client_unable_to_deliver_strategy"
+name = "defaults_request_response_client_backpressure_strategy"
+get = "iox2_config_defaults_request_response_client_backpressure_strategy"
+set = "iox2_config_defaults_request_response_set_client_backpressure_strategy"
 
 [[enum_getset.items]]
-name = "defaults_request_response_server_unable_to_deliver_strategy"
-get = "iox2_config_defaults_request_response_server_unable_to_deliver_strategy"
-set = "iox2_config_defaults_request_response_set_server_unable_to_deliver_strategy"
+name = "defaults_request_response_server_backpressure_strategy"
+get = "iox2_config_defaults_request_response_server_backpressure_strategy"
+set = "iox2_config_defaults_request_response_set_server_backpressure_strategy"
 
 [optional_duration_getset.defaults]
 receiver_sig = "config::Union{Config, ConfigRef}"
@@ -282,6 +299,8 @@ set = "iox2_config_defaults_event_set_notifier_dropped_event"
 
 [detail_id.defaults]
 handle_expr = "unsafe_handle(details)"
+valid_expr = "unsafe_handle(details)"
+valid_message = "port details"
 
 [[detail_id.items]]
 name = "client_id"
@@ -313,10 +332,10 @@ return_type = "UniquePublisherId"
 
 [[detail_id.items]]
 name = "reader_id"
-receiver_sig = "details::EntryReaderDetailsView"
+receiver_sig = "details::ReaderDetailsView"
 ffi = "iox2_reader_details_reader_id"
 handle_ref_type = "Iceoryx2FFI.iox2_unique_reader_id_h"
-return_type = "UniqueEntryReaderId"
+return_type = "UniqueReaderId"
 
 [[detail_id.items]]
 name = "server_id"
@@ -334,13 +353,15 @@ return_type = "UniqueSubscriberId"
 
 [[detail_id.items]]
 name = "writer_id"
-receiver_sig = "details::EntryWriterDetailsView"
+receiver_sig = "details::WriterDetailsView"
 ffi = "iox2_writer_details_writer_id"
 handle_ref_type = "Iceoryx2FFI.iox2_unique_writer_id_h"
-return_type = "UniqueEntryWriterId"
+return_type = "UniqueWriterId"
 
 [detail_node_id.defaults]
 handle_expr = "unsafe_handle(details)"
+valid_expr = "unsafe_handle(details)"
+valid_message = "port details"
 
 [[detail_node_id.items]]
 name = "node_id"
@@ -364,7 +385,7 @@ ffi = "iox2_publisher_details_node_id"
 
 [[detail_node_id.items]]
 name = "node_id"
-receiver_sig = "details::EntryReaderDetailsView"
+receiver_sig = "details::ReaderDetailsView"
 ffi = "iox2_reader_details_node_id"
 
 [[detail_node_id.items]]
@@ -379,11 +400,13 @@ ffi = "iox2_subscriber_details_node_id"
 
 [[detail_node_id.items]]
 name = "node_id"
-receiver_sig = "details::EntryWriterDetailsView"
+receiver_sig = "details::WriterDetailsView"
 ffi = "iox2_writer_details_node_id"
 
 [detail_size_t.defaults]
 handle_expr = "unsafe_handle(details)"
+valid_expr = "unsafe_handle(details)"
+valid_message = "port details"
 
 [[detail_size_t.items]]
 name = "number_of_requests"
@@ -399,6 +422,11 @@ ffi = "iox2_client_details_response_buffer_size"
 name = "max_slice_len"
 receiver_sig = "details::ClientDetailsView"
 ffi = "iox2_client_details_max_slice_len"
+
+[[detail_size_t.items]]
+name = "max_active_requests"
+receiver_sig = "details::ClientDetailsView"
+ffi = "iox2_client_details_max_active_requests"
 
 [[detail_size_t.items]]
 name = "number_of_samples"
@@ -430,12 +458,25 @@ name = "buffer_size"
 receiver_sig = "details::SubscriberDetailsView"
 ffi = "iox2_subscriber_details_buffer_size"
 
+[[detail_size_t.items]]
+name = "history_request"
+receiver_sig = "details::SubscriberDetailsView"
+ffi = "iox2_subscriber_details_history_request"
+
 [size_t_set.defaults]
 
 [[size_t_set.items]]
 name = "max_publishers!"
 receiver_sig = "builder::PubSubServiceBuilder"
 ffi = "iox2_service_builder_pub_sub_set_max_publishers"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "pub_sub service builder"
+
+[[size_t_set.items]]
+name = "max_nodes!"
+receiver_sig = "builder::PubSubServiceBuilder"
+ffi = "iox2_service_builder_pub_sub_set_max_nodes"
 handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_pub_sub_h}(builder.handle)"
 valid_expr = "builder.handle"
 valid_message = "pub_sub service builder"
@@ -489,9 +530,25 @@ valid_expr = "builder.handle"
 valid_message = "publisher builder"
 
 [[size_t_set.items]]
+name = "history_request!"
+receiver_sig = "builder::SubscriberBuilder{T} where {T}"
+ffi = "iox2_port_factory_subscriber_builder_set_history_request"
+handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_subscriber_builder_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "subscriber builder"
+
+[[size_t_set.items]]
 name = "max_clients!"
 receiver_sig = "builder::RequestResponseServiceBuilder"
 ffi = "iox2_service_builder_request_response_max_clients"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "request/response service builder"
+
+[[size_t_set.items]]
+name = "max_nodes!"
+receiver_sig = "builder::RequestResponseServiceBuilder"
+ffi = "iox2_service_builder_request_response_set_max_nodes"
 handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_request_response_h}(builder.handle)"
 valid_expr = "builder.handle"
 valid_message = "request/response service builder"
@@ -545,9 +602,25 @@ valid_expr = "builder.handle"
 valid_message = "server builder"
 
 [[size_t_set.items]]
+name = "max_active_requests!"
+receiver_sig = "builder::ClientBuilder{Req,Resp} where {Req,Resp}"
+ffi = "iox2_port_factory_client_builder_set_max_active_requests"
+handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_client_builder_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "client builder"
+
+[[size_t_set.items]]
 name = "max_notifiers!"
 receiver_sig = "builder::EventServiceBuilder"
 ffi = "iox2_service_builder_event_set_max_notifiers"
+handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle)"
+valid_expr = "builder.handle"
+valid_message = "event service builder"
+
+[[size_t_set.items]]
+name = "max_nodes!"
+receiver_sig = "builder::EventServiceBuilder"
+ffi = "iox2_service_builder_event_set_max_nodes"
 handle_expr = "Ref{Iceoryx2FFI.iox2_service_builder_event_h}(builder.handle)"
 valid_expr = "builder.handle"
 valid_message = "event service builder"
@@ -718,12 +791,12 @@ storage_type = "iox2_unique_listener_id_storage_t"
 value_fn = "iox2_unique_listener_id_value"
 
 [[unique_id_bytes.items]]
-receiver_sig = "id::UniqueEntryReaderId"
+receiver_sig = "id::UniqueReaderId"
 storage_type = "iox2_unique_reader_id_storage_t"
 value_fn = "iox2_unique_reader_id_value"
 
 [[unique_id_bytes.items]]
-receiver_sig = "id::UniqueEntryWriterId"
+receiver_sig = "id::UniqueWriterId"
 storage_type = "iox2_unique_writer_id_storage_t"
 value_fn = "iox2_unique_writer_id_value"
 
@@ -781,24 +854,24 @@ id_handle_type = "Iceoryx2FFI.iox2_unique_listener_id_h"
 return_type = "UniqueListenerId"
 
 [[unique_id_from.items]]
-receiver_sig = "reader::EntryReader"
+receiver_sig = "reader::Reader"
 handle_expr = "reader.handle"
 valid_expr = "reader.handle"
-valid_message = "entry reader"
+valid_message = "reader"
 handle_type = "Iceoryx2FFI.iox2_reader_h"
 ffi = "iox2_reader_id"
 id_handle_type = "Iceoryx2FFI.iox2_unique_reader_id_h"
-return_type = "UniqueEntryReaderId"
+return_type = "UniqueReaderId"
 
 [[unique_id_from.items]]
-receiver_sig = "writer::EntryWriter"
+receiver_sig = "writer::Writer"
 handle_expr = "writer.handle"
 valid_expr = "writer.handle"
-valid_message = "entry writer"
+valid_message = "writer"
 handle_type = "Iceoryx2FFI.iox2_writer_h"
 ffi = "iox2_writer_id"
 id_handle_type = "Iceoryx2FFI.iox2_unique_writer_id_h"
-return_type = "UniqueEntryWriterId"
+return_type = "UniqueWriterId"
 
 [[unique_id_from.items]]
 receiver_sig = "client::Client"
@@ -847,13 +920,13 @@ eq = "iox2_unique_listener_id_eq"
 less = "iox2_unique_listener_id_less"
 
 [[unique_id_eq_less.items]]
-id_type = "UniqueEntryReaderId"
+id_type = "UniqueReaderId"
 handle_type = "Iceoryx2FFI.iox2_unique_reader_id_h"
 eq = "iox2_unique_reader_id_eq"
 less = "iox2_unique_reader_id_less"
 
 [[unique_id_eq_less.items]]
-id_type = "UniqueEntryWriterId"
+id_type = "UniqueWriterId"
 handle_type = "Iceoryx2FFI.iox2_unique_writer_id_h"
 eq = "iox2_unique_writer_id_eq"
 less = "iox2_unique_writer_id_less"
@@ -877,48 +950,72 @@ name = "number_of_publishers"
 receiver_sig = "factory::PortFactoryPubSub{S,T,UH} where {S,T,UH}"
 get = "iox2_port_factory_pub_sub_dynamic_config_number_of_publishers"
 handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle)"
+valid_expr = "factory.handle"
+valid_message = "publish/subscribe port factory"
 
 [[size_t_get.items]]
 name = "number_of_subscribers"
 receiver_sig = "factory::PortFactoryPubSub{S,T,UH} where {S,T,UH}"
 get = "iox2_port_factory_pub_sub_dynamic_config_number_of_subscribers"
 handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_pub_sub_h}(factory.handle)"
+valid_expr = "factory.handle"
+valid_message = "publish/subscribe port factory"
 
 [[size_t_get.items]]
 name = "number_of_listeners"
 receiver_sig = "factory::PortFactoryEvent"
 get = "iox2_port_factory_event_dynamic_config_number_of_listeners"
 handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle)"
+valid_expr = "factory.handle"
+valid_message = "event port factory"
 
 [[size_t_get.items]]
 name = "number_of_notifiers"
 receiver_sig = "factory::PortFactoryEvent"
 get = "iox2_port_factory_event_dynamic_config_number_of_notifiers"
 handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_event_h}(factory.handle)"
+valid_expr = "factory.handle"
+valid_message = "event port factory"
 
 [[size_t_get.items]]
 name = "number_of_clients"
 receiver_sig = "factory::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH} where {S,Req,Resp,ReqH,RespH}"
 get = "iox2_port_factory_request_response_dynamic_config_number_of_clients"
 handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle)"
+valid_expr = "factory.handle"
+valid_message = "request/response port factory"
 
 [[size_t_get.items]]
 name = "number_of_servers"
 receiver_sig = "factory::PortFactoryRequestResponse{S,Req,Resp,ReqH,RespH} where {S,Req,Resp,ReqH,RespH}"
 get = "iox2_port_factory_request_response_dynamic_config_number_of_servers"
 handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_request_response_h}(factory.handle)"
+valid_expr = "factory.handle"
+valid_message = "request/response port factory"
 
 [[size_t_get.items]]
 name = "number_of_readers"
 receiver_sig = "factory::PortFactoryBlackboard{S,K} where {S,K}"
 get = "iox2_port_factory_blackboard_dynamic_config_number_of_readers"
 handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle)"
+valid_expr = "factory.handle"
+valid_message = "blackboard port factory"
 
 [[size_t_get.items]]
 name = "number_of_writers"
 receiver_sig = "factory::PortFactoryBlackboard{S,K} where {S,K}"
 get = "iox2_port_factory_blackboard_dynamic_config_number_of_writers"
 handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle)"
+valid_expr = "factory.handle"
+valid_message = "blackboard port factory"
+
+[[size_t_get.items]]
+name = "max_active_requests"
+receiver_sig = "client::Client"
+get = "iox2_client_max_active_requests"
+handle_expr = "Ref{Iceoryx2FFI.iox2_client_h}(client.handle)"
+valid_expr = "client.handle"
+valid_message = "client"
 
 [view_get.defaults]
 
@@ -993,6 +1090,78 @@ handle_expr = "Ref{Iceoryx2FFI.iox2_port_factory_blackboard_h}(factory.handle)"
 view_type = "ServiceNameView"
 valid_expr = "factory.handle"
 valid_message = "blackboard port factory"
+
+[[view_get.items]]
+name = "name"
+receiver_sig = "publisher::Publisher"
+ffi = "iox2_publisher_name"
+handle_expr = "Ref{Iceoryx2FFI.iox2_publisher_h}(publisher.handle)"
+view_type = "PortNameView"
+valid_expr = "publisher.handle"
+valid_message = "publisher"
+
+[[view_get.items]]
+name = "name"
+receiver_sig = "subscriber::Subscriber"
+ffi = "iox2_subscriber_name"
+handle_expr = "Ref{Iceoryx2FFI.iox2_subscriber_h}(subscriber.handle)"
+view_type = "PortNameView"
+valid_expr = "subscriber.handle"
+valid_message = "subscriber"
+
+[[view_get.items]]
+name = "name"
+receiver_sig = "notifier::Notifier"
+ffi = "iox2_notifier_name"
+handle_expr = "Ref{Iceoryx2FFI.iox2_notifier_h}(notifier.handle)"
+view_type = "PortNameView"
+valid_expr = "notifier.handle"
+valid_message = "notifier"
+
+[[view_get.items]]
+name = "name"
+receiver_sig = "listener::Listener"
+ffi = "iox2_listener_name"
+handle_expr = "Ref{Iceoryx2FFI.iox2_listener_h}(listener.handle)"
+view_type = "PortNameView"
+valid_expr = "listener.handle"
+valid_message = "listener"
+
+[[view_get.items]]
+name = "name"
+receiver_sig = "client::Client"
+ffi = "iox2_client_name"
+handle_expr = "Ref{Iceoryx2FFI.iox2_client_h}(client.handle)"
+view_type = "PortNameView"
+valid_expr = "client.handle"
+valid_message = "client"
+
+[[view_get.items]]
+name = "name"
+receiver_sig = "server::Server"
+ffi = "iox2_server_name"
+handle_expr = "Ref{Iceoryx2FFI.iox2_server_h}(server.handle)"
+view_type = "PortNameView"
+valid_expr = "server.handle"
+valid_message = "server"
+
+[[view_get.items]]
+name = "name"
+receiver_sig = "reader::Reader"
+ffi = "iox2_reader_name"
+handle_expr = "Ref{Iceoryx2FFI.iox2_reader_h}(reader.handle)"
+view_type = "PortNameView"
+valid_expr = "reader.handle"
+valid_message = "reader"
+
+[[view_get.items]]
+name = "name"
+receiver_sig = "writer::Writer"
+ffi = "iox2_writer_name"
+handle_expr = "Ref{Iceoryx2FFI.iox2_writer_h}(writer.handle)"
+view_type = "PortNameView"
+valid_expr = "writer.handle"
+valid_message = "writer"
 
 [static_config.defaults]
 

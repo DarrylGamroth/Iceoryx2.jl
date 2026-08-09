@@ -1,3 +1,7 @@
 [deps]
 Iceoryx2_jll = "c0bada20-47fe-5829-a5d2-36f16f9ecd92"
 Clang = "40e3b903-d033-50b4-a0cc-940c62c95e31"
+
+[compat]
+Clang = "0.19"
+Iceoryx2_jll = "=0.9.999"

@@ -1,7 +1,7 @@
 @testset "RequestResponse" begin
     builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(builder, "iceoryx2_julia_test_node_rr")
-    node = Iceoryx2.create(builder, Iceoryx2.ServiceType.IPC)
+    node = Iceoryx2.create(builder, TEST_SERVICE_TYPE)
 
     svc_builder_hdr = Iceoryx2.service_builder(node, "iceoryx2_julia_test_service_rr_hdr")
     rr_hdr_builder = Iceoryx2.request_response(svc_builder_hdr, UInt64, UInt64)
@@ -27,6 +27,7 @@
     Iceoryx2.loan!(client, request)
     init_payload = Iceoryx2.payload_mut(request)
     @test init_payload[1] == zero(UInt64)
+    @test Iceoryx2.payload_number_of_bytes(request) == sizeof(UInt64)
     close(request)
 
     client_seen = Ref(false)
@@ -80,9 +81,11 @@
         try
             req_payload = Iceoryx2.payload(active)
             @test req_payload[1] == UInt64(42)
+            @test Iceoryx2.payload_number_of_bytes(active) == sizeof(UInt64)
 
             Iceoryx2.loan_uninit!(active, response_mut)
             Iceoryx2.write_payload!(response_mut, UInt64(84))
+            @test Iceoryx2.payload_number_of_bytes(response_mut) == sizeof(UInt64)
             Iceoryx2.send!(response_mut)
         finally
             close(active)
@@ -102,6 +105,7 @@
         try
             resp_payload = Iceoryx2.payload(response)
             @test resp_payload[1] == UInt64(84)
+            @test Iceoryx2.payload_number_of_bytes(response) == sizeof(UInt64)
             resp_hdr = Iceoryx2.header(response)
             @test Iceoryx2.number_of_elements(resp_hdr) == 1
             server_id = Iceoryx2.server_id(resp_hdr)
@@ -117,16 +121,65 @@
     close(node)
 end
 
+@testset "RequestResponseSendErrors" begin
+    builder = Iceoryx2.NodeBuilder()
+    Iceoryx2.name!(builder, unique_node_name())
+    node = Iceoryx2.create(builder, TEST_SERVICE_TYPE)
+
+    try
+        rr_builder = Iceoryx2.request_response(
+            Iceoryx2.service_builder(node, unique_service_name()), UInt64, UInt64)
+        Iceoryx2.max_active_requests_per_client!(rr_builder, 1)
+        factory = Iceoryx2.create(rr_builder)
+
+        try
+            server = Iceoryx2.create(Iceoryx2.server_builder(factory))
+            client = Iceoryx2.create(Iceoryx2.client_builder(factory))
+            pending1 = Iceoryx2.PendingResponse(client)
+            pending2 = Iceoryx2.PendingResponse(client)
+            request2 = Iceoryx2.RequestMut(client)
+            active = Iceoryx2.ActiveRequest(server)
+
+            try
+                Iceoryx2.receive!(server, active)
+                Iceoryx2.send_copy!(client, UInt64[1], pending1)
+                Iceoryx2.loan!(client, request2)
+                err = try
+                    Iceoryx2.send!(request2, pending2)
+                    nothing
+                catch caught
+                    caught
+                end
+                @test err isa Iceoryx2.RequestSendError
+                @test err.code == :EXCEEDS_MAX_ACTIVE_REQUESTS
+                @test err.raw_code isa UInt32
+                @test !isvalid(request2)
+            finally
+                close(active)
+                close(request2)
+                close(pending2)
+                close(pending1)
+                close(client)
+                close(server)
+            end
+        finally
+            close(factory)
+        end
+    finally
+        close(node)
+    end
+end
+
 @testset "RequestResponseTuplePayload" begin
     builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(builder, "iceoryx2_julia_test_node_rr_tuple")
-    node = Iceoryx2.create(builder, Iceoryx2.ServiceType.IPC)
+    node = Iceoryx2.create(builder, TEST_SERVICE_TYPE)
 
     svc_builder = Iceoryx2.service_builder(node, unique_service_name())
     rr_builder = Iceoryx2.request_response(
         svc_builder,
-        Tuple{UInt32,Float64},
-        Tuple{UInt16,UInt8},
+        Tuple{UInt32, Float64},
+        Tuple{UInt16, UInt8}
     )
     factory = Iceoryx2.open_or_create(rr_builder)
 

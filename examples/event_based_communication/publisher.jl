@@ -10,7 +10,7 @@ function main()
 
     publisher = create_custom_publisher(node, "My/Funk/ServiceName")
 
-    waitset = create(WaitsetBuilder(ServiceType.IPC))
+    waitset = create(WaitSetBuilder(ServiceType.IPC))
     publisher_guard = attach_notification(waitset, file_descriptor(publisher.listener))
     cyclic_guard = attach_interval(waitset, CYCLE_SECONDS, 0)
 

@@ -1,30 +1,40 @@
+_allocation_backpressure_retry(::Iceoryx2.BackpressureInfoRef) = Iceoryx2.BackpressureRetry
+function _allocation_degradation_ignore(_, ::Iceoryx2.DegradationInfoRef)
+    Iceoryx2.DegradationIgnore
+end
+
 @testset "AllocationsHotPath" begin
     payload_alloc(sample::Iceoryx2.Sample{UInt64}) = @allocated Iceoryx2.payload(sample)
     payload_mut_alloc(sample::Iceoryx2.SampleMut{UInt64}) = @allocated Iceoryx2.payload_mut(sample)
-    payload_req_alloc(req::Iceoryx2.RequestMut{UInt64,UInt64}) = @allocated Iceoryx2.payload_mut(req)
-    payload_active_alloc(req::Iceoryx2.ActiveRequest{UInt64,UInt64}) = @allocated Iceoryx2.payload(req)
+    payload_req_alloc(req::Iceoryx2.RequestMut{
+        UInt64, UInt64}) = @allocated Iceoryx2.payload_mut(req)
+    payload_active_alloc(req::Iceoryx2.ActiveRequest{
+        UInt64, UInt64}) = @allocated Iceoryx2.payload(req)
     payload_resp_alloc(resp::Iceoryx2.Response{UInt64}) = @allocated Iceoryx2.payload(resp)
+    payload_bytes_alloc(value) = @allocated Iceoryx2.payload_number_of_bytes(value)
     unsafe_payload_ptr_alloc(sample::Iceoryx2.Sample{UInt64}) = @allocated Iceoryx2.unsafe_payload_ptr(sample)
     unsafe_payload_mut_ptr_alloc(sample::Iceoryx2.SampleMut{UInt64}) = @allocated Iceoryx2.unsafe_payload_mut_ptr(sample)
-    send_copy_alloc(pub::Iceoryx2.Publisher{S,UInt64,Nothing}, data::Vector{UInt64}) where {S} =
-        @allocated Iceoryx2.send_copy(pub, data)
-    loan_slice_alloc(pub::Iceoryx2.Publisher{S,UInt64,Nothing}, sample::Iceoryx2.SampleMut{UInt64,Nothing}) where {S} =
-        @allocated Iceoryx2.loan_slice!(pub, sample, 1)
-    try_loan_slice_alloc(pub::Iceoryx2.Publisher{S,UInt64,Nothing}, sample::Iceoryx2.SampleMut{UInt64,Nothing}) where {S} =
-        @allocated Iceoryx2.try_loan_slice_uninit!(pub, sample, 1)
-    send_alloc(sample::Iceoryx2.SampleMut{UInt64,Nothing}) = @allocated Iceoryx2.send!(sample)
-    write_payload_alloc(sample::Iceoryx2.SampleMut{UInt64}, value::UInt64) = @allocated Iceoryx2.write_payload!(sample, value)
-    unsafe_payload_req_mut_ptr_alloc(req::Iceoryx2.RequestMut{UInt64,UInt64}) =
-        @allocated Iceoryx2.unsafe_payload_mut_ptr(req)
-    write_payload_req_alloc(req::Iceoryx2.RequestMut{UInt64,UInt64}, value::UInt64) =
-        @allocated Iceoryx2.write_payload!(req, value)
-    unsafe_payload_active_ptr_alloc(req::Iceoryx2.ActiveRequest{UInt64,UInt64}) =
-        @allocated Iceoryx2.unsafe_payload_ptr(req)
+    send_copy_alloc(pub::Iceoryx2.Publisher{S, UInt64, Nothing},
+        data::Vector{UInt64}) where {S} = @allocated Iceoryx2.send_copy(pub, data)
+    loan_slice_alloc(pub::Iceoryx2.Publisher{S, UInt64, Nothing},
+        sample::Iceoryx2.SampleMut{UInt64, Nothing}) where {S} = @allocated Iceoryx2.loan_slice!(pub, sample, 1)
+    try_loan_slice_alloc(pub::Iceoryx2.Publisher{S, UInt64, Nothing},
+        sample::Iceoryx2.SampleMut{UInt64, Nothing}) where {S} = @allocated Iceoryx2.try_loan_slice_uninit!(
+        pub, sample, 1)
+    send_alloc(sample::Iceoryx2.SampleMut{
+        UInt64, Nothing}) = @allocated Iceoryx2.send!(sample)
+    write_payload_alloc(sample::Iceoryx2.SampleMut{UInt64}, value::UInt64) = @allocated Iceoryx2.write_payload!(
+        sample, value)
+    unsafe_payload_req_mut_ptr_alloc(req::Iceoryx2.RequestMut{
+        UInt64, UInt64}) = @allocated Iceoryx2.unsafe_payload_mut_ptr(req)
+    write_payload_req_alloc(req::Iceoryx2.RequestMut{UInt64, UInt64},
+        value::UInt64) = @allocated Iceoryx2.write_payload!(req, value)
+    unsafe_payload_active_ptr_alloc(req::Iceoryx2.ActiveRequest{
+        UInt64, UInt64}) = @allocated Iceoryx2.unsafe_payload_ptr(req)
     unsafe_payload_resp_ptr_alloc(resp::Iceoryx2.Response{UInt64}) = @allocated Iceoryx2.unsafe_payload_ptr(resp)
-    unsafe_payload_resp_mut_ptr_alloc(resp::Iceoryx2.ResponseMut{UInt64}) =
-        @allocated Iceoryx2.unsafe_payload_mut_ptr(resp)
-    write_payload_resp_alloc(resp::Iceoryx2.ResponseMut{UInt64}, value::UInt64) =
-        @allocated Iceoryx2.write_payload!(resp, value)
+    unsafe_payload_resp_mut_ptr_alloc(resp::Iceoryx2.ResponseMut{UInt64}) = @allocated Iceoryx2.unsafe_payload_mut_ptr(resp)
+    write_payload_resp_alloc(resp::Iceoryx2.ResponseMut{UInt64},
+        value::UInt64) = @allocated Iceoryx2.write_payload!(resp, value)
     header_sample_alloc(sample::Iceoryx2.Sample) = @allocated Iceoryx2.header(sample)
     header_sample_mut_alloc(sample::Iceoryx2.SampleMut) = @allocated Iceoryx2.header(sample)
     header_request_alloc(req::Iceoryx2.RequestMut) = @allocated Iceoryx2.header(req)
@@ -32,6 +42,9 @@
     header_active_alloc(req::Iceoryx2.ActiveRequest) = @allocated Iceoryx2.header(req)
     header_response_alloc(resp::Iceoryx2.Response) = @allocated Iceoryx2.header(resp)
     header_response_mut_alloc(resp::Iceoryx2.ResponseMut) = @allocated Iceoryx2.header(resp)
+    publisher_header_id_alloc(header::Iceoryx2.PublishSubscribeHeaderRef) = @allocated Iceoryx2.publisher_id(header)
+    client_header_id_alloc(header::Iceoryx2.RequestHeaderRef) = @allocated Iceoryx2.client_id(header)
+    server_header_id_alloc(header::Iceoryx2.ResponseHeaderRef) = @allocated Iceoryx2.server_id(header)
     user_header_sample_alloc(sample::Iceoryx2.Sample) = @allocated Iceoryx2.user_header(sample)
     user_header_sample_mut_alloc(sample::Iceoryx2.SampleMut) = @allocated Iceoryx2.user_header(sample)
     user_header_sample_mut_mut_alloc(sample::Iceoryx2.SampleMut) = @allocated Iceoryx2.user_header_mut(sample)
@@ -43,75 +56,78 @@
     user_header_response_mut_alloc(resp::Iceoryx2.ResponseMut) = @allocated Iceoryx2.user_header(resp)
     user_header_response_mut_mut_alloc(resp::Iceoryx2.ResponseMut) = @allocated Iceoryx2.user_header_mut(resp)
     loan_request_alloc(
-        client::Iceoryx2.Client{S,UInt64,UInt64,Nothing,Nothing},
-        req::Iceoryx2.RequestMut{UInt64,UInt64,Nothing,Nothing},
+        client::Iceoryx2.Client{S, UInt64, UInt64, Nothing, Nothing},
+        req::Iceoryx2.RequestMut{UInt64, UInt64, Nothing, Nothing}
     ) where {S} = @allocated Iceoryx2.loan_request!(client, req, 1)
     try_loan_request_alloc(
-        client::Iceoryx2.Client{S,UInt64,UInt64,Nothing,Nothing},
-        req::Iceoryx2.RequestMut{UInt64,UInt64,Nothing,Nothing},
+        client::Iceoryx2.Client{S, UInt64, UInt64, Nothing, Nothing},
+        req::Iceoryx2.RequestMut{UInt64, UInt64, Nothing, Nothing}
     ) where {S} = @allocated Iceoryx2.try_loan_slice_uninit!(client, req, 1)
     send_request_alloc(
-        req::Iceoryx2.RequestMut{UInt64,UInt64,Nothing,Nothing},
-        pending::Iceoryx2.PendingResponse{UInt64,Nothing,Nothing},
+        req::Iceoryx2.RequestMut{UInt64, UInt64, Nothing, Nothing},
+        pending::Iceoryx2.PendingResponse{UInt64, Nothing, Nothing}
     ) = @allocated Iceoryx2.send!(req, pending)
     loan_response_alloc(
-        req::Iceoryx2.ActiveRequest{UInt64,UInt64,Nothing,Nothing},
-        resp::Iceoryx2.ResponseMut{UInt64,Nothing},
+        req::Iceoryx2.ActiveRequest{UInt64, UInt64, Nothing, Nothing},
+        resp::Iceoryx2.ResponseMut{UInt64, Nothing}
     ) = @allocated Iceoryx2.loan_response!(req, resp, 1)
     try_loan_response_alloc(
-        req::Iceoryx2.ActiveRequest{UInt64,UInt64,Nothing,Nothing},
-        resp::Iceoryx2.ResponseMut{UInt64,Nothing},
+        req::Iceoryx2.ActiveRequest{UInt64, UInt64, Nothing, Nothing},
+        resp::Iceoryx2.ResponseMut{UInt64, Nothing}
     ) = @allocated Iceoryx2.try_loan_slice_uninit!(req, resp, 1)
-    send_response_alloc(resp::Iceoryx2.ResponseMut{UInt64,Nothing}) = @allocated Iceoryx2.send!(resp)
-    has_event_alloc(id::Iceoryx2.WaitsetAttachmentId{S}, guard::Iceoryx2.WaitsetGuard{S}) where {S} =
-        @allocated Iceoryx2.has_event_from(id, guard)
-    missed_deadline_alloc(id::Iceoryx2.WaitsetAttachmentId{S}, guard::Iceoryx2.WaitsetGuard{S}) where {S} =
-        @allocated Iceoryx2.has_missed_deadline(id, guard)
-    waitset_once_alloc(waitset::Iceoryx2.Waitset{S}, handler::Iceoryx2.WaitsetHandler{S}) where {S} =
-        @allocated Iceoryx2.wait_and_process_once(waitset, 0, 0, handler)
-    function receive_with_retry!(sub::Iceoryx2.Subscriber{S,T,UH}, sample::Iceoryx2.Sample{T,UH}) where {S,T,UH}
+    send_response_alloc(resp::Iceoryx2.ResponseMut{
+        UInt64, Nothing}) = @allocated Iceoryx2.send!(resp)
+    has_event_alloc(id::Iceoryx2.WaitSetAttachmentId{S},
+        guard::Iceoryx2.WaitSetGuard{S}) where {S} = @allocated Iceoryx2.has_event_from(id, guard)
+    missed_deadline_alloc(id::Iceoryx2.WaitSetAttachmentId{S},
+        guard::Iceoryx2.WaitSetGuard{S}) where {S} = @allocated Iceoryx2.has_missed_deadline(id, guard)
+    waitset_once_alloc(waitset::Iceoryx2.WaitSet{S},
+        handler::Iceoryx2.WaitSetHandler{S}) where {S} = @allocated Iceoryx2.wait_and_process_once(
+        waitset, 0, 0, handler)
+    function receive_with_retry!(sub::Iceoryx2.Subscriber{S, T, UH},
+            sample::Iceoryx2.Sample{T, UH}) where {S, T, UH}
         for _ in 1:1000
             Iceoryx2.receive!(sub, sample) && return sample
         end
         error("timed out waiting for sample")
     end
-    receive_alloc(sub::Iceoryx2.Subscriber{S,T,UH}, sample::Iceoryx2.Sample{T,UH}) where {S,T,UH} =
-        @allocated receive_with_retry!(sub, sample)
+    receive_alloc(sub::Iceoryx2.Subscriber{S, T, UH},
+        sample::Iceoryx2.Sample{T, UH}) where {S, T, UH} = @allocated receive_with_retry!(sub, sample)
     function receive_with_retry!(
-        server::Iceoryx2.Server{S,Req,Resp,ReqH,RespH},
-        req::Iceoryx2.ActiveRequest{Req,Resp,ReqH,RespH},
-    ) where {S,Req,Resp,ReqH,RespH}
+            server::Iceoryx2.Server{S, Req, Resp, ReqH, RespH},
+            req::Iceoryx2.ActiveRequest{Req, Resp, ReqH, RespH}
+    ) where {S, Req, Resp, ReqH, RespH}
         for _ in 1:1000
             Iceoryx2.receive!(server, req) && return req
         end
         error("timed out waiting for request")
     end
     receive_request_alloc(
-        server::Iceoryx2.Server{S,Req,Resp,ReqH,RespH},
-        req::Iceoryx2.ActiveRequest{Req,Resp,ReqH,RespH},
-    ) where {S,Req,Resp,ReqH,RespH} = @allocated receive_with_retry!(server, req)
+        server::Iceoryx2.Server{S, Req, Resp, ReqH, RespH},
+        req::Iceoryx2.ActiveRequest{Req, Resp, ReqH, RespH}
+    ) where {S, Req, Resp, ReqH, RespH} = @allocated receive_with_retry!(server, req)
     function receive_with_retry!(
-        pending::Iceoryx2.PendingResponse{Resp,ReqH,RespH},
-        resp::Iceoryx2.Response{Resp,RespH},
-    ) where {Resp,ReqH,RespH}
+            pending::Iceoryx2.PendingResponse{Resp, ReqH, RespH},
+            resp::Iceoryx2.Response{Resp, RespH}
+    ) where {Resp, ReqH, RespH}
         for _ in 1:1000
             Iceoryx2.receive!(pending, resp) && return resp
         end
         error("timed out waiting for response")
     end
     receive_response_alloc(
-        pending::Iceoryx2.PendingResponse{Resp,ReqH,RespH},
-        resp::Iceoryx2.Response{Resp,RespH},
-    ) where {Resp,ReqH,RespH} = @allocated receive_with_retry!(pending, resp)
+        pending::Iceoryx2.PendingResponse{Resp, ReqH, RespH},
+        resp::Iceoryx2.Response{Resp, RespH}
+    ) where {Resp, ReqH, RespH} = @allocated receive_with_retry!(pending, resp)
     each_attr_value_ptr_alloc(
         attrs::Union{Iceoryx2.AttributeSet, Iceoryx2.AttributeSetView},
         key::String,
-        handler::Iceoryx2.AbstractAttributeValuePtrHandler,
+        handler::Iceoryx2.AbstractAttributeValuePtrHandler
     ) = @allocated Iceoryx2.each_attribute_value_ptr(attrs, key, handler)
 
     builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(builder, "iceoryx2_julia_alloc_hotpath")
-    node = Iceoryx2.create(builder, Iceoryx2.ServiceType.IPC)
+    node = Iceoryx2.create(builder, TEST_SERVICE_TYPE)
 
     svc_builder = Iceoryx2.service_builder(node, "iceoryx2_julia_alloc_pubsub")
     pubsub_builder = Iceoryx2.publish_subscribe(svc_builder, UInt64)
@@ -121,6 +137,8 @@
     sub = Iceoryx2.create(Iceoryx2.subscriber_builder(factory))
     sample = Iceoryx2.Sample(sub)
     loaned = Iceoryx2.SampleMut(pub)
+    # Exclude first-call compilation from the steady-state allocation gate.
+    precompile(receive_with_retry!, (typeof(sub), typeof(sample)))
 
     data = UInt64[1]
     @test send_copy_alloc(pub, data) == 0
@@ -131,9 +149,14 @@
     slice = Iceoryx2.payload(sample)
 
     @test payload_alloc(sample) == 0
+    @test payload_bytes_alloc(sample) == 0
     @test unsafe_payload_ptr_alloc(sample) == 0
     @test @allocated(length(slice)) == 0
+    slice[1]
     @test @allocated(slice[1]) == 0
+    sample_header = Iceoryx2.header(sample)
+    Iceoryx2.publisher_id(sample_header)
+    @test publisher_header_id_alloc(sample_header) == 0
     @test header_sample_alloc(sample) == 0
     close(sample)
 
@@ -142,13 +165,40 @@
     @test loan_slice_alloc(pub, loaned) == 0
     Iceoryx2.payload_mut(loaned)
     @test payload_mut_alloc(loaned) == 0
+    @test payload_bytes_alloc(loaned) == 0
     @test unsafe_payload_mut_ptr_alloc(loaned) == 0
     @test write_payload_alloc(loaned, UInt64(7)) == 0
     @test header_sample_mut_alloc(loaned) == 0
     @test send_alloc(loaned) == 0
     close(loaned)
+    close(sub)
+    close(pub)
+    close(factory)
 
-    rr_builder = Iceoryx2.request_response(Iceoryx2.service_builder(node, "iceoryx2_julia_alloc_rr"), UInt64, UInt64)
+    handler_pubsub_builder = Iceoryx2.publish_subscribe(
+        Iceoryx2.service_builder(node, unique_service_name()),
+        UInt64
+    )
+    handler_pubsub_factory = Iceoryx2.open_or_create(handler_pubsub_builder)
+    handler_pub_builder = Iceoryx2.publisher_builder(handler_pubsub_factory)
+    Iceoryx2.backpressure_handler!(handler_pub_builder, _allocation_backpressure_retry)
+    Iceoryx2.degradation_handler!(handler_pub_builder, _allocation_degradation_ignore)
+    handler_sub_builder = Iceoryx2.subscriber_builder(handler_pubsub_factory)
+    Iceoryx2.degradation_handler!(handler_sub_builder, _allocation_degradation_ignore)
+    handler_pub = Iceoryx2.create(handler_pub_builder)
+    handler_sub = Iceoryx2.create(handler_sub_builder)
+    handler_sample = Iceoryx2.Sample(handler_sub)
+
+    @test send_copy_alloc(handler_pub, data) == 0
+    sleep(0.01)
+    @test receive_alloc(handler_sub, handler_sample) == 0
+    close(handler_sample)
+    close(handler_sub)
+    close(handler_pub)
+    close(handler_pubsub_factory)
+
+    rr_builder = Iceoryx2.request_response(
+        Iceoryx2.service_builder(node, "iceoryx2_julia_alloc_rr"), UInt64, UInt64)
     rr_factory = Iceoryx2.open_or_create(rr_builder)
 
     client = Iceoryx2.create(Iceoryx2.client_builder(rr_factory))
@@ -158,14 +208,21 @@
     active = Iceoryx2.ActiveRequest(server)
     resp = Iceoryx2.Response(pending)
     response_mut = Iceoryx2.ResponseMut(active)
+    # Exclude first-call compilation from the steady-state allocation gates.
+    precompile(receive_with_retry!, (typeof(server), typeof(active)))
+    precompile(receive_with_retry!, (typeof(pending), typeof(resp)))
 
     @test try_loan_request_alloc(client, req) == 0
     close(req)
     @test loan_request_alloc(client, req) == 0
     Iceoryx2.payload_mut(req)
     @test payload_req_alloc(req) == 0
+    @test payload_bytes_alloc(req) == 0
     @test unsafe_payload_req_mut_ptr_alloc(req) == 0
     @test write_payload_req_alloc(req, UInt64(1)) == 0
+    request_header = Iceoryx2.header(req)
+    Iceoryx2.client_id(request_header)
+    @test client_header_id_alloc(request_header) == 0
     @test send_request_alloc(req, pending) == 0
 
     sleep(0.01)
@@ -174,12 +231,14 @@
     try
         Iceoryx2.payload(active)
         @test payload_active_alloc(active) == 0
+        @test payload_bytes_alloc(active) == 0
         @test unsafe_payload_active_ptr_alloc(active) == 0
         @test header_active_alloc(active) == 0
         @test try_loan_response_alloc(active, response_mut) == 0
         close(response_mut)
         @test loan_response_alloc(active, response_mut) == 0
         Iceoryx2.payload_mut(response_mut)
+        @test payload_bytes_alloc(response_mut) == 0
         @test unsafe_payload_resp_mut_ptr_alloc(response_mut) == 0
         @test write_payload_resp_alloc(response_mut, UInt64(2)) == 0
         @test header_response_mut_alloc(response_mut) == 0
@@ -194,14 +253,60 @@
     try
         Iceoryx2.payload(resp)
         @test payload_resp_alloc(resp) == 0
+        @test payload_bytes_alloc(resp) == 0
         @test unsafe_payload_resp_ptr_alloc(resp) == 0
+        response_header = Iceoryx2.header(resp)
+        Iceoryx2.server_id(response_header)
+        @test server_header_id_alloc(response_header) == 0
         @test header_response_alloc(resp) == 0
     finally
         close(resp)
     end
     close(pending)
+    close(server)
+    close(client)
+    close(rr_factory)
 
-    waitset_builder = Iceoryx2.WaitsetBuilder(Iceoryx2.ServiceType.IPC)
+    handler_rr_builder = Iceoryx2.request_response(
+        Iceoryx2.service_builder(node, unique_service_name()),
+        UInt64,
+        UInt64
+    )
+    handler_rr_factory = Iceoryx2.open_or_create(handler_rr_builder)
+    handler_client_builder = Iceoryx2.client_builder(handler_rr_factory)
+    Iceoryx2.backpressure_handler!(handler_client_builder, _allocation_backpressure_retry)
+    Iceoryx2.request_degradation_handler!(handler_client_builder, _allocation_degradation_ignore)
+    Iceoryx2.response_degradation_handler!(handler_client_builder, _allocation_degradation_ignore)
+    handler_server_builder = Iceoryx2.server_builder(handler_rr_factory)
+    Iceoryx2.backpressure_handler!(handler_server_builder, _allocation_backpressure_retry)
+    Iceoryx2.request_degradation_handler!(handler_server_builder, _allocation_degradation_ignore)
+    Iceoryx2.response_degradation_handler!(handler_server_builder, _allocation_degradation_ignore)
+    handler_client = Iceoryx2.create(handler_client_builder)
+    handler_server = Iceoryx2.create(handler_server_builder)
+    handler_req = Iceoryx2.RequestMut(handler_client)
+    handler_pending = Iceoryx2.PendingResponse(handler_client)
+    handler_active = Iceoryx2.ActiveRequest(handler_server)
+    handler_resp = Iceoryx2.Response(handler_pending)
+    handler_response_mut = Iceoryx2.ResponseMut(handler_active)
+
+    @test loan_request_alloc(handler_client, handler_req) == 0
+    @test write_payload_req_alloc(handler_req, UInt64(3)) == 0
+    @test send_request_alloc(handler_req, handler_pending) == 0
+    sleep(0.01)
+    @test receive_request_alloc(handler_server, handler_active) == 0
+    @test loan_response_alloc(handler_active, handler_response_mut) == 0
+    @test write_payload_resp_alloc(handler_response_mut, UInt64(4)) == 0
+    @test send_response_alloc(handler_response_mut) == 0
+    sleep(0.01)
+    @test receive_response_alloc(handler_pending, handler_resp) == 0
+    close(handler_resp)
+    close(handler_active)
+    close(handler_pending)
+    close(handler_server)
+    close(handler_client)
+    close(handler_rr_factory)
+
+    waitset_builder = Iceoryx2.WaitSetBuilder(TEST_SERVICE_TYPE)
     waitset = Iceoryx2.create(waitset_builder)
     guard = Iceoryx2.attach_interval(waitset, 0, 10_000_000)
     attachment = Iceoryx2.attachment_id(guard)
@@ -211,18 +316,21 @@
     Iceoryx2.has_missed_deadline(attachment, guard)
     @test missed_deadline_alloc(attachment, guard) == 0
 
-    struct WaitsetCallback end
-    (::WaitsetCallback)(::Iceoryx2.WaitsetAttachmentId{S}) where {S} = :stop
-    handler = Iceoryx2.WaitsetHandler(WaitsetCallback(), waitset)
+    struct WaitSetCallback end
+    (::WaitSetCallback)(::Iceoryx2.WaitSetAttachmentId{S}) where {S} = :stop
+    handler = Iceoryx2.WaitSetHandler(WaitSetCallback(), waitset)
     Iceoryx2.wait_and_process_once(waitset, 0, 0, handler)
     @test waitset_once_alloc(waitset, handler) == 0
 
     event_builder = Iceoryx2.event(Iceoryx2.service_builder(node, unique_service_name()))
     event_factory = Iceoryx2.open_or_create(event_builder)
     listener = Iceoryx2.create(Iceoryx2.listener_builder(event_factory))
-    try_wait_alloc(l::Iceoryx2.Listener) = @allocated Iceoryx2.try_wait_one(l)
-    Iceoryx2.try_wait_one(listener)
-    @test try_wait_alloc(listener) == 0
+    struct ListenerWaitCallback end
+    (::ListenerWaitCallback)(::Iceoryx2.EventId, ::UInt64) = nothing
+    listener_handler = Iceoryx2.ListenerWaitHandler(ListenerWaitCallback())
+    try_wait_alloc(l::Iceoryx2.Listener, h::Iceoryx2.ListenerWaitHandler) = @allocated Iceoryx2.try_wait(l, h)
+    Iceoryx2.try_wait(listener, listener_handler)
+    @test try_wait_alloc(listener, listener_handler) == 0
     close(listener)
     close(event_factory)
 
@@ -243,11 +351,11 @@
     Iceoryx2.is_up_to_date(entry, generation_ref[])
 
     entry_id_alloc(entry::Iceoryx2.EntryHandle) = @allocated Iceoryx2.entry_id(entry)
-    get_alloc(entry::Iceoryx2.EntryHandle, value_ref, generation_ref) =
-        @allocated Iceoryx2.get!(entry, value_ref, generation_ref)
+    get_alloc(entry::Iceoryx2.EntryHandle, value_ref, generation_ref) = @allocated Iceoryx2.get!(
+        entry, value_ref, generation_ref)
     update_alloc(entry::Iceoryx2.EntryHandleMut, value_ref) = @allocated Iceoryx2.update!(entry, value_ref)
-    up_to_date_alloc(entry::Iceoryx2.EntryHandle, generation_ref) =
-        @allocated Iceoryx2.is_up_to_date(entry, generation_ref[])
+    up_to_date_alloc(entry::Iceoryx2.EntryHandle, generation_ref) = @allocated Iceoryx2.is_up_to_date(
+        entry, generation_ref[])
 
     @test entry_id_alloc(entry) == 0
     @test get_alloc(entry, value_ref, generation_ref) == 0
@@ -262,7 +370,7 @@
 
     pubsub_hdr_builder = Iceoryx2.publish_subscribe(
         Iceoryx2.service_builder(node, unique_service_name()),
-        UInt64,
+        UInt64
     )
     pubsub_hdr_builder = Iceoryx2.user_header(pubsub_hdr_builder, UInt16)
     pubsub_hdr_factory = Iceoryx2.open_or_create(pubsub_hdr_builder)
@@ -286,7 +394,7 @@
     rr_hdr_builder = Iceoryx2.request_response(
         Iceoryx2.service_builder(node, unique_service_name()),
         UInt64,
-        UInt64,
+        UInt64
     )
     rr_hdr_builder = Iceoryx2.request_user_header(rr_hdr_builder, UInt32)
     rr_hdr_builder = Iceoryx2.response_user_header(rr_hdr_builder, UInt16)
@@ -339,6 +447,4 @@
     close(guard)
     close(waitset)
     close(node)
-    close(factory)
-    close(rr_factory)
 end

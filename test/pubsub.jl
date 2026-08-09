@@ -1,7 +1,7 @@
 @testset "PubSub" begin
     builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(builder, "iceoryx2_julia_test_node_pubsub")
-    node = Iceoryx2.create(builder, Iceoryx2.ServiceType.IPC)
+    node = Iceoryx2.create(builder, TEST_SERVICE_TYPE)
 
     hdr_builder = Iceoryx2.service_builder(node, "iceoryx2_julia_test_service_pubsub_hdr")
     pubsub_hdr_builder = Iceoryx2.publish_subscribe(hdr_builder, UInt64)
@@ -22,6 +22,7 @@
     Iceoryx2.loan!(pub, sample_mut)
     init_payload = Iceoryx2.payload_mut(sample_mut)
     @test init_payload[1] == zero(UInt64)
+    @test Iceoryx2.payload_number_of_bytes(sample_mut) == sizeof(UInt64)
     close(sample_mut)
 
     data = UInt64[0x1234_5678_9abc_def0]
@@ -37,6 +38,7 @@
     @test received
     if received
         slice = Iceoryx2.payload(sample)
+        @test Iceoryx2.payload_number_of_bytes(sample) == sizeof(UInt64)
         @test length(slice) == 1
         @test slice[1] == data[1]
         hdr = Iceoryx2.header(sample)
@@ -54,7 +56,7 @@ end
 @testset "PubSubUserHeader" begin
     builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(builder, "iceoryx2_julia_test_node_pubsub_user_header")
-    node = Iceoryx2.create(builder, Iceoryx2.ServiceType.IPC)
+    node = Iceoryx2.create(builder, TEST_SERVICE_TYPE)
 
     svc_builder = Iceoryx2.service_builder(node, unique_service_name())
     pubsub_builder = Iceoryx2.publish_subscribe(svc_builder, UInt64)
@@ -96,10 +98,10 @@ end
 @testset "PubSubTuplePayload" begin
     builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(builder, "iceoryx2_julia_test_node_pubsub_tuple")
-    node = Iceoryx2.create(builder, Iceoryx2.ServiceType.IPC)
+    node = Iceoryx2.create(builder, TEST_SERVICE_TYPE)
 
     svc_builder = Iceoryx2.service_builder(node, unique_service_name())
-    pubsub_builder = Iceoryx2.publish_subscribe(svc_builder, Tuple{UInt32,Float64})
+    pubsub_builder = Iceoryx2.publish_subscribe(svc_builder, Tuple{UInt32, Float64})
     factory = Iceoryx2.open_or_create(pubsub_builder)
 
     pub = Iceoryx2.create(Iceoryx2.publisher_builder(factory))
@@ -136,7 +138,7 @@ end
 @testset "PubSubDynamicSlice" begin
     builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(builder, "iceoryx2_julia_test_node_pubsub_dynamic")
-    node = Iceoryx2.create(builder, Iceoryx2.ServiceType.IPC)
+    node = Iceoryx2.create(builder, TEST_SERVICE_TYPE)
 
     svc_builder = Iceoryx2.service_builder(node, unique_service_name())
     pubsub_builder = Iceoryx2.publish_subscribe(svc_builder, AbstractVector{UInt8})
@@ -152,9 +154,6 @@ end
 
     Iceoryx2.loan_slice_uninit!(pub, sample_mut, payload_len)
     slice = Iceoryx2.payload_mut(sample_mut)
-    for idx in 1:payload_len
-        @test slice[idx] == 0x00
-    end
     for idx in 1:payload_len
         slice[idx] = UInt8(idx)
     end
@@ -192,7 +191,7 @@ end
 
     builder = Iceoryx2.NodeBuilder()
     Iceoryx2.name!(builder, "iceoryx2_julia_test_node_pubsub_struct_slice")
-    node = Iceoryx2.create(builder, Iceoryx2.ServiceType.IPC)
+    node = Iceoryx2.create(builder, TEST_SERVICE_TYPE)
 
     svc_builder = Iceoryx2.service_builder(node, unique_service_name())
     pubsub_builder = Iceoryx2.publish_subscribe(svc_builder, AbstractVector{TestHeader})

@@ -10,6 +10,9 @@ using .BenchUtils
 const DEFAULT_ITERATIONS = 1_000_000
 const DEFAULT_MAX_EVENT_ID = 128
 
+struct IgnoreEvent end
+(::IgnoreEvent)(::Iceoryx2.EventId, ::UInt64) = nothing
+
 function usage()
     println(
         """
@@ -34,7 +37,9 @@ Options:
     )
 end
 
-function build_event_factory(node::Iceoryx2.Node, name::AbstractString, additional_notifiers::Int, additional_listeners::Int, max_event_id::Int)
+function build_event_factory(
+        node::Iceoryx2.Node, name::AbstractString, additional_notifiers::Int,
+        additional_listeners::Int, max_event_id::Int)
     builder = Iceoryx2.event(Iceoryx2.service_builder(node, name))
     Iceoryx2.max_notifiers!(builder, 1 + additional_notifiers)
     Iceoryx2.max_listeners!(builder, 1 + additional_listeners)
@@ -43,17 +48,19 @@ function build_event_factory(node::Iceoryx2.Node, name::AbstractString, addition
 end
 
 function perform_benchmark(
-    iterations::Int,
-    max_event_id::Int,
-    service_type::Iceoryx2.ServiceType,
-    additional_notifiers::Int,
-    additional_listeners::Int,
+        iterations::Int,
+        max_event_id::Int,
+        service_type::Iceoryx2.ServiceType,
+        additional_notifiers::Int,
+        additional_listeners::Int
 )
     node_builder = Iceoryx2.NodeBuilder()
     node = Iceoryx2.create(node_builder, service_type)
 
-    factory_a2b = build_event_factory(node, "a2b", additional_notifiers, additional_listeners, max_event_id)
-    factory_b2a = build_event_factory(node, "b2a", additional_notifiers, additional_listeners, max_event_id)
+    factory_a2b = build_event_factory(
+        node, "a2b", additional_notifiers, additional_listeners, max_event_id)
+    factory_b2a = build_event_factory(
+        node, "b2a", additional_notifiers, additional_listeners, max_event_id)
 
     extra_notifiers = Iceoryx2.Notifier[]
     extra_listeners = Iceoryx2.Listener[]
@@ -74,6 +81,7 @@ function perform_benchmark(
     t1 = Threads.@spawn begin
         notifier_a2b = Iceoryx2.create(Iceoryx2.notifier_builder(factory_a2b))
         listener_b2a = Iceoryx2.create(Iceoryx2.listener_builder(factory_b2a))
+        wait_handler = Iceoryx2.ListenerWaitHandler(IgnoreEvent())
 
         wait_barrier(startup)
         wait_barrier(start_benchmark)
@@ -81,8 +89,7 @@ function perform_benchmark(
         Iceoryx2.notify!(notifier_a2b)
 
         for _ in 1:iterations
-            while Iceoryx2.blocking_wait_one(listener_b2a) === nothing
-            end
+            Iceoryx2.blocking_wait(listener_b2a, wait_handler)
             Iceoryx2.notify!(notifier_a2b)
         end
 
@@ -94,13 +101,13 @@ function perform_benchmark(
     t2 = Threads.@spawn begin
         notifier_b2a = Iceoryx2.create(Iceoryx2.notifier_builder(factory_b2a))
         listener_a2b = Iceoryx2.create(Iceoryx2.listener_builder(factory_a2b))
+        wait_handler = Iceoryx2.ListenerWaitHandler(IgnoreEvent())
 
         wait_barrier(startup)
         wait_barrier(start_benchmark)
 
         for _ in 1:iterations
-            while Iceoryx2.blocking_wait_one(listener_a2b) === nothing
-            end
+            Iceoryx2.blocking_wait(listener_a2b, wait_handler)
             Iceoryx2.notify!(notifier_b2a)
         end
 
@@ -167,7 +174,7 @@ function main(args::Vector{String})
             max_event_id,
             service_type,
             additional_notifiers,
-            additional_listeners,
+            additional_listeners
         )
     end
 

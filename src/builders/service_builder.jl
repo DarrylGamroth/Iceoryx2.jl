@@ -27,23 +27,29 @@ end
     service_builder(node::Node{S}, name::AbstractString)
 
 Create a service builder tied to `node` and a service name. Passing a
-`ServiceName` transfers ownership to the builder.
+`ServiceName` consumes and closes the Julia name after iceoryx2 copies it.
 """
 function service_builder(node::Node{S}, name::ServiceName) where {S}
     _require_valid(unsafe_handle(node), "node")
     storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
     node_ref = Ref{Iceoryx2FFI.iox2_node_h}(unsafe_handle(node))
-    ptr = _service_name_ptr(unsafe_handle(name))
-    handle = Iceoryx2FFI.iox2_node_service_builder(node_ref, storage, ptr)
-    invalidate!(name)
-    return ServiceBuilder{S}(handle, storage, node)
+    try
+        handle = GC.@preserve node name begin
+            Iceoryx2FFI.iox2_node_service_builder(node_ref, storage, _service_name_ptr(name))
+        end
+        return ServiceBuilder{S}(handle, storage, node)
+    finally
+        close(name)
+    end
 end
 
 function service_builder(node::Node{S}, name::ServiceNameView) where {S}
     _require_valid(unsafe_handle(node), "node")
     storage = Ref{Iceoryx2FFI.iox2_service_builder_t}()
     node_ref = Ref{Iceoryx2FFI.iox2_node_h}(unsafe_handle(node))
-    handle = Iceoryx2FFI.iox2_node_service_builder(node_ref, storage, unsafe_handle(name))
+    handle = GC.@preserve node name begin
+        Iceoryx2FFI.iox2_node_service_builder(node_ref, storage, unsafe_handle(name))
+    end
     return ServiceBuilder{S}(handle, storage, node)
 end
 
