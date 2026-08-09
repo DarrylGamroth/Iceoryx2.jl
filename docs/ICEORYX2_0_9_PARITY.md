@@ -2,9 +2,9 @@
 
 This tracks the Julia safe API against the upstream iceoryx2 language bindings
 for the v0.9.999 ABI. The native fork reference used for this snapshot is
-`../iceoryx2` at `aaa57805edec9018181b64e72bbdcea9a4e7ccdc`. The package is
-pinned to `Iceoryx2_jll v0.9.999+2`; the generated header comes from artifact
-`0fdc7690bf18492d6035d34897d5d94cd1de02c3`.
+`../iceoryx2` at `332684f261ee8e81c642232446229c3c1233744a`. The package is
+pinned to `Iceoryx2_jll v0.9.999+3`; the generated header comes from artifact
+`7d298804b69195e4e0dea399824471d8b388942c`.
 
 The C# comparison snapshot was taken from
 `https://github.com/eclipse-iceoryx/iceoryx2-csharp` at `8dde348`
@@ -114,12 +114,12 @@ directly onto Python/C++.
 ## Recent 0.9 Parity Fixes
 
 - Regenerated and verified all 682 C functions against `Iceoryx2_jll
-  v0.9.999+2`, with exact package compatibility pins for runtime and generator
+  v0.9.999+3`, with exact package compatibility pins for runtime and generator
   environments.
 - Migrated progressive publish/subscribe to the native
   announce/commit/complete/abort lifecycle, including coherent atomic
-  committed-length/state snapshots and zero-allocation gates for both
-  transports.
+  committed-length/state snapshots, successful-announcement recipient counts,
+  and zero-allocation gates for both transports.
 - Instantiated the complete service-dependent test suite for both `IPC` and
   `LOCAL`, matching the typed/parameterized service-type strategy used by the
   upstream C++ and Python wrappers.

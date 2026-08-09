@@ -1,6 +1,6 @@
 # iceoryx2 Julia FFI Plan (Comprehensive)
 
-Current binding baseline: `Iceoryx2_jll v0.9.999+2` (682/682 C functions).
+Current binding baseline: `Iceoryx2_jll v0.9.999+3` (682/682 C functions).
 
 ## Goals
 - Full API coverage of the C ABI (`iceoryx2-ffi/c`) with stable, auto-generated low-level bindings.

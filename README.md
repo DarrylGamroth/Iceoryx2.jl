@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/DarrylGamroth/Iceoryx2.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/DarrylGamroth/Iceoryx2.jl)
 
 Idiomatic, zero-copy Julia bindings for the iceoryx2 C ABI. This revision is
-pinned to `Iceoryx2_jll v0.9.999+2` and covers all 682 header functions.
+pinned to `Iceoryx2_jll v0.9.999+3` and covers all 682 header functions.
 
 ## Quick start
 
@@ -58,7 +58,7 @@ writer = ProgressiveSampleMut(publisher)
 received = ProgressiveSample(subscriber)
 
 loan_slice_uninit!(publisher, loan, 4096)
-announce!(loan, writer)
+number_of_recipients = announce!(loan, writer)
 write_from_slice!(writer, UInt8[1, 2, 3, 4])
 
 if receive!(subscriber, received)

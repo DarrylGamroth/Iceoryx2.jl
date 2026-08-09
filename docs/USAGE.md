@@ -152,7 +152,7 @@ writer = Iceoryx2.ProgressiveSampleMut(publisher)
 sample = Iceoryx2.ProgressiveSample(subscriber)
 
 Iceoryx2.loan_slice_uninit!(publisher, loan, 4096)
-Iceoryx2.announce!(loan, writer)
+number_of_recipients = Iceoryx2.announce!(loan, writer)
 Iceoryx2.write_from_slice!(writer, UInt8[1, 2, 3, 4])
 
 if Iceoryx2.receive!(subscriber, sample)
@@ -178,6 +178,10 @@ compatibility layer:
 lifecycle state together; reading them in separate calls does not promise that
 they describe the same instant. A successful commit release-publishes the
 prefix, and subscriber reads acquire that commit. Committed bytes are immutable.
+
+`announce!` returns the number of subscriber queues that accepted the sample
+at announcement. It is not a processing acknowledgment or a current connection
+count.
 
 `state(sample)` and `snapshot(sample)` are allocation- and syscall-free. Use
 their `_with_publisher_liveness` variants only when abrupt publisher death must

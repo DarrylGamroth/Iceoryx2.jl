@@ -1,8 +1,8 @@
 # Iceoryx2 v0.9.999 C ABI Inventory
 
-This inventory is generated from the `Iceoryx2_jll v0.9.999+2` header. The
+This inventory is generated from the `Iceoryx2_jll v0.9.999+3` header. The
 exact artifact used by the generator is
-`0fdc7690bf18492d6035d34897d5d94cd1de02c3`, whose header is under
+`7d298804b69195e4e0dea399824471d8b388942c`, whose header is under
 `include/iceoryx2/v0.9.999/iox2/iceoryx2.h`.
 
 | Inventory item | Count | Source of truth |
@@ -24,8 +24,8 @@ julia --startup-file=no --project=gen gen/verify_generated.jl
 The v0.9.999 delta represented in the safe layer includes:
 
 - progressive publish/subscribe service, port, private-loan, active-writer,
-  announce/commit/complete/abort lifecycle, coherent snapshot, committed-prefix,
-  and liveness APIs;
+  announcement-recipient count, announce/commit/complete/abort lifecycle,
+  coherent snapshot, committed-prefix, and liveness APIs;
 
 - grouped listener waits (`iox2_listener_try_wait`, `iox2_listener_timed_wait`,
   and `iox2_listener_blocking_wait`);

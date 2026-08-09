@@ -640,12 +640,15 @@ Reusable active-writer holder. `close(writer)` aborts an active sample.
 mutable struct ProgressiveSampleMut{S, UH}
     handle_ref::Base.RefValue{Iceoryx2FFI.iox2_progressive_sample_mut_h}
     storage::Base.RefValue{Iceoryx2FFI.iox2_progressive_sample_mut_t}
+    number_of_recipients_ref::Base.RefValue{Iceoryx2FFI.c_size_t}
     keepalive::ProgressivePublisher{S, UH}
     payload_ptr::Ptr{UInt8}
     capacity::Int
     function ProgressiveSampleMut{S, UH}(
-            handle_ref, storage, keepalive, payload_ptr, capacity) where {S, UH}
-        obj = new{S, UH}(handle_ref, storage, keepalive, payload_ptr, capacity)
+            handle_ref, storage, number_of_recipients_ref,
+            keepalive, payload_ptr, capacity) where {S, UH}
+        obj = new{S, UH}(handle_ref, storage, number_of_recipients_ref,
+            keepalive, payload_ptr, capacity)
         finalizer(Base.close, obj)
         return obj
     end
@@ -655,6 +658,7 @@ function ProgressiveSampleMut(publisher::ProgressivePublisher{S, UH}) where {S, 
     return ProgressiveSampleMut{S, UH}(
         Ref{Iceoryx2FFI.iox2_progressive_sample_mut_h}(_IOX2_NULL),
         Ref{Iceoryx2FFI.iox2_progressive_sample_mut_t}(),
+        Ref{Iceoryx2FFI.c_size_t}(0),
         publisher,
         Ptr{UInt8}(0),
         0
@@ -670,16 +674,19 @@ function Base.close(writer::ProgressiveSampleMut)
         Iceoryx2FFI.iox2_progressive_sample_mut_drop(writer.handle_ref[])
         writer.handle_ref[] = _IOX2_NULL
     end
+    writer.number_of_recipients_ref[] = 0
     writer.payload_ptr = Ptr{UInt8}(0)
     writer.capacity = 0
     return nothing
 end
 
 """
-    announce!(private_loan, writer) -> ProgressiveSampleMut
+    announce!(private_loan, writer) -> Int
 
 Announce the buffer and transfer the private loan into the reusable active
-`writer`. The private-loan handle is consumed even when delivery fails.
+`writer`. Return the number of subscriber queues that accepted the sample at
+announcement. This is not a processing acknowledgment or a live connection
+count. The private-loan handle is consumed even when delivery fails.
 """
 function announce!(sample::ProgressiveSampleMutUninit{S, UH},
         writer::ProgressiveSampleMut{S, UH}) where {S, UH}
@@ -689,8 +696,10 @@ function announce!(sample::ProgressiveSampleMutUninit{S, UH},
     payload_ptr = Ptr{UInt8}(sample.payload_ptr_ref[])
     capacity = Int(sample.capacity_ref[])
     writer.handle_ref[] = _IOX2_NULL
+    writer.number_of_recipients_ref[] = 0
     ret = Iceoryx2FFI.iox2_progressive_sample_mut_uninit_announce(
-        sample.handle_ref[], writer.storage, writer.handle_ref)
+        sample.handle_ref[], writer.storage, writer.handle_ref,
+        writer.number_of_recipients_ref)
     sample.handle_ref[] = _IOX2_NULL
     sample.payload_ptr_ref[] = C_NULL
     sample.capacity_ref[] = 0
@@ -703,7 +712,7 @@ function announce!(sample::ProgressiveSampleMutUninit{S, UH},
         writer.capacity = 0
     end
     check_ok(ret, Iceoryx2FFI.iox2_send_error_e)
-    return writer
+    return Int(writer.number_of_recipients_ref[])
 end
 
 """

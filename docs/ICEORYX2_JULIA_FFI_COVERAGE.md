@@ -1,6 +1,6 @@
 # Iceoryx2 v0.9.999 C ABI to Julia Coverage
 
-The raw layer covers all 682 functions in the v0.9.999+2 header. This map records
+The raw layer covers all 682 functions in the v0.9.999+3 header. This map records
 where the corresponding safe Julia concepts live; individual raw symbols are
 authoritatively listed by `src/generated/Iceoryx2FFI.jl`.
 
@@ -12,7 +12,7 @@ authoritatively listed by `src/generated/Iceoryx2FFI.jl`.
 | Semantic node/service/port names | `src/strings.jl`, `src/builders/` | node, service, and builder-tuning tests |
 | Node lifecycle, IDs, cleanup, force removal | `src/nodes.jl`, `src/ids.jl` | node, cleanup-state, and allocation tests |
 | Publish/subscribe | `src/messaging/publish_subscribe.jl` | pub/sub, callback, compatibility, and allocation tests |
-| Progressive publish/subscribe | `src/messaging/progressive_publish_subscribe.jl` | announce/commit/complete/abort lifecycle, coherent snapshots, errors, and allocation tests |
+| Progressive publish/subscribe | `src/messaging/progressive_publish_subscribe.jl` | announcement recipients, announce/commit/complete/abort lifecycle, coherent snapshots, errors, and allocation tests |
 | Request/response | `src/messaging/request_response.jl` | request/response, send-error, callback, and allocation tests |
 | Event/listener/notifier | `src/messaging/event.jl` | event, listener-wait, dynamic-config, and allocation tests |
 | Blackboard | `src/messaging/blackboard.jl` | blackboard service/entry/config/allocation tests |

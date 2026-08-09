@@ -111,7 +111,7 @@ _progressive_liveness_snapshot_alloc(
         private_payload[1:4] .= UInt8[1, 2, 3, 4]
         Iceoryx2.user_header_mut(loan)[1] = UInt64(0xfeed_beef)
 
-        Iceoryx2.announce!(loan, writer)
+        @test @inferred(Iceoryx2.announce!(loan, writer)) == 1
         Iceoryx2.unsafe_commit_until!(writer, 4)
         @test Iceoryx2.payload_capacity(writer) == 32
         @test Iceoryx2.committed_len(writer) == 4
@@ -158,7 +158,7 @@ _progressive_liveness_snapshot_alloc(
 
         for explicit_abort in (true, false)
             Iceoryx2.loan_slice_uninit!(publisher, loan, 8)
-            Iceoryx2.announce!(loan, writer)
+            @test Iceoryx2.announce!(loan, writer) == 1
             @test _progressive_receive_with_retry!(subscriber, sample)
             explicit_abort ? Iceoryx2.abort!(writer) : close(writer)
             @test Iceoryx2.state(sample) == Iceoryx2.ProgressiveSampleStateAborted
@@ -168,7 +168,7 @@ _progressive_liveness_snapshot_alloc(
         allocation_bytes = UInt8[9, 10]
         Iceoryx2.loan_slice_uninit!(publisher, loan, 16)
         Iceoryx2.payload_mut(loan)
-        Iceoryx2.announce!(loan, writer)
+        @test Iceoryx2.announce!(loan, writer) == 1
         Iceoryx2.write_from_slice!(writer, allocation_bytes)
         @test _progressive_receive_with_retry!(subscriber, sample)
 

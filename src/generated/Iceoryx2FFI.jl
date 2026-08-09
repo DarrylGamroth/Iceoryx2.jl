@@ -3833,11 +3833,11 @@ const iox2_progressive_sample_mut_uninit_h = Ptr{iox2_progressive_sample_mut_uni
 const iox2_progressive_sample_mut_uninit_h_ref = Ptr{iox2_progressive_sample_mut_uninit_h}
 
 struct iox2_progressive_sample_mut_storage_t
-    data::NTuple{64, UInt8}
+    data::NTuple{72, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_progressive_sample_mut_storage_t}, f::Symbol)
-    f === :internal && return Ptr{NTuple{64, UInt8}}(x + 0)
+    f === :internal && return Ptr{NTuple{72, UInt8}}(x + 0)
     return getfield(x, f)
 end
 
@@ -3861,13 +3861,13 @@ function Base.propertynames(x::iox2_progressive_sample_mut_storage_t, private::B
 end
 
 struct iox2_progressive_sample_mut_t
-    data::NTuple{80, UInt8}
+    data::NTuple{88, UInt8}
 end
 
 function Base.getproperty(x::Ptr{iox2_progressive_sample_mut_t}, f::Symbol)
     f === :service_type && return Ptr{iox2_service_type_e}(x + 0)
     f === :value && return Ptr{iox2_progressive_sample_mut_storage_t}(x + 8)
-    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 72)
+    f === :deleter && return Ptr{Ptr{Cvoid}}(x + 80)
     return getfield(x, f)
 end
 
@@ -13388,21 +13388,21 @@ void *iox2_progressive_sample_mut_uninit_user_header_mut(iox2_progressive_sample
 end
 
 """
-    iox2_progressive_sample_mut_uninit_announce(sample_handle, writer_struct_ptr, writer_handle_ptr)
+    iox2_progressive_sample_mut_uninit_announce(sample_handle, writer_struct_ptr, writer_handle_ptr, number_of_recipients)
 
 Announces the offset once and transfers the exact publisher loan into an active writer handle. The private-loan handle is consumed even when delivery fails.
 
 # Safety
 
-`sample_handle` must be a valid owning handle and is consumed. `writer_handle_ptr` must be writable. `writer_struct_ptr` must be null or point to uninitialized storage.
+`sample_handle` must be a valid owning handle and is consumed. `writer_handle_ptr` must be writable. `writer_struct_ptr` must be null or point to uninitialized storage. `number_of_recipients` can be null or must point to a valid [[`c_size_t`](@ref)] to store the number of subscribers that received the sample when it was announced.
 
 ### Prototype
 ```c
-int iox2_progressive_sample_mut_uninit_announce(iox2_progressive_sample_mut_uninit_h sample_handle, struct iox2_progressive_sample_mut_t *writer_struct_ptr, iox2_progressive_sample_mut_h *writer_handle_ptr);
+int iox2_progressive_sample_mut_uninit_announce(iox2_progressive_sample_mut_uninit_h sample_handle, struct iox2_progressive_sample_mut_t *writer_struct_ptr, iox2_progressive_sample_mut_h *writer_handle_ptr, c_size_t *number_of_recipients);
 ```
 """
-@inline function iox2_progressive_sample_mut_uninit_announce(sample_handle, writer_struct_ptr, writer_handle_ptr)
-    @ccall libiceoryx2_ffi_c.iox2_progressive_sample_mut_uninit_announce(sample_handle::iox2_progressive_sample_mut_uninit_h, writer_struct_ptr::Ptr{iox2_progressive_sample_mut_t}, writer_handle_ptr::Ptr{iox2_progressive_sample_mut_h})::Cint
+@inline function iox2_progressive_sample_mut_uninit_announce(sample_handle, writer_struct_ptr, writer_handle_ptr, number_of_recipients)
+    @ccall libiceoryx2_ffi_c.iox2_progressive_sample_mut_uninit_announce(sample_handle::iox2_progressive_sample_mut_uninit_h, writer_struct_ptr::Ptr{iox2_progressive_sample_mut_t}, writer_handle_ptr::Ptr{iox2_progressive_sample_mut_h}, number_of_recipients::Ptr{c_size_t})::Cint
 end
 
 """
