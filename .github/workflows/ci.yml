@@ -35,6 +35,7 @@ jobs:
       #     julia -e 'using Pkg; Pkg.Registry.add(Pkg.RegistrySpec(url="https://github.com/DarrylGamroth/PackageRegistry.git"))'
       - uses: julia-actions/julia-buildpkg@v1
       - name: Verify generated files
+        if: matrix.version == '1'
         run: julia --startup-file=no --project=gen gen/verify_generated.jl
       - name: Verify C ABI coverage
         run: julia --startup-file=no --project=. scripts/coverage_symbols.jl
